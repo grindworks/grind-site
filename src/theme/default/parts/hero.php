@@ -71,7 +71,7 @@ $altText = !empty($hConf['title']) ? $hConf['title'] : ($pageData['post']['title
     <?php else: ?>
       <div class="md:hidden z-[-1] absolute inset-0">
         <?php if ($mobileImgUrl): ?>
-          <?= get_image_html($mobileImgUrlRaw, ['alt' => $altText, 'class' => $bgCommonClass . ' ' . $radiusClass, 'loading' => 'eager', 'fetchpriority' => 'high']) ?>
+          <?= get_image_html($mobileImgUrl, ['alt' => $altText, 'class' => $bgCommonClass . ' ' . $radiusClass, 'loading' => 'eager', 'fetchpriority' => 'high']) ?>
         <?php endif; ?>
         <?php if ($hasOverlay): ?><div class="absolute inset-0 bg-black/50 <?= $radiusClass ?>"></div><?php endif; ?>
       </div>
@@ -85,7 +85,7 @@ $altText = !empty($hConf['title']) ? $hConf['title'] : ($pageData['post']['title
     <?php else: ?>
       <div class="hidden md:block z-[-1] absolute inset-0">
         <?php if ($imgUrl): ?>
-          <?= get_image_html($imgUrlRaw, ['alt' => $altText, 'class' => $bgCommonClass . ' ' . $radiusClass, 'loading' => 'eager', 'fetchpriority' => 'high']) ?>
+          <?= get_image_html($imgUrl, ['alt' => $altText, 'class' => $bgCommonClass . ' ' . $radiusClass, 'loading' => 'eager', 'fetchpriority' => 'high']) ?>
         <?php endif; ?>
         <?php if ($hasOverlay): ?><div class="absolute inset-0 bg-black/50 <?= $radiusClass ?>"></div><?php endif; ?>
       </div>
@@ -100,7 +100,7 @@ $altText = !empty($hConf['title']) ? $hConf['title'] : ($pageData['post']['title
     <?php else: ?>
       <div class="z-[-1] absolute inset-0">
         <?php if ($imgUrl): ?>
-          <?= get_image_html($imgUrlRaw, ['alt' => $altText, 'class' => $bgCommonClass . ' ' . $radiusClass, 'loading' => 'eager', 'fetchpriority' => 'high']) ?>
+          <?= get_image_html($imgUrl, ['alt' => $altText, 'class' => $bgCommonClass . ' ' . $radiusClass, 'loading' => 'eager', 'fetchpriority' => 'high']) ?>
         <?php endif; ?>
         <?php if ($hasOverlay): ?>
           <div class="absolute inset-0 bg-black/50 <?= $radiusClass ?>"></div>

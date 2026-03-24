@@ -305,73 +305,79 @@ ob_start();
   <?php endif; ?>
 
   <!-- Processing modal -->
-  <div x-show="processing" class="z-50 fixed inset-0 flex justify-center items-center skin-modal-overlay backdrop-blur-sm" x-transition.opacity x-cloak>
-    <div class="bg-theme-surface shadow-theme p-8 border border-theme-border rounded-theme w-full max-w-md text-center max-h-[90vh] overflow-y-auto custom-scrollbar scale-100 transition-all transform">
+  <template x-teleport="body">
+    <div x-show="processing" class="z-50 fixed inset-0 flex justify-center items-center p-4" style="display: none;" x-cloak>
+      <div class="fixed inset-0 skin-modal-overlay backdrop-blur-sm transition-opacity"></div>
+      <div class="z-10 relative bg-theme-surface shadow-theme p-8 border border-theme-border rounded-theme w-full max-w-md text-center max-h-[90vh] overflow-y-auto custom-scrollbar scale-100 transition-all transform">
 
-      <!-- Stack icon -->
-      <div class="flex flex-col justify-center items-center gap-2 mb-6">
-        <svg class="opacity-50 w-10 h-10 text-theme-primary animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-arrow-path"></use>
-        </svg>
-        <span class="font-mono font-bold text-theme-primary text-xl" x-text="progress + '%'"></span>
-      </div>
-      <!-- End stack -->
+        <!-- Stack icon -->
+        <div class="flex flex-col justify-center items-center gap-2 mb-6">
+          <svg class="opacity-50 w-10 h-10 text-theme-primary animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-arrow-path"></use>
+          </svg>
+          <span class="font-mono font-bold text-theme-primary text-xl" x-text="progress + '%'"></span>
+        </div>
+        <!-- End stack -->
 
-      <h3 class="mb-2 font-bold text-theme-text text-xl" x-text="trans.btn_generating"></h3>
-      <p class="bg-theme-bg opacity-60 mb-6 py-2 border border-theme-border rounded-theme font-mono text-theme-text text-sm" x-text="statusMsg"></p>
+        <h3 class="mb-2 font-bold text-theme-text text-xl" x-text="trans.btn_generating"></h3>
+        <p class="bg-theme-bg opacity-60 mb-6 py-2 border border-theme-border rounded-theme font-mono text-theme-text text-sm" x-text="statusMsg"></p>
 
-      <div class="bg-theme-bg mb-2 border border-theme-border rounded-full w-full h-2 overflow-hidden">
-        <div class="relative bg-theme-primary rounded-full h-2 overflow-hidden transition-all duration-300" :style="'width: ' + progress + '%'">
-          <div class="absolute inset-0 bg-white/20 animate-[shimmer_2s_infinite]"></div>
+        <div class="bg-theme-bg mb-2 border border-theme-border rounded-full w-full h-2 overflow-hidden">
+          <div class="relative bg-theme-primary rounded-full h-2 overflow-hidden transition-all duration-300" :style="'width: ' + progress + '%'">
+            <div class="absolute inset-0 bg-white/20 animate-[shimmer_2s_infinite]"></div>
+          </div>
         </div>
       </div>
     </div>
-  </div>
+  </template>
 
   <!-- Success modal -->
-  <div x-show="downloadUrl" class="z-50 fixed inset-0 flex justify-center items-center skin-modal-overlay backdrop-blur-sm" x-transition.opacity x-cloak>
-    <div class="bg-theme-surface shadow-theme p-8 border border-theme-border rounded-theme w-full max-w-md text-center max-h-[90vh] overflow-y-auto custom-scrollbar transition-all transform" @click.away="downloadUrl = null">
-      <div class="flex justify-center items-center bg-theme-success/10 mx-auto mb-6 rounded-full ring-8 ring-theme-success/5 w-16 h-16 text-theme-success animate-bounce">
-        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-check"></use>
-        </svg>
-      </div>
-      <h3 class="mb-2 font-bold text-theme-text text-2xl"><?= _t('ssg_modal_title') ?></h3>
-      <p class="opacity-60 mb-8 text-theme-text text-sm leading-relaxed">
-        <?= _t('ssg_modal_desc') ?>
-      </p>
-
-      <div class="bg-theme-info/10 opacity-90 mb-6 p-4 border border-theme-info/20 rounded-theme text-theme-text text-xs text-left leading-relaxed">
-        <div class="flex items-start gap-2 mb-3 font-bold">
-          <svg class="mt-0.5 w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-information-circle"></use>
+  <template x-teleport="body">
+    <div x-show="downloadUrl" class="z-50 fixed inset-0 flex justify-center items-center p-4" style="display: none;" x-cloak>
+      <div class="fixed inset-0 skin-modal-overlay backdrop-blur-sm transition-opacity" @click="downloadUrl = null"></div>
+      <div class="z-10 relative bg-theme-surface shadow-theme p-8 border border-theme-border rounded-theme w-full max-w-md text-center max-h-[90vh] overflow-y-auto custom-scrollbar transition-all transform">
+        <div class="flex justify-center items-center bg-theme-success/10 mx-auto mb-6 rounded-full ring-8 ring-theme-success/5 w-16 h-16 text-theme-success animate-bounce">
+          <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-check"></use>
           </svg>
-          <div><?= $msg404 ?></div>
         </div>
-        <div class="gap-2 grid grid-cols-1 sm:grid-cols-2">
-          <div class="bg-theme-bg/50 p-2 border border-theme-info/10 rounded-theme">
-            <span class="block opacity-70 mb-1 font-bold text-[10px]">Apache (.htaccess)</span>
-            <code class="block bg-theme-surface px-1 rounded-theme font-mono text-[10px] select-all">ErrorDocument 404 /404.html</code>
-          </div>
-          <div class="bg-theme-bg/50 p-2 border border-theme-info/10 rounded-theme">
-            <span class="block opacity-70 mb-1 font-bold text-[10px]">Nginx (nginx.conf)</span>
-            <code class="block bg-theme-surface px-1 rounded-theme font-mono text-[10px] select-all">error_page 404 /404.html;</code>
-          </div>
-        </div>
-      </div>
+        <h3 class="mb-2 font-bold text-theme-text text-2xl"><?= _t('ssg_modal_title') ?></h3>
+        <p class="opacity-60 mb-8 text-theme-text text-sm leading-relaxed">
+          <?= _t('ssg_modal_desc') ?>
+        </p>
 
-      <button type="button" @click="executeDownload()" :disabled="isDownloading" class="flex justify-center items-center gap-2 shadow-theme mb-4 py-4 rounded-theme w-full font-bold text-center transition-transform btn-primary disabled:opacity-70 disabled:cursor-not-allowed" :class="isDownloading ? 'scale-100' : 'hover:scale-[1.02]'">
-        <svg x-show="!isDownloading" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-arrow-down-tray"></use>
-        </svg>
-        <svg x-show="isDownloading" class="w-5 h-5 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="display: none;" x-cloak>
-          <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-arrow-path"></use>
-        </svg>
-        <span x-text='isDownloading ? "Downloading..." : <?= json_encode(_t("ssg_btn_download"), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>'></span>
-      </button>
-      <button @click="downloadUrl = null" class="opacity-40 hover:opacity-100 font-bold text-theme-text text-sm hover:underline transition-all"><?= _t('ssg_btn_close') ?></button>
+        <div class="bg-theme-info/10 opacity-90 mb-6 p-4 border border-theme-info/20 rounded-theme text-theme-text text-xs text-left leading-relaxed">
+          <div class="flex items-start gap-2 mb-3 font-bold">
+            <svg class="mt-0.5 w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-information-circle"></use>
+            </svg>
+            <div><?= $msg404 ?></div>
+          </div>
+          <div class="gap-2 grid grid-cols-1 sm:grid-cols-2">
+            <div class="bg-theme-bg/50 p-2 border border-theme-info/10 rounded-theme">
+              <span class="block opacity-70 mb-1 font-bold text-[10px]">Apache (.htaccess)</span>
+              <code class="block bg-theme-surface px-1 rounded-theme font-mono text-[10px] select-all">ErrorDocument 404 /404.html</code>
+            </div>
+            <div class="bg-theme-bg/50 p-2 border border-theme-info/10 rounded-theme">
+              <span class="block opacity-70 mb-1 font-bold text-[10px]">Nginx (nginx.conf)</span>
+              <code class="block bg-theme-surface px-1 rounded-theme font-mono text-[10px] select-all">error_page 404 /404.html;</code>
+            </div>
+          </div>
+        </div>
+
+        <button type="button" @click="executeDownload()" :disabled="isDownloading" class="flex justify-center items-center gap-2 shadow-theme mb-4 py-4 rounded-theme w-full font-bold text-center transition-transform btn-primary disabled:opacity-70 disabled:cursor-not-allowed" :class="isDownloading ? 'scale-100' : 'hover:scale-[1.02]'">
+          <svg x-show="!isDownloading" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-arrow-down-tray"></use>
+          </svg>
+          <svg x-show="isDownloading" class="w-5 h-5 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="display: none;" x-cloak>
+            <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-arrow-path"></use>
+          </svg>
+          <span x-text='isDownloading ? "Downloading..." : <?= json_encode(_t("ssg_btn_download"), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>'></span>
+        </button>
+        <button @click="downloadUrl = null" class="opacity-40 hover:opacity-100 font-bold text-theme-text text-sm hover:underline transition-all"><?= _t('ssg_btn_close') ?></button>
+      </div>
     </div>
-  </div>
+  </template>
 
 </div>
 

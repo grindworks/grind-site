@@ -268,12 +268,12 @@ function photographer_render_block($block, $pathFixer)
     case 'audio':
       $url = resolve_url($data['url'] ?? '');
       if (!$url) return '';
-      return "<div class='my-12'><audio controls src='{$url}' class='w-full'></audio></div>";
+      return "<div class='my-12'><audio controls src='" . h($url) . "' class='w-full'></audio></div>";
 
     case 'pdf':
       $url = resolve_url($data['url'] ?? '');
       if (!$url) return '';
-      return "<div class='my-12 border border-gray-200'><object data='{$url}' type='application/pdf' width='100%' height='500'><p class='p-4 text-center'>" . theme_t('Unable to display PDF.') . " <a href='{$url}' class='underline' aria-label='" . theme_t('download_pdf_aria') . "'>" . theme_t('Download') . "</a></p></object></div>";
+      return "<div class='my-12 border border-gray-200'><object data='" . h($url) . "' type='application/pdf' width='100%' height='500'><p class='p-4 text-center'>" . theme_t('Unable to display PDF.') . " <a href='" . h($url) . "' class='underline' aria-label='" . theme_t('download_pdf_aria') . "'>" . theme_t('Download') . "</a></p></object></div>";
 
     case 'search_box':
       $action = resolve_url('/');

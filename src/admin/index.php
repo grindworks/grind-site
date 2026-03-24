@@ -263,54 +263,56 @@ ob_start();
 <?php endif; ?>
 
 <?php if ($is_fresh_install): ?>
-    <div x-data="{ show: true }" x-show="show" class="z-50 fixed inset-0 flex justify-center items-center px-4"
-        style="display: none;" x-cloak>
-        <div class="fixed inset-0 skin-modal-overlay backdrop-blur-sm transition-opacity" @click="show = false"></div>
-        <div
-            class="z-10 relative bg-theme-surface shadow-theme border border-theme-border rounded-theme w-full max-w-md overflow-hidden transition-all transform">
-            <div class="p-8 text-center">
-                <div
-                    class="flex justify-center items-center bg-theme-success/10 mx-auto mb-6 rounded-full ring-1 ring-theme-success/20 w-16 h-16">
-                    <svg class="w-8 h-8 text-theme-success" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-check"></use>
-                    </svg>
-                </div>
-                <h2 class="mb-2 font-bold text-theme-text text-2xl">
-                    <?= _t('setup_complete_title') ?>
-                </h2>
-                <p class="opacity-60 mb-8 text-theme-text text-sm leading-relaxed">
-                    <?= _t('setup_complete_msg') ?>
-                </p>
-
-                <?php
-                $installPath = parse_url(BASE_URL, PHP_URL_PATH);
-                if ($installPath && $installPath !== '/' && $installPath !== ''):
-                    $isJa = (get_option('site_lang') === 'ja');
-                ?>
+    <template x-teleport="body">
+        <div x-data="{ show: true }" x-show="show" class="z-50 fixed inset-0 flex justify-center items-center px-4"
+            style="display: none;" x-cloak>
+            <div class="fixed inset-0 skin-modal-overlay backdrop-blur-sm transition-opacity" @click="show = false"></div>
+            <div
+                class="z-10 relative bg-theme-surface shadow-theme border border-theme-border rounded-theme w-full max-w-md overflow-hidden transition-all transform">
+                <div class="p-8 text-center">
                     <div
-                        class="bg-theme-warning/10 mb-6 p-4 border border-theme-warning/20 rounded-theme text-theme-text text-xs text-left">
-                        <p class="flex items-center gap-1 mb-1 font-bold text-theme-warning">
-                            <svg class="inline mr-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-exclamation-triangle"></use>
-                            </svg>
-                            <?= $isJa ? 'サブディレクトリ運用の注意点' : 'Subdirectory Installation Note' ?>
-                        </p>
-                        <p class="opacity-80 mb-2 leading-relaxed">
-                            <?= $isJa
-                                ? '検索エンジンはサブディレクトリ内の robots.txt を自動検出しません。ドメインルートの robots.txt に以下を追加してください。'
-                                : 'Search engines do not automatically detect robots.txt in subdirectories. Please add the following to your domain root robots.txt:' ?>
-                        </p>
-                        <code
-                            class="block bg-theme-bg mt-2 p-2 border border-theme-border rounded-theme font-mono text-[10px] select-all">Sitemap: <?= h(resolve_url('sitemap.xml')) ?></code>
+                        class="flex justify-center items-center bg-theme-success/10 mx-auto mb-6 rounded-full ring-1 ring-theme-success/20 w-16 h-16">
+                        <svg class="w-8 h-8 text-theme-success" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-check"></use>
+                        </svg>
                     </div>
-                <?php endif; ?>
+                    <h2 class="mb-2 font-bold text-theme-text text-2xl">
+                        <?= _t('setup_complete_title') ?>
+                    </h2>
+                    <p class="opacity-60 mb-8 text-theme-text text-sm leading-relaxed">
+                        <?= _t('setup_complete_msg') ?>
+                    </p>
 
-                <button @click="show = false" class="shadow-theme py-3 w-full btn-primary">
-                    <?= _t('setup_complete_btn') ?>
-                </button>
+                    <?php
+                    $installPath = parse_url(BASE_URL, PHP_URL_PATH);
+                    if ($installPath && $installPath !== '/' && $installPath !== ''):
+                        $isJa = (get_option('site_lang') === 'ja');
+                    ?>
+                        <div
+                            class="bg-theme-warning/10 mb-6 p-4 border border-theme-warning/20 rounded-theme text-theme-text text-xs text-left">
+                            <p class="flex items-center gap-1 mb-1 font-bold text-theme-warning">
+                                <svg class="inline mr-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-exclamation-triangle"></use>
+                                </svg>
+                                <?= $isJa ? 'サブディレクトリ運用の注意点' : 'Subdirectory Installation Note' ?>
+                            </p>
+                            <p class="opacity-80 mb-2 leading-relaxed">
+                                <?= $isJa
+                                    ? '検索エンジンはサブディレクトリ内の robots.txt を自動検出しません。ドメインルートの robots.txt に以下を追加してください。'
+                                    : 'Search engines do not automatically detect robots.txt in subdirectories. Please add the following to your domain root robots.txt:' ?>
+                            </p>
+                            <code
+                                class="block bg-theme-bg mt-2 p-2 border border-theme-border rounded-theme font-mono text-[10px] select-all">Sitemap: <?= h(resolve_url('sitemap.xml')) ?></code>
+                        </div>
+                    <?php endif; ?>
+
+                    <button @click="show = false" class="shadow-theme py-3 w-full btn-primary">
+                        <?= _t('setup_complete_btn') ?>
+                    </button>
+                </div>
             </div>
         </div>
-    </div>
+    </template>
 <?php endif; ?>
 
 <!-- Header -->

@@ -186,7 +186,8 @@ function marketing_render_block($block, $pathFixer)
 
       $html .= "<div class='relative bg-slate-100 w-full aspect-video'>";
       foreach ($images as $i => $img) {
-        $src = $img['url'] ?? '';
+        $src = resolve_url($img['url'] ?? '');
+        if (!$src) continue;
         $caption = h($img['caption'] ?? '');
         $html .= "<div x-show='active === {$i}' x-transition:enter='transition ease-out duration-500' x-transition:enter-start='opacity-0 scale-105' x-transition:enter-end='opacity-100 scale-100' x-transition:leave='transition ease-in duration-300' x-transition:leave-start='opacity-100 scale-100' x-transition:leave-end='opacity-0 scale-105' class='absolute inset-0 w-full h-full'>";
         $html .= get_image_html($src, ['alt' => $caption, 'class' => 'w-full h-full object-cover', 'loading' => ($i === 0 ? 'eager' : 'lazy')]);
@@ -229,7 +230,7 @@ function marketing_render_block($block, $pathFixer)
       $cols = (int)($data['columns'] ?? 3);
       $html = "<div class='grid grid-cols-2 md:grid-cols-{$cols} gap-6 my-12'>";
       foreach ($images as $img) {
-        $src = $img['url'] ?? '';
+        $src = resolve_url($img['url'] ?? '');
         $cap = h($img['caption'] ?? '');
         if ($src) {
           $html .= "<div>";
@@ -327,13 +328,13 @@ function marketing_render_block($block, $pathFixer)
       if (!$url) return '';
       $html = "<div class='bg-slate-100 my-8 p-4 rounded-xl'>";
       if ($title) $html .= "<div class='mb-2 font-bold text-slate-700 text-sm'>{$title}</div>";
-      $html .= "<audio controls src='{$url}' class='w-full'></audio></div>";
+      $html .= "<audio controls src='" . h($url) . "' class='w-full'></audio></div>";
       return $html;
 
     case 'pdf':
       $url = resolve_url($data['url'] ?? '');
       if (!$url) return '';
-      return "<div class='bg-slate-100 my-10 border border-slate-200 rounded-xl h-[500px] overflow-hidden'><object data='{$url}' type='application/pdf' width='100%' height='100%'><p class='p-4 text-center'>" . theme_t('unable_pdf') . " <a href='{$url}' class='text-brand-600 underline'>" . theme_t('download') . "</a></p></object></div>";
+      return "<div class='bg-slate-100 my-10 border border-slate-200 rounded-xl h-[500px] overflow-hidden'><object data='" . h($url) . "' type='application/pdf' width='100%' height='100%'><p class='p-4 text-center'>" . theme_t('unable_pdf') . " <a href='" . h($url) . "' class='text-brand-600 underline'>" . theme_t('download') . "</a></p></object></div>";
 
     case 'internal_card':
       $id = $data['id'] ?? '';
@@ -429,7 +430,7 @@ function marketing_render_block($block, $pathFixer)
       return "<p class='mb-6 text-slate-600 leading-relaxed'>{$text}</p>";
 
     case 'image':
-      $url = $data['url'] ?? '';
+      $url = resolve_url($data['url'] ?? '');
       if (!$url) return '';
       $caption = h($data['caption'] ?? '');
       $html = "<figure class='my-10'>";
