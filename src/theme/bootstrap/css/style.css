@@ -1,0 +1,118 @@
+/*
+Theme Name: Bootstrap
+Description: A modern, responsive theme built with Bootstrap 5.
+Version: 1.0
+Author: GrindSite
+ */
+body {
+  font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Meiryo, sans-serif;
+  letter-spacing: 0.05em;
+}
+
+/* Animate link hover */
+a.transition {
+  transition: all 0.3s ease;
+}
+a.hover-shadow:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Style hero background image */
+.hero-bg {
+  background-size: cover;
+  background-position: center;
+  position: relative;
+}
+.hero-overlay {
+  background-color: rgba(0, 0, 0, 0.5);
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
+}
+
+/* Add object-fit utility */
+.object-fit-cover {
+  object-fit: cover;
+}
+
+/* Banner overflow fix */
+.banner-area img,
+.banner-html img,
+.banner-html iframe,
+.banner-html video {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Widget Fallback Styles */
+.widget:not(.card) {
+  margin-bottom: 1.5rem;
+  background-color: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.125);
+  border-radius: 0.25rem;
+  overflow: hidden;
+}
+.widget-title {
+  font-weight: bold;
+  margin-bottom: 1rem;
+  font-size: 1.1rem;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 0.5rem;
+  padding: 1rem;
+}
+.widget-content {
+  padding: 1rem;
+}
+.widget img,
+.card img,
+.widget iframe,
+.card iframe,
+.widget video,
+.card video,
+.grinds-widget-wrapper img,
+.grinds-widget-wrapper iframe {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Widget List Styles */
+.widget ul {
+  padding-left: 0;
+  list-style: none;
+  margin-bottom: 0;
+}
+.widget li {
+  border-bottom: 1px dashed #dee2e6;
+}
+.widget li:last-child {
+  border-bottom: none;
+}
+.widget li a {
+  display: block;
+  padding: 0.5rem 0;
+  text-decoration: none;
+  color: inherit;
+  transition: all 0.2s ease;
+}
+.widget li a:hover {
+  background-color: transparent;
+  color: var(--bs-primary);
+  padding-left: 0.5rem;
+  text-decoration: none;
+}
+
+/* Admin Bar Fix for Bootstrap Theme */
+#grinds-admin-bar {
+  position: fixed !important;
+  top: auto !important;
+  bottom: 0 !important;
+  left: 0 !important;
+  width: 100% !important;
+  z-index: 9999 !important;
+  background-color: #1f2937; /* Slate 900 */
+  color: #ffffff;
+}

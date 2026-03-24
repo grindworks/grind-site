@@ -1,0 +1,55 @@
+# ==========================================
+#  GrindSite .gitignore
+# ==========================================
+
+# 📦 Dependencies
+node_modules/
+vendor/
+
+# 🔐 Environment & Secrets
+.env
+.env.*
+src/config.php
+
+# 🏗️ Build, Cache & Logs
+/dist/
+/build/
+*.log
+npm-debug.log*
+.php-cs-fixer.cache
+
+# 🗂️ GrindSite Specific Data
+src/.htaccess
+.maintenance
+src/data/*
+!src/data/.gitkeep
+!src/data/tmp/
+src/data/tmp/*
+!src/data/tmp/.gitkeep
+src/assets/uploads/*
+!src/assets/uploads/.gitkeep
+
+# 🛠️ Tools & Exports
+/src/admin/export_ai.php
+/tools/check/
+
+# 📝 Personal Files
+todo.md
+check.md
+.aiconfig
+grindsite.com
+# 💻 Editor & IDE
+.idea/
+.vscode/
+*.sw?
+*.swp
+
+# 🍏 OS Generated Files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+Desktop.ini

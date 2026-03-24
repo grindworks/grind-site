@@ -1,0 +1,98 @@
+/*!
+Theme Name: Corporate
+Description: A professional corporate theme built with Tailwind CSS.
+Version: 1.0
+Author: GrindSite
+ *
+ * [WARNING]
+ * Do NOT use absolute paths (e.g. /assets/...) for background-images.
+ * Use relative paths (e.g. ../img/...) to ensure portability.
+ */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    /* Set default body text and background colors. */
+    @apply bg-slate-50 text-slate-700 tracking-tight;
+    font-feature-settings: 'palt';
+  }
+
+  /* Set default heading color. */
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-bold text-slate-900;
+  }
+
+  a {
+    @apply transition-colors duration-200;
+  }
+}
+
+@layer components {
+  /* Button components */
+  .btn-corp {
+    @apply inline-flex justify-center items-center bg-blue-600 hover:bg-blue-700 shadow-sm px-6 py-3 rounded font-bold !text-white text-sm no-underline transition-all duration-300;
+  }
+
+  .btn-corp-outline {
+    @apply inline-flex justify-center items-center hover:bg-slate-900 px-6 py-3 border border-slate-900 rounded font-bold text-slate-900 hover:text-white text-sm no-underline transition-all duration-300;
+  }
+
+  /* CMS content styles */
+  .cms-content {
+    @apply text-slate-700 leading-8;
+  }
+
+  .cms-content h2 {
+    @apply mt-12 mb-6 pb-2 border-blue-600 border-b-2 font-bold text-slate-900 text-2xl md:text-3xl;
+  }
+
+  .cms-content h3 {
+    @apply mt-10 mb-4 pl-4 border-slate-900 border-l-4 font-bold text-slate-900 text-xl md:text-2xl;
+  }
+
+  .cms-content h4 {
+    @apply mt-8 mb-3 font-bold text-slate-900 text-lg;
+  }
+
+  .cms-content p {
+    @apply mb-6;
+  }
+
+  .cms-content ul {
+    @apply space-y-2 mb-6 ml-6 marker:text-blue-600 list-disc list-outside;
+  }
+
+  .cms-content ol {
+    @apply space-y-2 mb-6 ml-6 marker:font-bold marker:text-slate-900 list-decimal list-outside;
+  }
+
+  .cms-content blockquote {
+    @apply bg-white shadow-sm my-8 p-4 pl-4 border-slate-300 border-l-4 rounded-r-lg text-slate-600 italic;
+  }
+
+  .cms-content a {
+    @apply text-blue-600 hover:text-blue-800 underline;
+  }
+
+  .cms-content .cms-block-image img {
+    @apply shadow-sm my-8 border border-slate-100 rounded-lg;
+  }
+
+  /* Table styles */
+  .cms-content table {
+    @apply my-8 w-full text-sm border-collapse;
+  }
+  .cms-content th {
+    @apply bg-slate-100 p-3 border border-slate-300 font-bold text-slate-900 text-left;
+  }
+  .cms-content td {
+    @apply p-3 border border-slate-300;
+  }
+}

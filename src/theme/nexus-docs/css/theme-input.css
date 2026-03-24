@@ -1,0 +1,64 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-zinc-50 text-zinc-900 antialiased;
+  }
+}
+
+@layer components {
+  /* Customize prose globally */
+  .prose {
+    @apply max-w-none;
+  }
+  .prose h2,
+  .prose h3,
+  .prose h4 {
+    @apply scroll-mt-24; /* Adjust anchor offset for sticky header */
+  }
+  .prose a {
+    @apply text-indigo-600 no-underline hover:underline;
+  }
+  .prose pre {
+    @apply bg-zinc-900 text-zinc-100 rounded-xl shadow-sm border border-zinc-800;
+  }
+
+  /* Override code block for Mac-style UI */
+  .cms-block-code pre {
+    @apply relative pt-10 !important;
+  }
+  .cms-block-code pre::before {
+    content: '';
+    @apply absolute top-4 left-4 w-3 h-3 rounded-full bg-red-500 shadow-[18px_0_0_#eab308,36px_0_0_#22c55e];
+  }
+
+  /* Style callout blocks */
+  .cms-block-callout {
+    @apply p-4 rounded-xl border-l-4 my-6 shadow-sm flex items-start gap-4 text-sm leading-relaxed;
+  }
+  .cms-block-callout.is-style-info {
+    @apply bg-blue-50/50 border-blue-500 text-blue-900;
+  }
+  .cms-block-callout.is-style-warning {
+    @apply bg-amber-50/50 border-amber-500 text-amber-900;
+  }
+  .cms-block-callout.is-style-success {
+    @apply bg-emerald-50/50 border-emerald-500 text-emerald-900;
+  }
+  .cms-block-callout.is-style-danger {
+    @apply bg-red-50/50 border-red-500 text-red-900;
+  }
+
+  /* Customize scrollbar */
+  .custom-scrollbar::-webkit-scrollbar {
+    @apply w-1.5 h-1.5;
+  }
+  .custom-scrollbar::-webkit-scrollbar-track {
+    @apply bg-transparent;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    @apply bg-zinc-200 rounded-full hover:bg-zinc-300;
+  }
+}

@@ -1,0 +1,78 @@
+/*!
+Theme Name: Photographer
+Description: A minimalist theme designed for photographers.
+Version: 1.0
+Author: GrindSite
+ *
+ * [WARNING]
+ * Do NOT use absolute paths (e.g. /assets/...) for background-images.
+ * Use relative paths (e.g. ../img/...) to ensure portability.
+ */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+@layer base {
+  body {
+    @apply text-photo-black bg-white tracking-wide;
+  }
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-serif font-medium;
+  }
+}
+@layer components {
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 4px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    @apply bg-gray-200 rounded;
+  }
+
+  /* Block Content Styles */
+  .cms-block-paragraph p {
+    @apply mb-8 leading-loose text-gray-600 font-light font-serif text-lg;
+  }
+  .cms-block-header h2 {
+    @apply text-3xl mt-16 mb-8 pb-4 border-b border-gray-100 font-serif font-normal tracking-wide text-black;
+  }
+  .cms-block-header h3 {
+    @apply text-2xl mt-12 mb-6 font-serif font-normal text-gray-800;
+  }
+  .cms-block-list ul {
+    @apply list-disc pl-5 mb-8 space-y-2 text-gray-600 font-serif font-light leading-relaxed;
+  }
+  .cms-block-list ol {
+    @apply list-decimal pl-5 mb-8 space-y-2 text-gray-600 font-serif font-light leading-relaxed;
+  }
+  .cms-block-quote blockquote {
+    @apply border-l-2 border-gray-200 pl-8 py-2 my-12 italic text-gray-500 font-serif text-xl leading-relaxed;
+  }
+  .cms-block-image img {
+    @apply w-full h-auto block my-12 shadow-sm;
+  }
+
+  /* Pagination Override */
+  .photographer-pagination {
+    @apply flex flex-wrap justify-center items-center gap-2 font-serif text-sm tracking-widest text-gray-400;
+  }
+  .photographer-pagination a,
+  .photographer-pagination span {
+    @apply px-3 py-1 border-b border-transparent transition-all duration-300 hover:text-black hover:border-black bg-transparent !important;
+    border-top: 0 !important;
+    border-left: 0 !important;
+    border-right: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+  }
+  .photographer-pagination .current,
+  .photographer-pagination .active {
+    @apply text-black border-black cursor-default !important;
+  }
+}

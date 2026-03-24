@@ -1,0 +1,17 @@
+# Basic Authentication (Uncomment and configure path)
+# [WARNING]
+# AuthUserFile requires an absolute path.
+# If you move this site to another directory or server, you MUST update this path.
+# Otherwise, you will get a 500 Internal Server Error and be locked out.
+# If locked out, delete this file via FTP.
+#
+# [注意]
+# AuthUserFile にはサーバー上の絶対パスが必要です。
+# サイトを別のディレクトリやサーバーに移動した場合は、必ずこのパスを修正してください。
+# 修正しない場合、500エラーが発生し管理画面にアクセスできなくなります。
+# アクセスできなくなった場合は、FTPでこのファイルを削除してください。
+
+# AuthType Basic
+# AuthName "Admin Area"
+# AuthUserFile /path/to/.htpasswd
+# Require valid-user

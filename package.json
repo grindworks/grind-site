@@ -1,0 +1,40 @@
+{
+  "name": "grind-site",
+  "version": "1.0.0",
+  "private": true,
+  "description": "The simplest CMS on earth. Developed by Koji Udagawa (Grind Works Inc.)",
+  "author": "Koji Udagawa (Grind Works Inc.)",
+  "license": "UNLICENSED",
+  "scripts": {
+    "build": "run-s build:admin build:install build:theme",
+    "build:admin": "tailwindcss -c ./tailwind.admin.config.js -i ./src/assets/css/input.css -o ./src/assets/css/admin.css --minify",
+    "watch:admin": "tailwindcss -c ./tailwind.admin.config.js -i ./src/assets/css/input.css -o ./src/assets/css/admin.css --watch",
+    "build:install": "tailwindcss -c ./tailwind.admin.config.js -i ./src/assets/css/install-input.css -o ./src/assets/css/install.css --minify",
+    "watch:install": "tailwindcss -c ./tailwind.admin.config.js -i ./src/assets/css/install-input.css -o ./src/assets/css/install.css --watch",
+    "build:theme": "run-p build:theme:*",
+    "build:theme:default": "tailwindcss -c ./src/theme/default/tailwind.config.js -i ./src/theme/default/css/theme-input.css -o ./src/theme/default/css/style.css --minify",
+    "watch:theme:default": "tailwindcss -c ./src/theme/default/tailwind.config.js -i ./src/theme/default/css/theme-input.css -o ./src/theme/default/css/style.css --watch",
+    "build:theme:neo-minimalist": "tailwindcss -c ./src/theme/neo-minimalist/tailwind.config.js -i ./src/theme/neo-minimalist/css/theme-input.css -o ./src/theme/neo-minimalist/css/style.css --minify",
+    "watch:theme:neo-minimalist": "tailwindcss -c ./src/theme/neo-minimalist/tailwind.config.js -i ./src/theme/neo-minimalist/css/theme-input.css -o ./src/theme/neo-minimalist/css/style.css --watch",
+    "build:theme:corporate": "tailwindcss -c ./src/theme/corporate/tailwind.config.js -i ./src/theme/corporate/css/theme-input.css -o ./src/theme/corporate/css/style.css --minify",
+    "watch:theme:corporate": "tailwindcss -c ./src/theme/corporate/tailwind.config.js -i ./src/theme/corporate/css/theme-input.css -o ./src/theme/corporate/css/style.css --watch",
+    "build:theme:photographer": "tailwindcss -c ./src/theme/photographer/tailwind.config.js -i ./src/theme/photographer/css/theme-input.css -o ./src/theme/photographer/css/style.css --minify",
+    "watch:theme:photographer": "tailwindcss -c ./src/theme/photographer/tailwind.config.js -i ./src/theme/photographer/css/theme-input.css -o ./src/theme/photographer/css/style.css --watch",
+    "build:theme:marketing": "tailwindcss -c ./src/theme/marketing/tailwind.config.js -i ./src/theme/marketing/css/theme-input.css -o ./src/theme/marketing/css/style.css --minify",
+    "watch:theme:marketing": "tailwindcss -c ./src/theme/marketing/tailwind.config.js -i ./src/theme/marketing/css/theme-input.css -o ./src/theme/marketing/css/style.css --watch",
+    "build:theme:nexus-docs": "tailwindcss -c ./src/theme/nexus-docs/tailwind.config.js -i ./src/theme/nexus-docs/css/theme-input.css -o ./src/theme/nexus-docs/css/style.css --minify",
+    "watch:theme:nexus-docs": "tailwindcss -c ./src/theme/nexus-docs/tailwind.config.js -i ./src/theme/nexus-docs/css/theme-input.css -o ./src/theme/nexus-docs/css/style.css --watch",
+    "build:theme:nexus-profile": "tailwindcss -c ./src/theme/nexus-profile/tailwind.config.js -i ./src/theme/nexus-profile/css/theme-input.css -o ./src/theme/nexus-profile/css/style.css --minify",
+    "watch:theme:nexus-profile": "tailwindcss -c ./src/theme/nexus-profile/tailwind.config.js -i ./src/theme/nexus-profile/css/theme-input.css -o ./src/theme/nexus-profile/css/style.css --watch",
+    "build:theme:visionary": "tailwindcss -c ./src/theme/visionary/tailwind.config.js -i ./src/theme/visionary/css/theme-input.css -o ./src/theme/visionary/css/style.css --minify",
+    "watch:theme:visionary": "tailwindcss -c ./src/theme/visionary/tailwind.config.js -i ./src/theme/visionary/css/theme-input.css -o ./src/theme/visionary/css/style.css --watch",
+    "dev": "run-p watch:admin watch:install watch:theme:*",
+    "format": "prettier --write ."
+  },
+  "devDependencies": {
+    "@tailwindcss/typography": "^0.5.19",
+    "npm-run-all": "^4.1.5",
+    "prettier": "^3.2.5",
+    "tailwindcss": "^3.4.1"
+  }
+}

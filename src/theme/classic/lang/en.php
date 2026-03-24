@@ -1,0 +1,36 @@
+<?php
+
+if (!defined('GRINDS_APP')) exit;
+
+return [
+    '404 Not Found' => '404 Not Found',
+    'It looks like nothing was found at this location. Maybe try a search?' => 'It looks like nothing was found at this location. Maybe try a search?',
+    'Search...' => 'Search...',
+    'Search' => 'Search',
+    'Back to Home' => 'Back to Home',
+    'Category: %s' => 'Category: %s',
+    'Posted on %s' => 'Posted on %s',
+    'Read More' => 'Read More',
+    'Read More about %s' => 'Read more about %s',
+    'No posts found.' => 'No posts found.',
+    'Search Results for: %s' => 'Search Results for: %s',
+    'Sorry, but nothing matched your search terms. Please try again with some different keywords.' => 'Sorry, but nothing matched your search terms. Please try again with some different keywords.',
+    'Tags: ' => 'Tags: ',
+    'Tag: %s' => 'Tag: %s',
+    'Contents' => 'Contents',
+    'Uncategorized' => 'Uncategorized',
+    'Category' => 'Category',
+    'Preview Mode' => 'Preview Mode',
+    'System Maintenance' => 'System Maintenance',
+    'We are currently updating the system. Please check back in a few minutes.' => 'We are currently updating the system. Please check back in a few minutes.',
+    'Prev' => 'Prev',
+    'Next' => 'Next',
+    'Home' => 'Home',
+    'Download PDF' => 'Download PDF',
+    'Time Remaining' => 'Time Remaining',
+    'Finished' => 'Finished',
+    'Pros' => 'Pros',
+    'Cons' => 'Cons',
+    'Download' => 'Download',
+    'Share' => 'Share',
+];

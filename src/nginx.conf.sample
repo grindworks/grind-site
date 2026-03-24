@@ -1,0 +1,107 @@
+# -------------------------------------------------------------------------
+# GrindSite Nginx Configuration Sample
+#
+# NOTE: This file is for reference only.
+# For the most up-to-date and secure configuration tailored to your installation
+# (especially for subdirectories), please use the Nginx Config Generator
+# in the Admin Panel (Settings > System > Nginx Tool).
+# -------------------------------------------------------------------------
+
+server {
+    index index.php index.html;
+    client_max_body_size 50M;
+
+    # Security Headers
+    # Handled by PHP to avoid duplication
+    # add_header X-Frame-Options "SAMEORIGIN" always;
+    # add_header X-Content-Type-Options "nosniff" always;
+    # add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+
+    # Dynamic robots.txt/sitemap.xml/llms.txt
+    location = /robots.txt {
+        try_files $uri /robots.php;
+        access_log off;
+        log_not_found off;
+    }
+    location = /sitemap.xml {
+        try_files $uri /sitemap.php;
+        access_log off;
+        log_not_found off;
+    }
+    location = /llms.txt {
+        try_files $uri /llms.php;
+        access_log off;
+        log_not_found off;
+    }
+    location = /llms-full.txt {
+        try_files $uri /llms-full.php;
+        access_log off;
+        log_not_found off;
+    }
+
+    # Routing
+    location / {
+        # NOTE: If installing in a subdirectory (e.g. /blog/), change the last parameter to /blog/index.php
+        try_files $uri $uri/ /index.php$is_args$args;
+    }
+
+    # Block Sensitive Files
+    # [IMPORTANT] This rule must be placed BEFORE the "location ~ \.php$" block.
+    location ~ (?:^|/)(\.git|\.env|\.vscode|composer\.json|package\.json|README\.md|LICENSE(\.txt)?|config\.php|nginx\.conf\.sample|\.htpasswd|\.nginx_confirmed) {
+        deny all; return 404;
+    }
+
+    # [IMPORTANT] Block Database & Log Files
+    location ~ \.(db|db-wal|db-shm|db-journal|sql|log|ini|bak|old|temp|swp|zip|tar|gz)$ {
+        deny all; return 404;
+    }
+
+    # Block System Directories
+    location ^~ /data/ {
+        deny all; return 404;
+    }
+    location ~ (?:^|/)(lib|admin/config|admin/skins|admin/views|theme/.+/parts)/ {
+        deny all; return 404;
+    }
+
+    # Block direct access to theme PHP files
+    location ~ (?:^|/)theme/.*\.php$ {
+        deny all; return 404;
+    }
+
+    # Block direct access to PHP files in Plugins
+    location ~ (?:^|/)plugins/.*\.php$ {
+        deny all; return 404;
+    }
+
+    # [SECURITY] Prevent access to rescue tools (Safety net)
+    location ~ (?:^|/)tools/.*\.php$ {
+        deny all; return 404;
+    }
+    location ~ (?:^|/)tool_.*\.php$ {
+        deny all; return 404;
+    }
+
+    # [SECURITY] Prevent PHP execution and XSS in uploads directory
+    # Converted to regex to support subdirectories. Must be placed before the main PHP block.
+    location ~ (?:^|/)assets/uploads/.*\.php$ {
+        deny all; return 404;
+    }
+    location ~ (?:^|/)assets/uploads/.*\.(svg|html)$ {
+        add_header Content-Security-Policy "script-src 'none'";
+    }
+
+    # PHP Handling
+    location ~ \.php$ {
+        include snippets/fastcgi-php.conf;
+        try_files $uri =404;
+        fastcgi_split_path_info ^(.+\.php)(/.+)$;
+
+        # ↓↓↓ Adjust to your environment / 環境に合わせて変更してください ↓↓↓
+        fastcgi_pass unix:/var/run/php/php8.3-fpm.sock;
+        # ↑↑↑ Adjust to your environment / 環境に合わせて変更してください ↑↑↑
+
+        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        include fastcgi_params;
+    }
+}

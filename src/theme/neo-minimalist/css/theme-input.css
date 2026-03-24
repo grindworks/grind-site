@@ -1,0 +1,139 @@
+/*!
+ * theme-input.css
+
+ * Defines component styles for the default theme, applied to CMS-generated blocks.
+ *
+ * [WARNING]
+ * Do NOT use absolute paths (e.g. /assets/...) for background-images.
+ * Use relative paths (e.g. ../img/...) to ensure portability.
+ */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --color-primary: 37 99 235;
+    --color-on-primary: 255 255 255;
+    --color-bg: 248 250 252;
+    --color-surface: 255 255 255;
+    --color-text: 51 65 85;
+    --color-border: 226 232 240;
+    --color-secondary: 100 116 139;
+    --color-success: 34 197 94;
+    --color-danger: 239 68 68;
+    --color-warning: 234 179 8;
+    --color-info: 59 130 246;
+    --font-base: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Meiryo, sans-serif;
+    --border-radius: 0.5rem;
+    --box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.06);
+    --input-padding: 0.5rem 0.75rem;
+    --border-width: 1px;
+  }
+
+  body {
+    background-color: theme('colors.grinds.gray');
+    color: theme('colors.grinds.dark');
+    font-family: theme('fontFamily.sans');
+    letter-spacing: -0.01em;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+@layer components {
+
+  /* CMS Block Styles */
+  /* Paragraph block */
+  .cms-block-paragraph p {
+    @apply mb-6 leading-relaxed text-slate-700 text-lg;
+  }
+
+  /* Header block */
+  .cms-block-header h2 {
+    @apply text-3xl md:text-4xl font-heading font-extrabold mt-16 mb-8 text-slate-900 pb-4 border-b-2 border-slate-900 tracking-tight;
+  }
+
+  .cms-block-header h3 {
+    @apply text-2xl md:text-3xl font-heading font-bold mt-12 mb-6 text-slate-900 tracking-tight;
+  }
+
+  /* Image block */
+  .cms-block-image img {
+    @apply border-2 border-slate-900 shadow-sharp block max-w-full h-auto;
+  }
+
+  .cms-block-image figcaption {
+    @apply text-left text-sm font-bold text-slate-500 mt-3;
+  }
+
+  /* Blockquote */
+  .cms-block-quote blockquote {
+    @apply border-l-4 border-brand-500 pl-6 py-2 my-8 font-heading text-xl md:text-2xl font-medium text-slate-800 italic;
+  }
+
+  /* Neo-Minimalist Buttons */
+  .neo-btn {
+    @apply inline-flex items-center justify-center px-6 py-3 font-heading font-bold text-base transition-all duration-200 border-2 border-slate-900 shadow-sharp hover:shadow-sharp-hover hover:-translate-y-1 hover:-translate-x-1 outline-none focus:ring-4 focus:ring-slate-900/10;
+  }
+
+  .neo-btn-primary {
+    @apply neo-btn bg-brand-500 text-slate-900;
+  }
+
+  .neo-btn-secondary {
+    @apply neo-btn bg-white text-slate-900;
+  }
+
+  .neo-btn-dark {
+    @apply neo-btn bg-slate-900 text-white border-slate-900;
+  }
+
+  /* WP/CMS Button fallbacks */
+  .is-style-primary {
+    @apply neo-btn bg-brand-500 text-slate-900 block w-max;
+  }
+
+  .is-style-success {
+    @apply neo-btn bg-green-400 text-slate-900 block w-max;
+  }
+
+  .is-style-danger {
+    @apply neo-btn bg-grinds-red text-white block w-max;
+  }
+
+  .is-style-dark {
+    @apply neo-btn bg-slate-900 text-white block w-max;
+  }
+
+  /* Callout block */
+  .cms-block-callout {
+    @apply p-6 mb-8 border-2 border-slate-900 shadow-sharp bg-white;
+  }
+
+  .cms-block-callout.is-style-info {
+    @apply bg-blue-50;
+  }
+
+  .cms-block-callout.is-style-warning {
+    @apply bg-brand-100;
+  }
+
+  .cms-block-callout.is-style-success {
+    @apply bg-green-50;
+  }
+
+  .cms-block-callout.is-style-danger {
+    @apply bg-red-50;
+  }
+
+  .cms-block-callout ul {
+    @apply list-disc list-inside ml-2 mt-2 space-y-1;
+  }
+
+  /* Code Blocks */
+  .cms-block-code pre {
+    @apply p-6 bg-slate-900 text-slate-50 border-2 border-slate-900 shadow-sharp overflow-auto text-sm font-mono mt-8 mb-8;
+  }
+}

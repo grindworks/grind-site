@@ -1,0 +1,14 @@
+# Dependencies
+node_modules/
+vendor/
+
+# Secrets & Config
+.env
+.env.*
+src/config.php
+
+# Build & Logs
+dist/
+build/
+*.log
+*.lock

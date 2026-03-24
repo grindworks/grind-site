@@ -1,0 +1,36 @@
+<?php
+
+if (!defined('GRINDS_APP')) exit;
+
+return [
+    '404 Not Found' => 'ページが見つかりません',
+    'It looks like nothing was found at this location. Maybe try a search?' => 'お探しのページは見つかりませんでした。検索をお試しください。',
+    'Search...' => '検索...',
+    'Search' => '検索',
+    'Back to Home' => 'ホームに戻る',
+    'Category: %s' => 'カテゴリー: %s',
+    'Posted on %s' => '投稿日: %s',
+    'Read More' => '続きを読む',
+    'Read More about %s' => '%s の続きを読む',
+    'No posts found.' => '記事が見つかりませんでした。',
+    'Search Results for: %s' => '「%s」の検索結果',
+    'Sorry, but nothing matched your search terms. Please try again with some different keywords.' => '検索条件に一致する記事が見つかりませんでした。別のキーワードをお試しください。',
+    'Tags: ' => 'タグ: ',
+    'Tag: %s' => 'タグ: %s',
+    'Contents' => '目次',
+    'Uncategorized' => '未分類',
+    'Category' => 'カテゴリー',
+    'Preview Mode' => 'プレビューモード',
+    'System Maintenance' => 'システムメンテナンス',
+    'We are currently updating the system. Please check back in a few minutes.' => '現在メンテナンス中です。しばらくお待ちください。',
+    'Prev' => '前へ',
+    'Next' => '次へ',
+    'Home' => 'ホーム',
+    'Download PDF' => 'PDFをダウンロード',
+    'Time Remaining' => '残り時間',
+    'Finished' => '終了しました',
+    'Pros' => 'メリット',
+    'Cons' => 'デメリット',
+    'Download' => 'ダウンロード',
+    'Share' => 'シェア',
+];

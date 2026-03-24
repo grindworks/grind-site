@@ -1,0 +1,20 @@
+# このディレクトリ以下のコンテンツへのアクセスを明示的に許可する
+# Explicitly allow access to content under this directory
+<IfModule mod_authz_core.c>
+    Require all granted
+</IfModule>
+<IfModule !mod_authz_core.c>
+    Order allow,deny
+    Allow from all
+</IfModule>
+
+# Disable PHP execution in assets directory
+<FilesMatch "\.(?i:php[0-9]?|phtml|phar|pl|py|jsp|asp|html?|shtml|sh|cgi|exe|inc|bat|cmd)$">
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order allow,deny
+        Deny from all
+    </IfModule>
+</FilesMatch>

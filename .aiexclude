@@ -1,0 +1,30 @@
+# 📦 不要なライブラリ（インデックスの肥大化を防ぐ最重要項目）
+/node_modules/
+/vendor/
+
+# 📂 Git・ビルド生成物
+/.git/
+/dist/
+/build/
+
+# 🖼️ バイナリ・メディアファイル（AIが読めない・読む必要がないもの）
+# ※.aiexcludeはワイルドカード * に強いので、これで一括除外できます
+*.jpg
+*.jpeg
+*.png
+*.gif
+*.svg
+*.ico
+*.pdf
+*.zip
+*.tar.gz
+
+# 🔠 フォント
+*.woff
+*.woff2
+*.ttf
+*.eot
+
+# 📝 その他
+.DS_Store
+*.log

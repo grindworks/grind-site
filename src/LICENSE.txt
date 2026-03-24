@@ -1,0 +1,170 @@
+GrindSite Software License Agreement (EULA)
+
+Copyright (c) 2026 Koji Udagawa
+Grind Works Inc. All Rights Reserved.
+
+-------------------------------------------------------------------------
+[English] End User License Agreement (EULA)
+-------------------------------------------------------------------------
+
+This End User License Agreement ("Agreement") is a legal agreement between you ("User")
+and Grind Works Inc. ("Licensor") governing the use of GrindSite ("Software").
+
+By downloading, installing, or using the Software, you agree to be bound by the terms
+of this Agreement.
+
+1. GRANT OF LICENSE
+(1) You may use the Software free of charge for development and testing purposes
+    in a local environment (e.g., localhost) or a private, non-public staging environment.
+
+(2) Use of the Software on a publicly accessible production server requires the
+    purchase of a valid Commercial License (License Key) through the Licensor’s
+    official website or authorized distribution platforms (e.g., Polar.sh).
+    *NOTICE: Commercial licenses will be available for purchase soon.
+    Until then, please feel free to evaluate the Free version.*
+
+(3) One license is required for each unique site (e.g., one license per Top-Level
+    Domain or Subdomain), unless you hold a specific License tier (e.g., Agency)
+    that explicitly permits use on unlimited domains.
+
+
+2. RESTRICTIONS
+You may NOT:
+(1) Operate the Software on a public server without a valid license key purchased
+    from an authorized source.
+
+(2) Redistribute, sell, sublicense, lease, or transfer the Software standalone,
+    in whole or in part, whether modified or unmodified, to any third party.
+    (Note: You MAY build and deliver a website for a client, provided a valid
+    license is acquired for that specific site or covered by an Agency license).
+
+(3) Modify the Software to disable, remove, or conceal any copyright notices or
+    the License Verification Mechanism (including warning messages).
+
+(4) Reverse engineer, decompile, or disassemble the Software.
+
+(5) Use the Software for the purpose of developing or selling a competing CMS product.
+
+
+3. MODIFICATION AND OWNERSHIP
+You may modify the Software solely for use on websites permitted by your License.
+Licensor retains all intellectual property rights in the Software, including any
+modified versions. Distribution of modified versions of the Software is strictly
+prohibited. Any modification intended to circumvent license verification is a
+breach of this Agreement.
+
+
+4. DISCLAIMER
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED.
+THE LICENSOR SHALL NOT BE LIABLE FOR ANY DAMAGES ARISING FROM THE USE OR INABILITY
+TO USE THE SOFTWARE, INCLUDING BUT NOT LIMITED TO LOST PROFITS, BUSINESS INTERRUPTION,
+OR LOSS OF DATA.
+
+THE LICENSOR HAS NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS,
+OR MODIFICATIONS UNLESS OTHERWISE AGREED IN A SEPARATE SERVICE CONTRACT.
+
+
+5. SUPPORT SERVICES
+The Software is provided "AS IS", and no technical support is provided for any license type
+(Free, Pro, or Agency).
+Users may report reproducible bugs via the official GitHub repository, but individual
+replies or fixes are not guaranteed.
+
+
+6. TERMINATION AND ANTI-SOCIAL FORCES
+(1) The Licensor may terminate this Agreement immediately without notice if you
+    breach any term of this Agreement, or if it is discovered that the User is
+    associated with anti-social forces (organized crime).
+
+(2) Upon termination, you must cease all use of the Software and destroy all
+    copies in your possession.
+
+
+7. GOVERNING LAW
+This Agreement shall be governed by and construed in accordance with the laws of Japan.
+Any dispute arising out of or in connection with this Agreement shall be subject to
+the exclusive jurisdiction of the Tokyo District Court.
+
+
+-------------------------------------------------------------------------
+【日本語】 ソフトウェア使用許諾契約書 (EULA)
+-------------------------------------------------------------------------
+
+本契約は、本ソフトウェア（GrindSite）を利用する個人または法人（以下「ユーザー」）と、
+Grind Works Inc.（以下「権利者」）との間で締結される法的な契約です。
+
+本ソフトウェアをダウンロード、インストール、または使用した時点で、ユーザーは
+本契約のすべての条項に同意したものとみなされます。
+
+1. ライセンスの許諾
+(1) ユーザーは、ローカル環境（localhost等）または非公開のテスト環境においては、
+    開発・テスト目的で本ソフトウェアを無償で使用することができます。
+
+(2) インターネット上で公開される本番環境（公開サーバー）で使用する場合、
+    権利者の公式サイト、または正規販売代理店（Polar.sh等）から発行された
+    有効な「商用ライセンス（ライセンスキー）」を購入する必要があります。
+    ※お知らせ：商用ライセンスは近日販売開始予定です。
+    販売開始までは、無料版をご自由にお試しいただけます。
+
+(3) ライセンスは原則として、1ドメイン（サブドメインを含む独立したサイト単位）につき
+    1つ必要です（「無制限ドメイン」が許可されているエージェンシー版などの
+    特定ライセンスを除きます）。
+
+
+2. 禁止事項
+ユーザーは、以下の行為を行うことはできません。
+(1) 正規の販売経路からライセンスキーを購入せずに、本ソフトウェアを公開サーバー上で
+    運用すること。
+
+(2) 本ソフトウェアの全部または一部（改変されたものを含む）をソフトウェア単体として、
+    有償・無償を問わず第三者に再配布、販売、貸与、または譲渡すること。
+    （※ただし、対象サイトに対して有効なライセンス（Pro版等）を取得した上で、
+    あるいは無制限のエージェンシー版を利用して、制作会社・フリーランスが顧客へ
+    ウェブサイトとして構築・納品する行為は許可されます）。
+
+(3) 本ソフトウェアに含まれる著作権表示、または「ライセンス認証機能（警告表示を
+    含む）」を、改変により無効化・削除・隠蔽すること。
+
+(4) 本ソフトウェアに対するリバースエンジニアリング、逆コンパイル、または
+    逆アセンブル。
+
+(5) 本ソフトウェアを競合するCMS製品の開発・販売のために利用すること。
+
+
+3. 改変および著作権
+ユーザーは、取得したライセンスが規定する範囲内のウェブサイトで使用する目的に限り、
+本ソフトウェアのソースコードを自由に改変（カスタマイズ）することができます。
+
+ただし、改変後も本ソフトウェアに関する知的財産権（著作権を含む）は権利者に帰属します。
+また、ライセンス認証の回避を目的とした改変は固く禁じます。改変されたソフトウェアを
+第三者に配布することはできません。
+
+
+4. 免責事項
+本ソフトウェアは「現状有姿（AS IS）」で提供されます。権利者は、明示的・黙示的を
+問わず、本ソフトウェアに瑕疵がないことや特定の目的に適合することを含め、一切の
+保証を行いません。
+
+本ソフトウェアの使用または使用不能から生じるいかなる損害（逸失利益、事業の中断、
+データの喪失など）についても、権利者は一切の責任を負いません。また、別途保守契約等
+の合意がない限り、権利者はアップデートや技術サポートを提供する義務を負いません。
+
+
+5. サポートサービスについて
+本ソフトウェアは「現状有姿」で提供され、いかなるライセンス（無料版、Pro版、
+エージェンシー版を含む）においても技術サポートは提供されません。
+公式リポジトリにて再現可能なバグ報告を行うことは可能ですが、個別のご返信や
+修正対応はお約束いたしかねます。
+
+
+6. 契約の終了および反社会的勢力の排除
+(1) ユーザーが本契約の条項に違反した場合、またはユーザーが反社会的勢力に関与して
+    いることが判明した場合、権利者は催告なく直ちに本契約を解除することができます。
+
+(2) 契約が終了した場合、ユーザーは本ソフトウェアの使用を直ちに中止し、すべての
+    複製物を破棄しなければなりません。
+
+
+7. 準拠法および管轄裁判所
+本契約は日本法に準拠し、同法に従って解釈されるものとします。本契約に起因または
+関連する一切の紛争については、東京地方裁判所を第一審の専属的合意管轄裁判所とします。

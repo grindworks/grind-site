@@ -1,0 +1,26 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+  .cms-block-header h2 {
+    @apply text-3xl md:text-4xl font-serif font-bold mt-16 mb-8 text-theme-primary border-b-4 border-theme-primary pb-3 inline-block;
+  }
+  .cms-block-header h3 {
+    @apply text-2xl font-serif font-bold mt-12 mb-6 text-theme-text border-l-8 border-theme-accent pl-4;
+  }
+
+  .btn-primary {
+    @apply bg-theme-primary text-theme-on-primary hover:bg-blue-900 shadow-md hover:shadow-lg transition-all px-8 py-3 rounded-md font-bold tracking-widest;
+  }
+  .btn-accent {
+    @apply bg-theme-accent text-theme-on-accent hover:bg-red-700 shadow-md hover:shadow-lg transition-all px-8 py-3 rounded-md font-bold tracking-widest;
+  }
+
+  .cms-block-step li {
+    @apply bg-white p-6 rounded-lg shadow-sm border border-gray-100 mb-6;
+  }
+  .cms-block-step h4 {
+    @apply font-serif text-theme-primary text-xl;
+  }
+}

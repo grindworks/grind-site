@@ -1,0 +1,21 @@
+{
+  "name": "grindworks/grind-site",
+  "description": "Sharp Performance. Simple Experience.",
+  "type": "project",
+  "version": "1.0.0",
+  "license": "UNLICENSED",
+  "authors": [
+    {
+      "name": "Koji Udagawa (Grind Works Inc.)"
+    }
+  ],
+  "require": {
+    "php": ">=8.3"
+  },
+  "config": {
+    "platform": {
+      "php": "8.3.0"
+    },
+    "sort-packages": true
+  }
+}

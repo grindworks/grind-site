@@ -1,0 +1,124 @@
+/*!
+ * theme-input.css
+
+ * Defines component styles for the default theme, applied to CMS-generated blocks.
+ *
+ * [WARNING]
+ * Do NOT use absolute paths (e.g. /assets/...) for background-images.
+ * Use relative paths (e.g. ../img/...) to ensure portability.
+ */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --color-primary: 37 99 235;
+    --color-on-primary: 255 255 255;
+    --color-bg: 248 250 252;
+    --color-surface: 255 255 255;
+    --color-text: 51 65 85;
+    --color-border: 226 232 240;
+    --color-secondary: 100 116 139;
+    --color-success: 34 197 94;
+    --color-danger: 239 68 68;
+    --color-warning: 234 179 8;
+    --color-info: 59 130 246;
+    --font-base: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Meiryo, sans-serif;
+    --border-radius: 0.5rem;
+    --box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.06);
+    --input-padding: 0.5rem 0.75rem;
+    --border-width: 1px;
+  }
+
+  body {
+    /* Adjust default letter spacing. */
+    letter-spacing: 0.05em;
+    /* Set default line height and improve font rendering. */
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+@layer components {
+  /* CMS Block Styles */
+  /* Style automatically applied .cms-block-{type} classes. */
+
+  /* Paragraph block */
+  .cms-block-paragraph p {
+    @apply mb-6 leading-8 text-gray-700;
+  }
+
+  /* Header block */
+  .cms-block-header h2 {
+    @apply text-2xl md:text-3xl font-bold mt-12 mb-6 text-gray-800 border-b-2 border-grinds-red pb-2;
+  }
+  .cms-block-header h3 {
+    @apply text-xl md:text-2xl font-bold mt-10 mb-4 text-gray-800 border-l-4 border-grinds-red pl-4;
+  }
+
+  /* Image block */
+  .cms-block-image img {
+    @apply rounded-xl shadow-md border border-gray-100 transition-transform duration-500 hover:scale-[1.01];
+  }
+  .cms-block-image figcaption {
+    @apply text-center text-sm text-gray-500 mt-2 italic;
+  }
+
+  /* Custom Block Style Variations */
+  /* Style classes defined in theme's functions.php. */
+
+  /* Button style variations */
+  .is-style-primary {
+    @apply bg-grinds-red text-white hover:bg-red-700 focus:ring-grinds-red;
+  }
+  .is-style-success {
+    @apply bg-green-600 text-white hover:bg-green-700 focus:ring-green-600;
+  }
+  .is-style-danger {
+    @apply bg-red-600 text-white hover:bg-red-700 focus:ring-red-600;
+  }
+  .is-style-dark {
+    @apply bg-gray-900 text-white hover:bg-black focus:ring-gray-900;
+  }
+
+  /* Callout style variations */
+  .cms-block-callout.is-style-info {
+    @apply bg-blue-50 border-blue-400 text-blue-900;
+  }
+  .cms-block-callout.is-style-warning {
+    @apply bg-yellow-50 border-yellow-400 text-yellow-900;
+  }
+  .cms-block-callout.is-style-success {
+    @apply bg-green-50 border-green-400 text-green-900;
+  }
+  .cms-block-callout.is-style-danger {
+    @apply bg-red-50 border-red-400 text-red-900;
+  }
+
+  .cms-block-callout ul {
+    @apply list-disc list-inside ml-2 mt-2 space-y-1;
+  }
+
+  /* Add hover effect to accordion buttons. */
+  .cms-block-accordion button:hover {
+    @apply bg-gray-50 rounded-lg;
+  }
+
+  /* Adjust code block styling. */
+  .cms-block-code pre {
+    @apply overflow-auto;
+  }
+
+  /* Customize Webkit scrollbar for code blocks. */
+  .cms-block-code pre::-webkit-scrollbar {
+    height: 8px;
+  }
+  .cms-block-code pre::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .cms-block-code pre::-webkit-scrollbar-thumb {
+    @apply bg-gray-600 rounded;
+  }
+}
