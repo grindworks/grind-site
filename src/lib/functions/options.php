@@ -71,11 +71,19 @@ if (!function_exists('update_option')) {
 
         if ($autoload !== null) {
             $autoloadVal = $autoload ? 1 : 0;
-            $stmt = $pdo->prepare("INSERT INTO settings (key, value, autoload) VALUES (?, ?, ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value, autoload = excluded.autoload");
-            $result = $stmt->execute([$key, $value, $autoloadVal]);
+            $stmt = $pdo->prepare("UPDATE settings SET value = ?, autoload = ? WHERE key = ?");
+            $result = $stmt->execute([$value, $autoloadVal, $key]);
+            if ($result && $stmt->rowCount() === 0) {
+                $stmt = $pdo->prepare("INSERT OR IGNORE INTO settings (key, value, autoload) VALUES (?, ?, ?)");
+                $result = $stmt->execute([$key, $value, $autoloadVal]);
+            }
         } else {
-            $stmt = $pdo->prepare("INSERT INTO settings (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value");
-            $result = $stmt->execute([$key, $value]);
+            $stmt = $pdo->prepare("UPDATE settings SET value = ? WHERE key = ?");
+            $result = $stmt->execute([$value, $key]);
+            if ($result && $stmt->rowCount() === 0) {
+                $stmt = $pdo->prepare("INSERT OR IGNORE INTO settings (key, value) VALUES (?, ?)");
+                $result = $stmt->execute([$key, $value]);
+            }
         }
 
         // Update cache if successful (unconditionally keep the cache array up-to-date)

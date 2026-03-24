@@ -52,7 +52,7 @@ server {
     }
 
     # [IMPORTANT] Block Database & Log Files
-    location ~ \.(db|db-wal|db-shm|db-journal|sql|log|ini|bak|old|temp|swp|zip|tar|gz)$ {
+    location ~ \.(db|db-wal|db-shm|db-journal|sql|log|ini|bak|old|temp|swp)$ {
         deny all; return 404;
     }
 

@@ -76,7 +76,7 @@ if (!function_exists('grinds_get_nginx_security_rules')) {
     }
 
     # Block specific extensions (DB, Logs)
-    location ~ \.(db|sqlite|sqlite3|db-wal|db-shm|db-journal|sql|log|ini|bak|old|temp|swp|zip|tar|gz)$ {
+    location ~ \.(db|sqlite|sqlite3|db-wal|db-shm|db-journal|sql|log|ini|bak|old|temp|swp)$ {
         deny all; return 404;
     }
 EOT;

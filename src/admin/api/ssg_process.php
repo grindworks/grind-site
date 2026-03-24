@@ -198,7 +198,7 @@ class GrindsSSG
             case 'copy_assets':
                 return $this->stepCopyAssets($data['offset'] ?? 0, $data['limit'] ?? 100);
             case 'generate_assets':
-                return $this->stepGenerateAssets();
+                return $this->stepGenerateAssets($data);
             case 'finalize':
                 return $this->stepFinalize();
             default:
@@ -565,10 +565,14 @@ class GrindsSSG
         ];
     }
 
-    private function stepGenerateAssets()
+    private function stepGenerateAssets($data = [])
     {
         $config = $this->config;
         $searchScope = $config['search_scope'] ?? 'title_body';
+
+        $offset = isset($data['search_offset']) ? (int)$data['search_offset'] : 0;
+        $chunkIndex = isset($data['chunk_index']) ? (int)$data['chunk_index'] : 0;
+        $manifest = isset($data['manifest']) ? $data['manifest'] : ['files' => []];
 
         // Create assets/data directory for search index
         $dataDir = $this->exportDir . '/assets/data';
@@ -576,15 +580,21 @@ class GrindsSSG
             @mkdir($dataDir, 0775, true);
 
         $repo = new PostRepository($this->pdo);
-        $currentChunkData = [];
-        $chunkIndex = 0;
-        $manifest = ['files' => []];
 
-        $offset = 0;
+        $tempChunkFile = $this->exportDir . '/_temp_chunk.json';
+        $currentChunkData = [];
+        if ($offset > 0 && file_exists($tempChunkFile)) {
+            $currentChunkData = json_decode(file_get_contents($tempChunkFile), true) ?: [];
+        }
+
         $batchLimit = 20;
 
         $chunkSize = (int)get_option('ssg_search_chunk_size', 500);
         if ($chunkSize <= 0) $chunkSize = 500;
+
+        $startTime = microtime(true);
+        $timeLimit = 15; // 15秒で安全に中断
+        $isFinished = false;
 
         while (true) {
             $rows = $repo->fetch([
@@ -592,8 +602,10 @@ class GrindsSSG
                 'is_noindex' => 0
             ], $batchLimit, $offset, 'p.published_at DESC, p.id DESC');
 
-            if (empty($rows))
+            if (empty($rows)) {
+                $isFinished = true;
                 break;
+            }
 
             if (function_exists('grinds_attach_tags')) {
                 grinds_attach_tags($rows);
@@ -655,7 +667,25 @@ class GrindsSSG
                 }
             }
             $offset += $batchLimit;
+
+            // タイムリミットに達したら中断して状態を返す
+            if (microtime(true) - $startTime >= $timeLimit) {
+                break;
+            }
         }
+
+        if (!$isFinished) {
+            file_put_contents($tempChunkFile, json_encode($currentChunkData, JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_IGNORE | JSON_THROW_ON_ERROR));
+            return [
+                'success' => true,
+                'in_progress' => true,
+                'search_offset' => $offset,
+                'chunk_index' => $chunkIndex,
+                'manifest' => $manifest
+            ];
+        }
+
+        if (file_exists($tempChunkFile)) @unlink($tempChunkFile);
 
         if (!empty($currentChunkData)) {
             $chunkFileName = "search_data_{$chunkIndex}.json";

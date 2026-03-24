@@ -1003,14 +1003,31 @@ function grinds_get_post_search_condition($query, &$params, $alias = ''): string
     $prefix = $alias ? $alias . '.' : '';
     return grinds_build_search_query($query, function ($word) use (&$params, $prefix) {
         $escapedWord = grinds_escape_like($word);
+
+        $params[] = "%{$escapedWord}%";
+        $params[] = "%{$escapedWord}%";
+
         $bigramWord = function_exists('grinds_get_bigram') ? grinds_get_bigram($word) : $word;
-        $escapedBigram = grinds_escape_like($bigramWord);
+        $searchTextConditions = [];
 
-        $params[] = "%{$escapedWord}%";
-        $params[] = "%{$escapedWord}%";
-        $params[] = "%{$escapedBigram}%";
+        if ($bigramWord !== '') {
+            $tokens = explode(' ', $bigramWord);
+            foreach ($tokens as $token) {
+                if (trim($token) !== '') {
+                    $params[] = "%" . grinds_escape_like($token) . "%";
+                    $searchTextConditions[] = "{$prefix}search_text LIKE ? ESCAPE '\\'";
+                }
+            }
+        }
 
-        return "({$prefix}title LIKE ? ESCAPE '\\' OR {$prefix}slug LIKE ? ESCAPE '\\' OR {$prefix}search_text LIKE ? ESCAPE '\\')";
+        if (empty($searchTextConditions)) {
+            $params[] = "%{$escapedWord}%";
+            $searchTextConditions[] = "{$prefix}search_text LIKE ? ESCAPE '\\'";
+        }
+
+        $searchTextSql = implode(' AND ', $searchTextConditions);
+
+        return "({$prefix}title LIKE ? ESCAPE '\\' OR {$prefix}slug LIKE ? ESCAPE '\\' OR ({$searchTextSql}))";
     });
 }
 

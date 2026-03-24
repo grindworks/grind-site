@@ -2,7 +2,11 @@
 const path = require('path');
 
 module.exports = {
-  content: [path.join(__dirname, '**/*.php'), path.join(__dirname, '../../lib/**/*.php')],
+  content: [
+    path.join(__dirname, '**/*.php'),
+    path.join(__dirname, '../../lib/**/*.php'),
+    path.join(__dirname, '../../admin/config/editor_blocks.php'),
+  ],
   theme: {
     extend: {
       colors: {

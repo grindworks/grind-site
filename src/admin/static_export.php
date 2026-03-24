@@ -462,14 +462,36 @@ ob_start();
           // Generate assets
           this.statusMsg = this.trans.status_assets;
           this.progress = 85;
-          await this.callApi('generate_assets', {
-            mode: this.config.mode
-          });
-          this.progress = 90;
+
+          let genAssetsDone = false;
+          let searchOffset = 0;
+          let chunkIndex = 0;
+          let manifest = {
+            files: []
+          };
+
+          while (!genAssetsDone) {
+            const genRes = await this.callApi('generate_assets', {
+              mode: this.config.mode,
+              search_offset: searchOffset,
+              chunk_index: chunkIndex,
+              manifest: manifest
+            });
+
+            if (genRes.in_progress) {
+              searchOffset = genRes.search_offset;
+              chunkIndex = genRes.chunk_index;
+              manifest = genRes.manifest;
+              // プログレスバーを少しずつ進める
+              this.progress = Math.min(94, this.progress + 1);
+            } else {
+              genAssetsDone = true;
+            }
+          }
+          this.progress = 95;
 
           // Finalize zip
           this.statusMsg = this.trans.status_zip;
-          this.progress = 95;
           const zipRes = await this.callApi('finalize');
 
           this.progress = 100;

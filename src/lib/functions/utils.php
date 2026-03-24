@@ -1052,10 +1052,11 @@ if (!function_exists('grinds_fetch_url')) {
             }
         }
 
+        $content = false;
+
         if (function_exists('curl_init')) {
             $maxRedirects = 3;
             $currentUrl = $url;
-            $content = false;
 
             for ($i = 0; $i <= $maxRedirects; $i++) {
                 $resolveRules = [];
@@ -1110,7 +1111,8 @@ if (!function_exists('grinds_fetch_url')) {
                 curl_close($ch);
 
                 if ($error && $error !== 42) { // 42 = CURLE_ABORTED_BY_CALLBACK
-                    return false;
+                    $content = false;
+                    break;
                 }
 
                 $headerStr = substr($response, 0, $headerSize);
@@ -1145,7 +1147,9 @@ if (!function_exists('grinds_fetch_url')) {
                 break;
             }
 
-            return $content;
+            if ($content !== false) {
+                return $content;
+            }
         }
 
         if (ini_get('allow_url_fopen')) {

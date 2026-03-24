@@ -7,6 +7,7 @@ module.exports = {
     path.join(__dirname, '**/*.js'),
     path.join(__dirname, '../../lib/*.php'),
     path.join(__dirname, '../../lib/**/*.php'),
+    path.join(__dirname, '../../admin/config/editor_blocks.php'),
   ],
   theme: {
     extend: {

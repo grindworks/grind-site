@@ -1,11 +1,11 @@
-# GrindSite v1.0.0
+# GrindSite v1.0.1
 
 **The simplest CMS on earth.**
 **地球上で最もシンプルな CMS**
 
 [![PHP Version](https://img.shields.io/badge/php-8.3%2B-blue.svg)](https://www.php.net/)
 [![License](https://img.shields.io/badge/license-Commercial%2FFree-green.svg)](#-license--support-policy)
-[![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)](https://github.com/grindworks/grind-site/releases)
+[![Version](https://img.shields.io/badge/version-1.0.1-blue.svg)](https://github.com/grindworks/grind-site/releases)
 [![Payments](https://img.shields.io/badge/payments-Polar.sh-blueviolet.svg)](https://polar.sh/)
 
 ---
@@ -216,7 +216,7 @@ server {
     }
 
     # [IMPORTANT] Block Database & Log Files
-    location ~ \.(db|db-wal|db-shm|db-journal|sql|log|ini|bak|old|temp|swp|zip|tar|gz)$ {
+    location ~ \.(db|db-wal|db-shm|db-journal|sql|log|ini|bak|old|temp|swp)$ {
         deny all; return 404;
     }
 
@@ -500,7 +500,7 @@ server {
     }
 
     # [IMPORTANT] Block Database & Log Files
-    location ~ \.(db|db-wal|db-shm|db-journal|sql|log|ini|bak|old|temp|swp|zip|tar|gz)$ {
+    location ~ \.(db|db-wal|db-shm|db-journal|sql|log|ini|bak|old|temp|swp)$ {
         deny all; return 404;
     }
 
