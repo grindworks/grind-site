@@ -182,6 +182,7 @@ class GrindsUpdater
       // Copy files recursively
       $exclude = [
         'config.php',
+        'install.php',
         'data',
         'assets/uploads',
         '.git',
