@@ -899,7 +899,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
           try {
             $mailer = new SimpleMailer($config);
-            $mailer->send($_POST['smtp_admin_email'], 'Test Mail', 'This is a test.');
+            $siteName = get_option('site_name', CMS_NAME);
+            $subject = "[{$siteName}] SMTP Test Mail";
+            $body = "Hello,\n\n";
+            $body .= "This is a test email sent from your GrindSite installation.\n";
+            $body .= "If you are reading this, your SMTP settings are configured correctly!\n\n";
+            $body .= "Site: {$siteName}\n";
+            $body .= "URL: " . resolve_url('/') . "\n";
+            $body .= "Date: " . date('Y-m-d H:i:s') . "\n";
+
+            $mailer->send($_POST['smtp_admin_email'], $subject, $body);
             set_flash(_t('mail_test_sent'), 'success');
           } catch (Exception $e) {
             set_flash(_t('err_failed_send_email') . ' (' . $e->getMessage() . ')', 'error');
