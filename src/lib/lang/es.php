@@ -1671,7 +1671,7 @@ return [
     'session_expired' => 'La sesión ha expirado. Por favor, recargue la página.',
     'login_required' => 'Por favor inicie sesión para continuar.',
     'showing_results' => 'Mostrando del %s al %s de %s resultados',
-    'err_image_dimension' => 'Las dimensiones de la imagen son demasiado grandes.',
+    'err_image_dimension' => 'Las dimensiones de la imagen superan el límite máximo permitido (%d px).',
     'uploading' => 'Subiendo...',
 
     // Recently added keys

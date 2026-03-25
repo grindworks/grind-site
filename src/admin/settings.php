@@ -296,21 +296,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
       if (file_exists($logFile)) {
         try {
-          $file = new SplFileObject($logFile, 'r');
-          $file->seek(PHP_INT_MAX);
-          $totalLines = $file->key();
+          $fp = fopen($logFile, 'r');
+          if ($fp) {
+            $pos = filesize($logFile);
+            $chunkSize = 8192;
+            $buffer = '';
 
-          $startLine = max(0, $totalLines - 100);
-          $file->seek($startLine);
+            // ファイルの末尾からチャンク単位で読み込み、改行が100個見つかるまで遡る
+            while ($pos > 0) {
+              $readSize = min($chunkSize, $pos);
+              $pos -= $readSize;
+              fseek($fp, $pos);
+              $buffer = fread($fp, $readSize) . $buffer;
 
-          while (!$file->eof()) {
-            $line = $file->current();
-            if (trim($line) !== '') {
-              $lines[] = $line;
+              if (substr_count($buffer, "\n") >= 100) {
+                break;
+              }
             }
-            $file->next();
+            fclose($fp);
+
+            $parts = explode("\n", $buffer);
+            foreach ($parts as $part) {
+              if (trim($part) !== '') {
+                $lines[] = trim($part);
+              }
+            }
+            $lines = array_reverse(array_slice($lines, -100));
           }
-          $lines = array_reverse($lines);
         } catch (Exception $e) {
           // Ignore errors
         }
@@ -511,15 +523,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             });
 
             foreach ($custom_keys as $ck) {
-              //Remove if settings keys are not defined
-
-              if (isset($_POST[$ck])) {
-                $val = is_scalar($_POST[$ck]) ? (string)$_POST[$ck] : '';
-                if ($ck === 'custom_skin_media_bg_css') {
-                  $val = Routing::convertToDbUrl((string)$val);
-                }
-                update_option($ck, trim((string)$val));
+              $val = is_scalar($_POST[$ck]) ? (string)$_POST[$ck] : '';
+              if ($ck === 'custom_skin_media_bg_css') {
+                $val = Routing::convertToDbUrl((string)$val);
               }
+              update_option($ck, trim((string)$val));
             }
           }
           $pdo->commit();
@@ -701,7 +709,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
               foreach (glob($sessionDir . '/sess_*') as $file) {
                 if (basename($file) !== 'sess_' . $currentSessionId) {
                   $content = @file_get_contents($file);
-                  if ($content !== false && strpos($content, 'user_id|i:' . $myId . ';') !== false) {
+                  if ($content !== false && preg_match('/user_id\|(?:i:' . $myId . ';|s:\d+:"' . $myId . '";)/', $content)) {
                     @unlink($file);
                   }
                 }
@@ -830,7 +838,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
               foreach (glob($sessionDir . '/sess_*') as $file) {
                 if (basename($file) !== 'sess_' . $currentSessionId) {
                   $content = @file_get_contents($file);
-                  if ($content !== false && strpos($content, 'user_id|i:' . $targetId . ';') !== false) {
+                  if ($content !== false && preg_match('/user_id\|(?:i:' . $targetId . ';|s:\d+:"' . $targetId . '";)/', $content)) {
                     @unlink($file);
                   }
                 }

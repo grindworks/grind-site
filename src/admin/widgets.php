@@ -132,12 +132,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       if ($target_id) {
         // Preserve content
         if ($type !== 'html' && $type !== 'profile') {
-          $stmtGet = $pdo->prepare("SELECT content FROM widgets WHERE id = ?");
-          $stmtGet->execute([$target_id]);
-          $existing = $stmtGet->fetch();
-          if ($existing) {
-            $content = $existing['content'];
-          }
+          $content = '';
         }
 
         $stmt = $pdo->prepare("UPDATE widgets SET type=?, title=?, content=?, settings=?, sort_order=?, is_active=?, target_theme=? WHERE id=?");

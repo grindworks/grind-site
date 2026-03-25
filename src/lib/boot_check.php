@@ -63,10 +63,6 @@ I18n::init($lang);
 $requestUri = $_SERVER['REQUEST_URI'] ?? '';
 $scriptName = $_SERVER['SCRIPT_NAME'] ?? '';
 
-// Normalize paths
-$reqPath = parse_url($requestUri, PHP_URL_PATH);
-$localPath = str_replace('\\', '/', dirname($_SERVER['SCRIPT_FILENAME']));
-
 // Detect server software
 $serverSoftware = $_SERVER['SERVER_SOFTWARE'] ?? '';
 $isNginx = str_contains(strtolower($serverSoftware), 'nginx');

@@ -1671,7 +1671,7 @@ return [
     'session_expired' => 'Sitzung abgelaufen. Bitte laden Sie die Seite neu.',
     'login_required' => 'Bitte melden Sie sich an, um fortzufahren.',
     'showing_results' => 'Zeige %s bis %s von %s Ergebnissen',
-    'err_image_dimension' => 'Die Bildabmessungen sind zu groß.',
+    'err_image_dimension' => 'Die Bildabmessungen überschreiten das maximal zulässige Limit (%d px).',
     'uploading' => 'Wird hochgeladen...',
 
     // Recently added keys

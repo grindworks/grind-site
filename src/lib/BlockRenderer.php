@@ -514,7 +514,11 @@ HTML;
                 return $html;
 
             case 'video':
-                $url = resolve_url($data['url'] ?? '');
+                $rawUrl = $data['url'] ?? '';
+                if (preg_match('/^\s*(javascript|vbscript|data):/i', $rawUrl)) {
+                    return '';
+                }
+                $url = resolve_url($rawUrl);
                 if (!$url) return '';
                 $attrs = 'controls playsinline';
                 if (!empty($data['autoplay'])) $attrs .= ' autoplay';
@@ -1352,7 +1356,11 @@ HTML;
                 return $html;
 
             case 'audio':
-                $url = resolve_url($data['url'] ?? '');
+                $rawUrl = $data['url'] ?? '';
+                if (preg_match('/^\s*(javascript|vbscript|data):/i', $rawUrl)) {
+                    return '';
+                }
+                $url = resolve_url($rawUrl);
                 $title = h($data['title'] ?? '');
                 if (!$url) return '';
                 $uid = 'audio-' . bin2hex(random_bytes(4));
@@ -1363,7 +1371,11 @@ HTML;
                 return $html;
 
             case 'pdf':
-                $url = resolve_url($data['url'] ?? '');
+                $rawUrl = $data['url'] ?? '';
+                if (preg_match('/^\s*(javascript|vbscript|data):/i', $rawUrl)) {
+                    return '';
+                }
+                $url = resolve_url($rawUrl);
                 if (!$url) return '';
                 $safeUrl = h($url);
                 $html = "<div class='{$commonClass} bg-gray-100 my-8 border border-gray-200 rounded-theme h-[500px] overflow-hidden'><object data='{$safeUrl}' type='application/pdf' width='100%' height='100%'><p class='p-4 text-center'>" . theme_t('msg_pdf_error') . " <a href='{$safeUrl}' class='underline' aria-label='" . theme_t('download_pdf_aria') . "'>" . theme_t('btn_download') . "</a></p></object></div>";
@@ -1576,7 +1588,7 @@ if (typeof window.grindsDecrypt !== 'function') {
 
         try {
             const pwdBuf = new TextEncoder().encode(inputEl.value);
-            const binStr = atob(payloadB64);
+            const binStr = atob(payloadB64.replace(/\s+/g, ''));
             const bytes = new Uint8Array(binStr.length);
             for (let i = 0; i < binStr.length; i++) bytes[i] = binStr.charCodeAt(i);
 

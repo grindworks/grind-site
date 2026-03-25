@@ -1671,7 +1671,7 @@ return [
     'session_expired' => 'O seu tempo de permanência findou. Será necessário revigorar o navegador.',
     'login_required' => 'É crucial estabelecer uma sessão para dar continuidade nas tarefas.',
     'showing_results' => 'Apresentando do %s ao %s dentro do limite do %s informações cadastradas',
-    'err_image_dimension' => 'O tamanho original ultrapassa as medidas suportadas.',
+    'err_image_dimension' => 'As dimensões da imagem excedem o limite máximo permitido (%d px).',
     'uploading' => 'Carga Sendo Realizada...',
 
     // Recently added keys

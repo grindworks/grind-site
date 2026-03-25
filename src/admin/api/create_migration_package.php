@@ -168,9 +168,7 @@ try {
       $replacement = "if (!defined('DB_FILE')) define('DB_FILE', __DIR__ . '/data/" . $safeDbName . "');";
 
       if (preg_match($pattern, $origConfig)) {
-        $configContent = preg_replace_callback($pattern, function () use ($replacement) {
-          return $replacement;
-        }, $origConfig);
+        $configContent = preg_replace($pattern, addcslashes($replacement, '\\$'), $origConfig);
       } else {
         // If the definition is not found, append it to the end.
         $configContent = rtrim($origConfig) . "\n\n" . $replacement . "\n";
@@ -180,9 +178,7 @@ try {
       $replacementFilename = "if (!defined('DB_FILENAME')) define('DB_FILENAME', '" . $safeDbName . "');";
 
       if (preg_match($patternFilename, $configContent)) {
-        $configContent = preg_replace_callback($patternFilename, function () use ($replacementFilename) {
-          return $replacementFilename;
-        }, $configContent);
+        $configContent = preg_replace($patternFilename, addcslashes($replacementFilename, '\\$'), $configContent);
       } else {
         $configContent = rtrim($configContent) . "\n" . $replacementFilename . "\n";
       }

@@ -42,7 +42,7 @@ function grinds_delete_user(PDO $pdo, int $userId, int $currentUserId)
         foreach (glob($sessionDir . '/sess_*') as $file) {
             if (basename($file) !== 'sess_' . $currentSessionId) {
                 $content = @file_get_contents($file);
-                if ($content !== false && strpos($content, 'user_id|i:' . $userId . ';') !== false) {
+                if ($content !== false && preg_match('/user_id\|(?:i:' . $userId . ';|s:\d+:"' . $userId . '";)/', $content)) {
                     @unlink($file);
                 }
             }

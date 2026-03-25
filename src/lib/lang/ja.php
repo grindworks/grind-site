@@ -1671,7 +1671,7 @@ return [
     'session_expired' => 'セッションの有効期限が切れました。ページを再読み込みしてください。',
     'login_required' => '管理画面にアクセスするにはログインが必要です。',
     'showing_results' => '全%3$s件中 %1$s - %2$s件を表示',
-    'err_image_dimension' => '画像の寸法（縦・横のピクセル数）が大きすぎます。',
+    'err_image_dimension' => '画像の寸法が最大許容サイズ（%d px）を超えています。',
     'uploading' => 'アップロード中...',
 
     // Recently added keys

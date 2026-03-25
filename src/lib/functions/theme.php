@@ -872,7 +872,7 @@ function grinds_get_share_buttons($url = null, $title = null)
             continue;
 
         $results[] = [
-            'share_url' => str_replace(['{URL}', '{TITLE}'], [$urlEnc, $titleEnc], $button['url']),
+            'share_url' => str_ireplace(['{URL}', '{TITLE}'], [$urlEnc, $titleEnc], $button['url']),
             'name' => h($button['name']),
             'icon' => h($button['icon']),
             'color' => h($button['color']),
