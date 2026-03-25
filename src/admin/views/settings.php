@@ -10,13 +10,21 @@
 foreach ($tabs as $k => $v) {
   $tabs[$k]['label'] = _t($v['label']);
 }
+
+// Check for updates
+$hasUpdate = false;
+$latestVersion = get_option('latest_version');
+if ($latestVersion && version_compare($latestVersion, CMS_VERSION, '>')) {
+  $hasUpdate = true;
+}
 ?>
 
 <script src="<?= grinds_asset_url('assets/js/admin_settings.js') ?>"></script>
 <script>
   window.grindsSettingsData = {
     activeTab: <?= json_encode($init_tab) ?>,
-    tabs: <?= json_encode($tabs, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?: '{}' ?>
+    tabs: <?= json_encode($tabs, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?: '{}' ?>,
+    hasUpdate: <?= json_encode($hasUpdate) ?>
   };
 </script>
 
@@ -25,6 +33,7 @@ foreach ($tabs as $k => $v) {
         activeTab: window.grindsSettingsData.activeTab,
         mobileMenuOpen: false,
         tabs: window.grindsSettingsData.tabs,
+        hasUpdate: window.grindsSettingsData.hasUpdate,
 
         changeTab(key) {
             this.activeTab = key;
@@ -105,6 +114,10 @@ foreach ($tabs as $k => $v) {
             </svg>
             <span x-text="tab.label"></span>
 
+            <template x-if="key === 'update' && hasUpdate">
+              <span class="ml-2 flex w-2 h-2 rounded-full shrink-0" :class="activeTab === 'update' ? 'bg-theme-on-primary' : 'bg-theme-danger'"></span>
+            </template>
+
             <svg x-show="activeTab === key" class="ml-auto w-4 h-4 text-theme-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-check"></use>
             </svg>
@@ -131,6 +144,10 @@ foreach ($tabs as $k => $v) {
             </svg>
 
             <?= $item['label'] ?>
+
+            <?php if ($k === 'update' && $hasUpdate): ?>
+              <span class="ml-2 flex w-2 h-2 rounded-full shrink-0" :class="activeTab === 'update' ? 'bg-theme-on-primary' : 'bg-theme-danger'"></span>
+            <?php endif; ?>
 
             <svg x-show=' activeTab===<?= json_encode($k, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS) ?>' class="opacity-50 ml-auto w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-chevron-right"></use>
