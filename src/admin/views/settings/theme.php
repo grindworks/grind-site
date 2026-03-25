@@ -109,7 +109,7 @@ if (!defined('GRINDS_APP'))
               </svg>
               <?= _t('st_disable_external') ?>
             </span>
-            <span class="block opacity-60 mt-1.5 text-xs leading-relaxed max-w-2xl">
+            <span class="block opacity-60 mt-1.5 text-xs leading-relaxed">
               <?= _t('st_disable_external_desc') ?>
             </span>
           </div>
