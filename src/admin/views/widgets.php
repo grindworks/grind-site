@@ -272,7 +272,7 @@ $csrf_token = generate_csrf_token();
       </div>
 
       <form method="post" enctype="multipart/form-data" @submit.prevent="
-        isSubmitting = true;
+        setTimeout(() => isSubmitting = true, 10);
         if (selectedType === 'html') {
           const textarea = $el.querySelector('textarea[name=\'content\']');
           if (textarea && textarea.value) {

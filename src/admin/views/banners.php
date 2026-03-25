@@ -311,7 +311,7 @@ $csrf_token = generate_csrf_token();
         previewUrl: <?= json_encode(($edit_id && !empty($edit_data['image_url'])) ? get_media_url($edit_data['image_url']) : '', JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS) ?>,
         isSubmitting: false
       }' @submit.prevent="
-        isSubmitting = true;
+        setTimeout(() => isSubmitting = true, 10);
         if (type === 'html') {
           const textarea = $el.querySelector('textarea[name=\'html_code\']');
           if (textarea && textarea.value) {

@@ -161,10 +161,7 @@ try {
 
   // Return error response
   $code = $e->getCode();
-  if (!is_numeric($code) || $code < 400 || $code > 599) {
+  if (!is_numeric($code) || $code < 400 || $code > 599)
     $code = 500;
-  } else {
-    $code = (int)$code;
-  }
-  json_response(['success' => false, 'error' => $e->getMessage(), 'code' => $code], $code);
+  json_response(['success' => false, 'error' => $e->getMessage(), 'code' => (int)$code], (int)$code);
 }

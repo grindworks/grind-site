@@ -380,7 +380,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$is_locked) {
             <?php if (!$is_locked): ?>
                 <form method="post"
                     action="login.php<?= !empty($queryParams['redirect_to']) ? '?redirect_to=' . h($queryParams['redirect_to']) : '' ?>"
-                    @submit="loading = true" class="space-y-6" x-data="{ loading: false }">
+                    @submit="setTimeout(() => loading = true, 10)" class="space-y-6" x-data="{ loading: false }">
                     <input type="hidden" name="csrf_token" value="<?= h(generate_csrf_token()) ?>">
                     <div>
                         <label for="username" class="block opacity-80 mb-2 font-bold text-theme-text text-sm">

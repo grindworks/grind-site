@@ -74,7 +74,7 @@ if (!is_array($shareButtons) || empty($shareButtons)) {
         }
      }">
 
-  <form method="post" @submit="isSubmitting = true">
+  <form method="post" @submit="setTimeout(() => isSubmitting = true, 10)">
     <input type="hidden" name="csrf_token" value="<?= h(generate_csrf_token()) ?>">
     <input type="hidden" name="action" value="update_integration">
 

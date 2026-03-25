@@ -280,7 +280,7 @@ $basePath = rtrim($parsedBase['path'] ?? '/', '/') . '/';
     </div>
 
     <!-- Main Form -->
-    <form id="post-form" method="post" enctype="multipart/form-data" class="items-start gap-8 grid grid-cols-1 lg:grid-cols-3" @submit="isSubmitting = true;">
+    <form id="post-form" method="post" enctype="multipart/form-data" class="items-start gap-8 grid grid-cols-1 lg:grid-cols-3" @submit="setTimeout(() => isSubmitting = true, 10);">
         <input type="hidden" name="csrf_token" value="<?= h(generate_csrf_token()) ?>">
         <!-- Flag to inform controller of save mode. -->
         <input type="hidden" name="save_post_mode" value="1">

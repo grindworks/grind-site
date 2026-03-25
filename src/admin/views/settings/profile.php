@@ -22,7 +22,7 @@ if (!isset($myUser)) {
     isSubmitting: false,
     avatarPreview: <?= htmlspecialchars(json_encode(get_media_url($myUser['avatar'] ?? '')), ENT_QUOTES) ?>,
     fileName: ''
-  }" @submit="isSubmitting = true">
+  }" @submit="setTimeout(() => isSubmitting = true, 10)">
     <input type="hidden" name="csrf_token" value="<?= h(generate_csrf_token()) ?>">
     <input type="hidden" name="action" value="update_profile">
 

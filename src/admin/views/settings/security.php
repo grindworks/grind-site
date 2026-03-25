@@ -6,7 +6,7 @@
  */
 if (!defined('GRINDS_APP')) exit; ?>
 
-<form method="post" action="settings.php" x-data="{ isSubmitting: false }" @submit="isSubmitting = true">
+<form method="post" action="settings.php" x-data="{ isSubmitting: false }" @submit="setTimeout(() => isSubmitting = true, 10)">
   <input type="hidden" name="csrf_token" value="<?= h(generate_csrf_token()) ?>">
   <input type="hidden" name="action" value="update_security">
 

@@ -213,7 +213,7 @@ $csrf_token = generate_csrf_token();
         </button>
       </div>
 
-      <form method="post" @submit="isSubmitting = true">
+      <form method="post" @submit="setTimeout(() => isSubmitting = true, 10)">
         <input type="hidden" name="csrf_token" value="<?= h(generate_csrf_token()) ?>">
         <input type="hidden" name="action" value="save">
         <?php if ($edit_id): ?><input type="hidden" name="target_id" value="<?= h($edit_id) ?>"><?php endif; ?>
