@@ -353,14 +353,14 @@ function Grinds_GetSampleData($lang = 'en')
                             ? 'GrindSiteは軽量なフックシステムを備えており、プラグインで機能を拡張できます。この記事では、簡単なプラグインの作り方を解説します。'
                             : 'GrindSite features a lightweight hook system that allows you to extend functionality via plugins. This article explains how to create a simple plugin.']],
 
-                        ['type' => 'header', 'data' => ['text' => $isJa ? 'プラグインの構造' : 'Plugin Structure', 'level' => 'h2']],
+                        ['type' => 'header', 'data' => ['text' => $isJa ? 'プラグインの配置' : 'Plugin Placement', 'level' => 'h2']],
                         ['type' => 'paragraph', 'data' => ['text' => $isJa
-                            ? '`plugins` ディレクトリ内にフォルダを作成し、その中に `plugin.php` を配置するだけで認識されます。'
-                            : 'Simply create a folder within the `plugins` directory and place a `plugin.php` file inside it to be recognized.']],
+                            ? '`plugins` ディレクトリ内に `.php` ファイルを配置するだけで自動的に認識され、実行されます。'
+                            : 'Simply place a `.php` file in the `plugins` directory to be automatically recognized and executed.']],
 
                         ['type' => 'code', 'data' => [
                             'language' => 'bash',
-                            'code' => "plugins/\n  └── my-first-plugin/\n      └── plugin.php"
+                            'code' => "plugins/\n  └── my-plugin.php"
                         ]],
 
                         ['type' => 'header', 'data' => ['text' => $isJa ? 'コード例' : 'Code Example', 'level' => 'h2']],
@@ -374,10 +374,10 @@ function Grinds_GetSampleData($lang = 'en')
                         ]],
 
                         ['type' => 'callout', 'data' => [
-                            'style' => 'success',
+                            'style' => 'info',
                             'text' => $isJa
-                                ? '管理画面の「プラグイン」メニューから有効化することを忘れないでください。'
-                                : 'Don\'t forget to activate it from the "Plugins" menu in the admin panel.'
+                                ? 'プラグインを一時的に無効化したい場合は、ファイル名の先頭に `_`（アンダースコア）を追加してください。（例: `_my-plugin.php`）'
+                                : 'To temporarily disable a plugin, simply add an underscore `_` to the beginning of the filename (e.g., `_my-plugin.php`).'
                         ]],
                     ]
                 ]

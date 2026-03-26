@@ -405,7 +405,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $pdo->beginTransaction();
         try {
           grinds_save_settings_from_post(
-            ['site_name', 'admin_title', 'site_description', 'site_footer_text', 'license_key'],
+            ['site_name', 'admin_title', 'site_description', 'site_footer_text', 'license_key', 'media_max_width', 'media_quality'],
             ['site_noindex', 'site_block_ai', 'admin_show_site_name', 'admin_show_logo_login']
           );
 
@@ -924,7 +924,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $pdo->beginTransaction();
         try {
           grinds_save_settings_from_post(
-            ['session_timeout', 'security_max_attempts', 'security_lockout_time', 'preview_shared_password'],
+            ['session_timeout', 'security_max_attempts', 'security_lockout_time', 'preview_shared_password', 'iframe_allowed_domains'],
             ['secure_preview_mode']
           );
           $pdo->commit();
@@ -1398,6 +1398,8 @@ foreach ($settings_keys as $k) {
     $viewKey = 'secure_preview';
   if ($k == 'preview_shared_password')
     $viewKey = 'preview_password';
+  if ($k == 'iframe_allowed_domains')
+    $viewKey = 'iframe_domains';
   if ($k == 'google_analytics_id')
     $viewKey = 'ga_id';
   if ($k == 'custom_head_scripts')
@@ -1411,6 +1413,10 @@ foreach ($settings_keys as $k) {
   if (strpos($k, 'custom_skin_') === 0) {
     $viewKey = str_replace('custom_skin_', 'c_', $k);
   }
+  if ($k == 'media_max_width')
+    $viewKey = 'media_max_width';
+  if ($k == 'media_quality')
+    $viewKey = 'media_quality';
 
   // Get option
   $val = get_option($k);

@@ -173,6 +173,8 @@ class GrindsSSG
             update_option('ssg_max_results', (int)$data['maxResults']);
         if (isset($data['searchScope']))
             update_option('ssg_search_scope', $data['searchScope']);
+        if (isset($data['searchChunkSize']))
+            update_option('ssg_search_chunk_size', (int)$data['searchChunkSize']);
 
         session_write_close();
     }
@@ -298,6 +300,24 @@ class GrindsSSG
         // Add 404 page
         if ($mode === 'full') {
             $pages[] = ['url' => '404', 'slug' => '404', 'depth' => 0, 'page' => 1];
+        }
+
+        // Add standalone physical pages (like contact.php) from theme
+        $activeTheme = function_exists('get_option') ? get_option('site_theme', 'default') : 'default';
+        $themePath = $this->rootDir . '/theme/' . $activeTheme;
+
+        $standalonePages = ['contact'];
+        foreach ($standalonePages as $pSlug) {
+            $alreadyAdded = false;
+            foreach ($pages as $p) {
+                if ($p['slug'] === $pSlug) {
+                    $alreadyAdded = true;
+                    break;
+                }
+            }
+            if (!$alreadyAdded && file_exists($themePath . '/' . $pSlug . '.php')) {
+                $pages[] = ['url' => $pSlug, 'slug' => $pSlug, 'depth' => 0, 'page' => 1];
+            }
         }
 
         // Apply filters

@@ -191,7 +191,14 @@ class GrindsUpdater
         '.DS_Store',
         'LICENSE.txt',
         'update.json',
-        'README.md'
+        'README.md',
+        '.idea',
+        '.vscode',
+        '.svn',
+        '.hg',
+        'Thumbs.db',
+        '*.log',
+        '.php-cs-fixer.cache'
       ];
       $copySuccess = true;
       try {

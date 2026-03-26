@@ -1,7 +1,7 @@
 {
-  "version": "1.0.3",
-  "release_date": "2026-03-25",
-  "message": "Day 1 Hotfix & Stability Update",
-  "download_url": "https://github.com/grindworks/grind-site/archive/refs/tags/v1.0.3.zip",
+  "version": "1.0.4",
+  "release_date": "2026-03-26",
+  "message": "Feature enhancements, bug fixes, and improved usability.",
+  "download_url": "https://github.com/grindworks/grind-site/archive/refs/tags/v1.0.4.zip",
   "sha256": ""
 }

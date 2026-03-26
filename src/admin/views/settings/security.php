@@ -64,6 +64,12 @@ if (!defined('GRINDS_APP')) exit; ?>
         </div>
         <p class="text-theme-text opacity-60 text-xs mt-1 leading-relaxed"><?= _t('st_preview_password_desc') ?></p>
       </label>
+
+      <label class="block mt-8">
+        <span class="block mb-2 font-bold text-theme-text text-sm"><?= _t('st_iframe_domains') ?></span>
+        <textarea name="iframe_allowed_domains" rows="3" class="form-control font-mono text-xs w-full" placeholder="example.com&#10;my-video-server.net"><?= h($opt['iframe_domains'] ?? '') ?></textarea>
+        <p class="text-theme-text opacity-60 text-xs mt-1 leading-relaxed"><?= _t('st_iframe_domains_desc') ?></p>
+      </label>
     </div>
 
     <div class="flex justify-end mt-8 pt-6 border-theme-border border-t">

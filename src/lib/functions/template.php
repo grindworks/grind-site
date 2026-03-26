@@ -73,15 +73,8 @@ if (!function_exists('grinds_get_link_attributes')) {
 if (!function_exists('the_date')) {
     function the_date($dateStr, $format = null)
     {
-        if (empty($dateStr))
-            return '';
-        if ($format === null) {
-            $format = get_option('date_format', 'Y-m-d');
-        }
-        $ts = strtotime($dateStr);
-        if ($ts === false)
-            return '';
-        $date = date($format, $ts);
+        // DRY: Call get_the_date internally to share the localization logic
+        $date = get_the_date($format, ['published_at' => $dateStr]);
         return apply_filters('grinds_the_date', $date, $dateStr);
     }
 }

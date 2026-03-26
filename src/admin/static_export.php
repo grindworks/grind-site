@@ -25,6 +25,7 @@ $savedBaseUrl = get_option('ssg_base_url', '');
 $savedFormEndpoint = get_option('ssg_form_endpoint', '');
 $savedMaxResults = get_option('ssg_max_results', 1000);
 $savedSearchScope = get_option('ssg_search_scope', 'title_body');
+$savedSearchChunkSize = get_option('ssg_search_chunk_size', 500);
 
 // JS translations
 $jsTrans = [
@@ -212,6 +213,16 @@ ob_start();
               <?= _t('ssg_desc_max_results') ?>
             </p>
           </div>
+
+          <div>
+            <label class="block mb-2 font-bold text-theme-text text-sm">
+              <?= _t('ssg_label_chunk_size') ?>
+            </label>
+            <input type="number" x-model="config.searchChunkSize" class="form-control" placeholder="500">
+            <p class="opacity-60 mt-1 ml-1 text-theme-text text-xs">
+              <?= _t('ssg_desc_chunk_size') ?>
+            </p>
+          </div>
         </div>
       </div>
 
@@ -395,7 +406,8 @@ ob_start();
         formEndpoint: <?= json_encode($savedFormEndpoint) ?>,
         mode: <?= json_encode(Routing::getString($_GET, 'mode', ($lastExport ? 'diff' : 'full'))) ?>,
         searchScope: <?= json_encode($savedSearchScope) ?>,
-        maxResults: <?= (int)$savedMaxResults ?>
+        maxResults: <?= (int)$savedMaxResults ?>,
+        searchChunkSize: <?= (int)$savedSearchChunkSize ?>
       },
       // Load translations
       trans: <?= json_encode($jsTrans, JSON_UNESCAPED_UNICODE) ?>,
@@ -417,7 +429,8 @@ ob_start();
             formEndpoint: this.config.formEndpoint,
             mode: this.config.mode,
             searchScope: this.config.searchScope,
-            maxResults: this.config.maxResults
+            maxResults: this.config.maxResults,
+            searchChunkSize: this.config.searchChunkSize
           });
           const pages = initRes.pages;
           this.buildId = initRes.build_id || initRes.buildId;

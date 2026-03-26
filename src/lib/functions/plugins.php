@@ -27,12 +27,18 @@ if (!defined('GRINDS_APP')) exit;
                 }
 
                 $quarantinedName = $pluginDir . '/_' . basename($currentPlugin);
-                @rename($currentPlugin, $quarantinedName);
+                $renamed = @rename($currentPlugin, $quarantinedName);
 
                 if (class_exists('GrindsLogger')) {
                     GrindsLogger::log("System Recovery: Plugin automatically disabled due to a fatal crash -> " . basename($currentPlugin), 'CRITICAL');
+                    if (!$renamed) {
+                        GrindsLogger::log("System Recovery Failed: Could not rename plugin. Please manually rename or delete '" . basename($currentPlugin) . "' via FTP.", 'CRITICAL');
+                    }
                 } else {
                     error_log("GrindSite Recovery: Plugin disabled -> " . basename($currentPlugin));
+                    if (!$renamed) {
+                        error_log("GrindSite Recovery Failed: Could not rename plugin. Please manually rename or delete '" . basename($currentPlugin) . "' via FTP.");
+                    }
                 }
             }
         }
@@ -66,12 +72,18 @@ if (!defined('GRINDS_APP')) exit;
                     } else {
                         // Quarantine plugin immediately on catchable errors
                         $quarantinedName = dirname($pluginFile) . '/_' . basename($pluginFile);
-                        @rename($pluginFile, $quarantinedName);
+                        $renamed = @rename($pluginFile, $quarantinedName);
 
                         if (class_exists('GrindsLogger')) {
                             GrindsLogger::log('Plugin load error & quarantined [' . basename($pluginFile) . ']: ' . $e->getMessage(), 'ERROR');
+                            if (!$renamed) {
+                                GrindsLogger::log("Quarantine Failed: Could not rename plugin. Please manually rename or delete '" . basename($pluginFile) . "' via FTP.", 'ERROR');
+                            }
                         } else {
                             error_log('Plugin load error & quarantined [' . basename($pluginFile) . ']: ' . $e->getMessage());
+                            if (!$renamed) {
+                                error_log("Quarantine Failed: Could not rename plugin. Please manually rename or delete '" . basename($pluginFile) . "' via FTP.");
+                            }
                         }
                     }
                 }

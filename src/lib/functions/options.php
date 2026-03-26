@@ -204,6 +204,8 @@ if (!function_exists('grinds_get_default_settings')) {
             'site_theme' => 'default',
             'admin_skin' => 'default',
             'admin_layout' => 'sidebar',
+            'media_max_width' => '1920',
+            'media_quality' => '85',
         ];
 
         $otherSettings = [
@@ -222,6 +224,7 @@ if (!function_exists('grinds_get_default_settings')) {
             'security_lockout_time' => '15',
             'secure_preview_mode' => '0',
             'preview_shared_password' => '',
+            'iframe_allowed_domains' => '',
 
             // Integration
             'google_analytics_id' => '',
@@ -237,6 +240,7 @@ if (!function_exists('grinds_get_default_settings')) {
             'login_backup_frequency' => '10',
             'db_version' => defined('GRINDS_DB_SCHEMA_VERSION') ? constant('GRINDS_DB_SCHEMA_VERSION') : 4,
             'system_base_url' => '',
+            'ssg_search_chunk_size' => '500',
         ];
 
         return array_merge($baseSettings, $skinSettings, $otherSettings);

@@ -143,6 +143,16 @@ if (!defined('GRINDS_APP')) exit; ?>
         <p class="opacity-60 mt-1 text-theme-text text-xs"><?= _t('st_editor_debounce_desc') ?></p>
       </label>
 
+      <label class="block">
+        <span class="block mb-2 font-bold text-theme-text text-sm"><?= _t('st_media_max_width') ?></span>
+        <input type="number" name="media_max_width" value="<?= h($opt['media_max_width']) ?>" class="form-control" min="100" max="10000">
+      </label>
+
+      <label class="block">
+        <span class="block mb-2 font-bold text-theme-text text-sm"><?= _t('st_media_quality') ?></span>
+        <input type="number" name="media_quality" value="<?= h($opt['media_quality']) ?>" class="form-control" min="1" max="100">
+      </label>
+
       <div class="bg-theme-bg mt-2 p-4 border border-theme-border rounded-theme">
         <label class="flex items-start gap-3 cursor-pointer">
           <input type="checkbox" name="site_noindex" value="1" class="mt-1 bg-theme-bg border-theme-border rounded focus:ring-theme-primary w-5 h-5 text-theme-primary form-checkbox shrink-0" <?= get_option('site_noindex') ? 'checked' : '' ?>>

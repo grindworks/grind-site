@@ -12,6 +12,8 @@ Any ".php" files placed here will be automatically loaded at system startup.
   - Auto-Quarantine (Safe Mode): If a plugin causes a Fatal Error or crash, the system
     will automatically disable it by renaming it with an underscore "_"
     prefix to protect your site from going down.
+    *(Note: This auto-quarantine feature requires the 'plugins' directory to have
+    write permissions. If it is read-only, you must rename the file manually via FTP).*
 
 - How to Use:
   1. Create a PHP file in this directory (e.g., "my-functions.php").
@@ -21,8 +23,6 @@ Any ".php" files placed here will be automatically loaded at system startup.
   To disable a plugin without deleting it, simply add an underscore "_"
   to the beginning of the filename (e.g., "_my-functions.php").
   Files starting with "_" are ignored by the system.
-  Note: Do not confuse this with the "Plugins" menu in the admin panel;
-  plugins placed deeply in this folder are enabled automatically by their filename.
 
 - Hook System (Action Hooks):
   GrindSite provides a lightweight hook system to execute code at specific moments.
@@ -65,6 +65,8 @@ Any ".php" files placed here will be automatically loaded at system startup.
   - 自動隔離（セーフモード）: 万が一自作プラグインが致命的なエラー（Fatal Error等）を
     引き起こしてしまった場合、システムが自動的にファイル名の先頭に "_" を付けて無効化し、
     サイト全体がエラーで閲覧不可になるのを防ぎます。
+    ※注意: この自動隔離機能が働くには、`plugins` フォルダに書き込み権限が必要です。
+    読み取り専用の場合は、FTP等を使って手動でファイル名を変更（または削除）してください。
 
 - 使い方:
   1. このフォルダの中に好きな名前でPHPファイルを作成します。（例: my-functions.php）
@@ -74,8 +76,6 @@ Any ".php" files placed here will be automatically loaded at system startup.
   ファイル名の先頭に "_"（アンダースコア）を付けると、そのファイルは読み込まれません。
   一時的に機能を停止したい場合や、バックアップとして残す場合に便利です。
   (例: _my-functions.php)
-  ※一部のドキュメントに「管理画面のプラグインメニューから～」という記載がありますが、
-  このフォルダの自作プラグインはファイル名の変更（_の有無）だけで有効/無効が切り替わります。
 
 - フックシステム (Action Hooks):
   特定のタイミングで処理を実行するための軽量なフック機構を備えています。
