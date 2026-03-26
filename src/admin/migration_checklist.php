@@ -387,7 +387,7 @@ require_once __DIR__ . '/layout/toast.php';
                 formData.append('action', action);
                 formData.append('ajax_mode', '1');
                 formData.append('csrf_token', <?= json_encode(generate_csrf_token()) ?>);
-                const res = await fetch('settings.php', {
+                const res = await fetch((window.grindsBaseUrl || '').replace(/\/$/, '') + '/admin/settings.php', {
                     method: 'POST',
                     body: formData
                 });
@@ -422,7 +422,7 @@ require_once __DIR__ . '/layout/toast.php';
                 formData.append('ajax_mode', '1');
                 formData.append('csrf_token', <?= json_encode(generate_csrf_token()) ?>);
                 try {
-                    const res = await fetch('settings.php', {
+                    const res = await fetch((window.grindsBaseUrl || '').replace(/\/$/, '') + '/admin/settings.php', {
                         method: 'POST',
                         body: formData
                     });
@@ -445,7 +445,7 @@ require_once __DIR__ . '/layout/toast.php';
                 formData.append('ajax_mode', '1');
                 formData.append('csrf_token', <?= json_encode(generate_csrf_token()) ?>);
                 try {
-                    const res = await fetch('settings.php', {
+                    const res = await fetch((window.grindsBaseUrl || '').replace(/\/$/, '') + '/admin/settings.php', {
                         method: 'POST',
                         body: formData
                     });
@@ -453,7 +453,7 @@ require_once __DIR__ . '/layout/toast.php';
                     if (data.success) {
                         showToast(<?= json_encode(_t('msg_fix_complete')) ?>.replace(/%[sd]/, data.count));
                         this.scanResults = [];
-                        // リンクの置換後は、古いキャッシュを表示させないためにキャッシュをクリアする
+                        // Clear cache to prevent showing old URLs after replacement
                         await this.clearCache(true);
                     } else showToast('Error: ' + data.error, 'error');
                 } catch (e) {
@@ -470,7 +470,7 @@ require_once __DIR__ . '/layout/toast.php';
                 let offset = 0;
                 let hasMore = true;
                 while (hasMore) {
-                    const res = await fetch('api/rebuild_index.php', {
+                    const res = await fetch((window.grindsBaseUrl || '').replace(/\/$/, '') + '/admin/api/rebuild_index.php', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json'
@@ -492,7 +492,7 @@ require_once __DIR__ . '/layout/toast.php';
 
             async clearCache(silent = false) {
                 this.clearing = true;
-                const res = await fetch('api/clear_cache.php', {
+                const res = await fetch((window.grindsBaseUrl || '').replace(/\/$/, '') + '/admin/api/clear_cache.php', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'

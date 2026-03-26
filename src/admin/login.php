@@ -219,7 +219,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$is_locked) {
                     // Send lockout alert email to admin on first occurrence
                     if ($is_new_lockout) {
                         $admin_email = get_option('smtp_admin_email');
-                        if (!empty($admin_email)) {
+                        $smtp_host = get_option('smtp_host');
+                        if (!empty($admin_email) && !empty($smtp_host)) {
                             if (!class_exists('SimpleMailer')) {
                                 require_once ROOT_PATH . '/lib/mail.php';
                             }

@@ -653,7 +653,7 @@ function grinds_save_post(PDO $pdo, array $data, array $files, string $action, ?
         ];
 
         $postId = null;
-        $newVersion = 1; // <- 追加: 新しいバージョンを保持する変数
+        $newVersion = 1;
 
         $idCheck = ($action === 'edit' && $id) ? $id : 0;
         $finalSlug = grinds_get_unique_slug($pdo, 'posts', $postData['slug'], $idCheck);
@@ -688,7 +688,7 @@ function grinds_save_post(PDO $pdo, array $data, array $files, string $action, ?
                     $dbUpdated = $current['updated_at'] ?? '';
                     $dbVersion = $current['version'] ?? 0;
 
-                    // <- 追加: 保存される新しいバージョンを計算
+                    // Calculate new version to save
                     $newVersion = $dbVersion + 1;
 
                     $formUpdated = $data['original_updated_at'] ?? '';
@@ -830,8 +830,8 @@ function grinds_save_post(PDO $pdo, array $data, array $files, string $action, ?
     return [
         'id' => $postId,
         'slug' => $finalSlug,
-        'version' => $newVersion, // <- 追加
-        'updated_at' => $current_time, // <- 追加
+        'version' => $newVersion,
+        'updated_at' => $current_time,
         'message' => _t('msg_saved') . $pathWarning
     ];
 }

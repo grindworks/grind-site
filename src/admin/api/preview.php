@@ -44,7 +44,6 @@ try {
       $mime = $finfo->file($_FILES[$key]['tmp_name']);
       if (strpos($mime, 'image/') === 0) {
         // Get safe extension
-        // 修正：プレビュー時のSVGアップロードも管理者限定にする
         if ($mime === 'image/svg+xml' && !current_user_can('manage_settings')) {
           throw new Exception('SVG uploads are restricted to Administrators.');
         }

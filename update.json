@@ -1,7 +1,7 @@
 {
-  "version": "1.0.4",
+  "version": "1.0.5",
   "release_date": "2026-03-26",
   "message": "Feature enhancements, bug fixes, and improved usability.",
-  "download_url": "https://github.com/grindworks/grind-site/archive/refs/tags/v1.0.4.zip",
-  "sha256": ""
+  "download_url": "https://github.com/grindworks/grind-site/archive/refs/tags/v1.0.5.zip",
+  "sha256": "ここに取得した64文字のハッシュ値を貼り付けます"
 }

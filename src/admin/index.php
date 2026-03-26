@@ -78,8 +78,7 @@ if ((defined('DEBUG_MODE') && DEBUG_MODE) || get_option('debug_mode')) {
     ];
 }
 
-// Scan residual files
-// Use centralized health check to avoid duplicate I/O and logic
+// Check system health
 $healthChecks = check_system_health();
 foreach ($healthChecks as $chk) {
     if ($chk['label'] === _t('chk_install_file')) {
@@ -96,8 +95,17 @@ foreach ($healthChecks as $chk) {
             'title' => $chk['label'],
             'msg' => $chk['msg'],
             'action_html' => '<div class="mt-3">
-                <button @click="fetch(\'api/clear_cache.php\', {method:\'POST\', headers:{\'Content-Type\':\'application/json\'}, body:JSON.stringify({csrf_token:\'' . h(generate_csrf_token()) . '\'})}).then(()=>location.reload())" class="text-xs bg-theme-bg/50 hover:bg-theme-bg border border-theme-border text-theme-text px-3 py-1.5 rounded-theme transition-colors inline-flex items-center gap-1"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="' . h(grinds_asset_url('assets/img/sprite.svg')) . '#outline-arrow-path"></use></svg>' . _t('btn_clear_cache') . '</button>
+                <button @click="fetch((window.grindsBaseUrl || \'\').replace(/\/$/, \'\') + \'/admin/api/clear_cache.php\', {method:\'POST\', headers:{\'Content-Type\':\'application/json\'}, body:JSON.stringify({csrf_token:\'' . h(generate_csrf_token()) . '\'})}).then(()=>location.reload())" class="text-xs bg-theme-bg/50 hover:bg-theme-bg border border-theme-border text-theme-text px-3 py-1.5 rounded-theme transition-colors inline-flex items-center gap-1"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="' . h(grinds_asset_url('assets/img/sprite.svg')) . '#outline-arrow-path"></use></svg>' . _t('btn_clear_cache') . '</button>
             </div>'
+        ];
+    } elseif ($chk['status'] === 'danger') {
+        // Catch unhandled danger alerts
+        $alerts[] = [
+            'type' => 'danger',
+            'title' => $chk['label'],
+            'msg' => $chk['msg'] ?: _t('st_action_required'),
+            'link' => 'settings.php?tab=system',
+            'link_text' => _t('view_details')
         ];
     }
 }
@@ -149,7 +157,7 @@ if (defined('DB_FILE') && file_exists(DB_FILE)) {
     }
 }
 
-// Validate config
+// Validate configuration
 if (empty(get_option('smtp_host'))) {
     $alerts[] = ['type' => 'warning', 'title' => _t('alert_mail_title'), 'msg' => _t('alert_mail_msg'), 'link' => 'settings.php?tab=mail', 'link_text' => _t('tab_mail')];
 }
@@ -157,7 +165,7 @@ if (empty(get_option('google_analytics_id'))) {
     $alerts[] = ['type' => 'warning', 'title' => _t('alert_ga_title'), 'msg' => _t('alert_ga_msg'), 'link' => 'settings.php?tab=integration', 'link_text' => _t('tab_integration')];
 }
 
-// Check Nginx
+// Check Nginx configuration
 $nginxConfirmedFile = ROOT_PATH . '/data/.nginx_confirmed';
 if (stripos($_SERVER['SERVER_SOFTWARE'] ?? '', 'nginx') !== false && !file_exists($nginxConfirmedFile)) {
     $alerts[] = [
@@ -171,7 +179,7 @@ if (stripos($_SERVER['SERVER_SOFTWARE'] ?? '', 'nginx') !== false && !file_exist
     ];
 }
 
-// Sort alerts by severity (danger > warning > info > success)
+// Sort alerts by severity
 usort($alerts, function ($a, $b) {
     $severity = ['danger' => 1, 'warning' => 2, 'info' => 3, 'success' => 4];
     $sa = $severity[$a['type'] ?? 'info'] ?? 99;
@@ -184,8 +192,6 @@ $now = date('Y-m-d H:i:s');
 
 // Get post counts
 $repo = new PostRepository($pdo);
-
-// Get detailed counts for smart linking
 $cnt_total_post = $repo->count(['type' => 'post']);
 $cnt_total_page = $repo->count(['type' => 'page']);
 $cnt_pub_post   = $repo->count(['status' => 'published', 'type' => 'post']);
@@ -247,7 +253,7 @@ $current_page = 'dashboard';
 $params = Routing::getParams();
 $is_fresh_install = isset($params['installed']);
 
-// Translations for JS health check
+// Set JS translations
 $isJa = (get_option('site_lang') === 'ja');
 $jsRewriteWarningTitle = $isJa ? '⚠️ URLリライトエラー検知' : '⚠️ URL Rewrite Error Detected';
 $jsRewriteWarningMsg = $isJa
@@ -346,7 +352,7 @@ ob_start();
     <div class="space-y-4 mb-8">
         <?php foreach ($alerts as $alert):
             $type = $alert['type'] ?? 'info';
-            // Determine alert colors
+            // Set alert colors
             $classes = match ($type) {
                 'danger'  => 'bg-theme-danger/10 text-theme-danger border-theme-danger/20',
                 'warning' => 'bg-theme-warning/10 text-theme-warning border-theme-warning/20',
@@ -701,7 +707,7 @@ ob_start();
 
 <script>
     document.addEventListener('DOMContentLoaded', () => {
-        // URL Rewrite Health Check
+        // Check URL rewrite health
         fetch((window.grindsBaseUrl || '').replace(/\/$/, '') + '/robots.txt', {
                 method: 'HEAD',
                 cache: 'no-store'
@@ -728,7 +734,6 @@ ob_start();
         const getThemeColor = (varName) => {
             const el = document.body;
             const rgb = getComputedStyle(el).getPropertyValue(varName).trim();
-            // Tailwind CSS variables are usually space separated
             return `rgb(${rgb.replace(/ /g, ',')})`;
         };
         const getRgba = (varName, alpha = 1) => {

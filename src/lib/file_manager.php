@@ -1081,7 +1081,6 @@ class FileManager
         $filename = $info['filename'];
         $ext = strtolower($info['extension'] ?? '');
 
-        // 拡張子が画像関連でなければ派生ファイルはないので早期リターン
         if (!in_array($ext, ['jpg', 'jpeg', 'png', 'gif', 'webp', 'avif'])) {
             return $paths;
         }

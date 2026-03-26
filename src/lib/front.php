@@ -196,6 +196,21 @@ function resolve_front_request($request_url)
         }
     }
 
+    // Preload thumbnail image metadata to prevent N+1 queries
+    if (isset($result['data']['posts']) && is_array($result['data']['posts'])) {
+        if (function_exists('grinds_preload_image_meta')) {
+            $thumbUrls = [];
+            foreach ($result['data']['posts'] as $p) {
+                if (!empty($p['thumbnail'])) {
+                    $thumbUrls[] = $p['thumbnail'];
+                }
+            }
+            if (!empty($thumbUrls)) {
+                grinds_preload_image_meta(array_unique($thumbUrls));
+            }
+        }
+    }
+
     return $result;
 }
 

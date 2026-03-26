@@ -119,12 +119,11 @@ try {
             $block['data']['password'] = '***';
           }
           $visibleBlocks[] = $block;
-          break; // パスワード保護ブロック以降のコンテンツは除外
+          break;
         }
         $visibleBlocks[] = $block;
       }
       $blocks['blocks'] = $visibleBlocks;
-      // plain_text等の生成でも機密データが漏洩しないように、フィルタリング済みの状態に上書きする
       $contentResolved = json_encode($blocks, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
     }
 

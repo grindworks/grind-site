@@ -488,6 +488,7 @@ function grinds_db_migrate($pdo)
       $pdo->exec("CREATE INDEX IF NOT EXISTS idx_user_tokens_selector ON user_tokens (selector)");
       $pdo->exec("CREATE INDEX IF NOT EXISTS idx_posts_front_list ON posts (type, status, deleted_at, published_at DESC)");
       $pdo->exec("CREATE INDEX IF NOT EXISTS idx_media_uploaded_at ON media (uploaded_at)");
+      $pdo->exec("CREATE INDEX IF NOT EXISTS idx_media_filepath ON media (filepath)");
 
       try {
         $pdo->exec("DROP TABLE IF EXISTS posts_fts");

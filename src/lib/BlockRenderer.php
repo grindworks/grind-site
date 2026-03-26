@@ -88,7 +88,6 @@ class BlockRenderer
                         global $pageData;
                         $currentPostId = $pageData['post']['id'] ?? null;
                         $pData = @json_decode(file_get_contents($previewFile), true);
-                        // 記事IDが一致し、かつ（有効期限が設定されている場合は）期限内である場合のみバイパスを許可
                         $previewIdMatch = ($currentPostId && isset($pData['id']) && $pData['id'] == $currentPostId) || (empty($currentPostId) && empty($pData['id']));
                         if (is_array($pData) && $previewIdMatch) {
                             if (!isset($pData['__expires_at']) || $pData['__expires_at'] > time()) {
@@ -863,7 +862,6 @@ HTML;
                     $html = "<div class='{$commonClass} shadow-theme my-8 border border-gray-200 rounded-theme overflow-x-auto'>";
                     $html .= "<table class='divide-y divide-gray-200 min-w-full text-sm'>";
 
-                    // ヘッダーの処理 (1行目を分離)
                     if ($withHeadings && isset($content[0]) && is_array($content[0])) {
                         $html .= "<thead class='bg-gray-50'><tr>";
                         foreach ($content[0] as $cell) {
@@ -871,10 +869,9 @@ HTML;
                             $html .= "<th scope='col' class='px-6 py-3 border-gray-200 border-r last:border-r-0 font-bold text-gray-500 text-xs text-left uppercase tracking-wider'>{$cellText}</th>";
                         }
                         $html .= "</tr></thead>";
-                        unset($content[0]); // 先頭行を削除してボディ用のループから外す
+                        unset($content[0]);
                     }
 
-                    // ボディの処理
                     $html .= "<tbody class='bg-white divide-y divide-gray-200'>";
                     foreach ($content as $row) {
                         if (!is_array($row)) continue;

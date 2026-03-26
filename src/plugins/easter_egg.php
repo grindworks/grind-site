@@ -18,7 +18,7 @@ if (!defined('GRINDS_APP')) exit;
 // Hook into the admin footer using the GrindSite Hook System
 add_action('grinds_footer', function () {
     // Display only to logged-in admins (or authorized users)
-    // ログイン中の管理者（または権限を持つユーザー）のみに表示
+    // ログイン中のユーザーにのみ表示
     $user = App::user();
 
     if ($user) {

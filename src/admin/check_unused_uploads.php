@@ -65,7 +65,7 @@ if (isset($params['action'])) {
           'exclude_dirs' => ['node_modules', 'vendor', '.git', 'dist', 'build']
         ]);
         foreach ($files as $filePath) {
-          // メモリ枯渇やCPUスパイクを防ぐため、1MB（1048576バイト）を超える巨大ファイルはスキップ
+          // Skip files larger than 1MB to prevent memory exhaustion
           if (@filesize($filePath) <= 1048576) {
             $content = @file_get_contents($filePath);
             if ($content) {
@@ -82,7 +82,7 @@ if (isset($params['action'])) {
           'include_exts' => ['json']
         ]);
         foreach ($files as $filePath) {
-          // メモリ枯渇やCPUスパイクを防ぐため、1MB（1048576バイト）を超える巨大ファイルはスキップ
+          // Skip files larger than 1MB to prevent memory exhaustion
           if (@filesize($filePath) <= 1048576) {
             $content = @file_get_contents($filePath);
             if ($content) {

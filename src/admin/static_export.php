@@ -501,7 +501,7 @@ ob_start();
               searchOffset = genRes.search_offset;
               chunkIndex = genRes.chunk_index;
               manifest = genRes.manifest;
-              // プログレスバーを少しずつ進める
+              // Increment progress bar slightly
               this.progress = Math.min(94, this.progress + 1);
             } else {
               genAssetsDone = true;
@@ -569,7 +569,7 @@ ob_start();
 
         formData.append('data', JSON.stringify(data));
 
-        const res = await fetch('api/ssg_process.php', {
+        const res = await fetch((window.grindsBaseUrl || '').replace(/\/$/, '') + '/admin/api/ssg_process.php', {
           method: 'POST',
           body: formData
         });

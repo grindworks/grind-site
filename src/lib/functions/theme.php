@@ -711,7 +711,7 @@ function grinds_get_header_data(array $context = []): array
      * Sanitize page title.
      */
     $finalTitle = html_entity_decode(strip_tags($finalTitle), ENT_QUOTES | ENT_HTML5, 'UTF-8');
-    // タイトル内の改行と連続する空白をクリーンアップ
+    // Clean up line breaks and multiple spaces in title
     $finalTitle = trim(preg_replace('/\s+/u', ' ', $finalTitle) ?? $finalTitle);
 
     // Page Description

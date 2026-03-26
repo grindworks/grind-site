@@ -302,7 +302,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $chunkSize = 8192;
             $buffer = '';
 
-            // ファイルの末尾からチャンク単位で読み込み、改行が100個見つかるまで遡る
+            // Read backwards in chunks to find last 100 lines
             while ($pos > 0) {
               $readSize = min($chunkSize, $pos);
               $pos -= $readSize;
@@ -686,7 +686,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if ($check->fetchColumn() > 0)
               throw new Exception(_t('err_email_exists'));
           }
-          $avatar = grinds_process_image_upload($pdo, 'avatar', $avatar);
+          $avatar = grinds_process_image_upload($pdo, 'avatar', $avatar, ['max_width' => 400]);
 
           if (!empty($newPass)) {
             if ($newPass !== $confirmPass)
@@ -1066,13 +1066,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             grinds_force_unlink($dest . '-wal');
             grinds_force_unlink($dest . '-shm');
 
-            // 1. 一時ファイルとして展開（ディスク容量不足等のエラーによる本番DBの破損を防止）
+            // 1. Extract to temp file to prevent corruption on disk full
             $tempDest = $dest . '.tmp';
             if (!copy($source, $tempDest)) {
               throw new Exception(_t('err_restore_failed') . ' (Failed to extract backup)');
             }
 
-            // 2. 本番DBの置換（rename優先、失敗時はcopyでフォールバック）
+            // 2. Replace production DB (try rename, fallback to copy)
             $restored = @rename($tempDest, $dest);
             if (!$restored) {
               $restored = @copy($tempDest, $dest);
@@ -1088,7 +1088,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
               set_flash(_t('msg_restore_complete'));
               redirect('admin/login.php');
             } else {
-              // 置換に失敗した場合は、退避した .bak ファイルからロールバック
+              // Rollback from .bak if replacement fails
               if (file_exists($dest . '.bak')) {
                 @copy($dest . '.bak', $dest);
               }

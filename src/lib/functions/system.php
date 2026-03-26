@@ -11,7 +11,7 @@ if (!defined('GRINDS_APP'))
  */
 function init_system()
 {
-    // 厳格なPHPバージョンチェック: 8.3未満なら起動を完全にブロック
+    // Block execution if PHP version is strictly below 8.3
     if (version_compare(PHP_VERSION, '8.3.0', '<')) {
         $msg = 'GrindSite requires PHP 8.3.0 or higher. Your server is running PHP ' . PHP_VERSION . '. Please upgrade your PHP version via your hosting control panel.';
         if (function_exists('grinds_render_error_page')) {
@@ -408,7 +408,7 @@ if (!function_exists('get_license_status')) {
         $curlError = curl_errno($ch);
         curl_close($ch);
 
-        // API通信エラー時の原因特定用デバッグログ
+        // Log API communication errors
         if ($httpCode !== 200 || $curlError !== 0) {
             error_log("Polar API Error - HTTP: {$httpCode}, cURL Error: {$curlError}, Response: {$response}");
         }
@@ -417,7 +417,7 @@ if (!function_exists('get_license_status')) {
             $apiSuccess = true;
             $data = json_decode($response, true);
             if (isset($data['status']) && in_array($data['status'], ['granted', 'active'])) {
-                // キーのプレフィックスでステータスを判定
+                // Determine status by key prefix
                 if (str_starts_with($key, 'GRIND-AGENCY')) {
                     $newStatus = 'agency';
                 } else {
@@ -532,13 +532,25 @@ function get_system_status()
     $danger_errors = [];
     $warning_errors = [];
 
+    // Ignore minor warnings for system status indicator
+    $ignored_warnings = [
+        function_exists('_t') ? _t('chk_config_perm') : 'Config File Permission',
+        function_exists('_t') ? _t('chk_sqlite_ver') : 'SQLite Version',
+        'DB Journal Mode',
+        'Nginx Config'
+    ];
+
     foreach ($checks as $chk) {
         if ($chk['status'] === 'danger') {
             $status = 'danger';
             $danger_errors[] = $chk['label'];
         } elseif ($chk['status'] === 'warning') {
-            if ($status !== 'danger')
+            if (in_array($chk['label'], $ignored_warnings, true)) {
+                continue;
+            }
+            if ($status !== 'danger') {
                 $status = 'warning';
+            }
             $warning_errors[] = $chk['label'];
         }
     }
