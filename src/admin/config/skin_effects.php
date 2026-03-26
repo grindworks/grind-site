@@ -67,8 +67,8 @@ return [
         }
     ',
     'corner_brackets' => '
-        .bg-theme-surface { clip-path: polygon(0 10px, 10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%); }
-        .card::after {
+        .card, .panel, .modal-content { clip-path: polygon(0 10px, 10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%); }
+        .card::after, .panel::after {
             content: ""; position: absolute; bottom: 0; right: 0;
             width: 20px; height: 20px;
             border-right: 3px solid rgb(var(--color-primary) / var(--color-primary-alpha, 1)); border-bottom: 3px solid rgb(var(--color-primary) / var(--color-primary-alpha, 1));
