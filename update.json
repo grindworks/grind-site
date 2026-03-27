@@ -1,6 +1,6 @@
 {
   "version": "1.1.0",
-  "release_date": "2026-03-26",
+  "release_date": "2026-03-27",
   "message": "Performance tuning (DB optimization, N+1 fixes) and UI/UX improvements.",
   "download_url": "https://github.com/grindworks/grind-site/archive/refs/tags/v1.1.0.zip",
   "sha256": "4bebb01ed2d7cf835350a0ddc4b45bd5fb1f406073009eeeaa97c11ee6c1eb01"
