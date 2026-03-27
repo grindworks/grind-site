@@ -23,96 +23,98 @@ if (!isset($statusDot) && isset($sysStatus)) {
 }
 ?>
 
-<?php if (!in_array($licStatus, ['pro', 'agency'])):
-    if ($licStatus === 'trial') {
-        $licenseWidgetClass = 'bg-theme-info/10 border-theme-info/30 hover:bg-theme-info/20';
-    } else {
-        $licenseWidgetClass = 'bg-theme-warning/10 border-theme-warning/30 hover:bg-theme-warning/20';
-    }
-?>
-    <a href="settings.php?tab=general"
-        class="block p-3 rounded-theme border transition-colors group relative overflow-hidden <?= $licenseWidgetClass ?>">
-        <div class="flex justify-between items-center mb-1">
-            <span class="opacity-70 font-bold text-[10px] tracking-widest">
-                <?= _t('license') ?>
-            </span>
-            <?php if ($licStatus === 'trial'): ?>
-                <span class="flex items-center gap-1 font-bold text-theme-info text-xs"><svg class="w-3 h-3" fill="none"
-                        stroke="currentColor" viewBox="0 0 24 24">
-                        <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-beaker"></use>
-                    </svg>
-                    <?= _t('trial') ?>
+<?php if (current_user_can('manage_settings')): ?>
+    <?php if (!in_array($licStatus, ['pro', 'agency'])):
+        if ($licStatus === 'trial') {
+            $licenseWidgetClass = 'bg-theme-info/10 border-theme-info/30 hover:bg-theme-info/20';
+        } else {
+            $licenseWidgetClass = 'bg-theme-warning/10 border-theme-warning/30 hover:bg-theme-warning/20';
+        }
+    ?>
+        <a href="settings.php?tab=general"
+            class="block p-3 rounded-theme border transition-colors group relative overflow-hidden <?= $licenseWidgetClass ?>">
+            <div class="flex justify-between items-center mb-1">
+                <span class="opacity-70 font-bold text-[10px] tracking-widest">
+                    <?= _t('license') ?>
                 </span>
+                <?php if ($licStatus === 'trial'): ?>
+                    <span class="flex items-center gap-1 font-bold text-theme-info text-xs"><svg class="w-3 h-3" fill="none"
+                            stroke="currentColor" viewBox="0 0 24 24">
+                            <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-beaker"></use>
+                        </svg>
+                        <?= _t('trial') ?>
+                    </span>
+                <?php
+                else: ?>
+                    <span class="flex items-center gap-1 font-bold text-theme-warning text-xs"><svg class="w-3 h-3" fill="none"
+                            stroke="currentColor" viewBox="0 0 24 24">
+                            <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-exclamation-triangle"></use>
+                        </svg>
+                        <?= _t('unregistered') ?>
+                    </span>
+                <?php
+                endif; ?>
+            </div>
+            <div class="opacity-80 text-[10px] leading-tight">
+                <?php if ($licStatus === 'trial'): ?><span class="text-theme-info">
+                        <?= _t('license_trial_message') ?>
+                    </span>
+                <?php
+                else: ?><span class="text-theme-warning">
+                        <?= _t('license_free_message') ?>
+                    </span>
+                <?php
+                endif; ?>
+            </div>
+        </a>
+    <?php
+    endif; ?>
+
+    <a href="settings.php?tab=system"
+        class="group block relative bg-theme-bg/20 hover:bg-theme-bg/40 p-3 border <?= $border_class ?> hover:border-theme-primary/50 rounded-theme overflow-hidden transition-colors">
+        <div class="flex justify-between items-center mb-1">
+            <span class="opacity-50 font-bold text-[10px] tracking-widest <?= $text_class ?>">
+                <?= _t('system') ?>
+            </span>
+            <div class="flex items-center gap-1.5">
+                <span class="relative flex w-2 h-2">
+                    <span
+                        class="<?= $statusDot === 'bg-theme-success' ? 'animate-ping-slow' : 'animate-ping' ?> absolute inline-flex h-full w-full rounded-full opacity-75 <?= $statusDot ?>"></span>
+                    <span class="relative inline-flex rounded-full h-2 w-2 <?= $statusDot ?>"></span>
+                </span>
+            </div>
+        </div>
+        <div class="flex justify-between items-center">
+            <span class="max-w-[180px] font-bold text-xs truncate <?= $text_class ?>">
+                <?= h($sysStatus['msg']) ?>
+            </span>
+            <?php if (in_array($licStatus, ['pro', 'agency'])): ?>
+                <span class="flex items-center gap-1 font-mono text-[10px] <?= $text_class ?>">
+                    <span
+                        class="inline-flex items-center py-0.5 px-1 bg-theme-success/20 text-theme-success text-[9px] font-bold rounded-theme tracking-wide">PRO</span>
+                    v
+                    <?= h(CMS_VERSION) ?>
+                </span>
+                <?php if (!empty($hasUpdate)): ?>
+                    <a href="settings.php?tab=update" class="ml-auto text-theme-primary font-bold text-[10px] hover:underline animate-pulse" title="<?= _t('st_update_available') ?>">
+                        Update
+                    </a>
+                <?php endif; ?>
             <?php
             else: ?>
-                <span class="flex items-center gap-1 font-bold text-theme-warning text-xs"><svg class="w-3 h-3" fill="none"
-                        stroke="currentColor" viewBox="0 0 24 24">
-                        <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-exclamation-triangle"></use>
-                    </svg>
-                    <?= _t('unregistered') ?>
+                <span class="opacity-60 font-mono text-[10px] <?= $text_class ?>">v
+                    <?= h(CMS_VERSION) ?>
                 </span>
-            <?php
-            endif; ?>
-        </div>
-        <div class="opacity-80 text-[10px] leading-tight">
-            <?php if ($licStatus === 'trial'): ?><span class="text-theme-info">
-                    <?= _t('license_trial_message') ?>
-                </span>
-            <?php
-            else: ?><span class="text-theme-warning">
-                    <?= _t('license_free_message') ?>
-                </span>
+                <?php if (!empty($hasUpdate)): ?>
+                    <a href="https://github.com/grindworks/grind-site/releases" target="_blank" class="ml-auto text-theme-warning font-bold text-[10px] hover:underline" title="Manual Update Required">
+                        Update (Manual)
+                    </a>
+                <?php endif; ?>
             <?php
             endif; ?>
         </div>
     </a>
-<?php
-endif; ?>
-
-<a href="settings.php?tab=system"
-    class="group block relative bg-theme-bg/20 hover:bg-theme-bg/40 p-3 border <?= $border_class ?> hover:border-theme-primary/50 rounded-theme overflow-hidden transition-colors">
-    <div class="flex justify-between items-center mb-1">
-        <span class="opacity-50 font-bold text-[10px] tracking-widest <?= $text_class ?>">
-            <?= _t('system') ?>
-        </span>
-        <div class="flex items-center gap-1.5">
-            <span class="relative flex w-2 h-2">
-                <span
-                    class="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 <?= $statusDot ?>"></span>
-                <span class="relative inline-flex rounded-full h-2 w-2 <?= $statusDot ?>"></span>
-            </span>
-        </div>
-    </div>
-    <div class="flex justify-between items-center">
-        <span class="max-w-[180px] font-bold text-xs truncate <?= $text_class ?>">
-            <?= h($sysStatus['msg']) ?>
-        </span>
-        <?php if (in_array($licStatus, ['pro', 'agency'])): ?>
-            <span class="flex items-center gap-1 font-mono text-[10px] <?= $text_class ?>">
-                <span
-                    class="inline-flex items-center py-0.5 px-1 bg-theme-success/20 text-theme-success text-[9px] font-bold rounded-theme tracking-wide">PRO</span>
-                v
-                <?= h(CMS_VERSION) ?>
-            </span>
-            <?php if (!empty($hasUpdate)): ?>
-                <a href="settings.php?tab=update" class="ml-auto text-theme-primary font-bold text-[10px] hover:underline animate-pulse" title="<?= _t('st_update_available') ?>">
-                    Update
-                </a>
-            <?php endif; ?>
-        <?php
-        else: ?>
-            <span class="opacity-60 font-mono text-[10px] <?= $text_class ?>">v
-                <?= h(CMS_VERSION) ?>
-            </span>
-            <?php if (!empty($hasUpdate)): ?>
-                <a href="https://github.com/grindworks/grind-site/releases" target="_blank" class="ml-auto text-theme-warning font-bold text-[10px] hover:underline" title="Manual Update Required">
-                    Update (Manual)
-                </a>
-            <?php endif; ?>
-        <?php
-        endif; ?>
-    </div>
-</a>
+<?php endif; ?>
 
 <div class="flex justify-between items-center pt-1">
     <div class="flex items-center gap-3 min-w-0">

@@ -403,7 +403,8 @@ if (!isset($userList)) {
         password: '',
         passwordConfirm: '',
         role: 'editor'
-      }" @open-user-modal.window="
+      }" x-effect="document.body.style.overflow = isOpen ? 'hidden' : ''"
+      @open-user-modal.window="
         isOpen = true;
         mode = $event.detail.mode;
         targetId = $event.detail.id || '';
@@ -470,14 +471,14 @@ if (!isset($userList)) {
             </div>
 
             <div class="space-y-4">
-              <label class="block" x-data="{ show: false }">
-                <span class="block opacity-70 mb-1 font-bold text-theme-text text-xs">
+              <div class="block" x-data="{ show: false }">
+                <label for="password" class="block opacity-70 mb-1 font-bold text-theme-text text-xs">
                   <?= _t('st_password') ?>
                   <span x-show="mode === 'add'" class="text-theme-danger">*</span>
-                </span>
+                </label>
                 <div class="relative">
-                  <input :type="show ? 'text' : 'password'" name="password" x-model="password"
-                    class="pr-10 text-sm form-control" placeholder="<?= _t('ph_pass_8_chars') ?>"
+                  <input :type="show ? 'text' : 'password'" name="password" id="password" x-model="password"
+                    class="font-mono pr-10 text-sm form-control" placeholder="<?= _t('ph_pass_8_chars') ?>"
                     :required="mode === 'add'" autocomplete="new-password">
                   <button type="button" @click="show = !show"
                     class="right-0 absolute inset-y-0 flex items-center opacity-50 hover:opacity-100 px-3 focus:outline-none text-theme-text"
@@ -490,16 +491,16 @@ if (!isset($userList)) {
                     </svg>
                   </button>
                 </div>
-              </label>
+              </div>
 
-              <label class="block" x-data="{ show: false }">
-                <span class="block opacity-70 mb-1 font-bold text-theme-text text-xs">
+              <div class="block" x-data="{ show: false }">
+                <label for="password_confirm" class="block opacity-70 mb-1 font-bold text-theme-text text-xs">
                   <?= _t('st_password_confirm') ?>
                   <span x-show="mode === 'add'" class="text-theme-danger">*</span>
-                </span>
+                </label>
                 <div class="relative">
-                  <input :type="show ? 'text' : 'password'" name="password_confirm" x-model="passwordConfirm"
-                    class="pr-10 text-sm form-control" placeholder="<?= _t('ph_pass_confirm') ?>"
+                  <input :type="show ? 'text' : 'password'" name="password_confirm" id="password_confirm" x-model="passwordConfirm"
+                    class="font-mono pr-10 text-sm form-control" placeholder="<?= _t('ph_pass_confirm') ?>"
                     :required="mode === 'add'" autocomplete="new-password">
                   <button type="button" @click="show = !show"
                     class="right-0 absolute inset-y-0 flex items-center opacity-50 hover:opacity-100 px-3 focus:outline-none text-theme-text"
@@ -512,21 +513,21 @@ if (!isset($userList)) {
                     </svg>
                   </button>
                 </div>
-              </label>
+              </div>
             </div>
 
             <div x-show="mode === 'edit'">
               <hr class="border-theme-border mb-4">
-              <label class="block" x-data="{ show: false }">
-                <span class="block mb-1 font-bold text-theme-text text-xs">
+              <div class="block" x-data="{ show: false }">
+                <label for="current_password_user_modal" class="block mb-1 font-bold text-theme-text text-xs">
                   <?= _t('st_current_password') ?>
                   <span class="ml-1 text-[10px] text-theme-danger">
                     <?= _t('lbl_required') ?>
                   </span>
-                </span>
+                </label>
                 <div class="relative">
-                  <input :type="show ? 'text' : 'password'" name="current_password"
-                    class="pr-10 border-theme-primary/30 focus:border-theme-primary text-sm form-control"
+                  <input :type="show ? 'text' : 'password'" name="current_password" id="current_password_user_modal"
+                    class="font-mono pr-10 border-theme-primary/30 focus:border-theme-primary text-sm form-control"
                     placeholder="********" :required="mode === 'edit'" autocomplete="current-password">
                   <button type="button" @click="show = !show"
                     class="right-0 absolute inset-y-0 flex items-center opacity-50 hover:opacity-100 px-3 focus:outline-none text-theme-text"
@@ -539,7 +540,7 @@ if (!isset($userList)) {
                     </svg>
                   </button>
                 </div>
-              </label>
+              </div>
             </div>
 
           </div>

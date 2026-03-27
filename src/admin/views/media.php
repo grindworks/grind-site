@@ -34,6 +34,7 @@ if (!isset($skin) || !is_array($skin)) {
 <script src="<?= grinds_asset_url('assets/js/media_manager.js') ?>"></script>
 
 <div class="flex flex-col gap-4 mb-6" x-data="{ ...mediaManager(), dragCount: 0 }" x-init="init()"
+  x-effect="document.body.style.overflow = detailModalOpen ? 'hidden' : ''"
   @dragenter.prevent="dragCount++; isDragging = true"
   @dragleave.prevent="dragCount--; if (dragCount === 0) isDragging = false"
   @dragover.prevent=""
@@ -85,9 +86,8 @@ if (!isset($skin) || !is_array($skin)) {
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-arrow-up-tray"></use>
         </svg>
-        <span x-text='isUploading ? trans.uploading : <?= json_encode(_t('upload'), JSON_HEX_TAG | JSON_HEX_AMP |
-                                                        JSON_HEX_APOS) ?>'></span>
-        <input type="file" multiple class="hidden" @change="uploadFiles($event)" :disabled="isUploading">
+        <span x-text='isUploading ? trans.uploading : <?= json_encode(_t('upload'), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS) ?>'></span>
+        <input type="file" multiple class="sr-only" @change="uploadFiles($event)" :disabled="isUploading">
       </label>
     </div>
   </div>
@@ -162,9 +162,8 @@ if (!isset($skin) || !is_array($skin)) {
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-arrow-up-tray"></use>
           </svg>
-          <span x-text='isUploading ? trans.uploading : <?= json_encode(_t('upload'), JSON_HEX_TAG | JSON_HEX_AMP |
-                                                          JSON_HEX_APOS) ?>'></span>
-          <input type="file" multiple class="hidden" @change="uploadFiles($event)" :disabled="isUploading">
+          <span x-text='isUploading ? trans.uploading : <?= json_encode(_t('upload'), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS) ?>'></span>
+          <input type="file" multiple class="sr-only" @change="uploadFiles($event)" :disabled="isUploading">
         </label>
       </div>
 

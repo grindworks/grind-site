@@ -270,16 +270,14 @@ function grinds_process_bulk_actions(PDO $pdo, array $data): array
                 if ($newCatId <= 0) {
                     throw new Exception(_t('invalid_category_id'));
                 }
-                $stmtCatCheck = $pdo->prepare("SELECT id FROM categories WHERE id = ?");
+                $stmtCatCheck = $pdo->prepare("SELECT id, name FROM categories WHERE id = ?");
                 $stmtCatCheck->execute([$newCatId]);
-                if (!$stmtCatCheck->fetch()) {
+                $catInfo = $stmtCatCheck->fetch(PDO::FETCH_ASSOC);
+
+                if (!$catInfo) {
                     throw new Exception(_t('selected_category_does_not_exist'));
                 }
-
-                // Fetch category name for search_text
-                $stmtCatName = $pdo->prepare("SELECT name FROM categories WHERE id = ?");
-                $stmtCatName->execute([$newCatId]);
-                $newCatName = $stmtCatName->fetchColumn() ?: '';
+                $newCatName = $catInfo['name'] ?? '';
 
                 $stmtGet = $pdo->prepare("SELECT title, description, content FROM posts WHERE id = ?");
                 $stmtTags = $pdo->prepare("SELECT t.name FROM tags t JOIN post_tags pt ON t.id = pt.tag_id WHERE pt.post_id = ?");

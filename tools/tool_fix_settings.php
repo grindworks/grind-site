@@ -137,6 +137,7 @@ $trans = [
     'desc_app_key' => 'Required for identity verification. Check your config.php file.',
     'err_app_key' => 'Authentication failed: Invalid APP_KEY.',
     'err_not_writable' => 'Security Error: This file must be writable to auto-delete after execution. Please change file permissions (e.g., to 666) before proceeding.',
+    'err_random_bytes' => 'System Error: Cannot generate a secure random token. Please check your server environment.',
   ],
   'ja' => [
     'title' => 'システム修復',
@@ -166,6 +167,7 @@ $trans = [
     'desc_app_key' => '※本人確認のため、サーバー上の config.php に記載されたAPP_KEYが必要です。',
     'err_app_key' => '認証に失敗しました: APP_KEYが正しくありません。',
     'err_not_writable' => 'セキュリティエラー：実行後の自動削除を行うため、このファイル自身のパーミッションを書き込み可能（666など）に変更してから再読み込みしてください。',
+    'err_random_bytes' => 'システムエラー：安全なランダムトークンを生成できません。サーバー環境を確認してください。',
   ]
 ];
 
@@ -194,10 +196,24 @@ if (!$is_writable) {
 
 // Initialize session.
 if (session_status() === PHP_SESSION_NONE) {
+  $is_https = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || ($_SERVER['SERVER_PORT'] ?? 80) == 443;
+  session_set_cookie_params([
+    'lifetime' => 1800, // 30 minutes
+    'path' => '/',
+    'domain' => $_SERVER['HTTP_HOST'] ?? '',
+    'secure' => $is_https,
+    'httponly' => true,
+    'samesite' => 'Lax'
+  ]);
   session_start();
 }
 if (empty($_SESSION['tool_csrf'])) {
-  $_SESSION['tool_csrf'] = bin2hex(random_bytes(32));
+  try {
+    $_SESSION['tool_csrf'] = bin2hex(random_bytes(32));
+  } catch (Exception $e) {
+    http_response_code(500);
+    die(t('err_random_bytes'));
+  }
 }
 
 try {

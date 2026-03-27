@@ -1614,4 +1614,5 @@ return [
     'st_media_quality' => 'Qualidade da Imagem (1-100)',
     'ssg_label_chunk_size' => 'Tamanho do Fragmento do Índice de Pesquisa',
     'ssg_desc_chunk_size' => 'Número de posts por arquivo JSON (Padrão: 500)',
+    'err_random_bytes' => 'Não é possível gerar um token aleatório seguro. Verifique o ambiente do seu servidor.',
 ];

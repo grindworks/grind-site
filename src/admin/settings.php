@@ -588,7 +588,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
               } elseif ($key === 'media_bg_css') {
                 $postVal = Routing::convertToDbUrl(strip_tags(is_scalar($postVal) ? (string)$postVal : ''));
               } elseif (is_array($postVal)) {
-                $postVal = array_map('strip_tags', $postVal);
+                array_walk_recursive($postVal, function (&$item) {
+                  $item = strip_tags((string)$item);
+                });
               } else {
                 $postVal = strip_tags(is_scalar($postVal) ? (string)$postVal : '');
               }
@@ -701,20 +703,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             // Invalidate existing tokens on password change
             $pdo->prepare("DELETE FROM user_tokens WHERE user_id = ?")->execute([$myId]);
-
-            // Invalidate other active sessions for this user
-            $sessionDir = session_save_path() ?: ROOT_PATH . '/data/sessions';
-            if (is_dir($sessionDir)) {
-              $currentSessionId = session_id();
-              foreach (glob($sessionDir . '/sess_*') as $file) {
-                if (basename($file) !== 'sess_' . $currentSessionId) {
-                  $content = @file_get_contents($file);
-                  if ($content !== false && preg_match('/user_id\|(?:i:' . $myId . ';|s:\d+:"' . $myId . '";)/', $content)) {
-                    @unlink($file);
-                  }
-                }
-              }
-            }
+            grinds_invalidate_user_sessions($myId);
           } else {
             $stmt = $pdo->prepare("UPDATE users SET email = ?, avatar = ?, admin_layout = ?, admin_skin = ? WHERE id = ?");
             $stmt->execute([$email, $avatar, $adminLayout, $adminSkin, $myId]);
@@ -830,20 +819,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             // Invalidate existing tokens on password change
             $pdo->prepare("DELETE FROM user_tokens WHERE user_id = ?")->execute([$targetId]);
-
-            // Invalidate active sessions for this user
-            $sessionDir = session_save_path() ?: ROOT_PATH . '/data/sessions';
-            if (is_dir($sessionDir)) {
-              $currentSessionId = session_id();
-              foreach (glob($sessionDir . '/sess_*') as $file) {
-                if (basename($file) !== 'sess_' . $currentSessionId) {
-                  $content = @file_get_contents($file);
-                  if ($content !== false && preg_match('/user_id\|(?:i:' . $targetId . ';|s:\d+:"' . $targetId . '";)/', $content)) {
-                    @unlink($file);
-                  }
-                }
-              }
-            }
+            grinds_invalidate_user_sessions($targetId);
           } else {
             // Update role
             $stmt = $pdo->prepare("UPDATE users SET email = ?, role = ? WHERE id = ?");
@@ -1220,6 +1196,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           clear_page_cache();
         }
         unset($_SESSION['grinds_health_report_cache']);
+        update_option('grinds_dangerous_files_cache', '', false);
         set_flash(_t('msg_cache_cleared'));
         break;
 

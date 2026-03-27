@@ -73,12 +73,12 @@ if (!function_exists('generate_slug')) {
         $slug = sanitize_slug($title);
 
         if ($slug === '') {
-            $slug = $prefix . ($id ?? bin2hex(random_bytes(6)));
+            $slug = $prefix . ($id ?? bin2hex(grinds_random_bytes(6)));
         }
 
         $reserved = function_exists('grinds_get_reserved_slugs') ? grinds_get_reserved_slugs() : [];
         if (in_array(strtolower($slug), $reserved)) {
-            $slug = $prefix . bin2hex(random_bytes(6));
+            $slug = $prefix . bin2hex(grinds_random_bytes(6));
         }
 
         return (string)apply_filters('grinds_generate_slug', $slug, $title, $id);

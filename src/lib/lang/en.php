@@ -1614,4 +1614,5 @@ return [
     'st_media_quality' => 'Image Quality (1-100)',
     'ssg_label_chunk_size' => 'Search Index Chunk Size',
     'ssg_desc_chunk_size' => 'Number of posts per JSON file (Default: 500)',
+    'err_random_bytes' => 'Cannot generate a secure random token. Please check your server environment.',
 ];

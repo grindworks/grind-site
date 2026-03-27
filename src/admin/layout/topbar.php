@@ -388,75 +388,77 @@ $statusLabel = strtoupper($sysStatus['status']);
       class="hidden md:block z-20 relative flex-shrink-0 bg-theme-bg border-theme-border border-t font-mono text-[11px] text-theme-text/60">
       <div class="flex justify-between items-center px-4 sm:px-6 w-full h-12 whitespace-nowrap">
         <div class="flex items-center gap-6">
-          <a href="settings.php?tab=system"
-            class="flex items-center gap-2 hover:text-theme-text transition-colors cursor-pointer"
-            title="<?= h($sysStatus['msg']) ?>">
-            <span class="relative flex w-2 h-2"><span
-                class="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 <?= $statusDot ?>"></span><span
-                class="relative inline-flex rounded-full h-2 w-2 <?= $statusDot ?>"></span></span>
-            <span class="font-bold tracking-wide">
-              <?= $statusLabel ?>
-            </span>
-          </a>
-          <?php if (!in_array($licStatus, ['pro', 'agency'])): ?>
+          <?php if (current_user_can('manage_settings')): ?>
+            <a href="settings.php?tab=system"
+              class="flex items-center gap-2 hover:text-theme-text transition-colors cursor-pointer"
+              title="<?= h($sysStatus['msg']) ?>">
+              <span class="relative flex w-2 h-2"><span
+                  class="<?= $statusDot === 'bg-theme-success' ? 'animate-ping-slow' : 'animate-ping' ?> absolute inline-flex h-full w-full rounded-full opacity-75 <?= $statusDot ?>"></span><span
+                  class="relative inline-flex rounded-full h-2 w-2 <?= $statusDot ?>"></span></span>
+              <span class="font-bold tracking-wide">
+                <?= $statusLabel ?>
+              </span>
+            </a>
+            <?php if (!in_array($licStatus, ['pro', 'agency'])): ?>
+              <span class="opacity-30">|</span>
+              <a href="settings.php?tab=general" class="flex items-center gap-2 hover:text-theme-text transition-colors"
+                title="<?= _t('license') ?>">
+                <?php if ($licStatus === 'trial'): ?>
+                  <span class="relative flex w-2 h-2"><span
+                      class="inline-flex relative bg-theme-info rounded-full w-2 h-2"></span></span>
+                  <span class="font-bold text-theme-info tracking-wide">
+                    <?= _t('trial') ?>
+                  </span>
+                <?php
+                else: ?>
+                  <span class="relative flex w-2 h-2"><span
+                      class="inline-flex relative bg-theme-warning rounded-full w-2 h-2"></span></span>
+                  <span class="font-bold text-theme-warning tracking-wide">
+                    <?= _t('unregistered') ?>
+                  </span>
+                <?php
+                endif; ?>
+              </a>
+            <?php
+            endif; ?>
             <span class="opacity-30">|</span>
-            <a href="settings.php?tab=general" class="flex items-center gap-2 hover:text-theme-text transition-colors"
-              title="<?= _t('license') ?>">
-              <?php if ($licStatus === 'trial'): ?>
-                <span class="relative flex w-2 h-2"><span
-                    class="inline-flex relative bg-theme-info rounded-full w-2 h-2"></span></span>
-                <span class="font-bold text-theme-info tracking-wide">
-                  <?= _t('trial') ?>
-                </span>
-              <?php
-              else: ?>
-                <span class="relative flex w-2 h-2"><span
-                    class="inline-flex relative bg-theme-warning rounded-full w-2 h-2"></span></span>
-                <span class="font-bold text-theme-warning tracking-wide">
-                  <?= _t('unregistered') ?>
-                </span>
+            <?php if (in_array($licStatus, ['pro', 'agency'])): ?>
+              <span class="flex items-center gap-1.5 opacity-70">GrindSite
+                <span
+                  class="inline-flex items-center px-1 py-px bg-theme-success/20 text-theme-success text-[9px] font-bold rounded-theme tracking-wide">PRO</span>
+                v
+                <?= h(CMS_VERSION) ?>
+              </span>
+              <?php if (!empty($hasUpdate)): ?>
+                <a href="settings.php?tab=update"
+                  class="flex items-center gap-1 ml-3 text-theme-primary font-bold text-xs hover:underline animate-pulse"
+                  title="<?= _t('st_update_available') ?>">
+                  <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-arrow-path"></use>
+                  </svg>
+                  Update
+                </a>
               <?php
               endif; ?>
-            </a>
-          <?php
-          endif; ?>
-          <span class="opacity-30">|</span>
-          <?php if (in_array($licStatus, ['pro', 'agency'])): ?>
-            <span class="flex items-center gap-1.5 opacity-70">GrindSite
-              <span
-                class="inline-flex items-center px-1 py-px bg-theme-success/20 text-theme-success text-[9px] font-bold rounded-theme tracking-wide">PRO</span>
-              v
-              <?= h(CMS_VERSION) ?>
-            </span>
-            <?php if (!empty($hasUpdate)): ?>
-              <a href="settings.php?tab=update"
-                class="flex items-center gap-1 ml-3 text-theme-primary font-bold text-xs hover:underline animate-pulse"
-                title="<?= _t('st_update_available') ?>">
-                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-arrow-path"></use>
-                </svg>
-                Update
-              </a>
+            <?php
+            else: ?>
+              <span class="opacity-70">GrindSite v
+                <?= h(CMS_VERSION) ?>
+              </span>
+              <?php if (!empty($hasUpdate)): ?>
+                <a href="https://github.com/grindworks/grind-site/releases" target="_blank"
+                  class="flex items-center gap-1 ml-3 text-theme-warning font-bold text-xs hover:underline"
+                  title="Manual Update Required">
+                  <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-arrow-top-right-on-square"></use>
+                  </svg>
+                  Update (Manual)
+                </a>
+              <?php
+              endif; ?>
             <?php
             endif; ?>
-          <?php
-          else: ?>
-            <span class="opacity-70">GrindSite v
-              <?= h(CMS_VERSION) ?>
-            </span>
-            <?php if (!empty($hasUpdate)): ?>
-              <a href="https://github.com/grindworks/grind-site/releases" target="_blank"
-                class="flex items-center gap-1 ml-3 text-theme-warning font-bold text-xs hover:underline"
-                title="Manual Update Required">
-                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-arrow-top-right-on-square"></use>
-                </svg>
-                Update (Manual)
-              </a>
-            <?php
-            endif; ?>
-          <?php
-          endif; ?>
+          <?php endif; ?>
         </div>
         <div class="flex items-center gap-6">
           <span class="opacity-70">

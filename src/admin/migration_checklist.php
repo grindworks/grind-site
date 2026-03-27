@@ -64,7 +64,7 @@ require_once __DIR__ . '/layout/toast.php';
             <svg x-show="runningAll" class="w-5 h-5 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-arrow-path"></use>
             </svg>
-            <span x-text="runningAll ? 'Processing...' : <?= htmlspecialchars(json_encode(_t('mig_btn_run_all')), ENT_QUOTES) ?>"></span>
+            <span x-text="runningAll ? <?= htmlspecialchars(json_encode(_t('js_processing')), ENT_QUOTES) ?> : <?= htmlspecialchars(json_encode(_t('mig_btn_run_all')), ENT_QUOTES) ?>"></span>
         </button>
     </div>
 
@@ -138,7 +138,7 @@ require_once __DIR__ . '/layout/toast.php';
                 <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-arrow-path"></use>
             </svg>
             <span x-show="!optimizing"><?= _t('mig_btn_optimize') ?></span>
-            <span x-show="optimizing" x-cloak>Processing...</span>
+            <span x-show="optimizing" x-cloak><?= _t('js_processing') ?></span>
         </button>
     </div>
 
@@ -188,7 +188,7 @@ require_once __DIR__ . '/layout/toast.php';
                 <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-arrow-path"></use>
             </svg>
             <span x-show="!clearing"><?= _t('mig_btn_clear') ?></span>
-            <span x-show="clearing" x-cloak>Processing...</span>
+            <span x-show="clearing" x-cloak><?= _t('js_processing') ?></span>
         </button>
     </div>
 

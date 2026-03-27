@@ -220,6 +220,8 @@ function get_nav_menus($location = 'header')
 {
     global $activeTheme;
     $pdo = App::db();
+    if (!$pdo)
+        return [];
     $currentTheme = $activeTheme ?? 'default';
 
     try {
@@ -249,6 +251,9 @@ function get_front_banners($context = [])
 {
     $pdo = App::db();
     $banners = [];
+
+    if (!$pdo)
+        return $banners;
 
     $pageType = $context['type'] ?? 'home';
     $pageData = $context['data'] ?? [];
@@ -365,6 +370,9 @@ function get_sidebar_widgets()
 
     global $activeTheme;
     $pdo = App::db();
+    if (!$pdo) {
+        return $cachedWidgets = [];
+    }
     $currentTheme = $activeTheme ?? 'default';
 
     try {

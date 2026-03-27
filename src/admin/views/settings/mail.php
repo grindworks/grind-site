@@ -46,10 +46,10 @@ if (!defined('GRINDS_APP')) exit; ?>
       </label>
     </div>
 
-    <label class="block mb-6" x-data="{ show: false }">
-      <span class="block mb-2 font-bold text-theme-text text-sm"><?= _t('st_smtp_pass') ?></span>
+    <div class="block mb-6" x-data="{ show: false }">
+      <label for="smtp_pass" class="block mb-2 font-bold text-theme-text text-sm"><?= _t('st_smtp_pass') ?></label>
       <div class="relative">
-        <input :type="show ? 'text' : 'password'" name="smtp_pass" value="" class="form-control pr-10" placeholder="<?= !empty($opt['smtp_pass']) ? '********' : '' ?>" autocomplete="new-password">
+        <input :type="show ? 'text' : 'password'" name="smtp_pass" id="smtp_pass" value="" class="font-mono form-control pr-10" placeholder="<?= !empty($opt['smtp_pass']) ? '********' : '' ?>" autocomplete="new-password">
         <button type="button" @click="show = !show" class="right-0 absolute inset-y-0 flex items-center opacity-50 hover:opacity-100 px-3 focus:outline-none text-theme-text" tabindex="-1">
           <svg x-show="!show" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-eye"></use>
@@ -60,7 +60,7 @@ if (!defined('GRINDS_APP')) exit; ?>
         </button>
       </div>
       <p class="opacity-60 mt-1 text-theme-text text-xs"><?= _t('st_smtp_pass_h') ?></p>
-    </label>
+    </div>
 
     <div class="gap-6 grid grid-cols-1 md:grid-cols-2 mb-8">
       <label class="block">

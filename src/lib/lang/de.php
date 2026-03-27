@@ -1614,4 +1614,5 @@ return [
     'st_media_quality' => 'Bildqualität (1-100)',
     'ssg_label_chunk_size' => 'Suchindex-Chunk-Größe',
     'ssg_desc_chunk_size' => 'Anzahl der Beiträge pro JSON-Datei (Standard: 500)',
+    'err_random_bytes' => 'Es kann kein sicheres zufälliges Token generiert werden. Bitte überprüfen Sie Ihre Serverumgebung.',
 ];

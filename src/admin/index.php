@@ -15,177 +15,183 @@ if (!isset($pdo) || !($pdo instanceof PDO)) {
 // Process alerts
 $alerts = [];
 
-// Check RewriteBase
-$rwCheck = grinds_check_rewrite_base();
-if ($rwCheck['status'] === 'error') {
-    $alerts[] = [
-        'type' => 'danger',
-        'title' => _t('alert_rewritebase_title'),
-        'msg' => _t('alert_rewritebase_mismatch_msg', h($rwCheck['configured']), h($rwCheck['detected'])),
-        'link' => 'migration_checklist.php',
-        'link_text' => _t('alert_migration_btn')
-    ];
-}
-
-if (isset($_SESSION['config_url_mismatch'])) {
-    $mis = $_SESSION['config_url_mismatch'];
-    $alerts[] = [
-        'type' => 'danger',
-        'title' => _t('alert_config_mismatch_title'),
-        'msg' => _t('alert_config_mismatch_msg', h($mis['config']), h($mis['actual'])),
-        'link' => '',
-        'link_text' => ''
-    ];
-}
-
-// Check migration status
-if (isset($_SESSION['migration_alert'])) {
-    $mig = $_SESSION['migration_alert'];
-    $alerts[] = [
-        'id' => 'migration',
-        'type' => 'warning',
-        'title' => _t('alert_migration_title'),
-        'msg' => _t('alert_migration_msg', h($mig['old'])),
-        'link' => 'migration_checklist.php?scan_target=' . urlencode($mig['old']),
-        'link_text' => _t('alert_migration_btn'),
-        'dismissable' => true
-    ];
-    unset($_SESSION['migration_alert']);
-}
-
-// Check backup warning
-if (!empty($_SESSION['backup_skipped_warning'])) {
-    $alerts[] = [
-        'id' => 'backup',
-        'type' => 'warning',
-        'title' => _t('alert_backup_skipped_title'),
-        'msg' => _t('alert_backup_skipped_msg'),
-        'link' => 'settings.php?tab=backup',
-        'link_text' => _t('tab_backup'),
-        'dismissable' => true
-    ];
-    unset($_SESSION['backup_skipped_warning']);
-}
-
-// Check debug mode
-if ((defined('DEBUG_MODE') && DEBUG_MODE) || get_option('debug_mode')) {
-    $alerts[] = [
-        'type' => 'danger',
-        'title' => _t('alert_security_title'),
-        'msg' => _t('alert_security_msg'),
-        'link' => 'settings.php?tab=system',
-        'link_text' => _t('menu_settings')
-    ];
-}
-
-// Check system health
-$healthChecks = check_system_health();
-foreach ($healthChecks as $chk) {
-    if ($chk['label'] === _t('chk_install_file')) {
-        $alerts[] = [
-            'type' => $chk['status'],
-            'title' => $chk['label'],
-            'msg' => $chk['msg'],
-            'link' => 'settings.php?tab=system',
-            'link_text' => _t('btn_delete_now')
-        ];
-    } elseif (in_array($chk['label'], [_t('alert_danger_files_title'), _t('alert_warning_files_title')])) {
-        $alerts[] = [
-            'type' => $chk['status'],
-            'title' => $chk['label'],
-            'msg' => $chk['msg'],
-            'action_html' => '<div class="mt-3">
-                <button @click="fetch((window.grindsBaseUrl || \'\').replace(/\/$/, \'\') + \'/admin/api/clear_cache.php\', {method:\'POST\', headers:{\'Content-Type\':\'application/json\'}, body:JSON.stringify({csrf_token:\'' . h(generate_csrf_token()) . '\'})}).then(()=>location.reload())" class="text-xs bg-theme-bg/50 hover:bg-theme-bg border border-theme-border text-theme-text px-3 py-1.5 rounded-theme transition-colors inline-flex items-center gap-1"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="' . h(grinds_asset_url('assets/img/sprite.svg')) . '#outline-arrow-path"></use></svg>' . _t('btn_clear_cache') . '</button>
-            </div>'
-        ];
-    } elseif ($chk['status'] === 'danger') {
-        // Catch unhandled danger alerts
+if (current_user_can('manage_settings')) {
+    // Check RewriteBase
+    $rwCheck = grinds_check_rewrite_base();
+    if ($rwCheck['status'] === 'error') {
         $alerts[] = [
             'type' => 'danger',
-            'title' => $chk['label'],
-            'msg' => $chk['msg'] ?: _t('st_action_required'),
+            'title' => _t('alert_rewritebase_title'),
+            'msg' => _t('alert_rewritebase_mismatch_msg', h($rwCheck['configured']), h($rwCheck['detected'])),
+            'link' => 'migration_checklist.php',
+            'link_text' => _t('alert_migration_btn')
+        ];
+    }
+
+    if (isset($_SESSION['config_url_mismatch'])) {
+        $mis = $_SESSION['config_url_mismatch'];
+        $alerts[] = [
+            'type' => 'danger',
+            'title' => _t('alert_config_mismatch_title'),
+            'msg' => _t('alert_config_mismatch_msg', h($mis['config']), h($mis['actual'])),
             'link' => 'settings.php?tab=system',
             'link_text' => _t('view_details')
         ];
     }
-}
 
-// Check log size
-$logFile = ROOT_PATH . '/data/logs/error.log';
-if (file_exists($logFile) && filesize($logFile) > 2 * 1024 * 1024) {
-    $size = round(filesize($logFile) / 1024 / 1024, 2) . 'MB';
-    $alerts[] = [
-        'type' => 'warning',
-        'title' => _t('alert_log_title'),
-        'msg' => _t('alert_log_msg', $size),
-        'link' => 'settings.php?tab=system',
-        'link_text' => _t('tab_system')
-    ];
-}
+    // Check migration status
+    if (isset($_SESSION['migration_alert'])) {
+        $mig = $_SESSION['migration_alert'];
+        $alerts[] = [
+            'id' => 'migration',
+            'type' => 'warning',
+            'title' => _t('alert_migration_title'),
+            'msg' => _t('alert_migration_msg', h($mig['old'])),
+            'link' => 'migration_checklist.php?scan_target=' . urlencode($mig['old']),
+            'link_text' => _t('alert_migration_btn'),
+            'dismissable' => true
+        ];
+        unset($_SESSION['migration_alert']);
+    }
 
-// Check backup size
-$backupDir = ROOT_PATH . '/data/backups';
-$backupFiles = glob($backupDir . '/*.db');
-$totalBackupSize = 0;
-foreach ($backupFiles as $f) {
-    if (is_file($f)) $totalBackupSize += filesize($f);
-}
-if ($totalBackupSize > 100 * 1024 * 1024) {
-    $size = round($totalBackupSize / 1024 / 1024, 2) . 'MB';
-    $alerts[] = [
-        'type' => 'warning',
-        'title' => _t('alert_backup_title'),
-        'msg' => _t('alert_backup_msg', $size),
-        'link' => 'settings.php?tab=backup',
-        'link_text' => _t('tab_backup')
-    ];
-}
+    // Check backup warning
+    if (!empty($_SESSION['backup_skipped_warning'])) {
+        $alerts[] = [
+            'id' => 'backup',
+            'type' => 'warning',
+            'title' => _t('alert_backup_skipped_title'),
+            'msg' => _t('alert_backup_skipped_msg'),
+            'link' => 'settings.php?tab=backup',
+            'link_text' => _t('tab_backup'),
+            'dismissable' => true
+        ];
+        unset($_SESSION['backup_skipped_warning']);
+    }
 
-// Check DB size
-if (defined('DB_FILE') && file_exists(DB_FILE)) {
-    $dbSize = filesize(DB_FILE);
-    $limit = 50 * 1024 * 1024;
-    if ($dbSize > $limit) {
-        $sizeMb = round($dbSize / 1024 / 1024, 1);
+    // Check debug mode
+    if ((defined('DEBUG_MODE') && DEBUG_MODE) || get_option('debug_mode')) {
+        $alerts[] = [
+            'type' => 'danger',
+            'title' => _t('alert_security_title'),
+            'msg' => _t('alert_security_msg'),
+            'link' => 'settings.php?tab=system',
+            'link_text' => _t('menu_settings')
+        ];
+    }
+
+    // Check system health
+    $healthChecks = check_system_health();
+    foreach ($healthChecks as $chk) {
+        if ($chk['label'] === _t('chk_install_file')) {
+            $alerts[] = [
+                'type' => $chk['status'],
+                'title' => $chk['label'],
+                'msg' => $chk['msg'],
+                'link' => 'settings.php?tab=system',
+                'link_text' => _t('btn_delete_now')
+            ];
+        } elseif (in_array($chk['label'], [_t('alert_danger_files_title'), _t('alert_warning_files_title')])) {
+            $alerts[] = [
+                'type' => $chk['status'],
+                'title' => $chk['label'],
+                'msg' => $chk['msg'],
+                'action_html' => '<div class="mt-3">
+                    <form method="POST" action="settings.php?tab=system" class="inline">
+                        <input type="hidden" name="csrf_token" value="' . h(generate_csrf_token()) . '">
+                        <input type="hidden" name="action" value="clear_all_cache">
+                        <button type="submit" class="text-xs bg-theme-bg/50 hover:bg-theme-bg border border-theme-border text-theme-text px-3 py-1.5 rounded-theme transition-colors inline-flex items-center gap-1"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="' . h(grinds_asset_url('assets/img/sprite.svg')) . '#outline-arrow-path"></use></svg>' . _t('btn_rescan') . '</button>
+                    </form>
+                </div>'
+            ];
+        } elseif (in_array($chk['status'], ['danger', 'warning'])) {
+            // Catch unhandled danger/warning alerts
+            $alerts[] = [
+                'type' => $chk['status'],
+                'title' => $chk['label'],
+                'msg' => $chk['msg'] ?: _t('st_action_required'),
+                'link' => 'settings.php?tab=system',
+                'link_text' => _t('view_details')
+            ];
+        }
+    }
+
+    // Check log size
+    $logFile = ROOT_PATH . '/data/logs/error.log';
+    if (file_exists($logFile) && filesize($logFile) > 2 * 1024 * 1024) {
+        $size = round(filesize($logFile) / 1024 / 1024, 2) . 'MB';
         $alerts[] = [
             'type' => 'warning',
-            'title' => _t('alert_db_size_title'),
-            'msg' => _t('alert_db_size_msg', $sizeMb),
+            'title' => _t('alert_log_title'),
+            'msg' => _t('alert_log_msg', $size),
             'link' => 'settings.php?tab=system',
             'link_text' => _t('tab_system')
         ];
     }
-}
 
-// Validate configuration
-if (empty(get_option('smtp_host'))) {
-    $alerts[] = ['type' => 'warning', 'title' => _t('alert_mail_title'), 'msg' => _t('alert_mail_msg'), 'link' => 'settings.php?tab=mail', 'link_text' => _t('tab_mail')];
-}
-if (empty(get_option('google_analytics_id'))) {
-    $alerts[] = ['type' => 'warning', 'title' => _t('alert_ga_title'), 'msg' => _t('alert_ga_msg'), 'link' => 'settings.php?tab=integration', 'link_text' => _t('tab_integration')];
-}
+    // Check backup size
+    $backupDir = ROOT_PATH . '/data/backups';
+    $backupFiles = glob($backupDir . '/*.db');
+    $totalBackupSize = 0;
+    foreach ($backupFiles as $f) {
+        if (is_file($f)) $totalBackupSize += filesize($f);
+    }
+    if ($totalBackupSize > 100 * 1024 * 1024) {
+        $size = round($totalBackupSize / 1024 / 1024, 2) . 'MB';
+        $alerts[] = [
+            'type' => 'warning',
+            'title' => _t('alert_backup_title'),
+            'msg' => _t('alert_backup_msg', $size),
+            'link' => 'settings.php?tab=backup',
+            'link_text' => _t('tab_backup')
+        ];
+    }
 
-// Check Nginx configuration
-$nginxConfirmedFile = ROOT_PATH . '/data/.nginx_confirmed';
-if (stripos($_SERVER['SERVER_SOFTWARE'] ?? '', 'nginx') !== false && !file_exists($nginxConfirmedFile)) {
-    $alerts[] = [
-        'id' => 'nginx',
-        'type' => 'info',
-        'title' => _t('nginx_detect_title'),
-        'msg' => _t('nginx_detect_desc'),
-        'link' => 'settings.php?tab=system',
-        'link_text' => _t('alert_nginx_btn'),
-        'dismissable' => true
-    ];
-}
+    // Check DB size
+    if (defined('DB_FILE') && file_exists(DB_FILE)) {
+        $dbSize = filesize(DB_FILE);
+        $limit = 50 * 1024 * 1024;
+        if ($dbSize > $limit) {
+            $sizeMb = round($dbSize / 1024 / 1024, 1);
+            $alerts[] = [
+                'type' => 'warning',
+                'title' => _t('alert_db_size_title'),
+                'msg' => _t('alert_db_size_msg', $sizeMb),
+                'link' => 'settings.php?tab=system',
+                'link_text' => _t('tab_system')
+            ];
+        }
+    }
 
-// Sort alerts by severity
-usort($alerts, function ($a, $b) {
-    $severity = ['danger' => 1, 'warning' => 2, 'info' => 3, 'success' => 4];
-    $sa = $severity[$a['type'] ?? 'info'] ?? 99;
-    $sb = $severity[$b['type'] ?? 'info'] ?? 99;
-    return $sa <=> $sb;
-});
+    // Validate configuration
+    if (empty(get_option('smtp_host'))) {
+        $alerts[] = ['type' => 'warning', 'title' => _t('alert_mail_title'), 'msg' => _t('alert_mail_msg'), 'link' => 'settings.php?tab=mail', 'link_text' => _t('tab_mail')];
+    }
+    if (empty(get_option('google_analytics_id'))) {
+        $alerts[] = ['type' => 'warning', 'title' => _t('alert_ga_title'), 'msg' => _t('alert_ga_msg'), 'link' => 'settings.php?tab=integration', 'link_text' => _t('tab_integration')];
+    }
+
+    // Check Nginx configuration
+    $nginxConfirmedFile = ROOT_PATH . '/data/.nginx_confirmed';
+    if (stripos($_SERVER['SERVER_SOFTWARE'] ?? '', 'nginx') !== false && !file_exists($nginxConfirmedFile)) {
+        $alerts[] = [
+            'id' => 'nginx',
+            'type' => 'info',
+            'title' => _t('nginx_detect_title'),
+            'msg' => _t('nginx_detect_desc'),
+            'link' => 'settings.php?tab=system',
+            'link_text' => _t('alert_nginx_btn'),
+            'dismissable' => true
+        ];
+    }
+
+    // Sort alerts by severity
+    usort($alerts, function ($a, $b) {
+        $severity = ['danger' => 1, 'warning' => 2, 'info' => 3, 'success' => 4];
+        $sa = $severity[$a['type'] ?? 'info'] ?? 99;
+        $sb = $severity[$b['type'] ?? 'info'] ?? 99;
+        return $sa <=> $sb;
+    });
+}
 
 // Fetch statistics
 $now = date('Y-m-d H:i:s');
@@ -348,83 +354,85 @@ ob_start();
 </div>
 
 <!-- Alerts -->
-<?php if (!empty($alerts)): ?>
-    <div class="space-y-4 mb-8">
-        <?php foreach ($alerts as $alert):
-            $type = $alert['type'] ?? 'info';
-            // Set alert colors
-            $classes = match ($type) {
-                'danger'  => 'bg-theme-danger/10 text-theme-danger border-theme-danger/20',
-                'warning' => 'bg-theme-warning/10 text-theme-warning border-theme-warning/20',
-                'info'    => 'bg-theme-info/10 text-theme-info border-theme-info/20',
-                'success' => 'bg-theme-success/10 text-theme-success border-theme-success/20',
-                default   => 'bg-theme-info/10 text-theme-info border-theme-info/20'
-            };
-            $isDismissable = !empty($alert['dismissable']);
-        ?>
-            <div class="p-4 border-l-4 rounded-r-theme shadow-theme transition-all border <?= $classes ?> relative"
-                style="border-left-color: currentColor;" x-data="{ open: true }" x-show="open" x-transition.duration.300ms>
+<?php if (current_user_can('manage_settings')): ?>
+    <?php if (!empty($alerts)): ?>
+        <div class="space-y-4 mb-8">
+            <?php foreach ($alerts as $alert):
+                $type = $alert['type'] ?? 'info';
+                // Set alert colors
+                $classes = match ($type) {
+                    'danger'  => 'bg-theme-danger/10 text-theme-danger border-theme-danger/20',
+                    'warning' => 'bg-theme-warning/10 text-theme-warning border-theme-warning/20',
+                    'info'    => 'bg-theme-info/10 text-theme-info border-theme-info/20',
+                    'success' => 'bg-theme-success/10 text-theme-success border-theme-success/20',
+                    default   => 'bg-theme-info/10 text-theme-info border-theme-info/20'
+                };
+                $isDismissable = !empty($alert['dismissable']);
+            ?>
+                <div class="p-4 border-l-4 rounded-r-theme shadow-theme transition-all border <?= $classes ?> relative"
+                    style="border-left-color: currentColor;" x-data="{ open: true }" x-show="open" x-transition.duration.300ms>
 
-                <?php if ($isDismissable): ?>
-                    <?php $alertId = $alert['id'] ?? 'unknown'; ?>
-                    <button @click="open = false; fetch((window.grindsBaseUrl || '').replace(/\/$/, '') + '/admin/api/dismiss_alert.php', {
+                    <?php if ($isDismissable): ?>
+                        <?php $alertId = $alert['id'] ?? 'unknown'; ?>
+                        <button @click="open = false; fetch((window.grindsBaseUrl || '').replace(/\/$/, '') + '/admin/api/dismiss_alert.php', {
                         method: 'POST',
                         headers: {'Content-Type': 'application/x-www-form-urlencoded'},
                         body: 'csrf_token=' + <?= h(json_encode(generate_csrf_token())) ?> + '&alert_id=' + encodeURIComponent('<?= h($alertId) ?>')                    })"
-                        class="top-2 right-2 absolute opacity-50 hover:opacity-100 p-1 transition-opacity"><span class="sr-only">
-                            <?= _t('btn_dismiss') ?>
-                        </span>
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-x-mark"></use>
-                        </svg>
-                    </button>
-                <?php endif; ?>
-
-                <p class="mb-1 font-bold text-sm">
-                    <?= $alert['title'] ?>
-                </p>
-                <p class="opacity-90 text-sm">
-                    <?= strip_tags($alert['msg'], '<a><br><strong><code><span>') ?>
-                    <?php if (!empty($alert['link'])): ?>
-                        <a href="<?= $alert['link'] ?>" class="hover:opacity-75 ml-1 font-bold underline">
-                            <?= h($alert['link_text']) ?>
-                        </a>
+                            class="top-2 right-2 absolute opacity-50 hover:opacity-100 p-1 transition-opacity"><span class="sr-only">
+                                <?= _t('btn_dismiss') ?>
+                            </span>
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-x-mark"></use>
+                            </svg>
+                        </button>
                     <?php endif; ?>
+
+                    <p class="mb-1 font-bold text-sm">
+                        <?= $alert['title'] ?>
+                    </p>
+                    <p class="opacity-90 text-sm">
+                        <?= strip_tags($alert['msg'], '<a><br><strong><code><span>') ?>
+                        <?php if (!empty($alert['link'])): ?>
+                            <a href="<?= $alert['link'] ?>" class="hover:opacity-75 ml-1 font-bold underline">
+                                <?= h($alert['link_text']) ?>
+                            </a>
+                        <?php endif; ?>
+                    </p>
+                    <?php if (!empty($alert['action_html'])): ?>
+                        <?= $alert['action_html'] ?>
+                    <?php endif; ?>
+                </div>
+            <?php endforeach; ?>
+        </div>
+    <?php else: ?>
+        <div
+            class="bg-theme-surface shadow-theme mb-8 p-5 border border-theme-border rounded-theme flex items-center justify-between transition-all hover:shadow-theme">
+            <div class="flex items-center gap-4">
+                <div
+                    class="flex justify-center items-center bg-theme-success/10 border border-theme-success/20 rounded-full w-12 h-12 text-theme-success">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-shield-check"></use>
+                    </svg>
+                </div>
+                <div>
+                    <h3 class="font-bold text-theme-text text-lg">
+                        <?= _t('dash_system_healthy') ?>
+                    </h3>
+                    <p class="opacity-60 text-theme-text text-sm">
+                        <?= _t('dash_no_warnings') ?>
+                    </p>
+                </div>
+            </div>
+            <div class="hidden sm:block text-right">
+                <p class="text-xs font-mono opacity-40 text-theme-text">GrindSite v
+                    <?= defined('CMS_VERSION') ? CMS_VERSION : '' ?>
                 </p>
-                <?php if (!empty($alert['action_html'])): ?>
-                    <?= $alert['action_html'] ?>
-                <?php endif; ?>
-            </div>
-        <?php endforeach; ?>
-    </div>
-<?php else: ?>
-    <div
-        class="bg-theme-surface shadow-theme mb-8 p-5 border border-theme-border rounded-theme flex items-center justify-between transition-all hover:shadow-theme">
-        <div class="flex items-center gap-4">
-            <div
-                class="flex justify-center items-center bg-theme-success/10 border border-theme-success/20 rounded-full w-12 h-12 text-theme-success">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-shield-check"></use>
-                </svg>
-            </div>
-            <div>
-                <h3 class="font-bold text-theme-text text-lg">
-                    <?= _t('dash_system_healthy') ?>
-                </h3>
-                <p class="opacity-60 text-theme-text text-sm">
-                    <?= _t('dash_no_warnings') ?>
+                <p class="text-xs font-mono opacity-40 text-theme-text">PHP
+                    <?= phpversion() ?>
                 </p>
             </div>
         </div>
-        <div class="hidden sm:block text-right">
-            <p class="text-xs font-mono opacity-40 text-theme-text">GrindSite v
-                <?= defined('CMS_VERSION') ? CMS_VERSION : '' ?>
-            </p>
-            <p class="text-xs font-mono opacity-40 text-theme-text">PHP
-                <?= phpversion() ?>
-            </p>
-        </div>
-    </div>
+    <?php endif; ?>
 <?php endif; ?>
 
 <!-- Stats Cards (4 Columns) -->

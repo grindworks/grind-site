@@ -49,10 +49,10 @@ if (!defined('GRINDS_APP')) exit; ?>
         </div>
       </label>
 
-      <label class="block mt-6 pl-0 sm:pl-8" x-data="{ showPass: false }">
-        <span class="block mb-2 font-bold text-theme-text text-sm"><?= _t('st_preview_password') ?></span>
+      <div class="block mt-6 pl-0 sm:pl-8" x-data="{ showPass: false }">
+        <label for="preview_shared_password" class="block mb-2 font-bold text-theme-text text-sm"><?= _t('st_preview_password') ?></label>
         <div class="relative w-full sm:w-48">
-          <input :type="showPass ? 'text' : 'password'" name="preview_shared_password" value="<?= h($opt['preview_password'] ?? '') ?>" class="form-control w-full pr-10 font-mono" placeholder="1234" autocomplete="new-password">
+          <input :type="showPass ? 'text' : 'password'" name="preview_shared_password" id="preview_shared_password" value="<?= h($opt['preview_password'] ?? '') ?>" class="form-control w-full pr-10 font-mono" placeholder="1234" autocomplete="new-password">
           <button type="button" @click="showPass = !showPass" class="right-0 absolute inset-y-0 flex items-center opacity-50 hover:opacity-100 px-3 focus:outline-none text-theme-text" tabindex="-1">
             <svg x-show="!showPass" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-eye"></use>
@@ -63,7 +63,7 @@ if (!defined('GRINDS_APP')) exit; ?>
           </button>
         </div>
         <p class="text-theme-text opacity-60 text-xs mt-1 leading-relaxed"><?= _t('st_preview_password_desc') ?></p>
-      </label>
+      </div>
 
       <label class="block mt-8">
         <span class="block mb-2 font-bold text-theme-text text-sm"><?= _t('st_iframe_domains') ?></span>
@@ -95,15 +95,15 @@ if (!defined('GRINDS_APP')) exit; ?>
   </p>
 
   <div class="gap-4 grid grid-cols-1 md:grid-cols-2">
-    <label class="block">
-      <span class="block mb-2 font-bold text-theme-text text-sm"><?= _t('username') ?></span>
-      <input type="text" x-model="user" class="form-control">
-    </label>
-    <label class="block">
-      <span class="block mb-2 font-bold text-theme-text text-sm"><?= _t('password') ?></span>
+    <div class="block">
+      <label for="htpasswd_user" class="block mb-2 font-bold text-theme-text text-sm"><?= _t('username') ?></label>
+      <input type="text" id="htpasswd_user" x-model="user" class="form-control">
+    </div>
+    <div class="block">
+      <label for="htpasswd_pass" class="block mb-2 font-bold text-theme-text text-sm"><?= _t('password') ?></label>
       <div class="flex gap-2" x-data="{ showPass: false }">
         <div class="relative w-full">
-          <input :type="showPass ? 'text' : 'password'" x-model="pass" class="form-control w-full pr-10" placeholder="<?= _t('password') ?>" autocomplete="new-password">
+          <input :type="showPass ? 'text' : 'password'" id="htpasswd_pass" x-model="pass" class="font-mono form-control w-full pr-10" placeholder="<?= _t('password') ?>" autocomplete="new-password">
           <button type="button" @click="showPass = !showPass" class="right-0 absolute inset-y-0 flex items-center opacity-50 hover:opacity-100 px-3 focus:outline-none text-theme-text" tabindex="-1">
             <svg x-show="!showPass" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-eye"></use>
@@ -127,7 +127,7 @@ if (!defined('GRINDS_APP')) exit; ?>
             });
         " class="shadow-theme px-4 py-2 rounded-theme text-sm whitespace-nowrap btn-primary"><?= _t('btn_generate') ?></button>
       </div>
-    </label>
+    </div>
   </div>
 
   <div x-show="result" class="mt-4" x-cloak>

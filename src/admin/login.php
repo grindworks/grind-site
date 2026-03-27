@@ -399,7 +399,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$is_locked) {
                         </label>
                         <div class="relative mt-1">
                             <input type="password" :type="show ? 'text' : 'password'" id="password" name="password" autocomplete="current-password" required
-                                class="block px-4 py-3 pr-10 w-full sm:text-sm transition-shadow"
+                                class="font-mono block px-4 py-3 pr-10 w-full sm:text-sm transition-shadow"
                                 placeholder="<?= h(_t('pass_ph')) ?>">
                             <button type="button" @click="show = !show"
                                 class="right-0 absolute inset-y-0 flex items-center opacity-40 hover:opacity-100 px-3 focus:outline-none text-theme-text transition-opacity"

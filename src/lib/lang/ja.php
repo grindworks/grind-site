@@ -1614,4 +1614,5 @@ return [
     'st_media_quality' => '画像圧縮品質 (1-100)',
     'ssg_label_chunk_size' => '検索インデックス分割サイズ',
     'ssg_desc_chunk_size' => '1つのJSONファイルに含める記事数（デフォルト: 500）',
+    'err_random_bytes' => '安全なランダムトークンを生成できません。サーバー環境を確認してください。',
 ];

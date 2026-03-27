@@ -132,6 +132,7 @@ $trans = [
     'desc_app_key' => 'Required for identity verification. Check your config.php file.',
     'err_app_key' => 'Authentication failed: Invalid APP_KEY.',
     'err_not_writable' => 'Security Error: This file must be writable to auto-delete after execution. Please change file permissions (e.g., to 666) before proceeding.',
+    'err_random_bytes' => 'System Error: Cannot generate a secure random token. Please check your server environment.',
   ],
   'ja' => [
     'title' => 'パスワード復旧',
@@ -164,6 +165,7 @@ $trans = [
     'desc_app_key' => '※本人確認のため、サーバー上の config.php に記載されたAPP_KEYが必要です。',
     'err_app_key' => '認証に失敗しました: APP_KEYが正しくありません。',
     'err_not_writable' => 'セキュリティエラー：実行後の自動削除を行うため、このファイル自身のパーミッションを書き込み可能（666など）に変更してから再読み込みしてください。',
+    'err_random_bytes' => 'システムエラー：安全なランダムトークンを生成できません。サーバー環境を確認してください。',
   ]
 ];
 
@@ -192,16 +194,30 @@ if (!$is_writable) {
 
 // Initialize session.
 if (session_status() === PHP_SESSION_NONE) {
+  $is_https = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || ($_SERVER['SERVER_PORT'] ?? 80) == 443;
+  session_set_cookie_params([
+    'lifetime' => 1800, // 30 minutes
+    'path' => '/',
+    'domain' => $_SERVER['HTTP_HOST'] ?? '',
+    'secure' => $is_https,
+    'httponly' => true,
+    'samesite' => 'Lax'
+  ]);
   session_start();
 }
 if (empty($_SESSION['tool_csrf'])) {
-  $_SESSION['tool_csrf'] = bin2hex(random_bytes(32));
+  try {
+    $_SESSION['tool_csrf'] = bin2hex(random_bytes(32));
+  } catch (Exception $e) {
+    http_response_code(500);
+    die(t('err_random_bytes'));
+  }
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   if (!$is_writable) {
     $error = t('err_not_writable');
-  } elseif (!isset($_POST['csrf']) || $_POST['csrf'] !== $_SESSION['tool_csrf']) {
+  } elseif (!isset($_POST['csrf']) || !hash_equals($_SESSION['tool_csrf'], $_POST['csrf'])) {
     $error = t('err_csrf');
   } else {
     $inputKey = trim($_POST['app_key'] ?? '');
@@ -390,7 +406,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           <div x-data="{ show: false }">
             <label class="block mb-2 ml-1 font-bold text-slate-500 text-xs uppercase tracking-wider"><?= h(t('lbl_new')) ?></label>
             <div class="relative">
-              <input :type="show ? 'text' : 'password'" name="new_pass" required class="block bg-slate-50 shadow-sm px-4 py-3 pr-10 border-slate-300 focus:border-[#0f62fe] rounded-[0.4rem] focus:ring-[#0f62fe] w-full transition-colors" placeholder="<?= h(t('ph_new')) ?>">
+              <input :type="show ? 'text' : 'password'" name="new_pass" required class="font-mono block bg-slate-50 shadow-sm px-4 py-3 pr-10 border-slate-300 focus:border-[#0f62fe] rounded-[0.4rem] focus:ring-[#0f62fe] w-full transition-colors" placeholder="<?= h(t('ph_new')) ?>">
               <button type="button" @click="show = !show" class="right-0 absolute inset-y-0 flex items-center px-3 text-slate-400 hover:text-slate-600 transition-colors">
                 <svg x-show="!show" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
@@ -405,7 +421,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
           <div>
             <label class="block mb-2 ml-1 font-bold text-slate-500 text-xs uppercase tracking-wider"><?= h(t('lbl_confirm')) ?></label>
-            <input type="password" name="confirm_pass" required class="block bg-slate-50 shadow-sm px-4 py-3 border-slate-300 focus:border-[#0f62fe] rounded-[0.4rem] focus:ring-[#0f62fe] w-full transition-colors">
+            <input type="password" name="confirm_pass" required class="font-mono block bg-slate-50 shadow-sm px-4 py-3 border-slate-300 focus:border-[#0f62fe] rounded-[0.4rem] focus:ring-[#0f62fe] w-full transition-colors">
           </div>
 
           <div class="flex items-start gap-3 bg-[#fffbeb] mt-6 p-4 border border-amber-100 rounded-[0.4rem]">

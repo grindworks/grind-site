@@ -59,6 +59,7 @@ include __DIR__ . '/parts/hidden_action_form.php';
 </script>
 
 <div class="relative flex lg:flex-row flex-col gap-8"
+  x-effect="document.body.style.overflow = mobileFormOpen ? 'hidden' : ''"
   x-data='{
      mobileFormOpen: <?= $edit_id ? 'true' : 'false' ?>,
      activeAccordion: "custom",

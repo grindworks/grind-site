@@ -15,12 +15,32 @@ if (!function_exists('h')) {
     }
 }
 
+/** Generate cryptographically secure pseudo-random bytes safely. */
+if (!function_exists('grinds_random_bytes')) {
+    function grinds_random_bytes($length)
+    {
+        try {
+            return random_bytes($length);
+        } catch (\Exception $e) {
+            // 乱数生成に失敗した場合は弱い乱数にフォールバックせず、安全に処理を中断する
+            http_response_code(500);
+            if (function_exists('grinds_render_error_page')) {
+                $errTitle = function_exists('_t') ? _t('js_system_error') : 'System Error';
+                $errMsg = function_exists('_t') ? _t('err_random_bytes') : 'Cannot generate a secure random token. Please check your server environment.';
+                grinds_render_error_page($errTitle, $errMsg, 'Security Error', 500);
+            } else {
+                die('System Error: Cannot generate a secure random token.');
+            }
+        }
+    }
+}
+
 /** Generate CSRF token. */
 if (!function_exists('generate_csrf_token')) {
     function generate_csrf_token()
     {
         if (empty($_SESSION['csrf_token'])) {
-            $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+            $_SESSION['csrf_token'] = bin2hex(grinds_random_bytes(32));
         }
         return $_SESSION['csrf_token'];
     }
@@ -202,7 +222,7 @@ if (!function_exists('grinds_encrypt')) {
 
         $key = _grinds_get_encryption_key();
         $cipher = 'aes-256-gcm';
-        $iv = random_bytes(openssl_cipher_iv_length($cipher));
+        $iv = grinds_random_bytes(openssl_cipher_iv_length($cipher));
         $tag = "";
         // Use AES-256-GCM (AEAD) for authenticated encryption
         $encrypted = openssl_encrypt($data, $cipher, $key, OPENSSL_RAW_DATA, $iv, $tag);

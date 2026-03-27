@@ -229,6 +229,15 @@ endif; ?>
         color: rgb(var(--color-on-primary) / var(--color-on-primary-alpha, 1));
     }
 
+    /* Slow ping animation for normal system status */
+    @keyframes ping-slow {
+        0%, 100% { transform: scale(1); opacity: 0.75; }
+        50% { transform: scale(1.8); opacity: 0; }
+    }
+    .animate-ping-slow {
+        animation: ping-slow 3s cubic-bezier(0, 0, 0.2, 1) infinite;
+    }
+
     /* Apply custom skin CSS */
     <?= grinds_url_to_view($skin['css'] ?? '') ?>
 </style>

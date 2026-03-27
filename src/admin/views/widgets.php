@@ -47,6 +47,7 @@ $csrf_token = generate_csrf_token();
 </script>
 
 <div class="relative flex lg:flex-row flex-col gap-8"
+  x-effect="document.body.style.overflow = mobileFormOpen ? 'hidden' : ''"
   x-data='{
     mobileFormOpen: <?= $edit_id ? 'true' : 'false' ?>,
     selectedType: <?= json_encode($edit_data['type'], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS) ?>,

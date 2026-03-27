@@ -532,22 +532,11 @@ function get_system_status()
     $danger_errors = [];
     $warning_errors = [];
 
-    // Ignore minor warnings for system status indicator
-    $ignored_warnings = [
-        function_exists('_t') ? _t('chk_config_perm') : 'Config File Permission',
-        function_exists('_t') ? _t('chk_sqlite_ver') : 'SQLite Version',
-        'DB Journal Mode',
-        'Nginx Config'
-    ];
-
     foreach ($checks as $chk) {
         if ($chk['status'] === 'danger') {
             $status = 'danger';
             $danger_errors[] = $chk['label'];
         } elseif ($chk['status'] === 'warning') {
-            if (in_array($chk['label'], $ignored_warnings, true)) {
-                continue;
-            }
             if ($status !== 'danger') {
                 $status = 'warning';
             }

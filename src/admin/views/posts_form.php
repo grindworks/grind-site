@@ -232,6 +232,7 @@ $basePath = rtrim($parsedBase['path'] ?? '/', '/') . '/';
     seoImage: <?= json_encode(get_media_url($post['thumbnail'] ?? ''), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>,
     siteDomain: <?= json_encode(parse_url(BASE_URL, PHP_URL_HOST) ?? "localhost", JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>
 })'
+    x-effect="document.body.style.overflow = (inserterOpen || mediaModalOpen || templateModalOpen) ? 'hidden' : ''"
     @announce.window="document.getElementById('a11y-live-region').textContent = $event.detail"
     :class="inserterOpen || mediaModalOpen || templateModalOpen ? 'pointer-events-none' : ''">
 
@@ -843,7 +844,7 @@ $basePath = rtrim($parsedBase['path'] ?? '/', '/') . '/';
                                 </button>
                                 <label class="px-3 py-1 rounded-theme w-full text-xs text-center cursor-pointer btn-secondary">
                                     <?= h(_t('select_file')) ?>
-                                    <input type="file" name="hero_image" accept="image/*" class="hidden" @change="const file = $event.target.files[0]; if(file){ const r = new FileReader(); r.onload = (e) => previewUrl = e.target.result; r.readAsDataURL(file); isDeleted = false; }">
+                                    <input type="file" name="hero_image" accept="image/*" class="sr-only" @change="const file = $event.target.files[0]; if(file){ const r = new FileReader(); r.onload = (e) => previewUrl = e.target.result; r.readAsDataURL(file); isDeleted = false; }">
                                 </label>
                                 <?php if (!empty($post['hero_image'])): ?>
                                     <label class="flex justify-center items-center bg-theme-danger/10 px-2 border border-theme-danger/30 rounded-theme text-theme-danger transition-colors cursor-pointer"
@@ -882,7 +883,7 @@ $basePath = rtrim($parsedBase['path'] ?? '/', '/') . '/';
                                 </button>
                                 <label class="px-3 py-1 rounded-theme w-full text-xs text-center cursor-pointer btn-secondary">
                                     <?= h(_t('select_file')) ?>
-                                    <input type="file" name="hero_image_mobile" accept="image/*" class="hidden" @change="const file = $event.target.files[0]; if(file){ const r = new FileReader(); r.onload = (e) => previewUrl = e.target.result; r.readAsDataURL(file); isDeleted = false; }">
+                                    <input type="file" name="hero_image_mobile" accept="image/*" class="sr-only" @change="const file = $event.target.files[0]; if(file){ const r = new FileReader(); r.onload = (e) => previewUrl = e.target.result; r.readAsDataURL(file); isDeleted = false; }">
                                 </label>
                                 <?php if (!empty($heroConfig['mobile_image'])): ?>
                                     <label class="flex justify-center items-center bg-theme-danger/10 px-2 border border-theme-danger/30 rounded-theme text-theme-danger transition-colors cursor-pointer"

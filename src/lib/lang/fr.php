@@ -1614,4 +1614,5 @@ return [
     'st_media_quality' => 'Qualité de l\'image (1-100)',
     'ssg_label_chunk_size' => 'Taille du fragment de l\'index de recherche',
     'ssg_desc_chunk_size' => 'Nombre d\'articles par fichier JSON (Par défaut : 500)',
+    'err_random_bytes' => 'Impossible de générer un jeton aléatoire sécurisé. Veuillez vérifier l\'environnement de votre serveur.',
 ];

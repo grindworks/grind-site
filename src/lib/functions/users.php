@@ -49,3 +49,28 @@ function grinds_delete_user(PDO $pdo, int $userId, int $currentUserId)
         }
     }
 }
+
+/**
+ * Invalidate all active sessions for a given user, except for the current session.
+ *
+ * @param int $userId The ID of the user whose sessions should be invalidated.
+ * @param string|null $currentSessionId The ID of the current session, if any. If null, session_id() will be used.
+ * @return void
+ */
+if (!function_exists('grinds_invalidate_user_sessions')) {
+    function grinds_invalidate_user_sessions(int $userId, ?string $currentSessionId = null)
+    {
+        $sessionDir = session_save_path() ?: ROOT_PATH . '/data/sessions';
+        if (is_dir($sessionDir)) {
+            $currentSessionId = $currentSessionId ?: session_id();
+            foreach (glob($sessionDir . '/sess_*') as $file) {
+                if (basename($file) !== 'sess_' . $currentSessionId) {
+                    $content = @file_get_contents($file);
+                    if ($content !== false && preg_match('/user_id\|(?:i:' . $userId . ';|s:\d+:"' . $userId . '";)/', $content)) {
+                        @unlink($file);
+                    }
+                }
+            }
+        }
+    }
+}
