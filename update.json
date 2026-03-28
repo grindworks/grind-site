@@ -1,7 +1,7 @@
 {
-  "version": "1.1.1",
-  "release_date": "2026-03-28",
-  "message": "Added new API endpoints, plugin samples, and minor bug fixes.",
-  "download_url": "https://github.com/grindworks/grind-site/releases/download/v1.1.1/grindsite-v1.1.1.zip",
-  "sha256": "2fd4f2b58627ff5d0f10ffd4c66a045b8589f1bc218bf378d70652bb3afc3338"
+  "version": "1.1.2",
+  "release_date": "YYYY-MM-DD",
+  "message": "Added theme-specific display options for banners and widgets. Improved database connection stability.",
+  "download_url": "https://github.com/grindworks/grind-site/releases/download/v1.1.2/grindsite-v1.1.2.zip",
+  "sha256": "b4ce12679e42e4fb67071379e25ab24e90adaadcfaab9bb9bb069e8dca1f7ec4"
 }

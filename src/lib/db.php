@@ -10,7 +10,7 @@ require_once __DIR__ . '/App.php';
 require_once __DIR__ . '/functions.php';
 
 if (!defined('GRINDS_DB_SCHEMA_VERSION'))
-  define('GRINDS_DB_SCHEMA_VERSION', 8);
+  define('GRINDS_DB_SCHEMA_VERSION', 9);
 
 try {
   if (!defined('GRINDS_SKIP_DB_INIT')) {
@@ -313,7 +313,8 @@ function grinds_db_migrate($pdo)
               is_active INTEGER DEFAULT 1,
               type TEXT DEFAULT 'image',
               html_code TEXT DEFAULT '',
-              image_width INTEGER DEFAULT 100
+              image_width INTEGER DEFAULT 100,
+              target_theme TEXT DEFAULT 'all'
           )");
 
       $pdo->exec("CREATE TABLE IF NOT EXISTS nav_menus (
@@ -471,6 +472,9 @@ function grinds_db_migrate($pdo)
         }
         if (!in_array('image_width', $cols)) {
           $pdo->exec("ALTER TABLE banners ADD COLUMN image_width INTEGER DEFAULT 100");
+        }
+        if (!in_array('target_theme', $cols)) {
+          $pdo->exec("ALTER TABLE banners ADD COLUMN target_theme TEXT DEFAULT 'all'");
         }
 
         $cols = array_map('strtolower', $pdo->query("PRAGMA table_info(users)")->fetchAll(PDO::FETCH_COLUMN, 1));

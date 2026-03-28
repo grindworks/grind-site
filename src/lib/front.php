@@ -249,6 +249,7 @@ function get_nav_menus($location = 'header')
 
 function get_front_banners($context = [])
 {
+    global $activeTheme;
     $pdo = App::db();
     $banners = [];
 
@@ -268,8 +269,11 @@ function get_front_banners($context = [])
         $currentCatId = $pageData['post']['category_id'] ?? 0;
     }
 
+    $currentTheme = $activeTheme ?? 'default';
+
     try {
-        $stmt = $pdo->query("SELECT * FROM banners WHERE is_active = 1 ORDER BY sort_order ASC");
+        $stmt = $pdo->prepare("SELECT * FROM banners WHERE is_active = 1 AND (target_theme = 'all' OR target_theme = ?) ORDER BY sort_order ASC");
+        $stmt->execute([$currentTheme]);
         $all_banners = $stmt->fetchAll();
 
         foreach ($all_banners as $row) {

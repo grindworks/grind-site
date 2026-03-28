@@ -215,4 +215,5 @@ if ($latestVersion && version_compare($latestVersion, CMS_VERSION, '>')) {
   </div>
 </div>
 
+<script src="<?= grinds_asset_url('assets/js/media_manager.js') ?>"></script>
 <?php include __DIR__ . '/parts/media_picker.php'; ?>
