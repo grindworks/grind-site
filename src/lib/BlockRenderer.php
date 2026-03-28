@@ -555,7 +555,7 @@ HTML;
 
                 $type = (isset($data['type']) && $data['type'] === 'Organization') ? 'Organization' : 'Person';
 
-                $html = "<address class='{$commonClass} my-10 p-6 bg-white border border-gray-200 rounded-theme shadow-theme flex flex-col sm:flex-row items-center sm:items-start gap-6 not-italic'>";
+                $html = "<aside aria-label=\"Author Profile\" class='{$commonClass} my-10 p-6 bg-white border border-gray-200 rounded-theme shadow-theme flex flex-col sm:flex-row items-center sm:items-start gap-6'>";
                 if ($img) {
                     $html .= get_image_html($img, ['class' => 'w-20 h-20 rounded-theme object-cover shadow-theme shrink-0', 'alt' => $name]);
                 } else {
@@ -576,7 +576,7 @@ HTML;
                 if ($link) {
                     $html .= "<a href='" . h($link) . "' target='_blank' rel='noopener noreferrer external' class='inline-flex items-center text-xs font-bold text-grinds-red hover:underline'><svg class='w-4 h-4 mr-1' fill='none' stroke='currentColor' viewBox='0 0 24 24'><use href='{$spriteUrl}#outline-link'></use></svg>Profile Link</a>";
                 }
-                $html .= "</div></address>";
+                $html .= "</div></aside>";
                 return $html;
 
             case 'social_share':

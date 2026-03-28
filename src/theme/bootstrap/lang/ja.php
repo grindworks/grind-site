@@ -7,7 +7,7 @@ return [
     'search_placeholder' => '検索...',
     'Search...' => '検索...',
     'home' => 'ホーム',
-    'Read More' => '続きを読む',
+    'Read More' => '記事を読む',
     'Read More about %s' => '%s の続きを読む',
     'Back to Home' => 'ホームに戻る',
     'Page Not Found' => 'ページが見つかりません',

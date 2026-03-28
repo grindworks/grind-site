@@ -903,6 +903,7 @@ return [
     'chk_mbstring' => 'Extension MBString',
     'chk_zip' => 'Extension Zip',
     'chk_journal_mode' => 'Mode Journal BD',
+    'chk_fts5_support' => 'Support FTS5 (Recherche)',
     'adv_install_del' => 'Veuillez supprimer "install.php" immédiatement.',
     'adv_config_ro' => 'Recommandé : Rendez "config.php" en lecture seule (444 ou 400).',
     'adv_writable' => 'Doit être inscriptible.',
@@ -914,6 +915,7 @@ return [
     'val_installed' => 'Installé',
     'chk_sqlite_ver' => 'Version SQLite',
     'adv_sqlite_req' => 'Fonctionnement en Mode Hérité (FTS5 désactivé). Fonctionne bien mais limite les performances.',
+    'adv_fts5_disabled' => 'FTS5 est désactivé. Les performances de recherche peuvent être dégradées. Il est recommandé de mettre à jour SQLite sur le serveur.',
     'adv_sqlite_rec' => 'La v3.27.0+ est recommandée pour des capacités de sauvegarde complètes.',
 
     // Define update strings.
@@ -1277,6 +1279,7 @@ return [
     'ssg_limit_search' => 'Recherche : Convertie en recherche basée sur JavaScript.',
     'ssg_limit_form' => 'Formulaires : Les formulaires PHP standards ne fonctionneront pas.',
     'ssg_limit_link' => 'Liens : Automatiquement convertis en chemins relatifs.',
+    'ssg_limit_js_img' => 'Ressources Dynamiques : Les images chargées dynamiquement via JavaScript (ex. dans du HTML personnalisé) peuvent ne pas être exportées.',
     'ssg_label_url' => 'URL de destination (Facultatif)',
     'ssg_desc_url' => 'Utilisée pour les balises `canonical` et `sitemap.xml`. Si laissé vide, les liens seront convertis en <strong>chemins relatifs</strong> (lisibles sur un disque local).',
     'ssg_label_form' => 'Point de terminaison du formulaire (Facultatif)',
@@ -1615,4 +1618,7 @@ return [
     'ssg_label_chunk_size' => 'Taille du fragment de l\'index de recherche',
     'ssg_desc_chunk_size' => 'Nombre d\'articles par fichier JSON (Par défaut : 500)',
     'err_random_bytes' => 'Impossible de générer un jeton aléatoire sécurisé. Veuillez vérifier l\'environnement de votre serveur.',
+    'err_invalid_favicon_ext' => 'Extension de favicon invalide. Seuls les fichiers .ico et .png sont autorisés.',
+    'st_use_custom_perms' => 'Utiliser des permissions personnalisées',
+    'msg_upload_may_take_time' => 'Le téléversement peut prendre un certain temps en fonction de la taille du fichier.',
 ];

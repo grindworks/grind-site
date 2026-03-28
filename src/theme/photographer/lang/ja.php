@@ -20,7 +20,7 @@ return [
     'Finished' => '終了しました',
     'Uncategorized' => '未分類',
     'Tags: ' => 'タグ: ',
-    'Read More' => '続きを読む',
+    'Read More' => '記事を読む',
     'Read More about %s' => '%s の続きを読む',
     'No posts found.' => '記事が見つかりません。',
     'Home' => 'ホーム',

@@ -10,7 +10,7 @@ $pdo = App::db();
 if (!$pdo) {
     return;
 }
-$tags = $pdo->query("SELECT DISTINCT t.* FROM tags t JOIN post_tags pt ON t.id = pt.tag_id JOIN posts p ON pt.post_id = p.id WHERE p.status='published' AND (p.type='post' OR p.type IS NULL) AND p.deleted_at IS NULL ORDER BY t.id DESC LIMIT 20")->fetchAll();
+$tags = $pdo->query("SELECT t.* FROM tags t WHERE EXISTS (SELECT 1 FROM post_tags pt JOIN posts p ON pt.post_id = p.id WHERE pt.tag_id = t.id AND p.status='published' AND (p.type='post' OR p.type IS NULL) AND p.deleted_at IS NULL) ORDER BY t.id DESC LIMIT 20")->fetchAll();
 ?>
 <div class="bg-white shadow-sm mb-8 p-6 border border-gray-200 rounded-lg widget-tags">
     <?php if (!empty($title)): ?>

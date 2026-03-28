@@ -76,14 +76,55 @@ window.GrindsMediaApi = {
    * Upload file.
    * @param {File} file
    * @param {string} csrfToken
+   * @param {function|null} onProgress Callback for upload progress
    */
-  async upload(file, csrfToken) {
-    const formData = new FormData();
-    formData.append('image', file);
-    formData.append('csrf_token', csrfToken);
-    return this.request('upload.php', {
-      method: 'POST',
-      body: formData,
+  upload(file, csrfToken, onProgress = null) {
+    return new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      const url = this.getApiUrl('upload.php');
+
+      xhr.open('POST', url, true);
+      xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+
+      if (onProgress && xhr.upload) {
+        xhr.upload.onprogress = (e) => {
+          if (e.lengthComputable) {
+            const percentComplete = Math.round((e.loaded / e.total) * 100);
+            onProgress(percentComplete);
+          }
+        };
+      }
+
+      xhr.onload = () => {
+        if (xhr.status === 401) {
+          reject(new Error('SESSION_EXPIRED'));
+          return;
+        }
+        if (xhr.status >= 200 && xhr.status < 300) {
+          try {
+            resolve(JSON.parse(xhr.responseText));
+          } catch (e) {
+            reject(new Error('Invalid JSON response'));
+          }
+        } else {
+          let errorMsg = 'Network Error';
+          try {
+            errorMsg = JSON.parse(xhr.responseText).error || errorMsg;
+          } catch (e) {}
+          const err = new Error(errorMsg);
+          err.status = xhr.status;
+          reject(err);
+        }
+      };
+
+      xhr.onerror = () => {
+        reject(new Error('Network Error'));
+      };
+
+      const formData = new FormData();
+      formData.append('image', file);
+      formData.append('csrf_token', csrfToken);
+      xhr.send(formData);
     });
   },
 
@@ -174,10 +215,11 @@ window.GrindsMediaHelpers = {
    * Upload file.
    * @param {File} file
    * @param {string} csrfToken
+   * @param {function|null} onProgress
    */
-  async uploadFile(file, csrfToken) {
+  async uploadFile(file, csrfToken, onProgress = null) {
     if (!this.validateSize(file)) return null;
-    const json = await GrindsMediaApi.upload(file, csrfToken);
+    const json = await GrindsMediaApi.upload(file, csrfToken, onProgress);
     if (json.success && json.file) {
       if (json.file.file_type === 'image/svg+xml') json.file.is_image = true;
       return json.file;
@@ -240,6 +282,7 @@ document.addEventListener('alpine:init', () => {
     loading: false,
     isUploading: false,
     uploadProgress: '',
+    uploadProgressPercent: 0,
     isDragging: false,
     maxSize: GrindsMediaHelpers.getMaxSize(),
 
@@ -588,8 +631,11 @@ document.addEventListener('alpine:init', () => {
       for (const file of files) {
         current++;
         this.uploadProgress = `${current} / ${total}`;
+        this.uploadProgressPercent = 0;
         try {
-          const uploadedFile = await GrindsMediaHelpers.uploadFile(file, window.grindsCsrfToken);
+          const uploadedFile = await GrindsMediaHelpers.uploadFile(file, window.grindsCsrfToken, (percent) => {
+            this.uploadProgressPercent = percent;
+          });
           if (uploadedFile) {
             this.files.unshift(uploadedFile);
             successCount++;
@@ -610,6 +656,7 @@ document.addEventListener('alpine:init', () => {
 
       this.isUploading = false;
       this.uploadProgress = '';
+      this.uploadProgressPercent = 0;
       window.removeEventListener('beforeunload', preventUnload);
       e.target.value = '';
     },

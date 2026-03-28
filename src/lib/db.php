@@ -210,6 +210,32 @@ function grinds_get_db_journal_mode()
 }
 
 /**
+ * Check if FTS5 is enabled.
+ * @return bool
+ */
+function grinds_is_fts5_enabled()
+{
+  static $is_enabled = null;
+  if ($is_enabled !== null) {
+    return $is_enabled;
+  }
+
+  try {
+    $pdo = App::db();
+    if (!$pdo) {
+      return $is_enabled = true; // Assume enabled if DB is not available, to avoid false positives
+    }
+    // Try to create a temporary FTS5 table
+    $pdo->exec("CREATE VIRTUAL TABLE fts5_test_temp USING fts5(content)");
+    $pdo->exec("DROP TABLE fts5_test_temp");
+    $is_enabled = true;
+  } catch (Exception $e) {
+    $is_enabled = false;
+  }
+  return $is_enabled;
+}
+
+/**
  * Execute database migrations.
  *
  * @param PDO $pdo
@@ -329,7 +355,8 @@ function grinds_db_migrate($pdo)
               created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
               role TEXT DEFAULT 'admin',
               admin_layout TEXT DEFAULT '',
-              admin_skin TEXT DEFAULT ''
+              admin_skin TEXT DEFAULT '',
+              permissions TEXT DEFAULT NULL
           )");
 
       $pdo->exec("CREATE TABLE IF NOT EXISTS login_attempts (
@@ -458,6 +485,9 @@ function grinds_db_migrate($pdo)
         }
         if (!in_array('admin_skin', $cols)) {
           $pdo->exec("ALTER TABLE users ADD COLUMN admin_skin TEXT DEFAULT ''");
+        }
+        if (!in_array('permissions', $cols)) {
+          $pdo->exec("ALTER TABLE users ADD COLUMN permissions TEXT DEFAULT NULL");
         }
 
         $cols = array_map('strtolower', $pdo->query("PRAGMA table_info(media)")->fetchAll(PDO::FETCH_COLUMN, 1));

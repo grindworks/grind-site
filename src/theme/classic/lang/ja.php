@@ -10,7 +10,7 @@ return [
     'Back to Home' => 'ホームに戻る',
     'Category: %s' => 'カテゴリー: %s',
     'Posted on %s' => '投稿日: %s',
-    'Read More' => '続きを読む',
+    'Read More' => '記事を読む',
     'Read More about %s' => '%s の続きを読む',
     'No posts found.' => '記事が見つかりませんでした。',
     'Search Results for: %s' => '「%s」の検索結果',

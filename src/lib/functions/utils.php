@@ -126,20 +126,25 @@ if (!function_exists('grinds_ssg_normalize_slug')) {
     }
 }
 
-/** Convert HEX/RGBA to RGB string */
-if (!function_exists('hex2rgb')) {
-    function hex2rgb($hex)
+/**
+ * Normalize color string (HEX/RGB/RGBA) to RGB variables string for CSS.
+ *
+ * @param string $color
+ * @return string Output format: "R G B" or "R G B / A"
+ */
+if (!function_exists('grinds_normalize_color')) {
+    function grinds_normalize_color($color)
     {
-        if (!is_string($hex) || empty($hex))
+        if (!is_string($color) || empty($color))
             return "0 0 0";
 
         static $cache = [];
-        if (isset($cache[$hex])) {
-            return $cache[$hex];
+        if (isset($cache[$color])) {
+            return $cache[$color];
         }
 
-        $key = $hex;
-        $hex = trim($hex);
+        $key = $color;
+        $hex = trim($color);
 
         if (preg_match('/^rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)(?:\s*,\s*([\d\.]+))?\s*\)$/i', $hex, $m)) {
             $r = (int)$m[1];
@@ -177,6 +182,16 @@ if (!function_exists('hex2rgb')) {
             return $cache[$key] = "0 0 0";
         }
         return $cache[$key] = "$r $g $b";
+    }
+}
+
+/**
+ * @deprecated Use grinds_normalize_color() instead.
+ */
+if (!function_exists('hex2rgb')) {
+    function hex2rgb($hex)
+    {
+        return grinds_normalize_color($hex);
     }
 }
 
@@ -1077,7 +1092,9 @@ if (!function_exists('grinds_fetch_url')) {
 
                 // Abort download if file exceeds max size
                 curl_setopt($ch, CURLOPT_NOPROGRESS, false);
-                curl_setopt($ch, CURLOPT_PROGRESSFUNCTION, function ($ch, $downloadSize, $downloaded, $uploadSize, $uploaded) use ($maxSize) {
+                curl_setopt($ch, CURLOPT_PROGRESSFUNCTION, function (...$args) use ($maxSize) {
+                    // Safely handle parameter count differences across PHP/libcurl versions
+                    $downloaded = count($args) >= 5 ? $args[2] : (count($args) >= 4 ? $args[1] : 0);
                     return ($downloaded > $maxSize) ? 1 : 0;
                 });
 
@@ -1923,6 +1940,11 @@ if (!function_exists('grinds_get_bigram')) {
     function grinds_get_bigram(string $text): string
     {
         $text = mb_strtolower(strip_tags($text), 'UTF-8');
+
+        // 英数字・記号の塊と、それ以外の文字（日本語など）の境界にスペースを挿入して分離する
+        $text = preg_replace('/([a-z0-9\-_]+)/u', ' $1 ', $text);
+
+        // 連続するスペースを1つにまとめる
         $text = preg_replace('/[\s　]+/u', ' ', $text);
         $tokens = [];
         $parts = explode(' ', trim($text));

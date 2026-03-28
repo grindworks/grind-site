@@ -585,6 +585,8 @@ function grinds_save_post(PDO $pdo, array $data, array $files, string $action, ?
         throw new Exception(sprintf(_t('err_slug_reserved_msg'), $postData['slug']));
     }
 
+    $startedTransaction = false;
+
     try {
         $tagsInput = $data['tags'] ?? '';
         $tagNames = grinds_parse_tag_string($tagsInput);
@@ -665,6 +667,7 @@ function grinds_save_post(PDO $pdo, array $data, array $files, string $action, ?
         while (!$saved && $retryCount < $maxRetries) {
             if (!$inTransaction) {
                 $pdo->beginTransaction();
+                $startedTransaction = true;
             } else {
                 $pdo->exec("SAVEPOINT grinds_save_post_retry");
             }
@@ -817,8 +820,16 @@ function grinds_save_post(PDO $pdo, array $data, array $files, string $action, ?
             throw new Exception(_t('err_slug_conflict'));
         }
     } catch (Exception $e) {
-        if ($pdo->inTransaction()) {
+        // Rollback only if this function started the main transaction
+        if ($startedTransaction && $pdo->inTransaction()) {
             $pdo->rollBack();
+        } elseif (isset($inTransaction) && $inTransaction && $pdo->inTransaction()) {
+            // If inside an external transaction, rollback to the savepoint to keep the parent transaction safe
+            try {
+                $pdo->exec("ROLLBACK TO SAVEPOINT grinds_save_post_retry");
+            } catch (Exception $ex) {
+                // Ignore if savepoint does not exist
+            }
         }
         throw $e;
     }

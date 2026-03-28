@@ -7,7 +7,7 @@ return [
     'search_results' => '検索結果',
     'search' => '検索',
     'no_posts' => '記事が見つかりません。',
-    'read_more' => '続きを読む',
+    'read_more' => '記事を読む',
     'read_more_aria' => '%s の続きを読む',
     'back_to_home' => 'ホームに戻る',
     'page_not_found' => 'ページが見つかりません',

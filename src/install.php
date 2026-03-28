@@ -1223,7 +1223,8 @@ PHP;
                 </p>
                 <p class="text-cyan-200/70 text-xs leading-relaxed mb-2"><?= h($this->t('subdir_robots_note')) ?></p>
                 <?php
-                $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https://' : 'http://';
+                $isHttps = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || (!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && strtolower($_SERVER['HTTP_X_FORWARDED_PROTO']) === 'https');
+                $scheme = $isHttps ? 'https://' : 'http://';
                 $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
                 $sitemapUrl = $scheme . $host . rtrim($this->baseUrl, '/') . '/sitemap.xml';
                 ?>

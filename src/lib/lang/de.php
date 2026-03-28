@@ -903,6 +903,7 @@ return [
     'chk_mbstring' => 'MBString-Erweiterung',
     'chk_zip' => 'Zip-Erweiterung',
     'chk_journal_mode' => 'DB-Journalmodus',
+    'chk_fts5_support' => 'FTS5-Unterstützung (Suche)',
     'adv_install_del' => 'Bitte löschen Sie "install.php" sofort.',
     'adv_config_ro' => 'Empfohlen: Machen Sie "config.php" schreibgeschützt (444 oder 400).',
     'adv_writable' => 'Muss beschreibbar sein.',
@@ -914,6 +915,7 @@ return [
     'val_installed' => 'Installiert',
     'chk_sqlite_ver' => 'SQLite-Version',
     'adv_sqlite_req' => 'Läuft im Legacy-Modus (FTS5 deaktiviert). Funktioniert einwandfrei, schränkt jedoch die Leistung ein.',
+    'adv_fts5_disabled' => 'FTS5 ist deaktiviert. Die Suchleistung kann beeinträchtigt sein. Ein Upgrade von SQLite auf dem Server wird empfohlen.',
     'adv_sqlite_rec' => 'v3.27.0+ wird für vollständige Backup-Funktionen empfohlen.',
 
     // Define update strings.
@@ -1277,6 +1279,7 @@ return [
     'ssg_limit_search' => 'Suche: Konvertiert in JavaScript-basierte Suche.',
     'ssg_limit_form' => 'Formulare: Standard-PHP-Formulare werden nicht funktionieren.',
     'ssg_limit_link' => 'Links: Werden automatisch in relative Pfade konvertiert.',
+    'ssg_limit_js_img' => 'Dynamische Assets: Bilder, die dynamisch über JavaScript (z. B. im benutzerdefinierten HTML) geladen werden, werden möglicherweise nicht exportiert.',
     'ssg_label_url' => 'Ziel-URL (Optional)',
     'ssg_desc_url' => 'Wird für `canonical`-Tags und `sitemap.xml` verwendet. Wenn leer, werden Links in <strong>relative Pfade</strong> konvertiert (auf lokaler Festplatte ausführbar).',
     'ssg_label_form' => 'Formular-Endpunkt (Optional)',
@@ -1615,4 +1618,7 @@ return [
     'ssg_label_chunk_size' => 'Suchindex-Chunk-Größe',
     'ssg_desc_chunk_size' => 'Anzahl der Beiträge pro JSON-Datei (Standard: 500)',
     'err_random_bytes' => 'Es kann kein sicheres zufälliges Token generiert werden. Bitte überprüfen Sie Ihre Serverumgebung.',
+    'err_invalid_favicon_ext' => 'Ungültige Favicon-Erweiterung. Nur .ico und .png sind erlaubt.',
+    'st_use_custom_perms' => 'Benutzerdefinierte Berechtigungen verwenden',
+    'msg_upload_may_take_time' => 'Das Hochladen kann je nach Dateigröße einige Zeit in Anspruch nehmen.',
 ];

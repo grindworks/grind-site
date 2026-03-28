@@ -331,7 +331,15 @@ if (!isset($skin) || !is_array($skin)) {
       <p class="font-bold text-theme-text text-lg">
         <span x-text="trans.uploading"></span> <span x-show="uploadProgress" x-text="'(' + uploadProgress + ')'"></span>
       </p>
-      <p class="opacity-60 mt-2 text-theme-text text-sm" x-text="trans.uploading_wait"></p>
+
+      <!-- Progress Bar -->
+      <div class="w-64 h-2 bg-theme-bg rounded-full mt-4 overflow-hidden border border-theme-border/50" x-show="uploadProgressPercent > 0">
+        <div class="h-full bg-theme-primary transition-all duration-200 ease-out" :style="'width: ' + uploadProgressPercent + '%'"></div>
+      </div>
+      <p x-show="uploadProgressPercent > 0" class="text-xs text-theme-primary font-bold mt-1" x-text="uploadProgressPercent + '%'"></p>
+
+      <p class="opacity-60 mt-4 text-theme-text text-sm" x-text="trans.uploading_wait"></p>
+      <p class="opacity-40 mt-1 text-theme-text text-[10px]"><?= _t('msg_upload_may_take_time') ?? '※ Depending on your environment, it may take a few minutes.' ?></p>
     </div>
 
     <!-- Grid View Area -->

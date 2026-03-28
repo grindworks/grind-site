@@ -903,6 +903,7 @@ return [
     'chk_mbstring' => 'Extensão MBString',
     'chk_zip' => 'Extensão Zip',
     'chk_journal_mode' => 'Modo de Diário (Journal) do BD',
+    'chk_fts5_support' => 'Suporte FTS5 (Pesquisa)',
     'adv_install_del' => 'Por favor, exclua "install.php" imediatamente.',
     'adv_config_ro' => 'Recomendado: Torne "config.php" somente leitura (444 ou 400).',
     'adv_writable' => 'Deve ser gravável.',
@@ -914,6 +915,7 @@ return [
     'val_installed' => 'Instalado',
     'chk_sqlite_ver' => 'Versão do SQLite',
     'adv_sqlite_req' => 'Executando em Modo Legado (FTS5 desativado). Funciona bem, mas limita o desempenho.',
+    'adv_fts5_disabled' => 'O FTS5 está desativado. O desempenho da pesquisa pode ser degradado. Recomenda-se atualizar o SQLite no servidor.',
     'adv_sqlite_rec' => 'v3.27.0+ é recomendado para recursos completos de backup.',
 
     // Define update strings.
@@ -1277,6 +1279,7 @@ return [
     'ssg_limit_search' => 'Pesquisa: Convertida em pesquisa baseada em JavaScript.',
     'ssg_limit_form' => 'Formulários: Formulários PHP padrão não funcionarão.',
     'ssg_limit_link' => 'Links: Convertidos automaticamente em caminhos relativos.',
+    'ssg_limit_js_img' => 'Ativos Dinâmicos: Imagens carregadas dinamicamente via JavaScript (ex. em HTML Personalizado) podem não ser exportadas.',
     'ssg_label_url' => 'URL de Destino (Opcional)',
     'ssg_desc_url' => 'Usado para as tags `canonical` e `sitemap.xml`. Se deixado em branco, os links serão convertidos em <strong>caminhos relativos</strong> (podem ser reproduzidos no disco local).',
     'ssg_label_form' => 'Endpoint do Formulário (Opcional)',
@@ -1615,4 +1618,7 @@ return [
     'ssg_label_chunk_size' => 'Tamanho do Fragmento do Índice de Pesquisa',
     'ssg_desc_chunk_size' => 'Número de posts por arquivo JSON (Padrão: 500)',
     'err_random_bytes' => 'Não é possível gerar um token aleatório seguro. Verifique o ambiente do seu servidor.',
+    'err_invalid_favicon_ext' => 'Extensão de favicon inválida. Apenas .ico e .png são permitidos.',
+    'st_use_custom_perms' => 'Usar Permissões Personalizadas',
+    'msg_upload_may_take_time' => 'O upload pode levar algum tempo dependendo do tamanho do arquivo.',
 ];

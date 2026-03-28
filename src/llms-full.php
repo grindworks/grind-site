@@ -212,7 +212,19 @@ if (!class_exists('LlmsFullGenerator')) {
                         ];
 
                         $heroSettings = json_decode($row['hero_settings'] ?? '{}', true);
-                        $author = !empty($heroSettings['seo_author']) ? $heroSettings['seo_author'] : $this->siteName;
+
+                        $extractedAuthorName = '';
+                        $contentData = json_decode($row['content'] ?? '{}', true);
+                        if (is_array($contentData) && !empty($contentData['blocks'])) {
+                            foreach ($contentData['blocks'] as $block) {
+                                if (($block['type'] ?? '') === 'author' && !empty($block['data']['name'])) {
+                                    $extractedAuthorName = html_entity_decode(strip_tags($block['data']['name']), ENT_QUOTES | ENT_HTML5, 'UTF-8');
+                                    break;
+                                }
+                            }
+                        }
+
+                        $author = $extractedAuthorName ?: (!empty($heroSettings['seo_author']) ? $heroSettings['seo_author'] : $this->siteName);
                         $category = $row['category_name'] ?? 'Uncategorized';
                         $tagsStr = $row['tags_str'] ?? '';
 

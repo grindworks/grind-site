@@ -903,6 +903,7 @@ return [
     'chk_mbstring' => 'MBString 拡張',
     'chk_zip' => 'Zip 拡張',
     'chk_journal_mode' => 'DBジャーナルモード',
+    'chk_fts5_support' => 'FTS5サポート (検索機能)',
     'adv_install_del' => '直ちに "install.php" を削除してください。',
     'adv_config_ro' => '推奨: "config.php" を書き込み不可（444または400）に設定してください。',
     'adv_writable' => '書き込み権限が必要です。',
@@ -914,6 +915,7 @@ return [
     'val_installed' => '導入済み',
     'chk_sqlite_ver' => 'SQLite バージョン',
     'adv_sqlite_req' => 'レガシーモードで動作します（高速検索機能が無効になりますが、基本動作には問題ありません）。',
+    'adv_fts5_disabled' => 'FTS5が無効です。検索パフォーマンスが低下する可能性があります。サーバーのSQLiteをアップデートすることを推奨します。',
     'adv_sqlite_rec' => 'バックアップ機能に一部制限があります。完全な機能を使用するには v3.27.0 以上が推奨されます。',
 
     // Define update strings.
@@ -1277,6 +1279,7 @@ return [
     'ssg_limit_search' => '検索機能: JavaScriptベースの簡易検索に変換されます。',
     'ssg_limit_form' => 'フォーム: 通常のPHPメール送信は機能しません。',
     'ssg_limit_link' => 'リンク: 自動的に相対パスに変換されます。',
+    'ssg_limit_js_img' => '動的アセット: カスタムHTML内のJavaScript等で動的に読み込んでいる画像は出力されない場合があります。',
     'ssg_label_url' => '公開用URL (任意)',
     'ssg_desc_url' => '`canonical` タグや `sitemap.xml` に使用されます。空欄の場合、すべてのリンクは<strong>相対パス</strong>（ローカルでも閲覧可能）になります。',
     'ssg_label_form' => 'フォーム送信先URL (任意)',
@@ -1615,4 +1618,7 @@ return [
     'ssg_label_chunk_size' => '検索インデックス分割サイズ',
     'ssg_desc_chunk_size' => '1つのJSONファイルに含める記事数（デフォルト: 500）',
     'err_random_bytes' => '安全なランダムトークンを生成できません。サーバー環境を確認してください。',
+    'err_invalid_favicon_ext' => '無効なファビコンの拡張子です。.ico または .png のみが許可されています。',
+    'st_use_custom_perms' => 'カスタム権限を使用する',
+    'msg_upload_may_take_time' => 'ファイルサイズによってはアップロードに時間がかかる場合があります。',
 ];

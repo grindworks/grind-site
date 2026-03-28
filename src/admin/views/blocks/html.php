@@ -11,6 +11,10 @@ if (!defined('GRINDS_APP')) exit; ?>
     <span><?= _t('help_html_block') ?></span>
   </div>
   <!-- HTML code -->
-  <textarea x-model="block.data.code" rows="4" class="w-full font-mono text-xs form-control-sm" placeholder="<?= _t('ph_html_code') ?>"></textarea>
+  <textarea x-model="block.data.code" rows="4"
+    class="w-full font-mono text-xs form-control-sm resize-y overflow-hidden min-h-[5rem]"
+    placeholder="<?= _t('ph_html_code') ?>"
+    x-init="$nextTick(() => { $el.style.height = 'auto'; $el.style.height = $el.scrollHeight + 'px' })"
+    @input="$el.style.height = 'auto'; $el.style.height = $el.scrollHeight + 'px'"></textarea>
   <p class="mt-1 font-bold text-[10px] text-theme-warning"><?= _t('html_absolute_path_warn') ?></p>
 </div>

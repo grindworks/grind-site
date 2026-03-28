@@ -76,10 +76,19 @@ try {
 
   // Resolve image source
   $getPreviewImage = function ($key) use ($previewFiles) {
+    $sanitizeUrl = function ($url) {
+      if (!is_string($url) || empty(trim($url))) return '';
+      // Prevent XSS via javascript: or data: URIs. Allow data:image for base64 images.
+      if (preg_match('/^\s*(javascript|vbscript|data(?!:image)):/i', trim($url))) {
+        return '';
+      }
+      return filter_var($url, FILTER_SANITIZE_URL);
+    };
+
     if (!empty($_POST["delete_{$key}"])) return '';
     if (isset($previewFiles[$key])) return $previewFiles[$key];
-    if (!empty($_POST["{$key}_url"])) return $_POST["{$key}_url"];
-    return $_POST["current_{$key}"] ?? '';
+    if (!empty($_POST["{$key}_url"])) return $sanitizeUrl($_POST["{$key}_url"]);
+    return $sanitizeUrl($_POST["current_{$key}"] ?? '');
   };
 
   // Construct hero settings

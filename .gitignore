@@ -37,7 +37,8 @@ src/assets/uploads/*
 todo.md
 check.md
 .aiconfig
-grindsite.com
+grindsite.com/
+
 # 💻 Editor & IDE
 .idea/
 .vscode/

@@ -32,6 +32,16 @@ This directory contains public API endpoints for GrindSite.
   you must manually load the required libraries and initialize them on the client side.
   The API response includes a `features` object for each post to help you detect these blocks.
 
+  - settings.php:
+    Returns global site settings (like site name, description, and language).
+    Useful for rendering headers, footers, and meta tags on the frontend.
+    Usage: /api/settings.php
+
+  - categories.php:
+    Returns a list of all categories.
+    Useful for building navigation menus or sidebar filters.
+    Usage: /api/categories.php
+
   Cross-Origin Resource Sharing (CORS):
   The API automatically outputs CORS headers. By default, it allows all origins (`*`).
   You can restrict this by defining `API_ALLOWED_ORIGIN` in your config.
@@ -71,6 +81,16 @@ This directory contains public API endpoints for GrindSite.
   記事内に「数式 (math)」「コード (code)」「カウントダウン (countdown)」などの動的ブロックが含まれている場合、
   クライアント側（フロントエンド）で KaTeX や Prism.js などの必要なライブラリを読み込み、初期化する必要があります。
   各記事のレスポンスに含まれる `features` オブジェクトを参照して、該当ブロックの有無を判定できます。
+
+  - settings.php:
+    サイト全体の共通設定（サイト名、説明文、言語など）を返します。
+    フロントエンドでのヘッダーやフッター、metaタグの描画に便利です。
+    使用例: /api/settings.php
+
+  - categories.php:
+    カテゴリの一覧リストを返します。
+    ナビゲーションメニューやサイドバーの絞り込みリンクを構築する際に使用します。
+    使用例: /api/categories.php
 
   CORS (Cross-Origin Resource Sharing) について:
   APIは自動的にCORSヘッダーを出力します。デフォルトではすべてのオリジン（`*`）からのアクセスを許可します。

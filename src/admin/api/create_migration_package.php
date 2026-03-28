@@ -165,22 +165,33 @@ try {
 
       // Keep existing APP_KEY etc., and only replace the DB_FILE definition line with the new file name.
       $pattern = '/^.*define\s*\(\s*[\'"]DB_FILE[\'"]\s*,.*?\)\s*;/m';
-      $replacement = "if (!defined('DB_FILE')) define('DB_FILE', __DIR__ . '/data/" . $safeDbName . "');";
-
-      if (preg_match($pattern, $origConfig)) {
-        $configContent = preg_replace($pattern, addcslashes($replacement, '\\$'), $origConfig);
-      } else {
-        // If the definition is not found, append it to the end.
-        $configContent = rtrim($origConfig) . "\n\n" . $replacement . "\n";
-      }
-
       $patternFilename = '/^.*define\s*\(\s*[\'"]DB_FILENAME[\'"]\s*,.*?\)\s*;/m';
       $replacementFilename = "if (!defined('DB_FILENAME')) define('DB_FILENAME', '" . $safeDbName . "');";
+      $replacementFile = "if (!defined('DB_FILE')) define('DB_FILE', __DIR__ . '/data/' . DB_FILENAME);";
 
-      if (preg_match($patternFilename, $configContent)) {
-        $configContent = preg_replace($patternFilename, addcslashes($replacementFilename, '\\$'), $configContent);
+      $configContent = $origConfig;
+
+      // 1. Ensure DB_FILENAME is present (defined before DB_FILE)
+      if (!preg_match($patternFilename, $configContent)) {
+        if (preg_match($pattern, $configContent)) {
+          // If DB_FILE exists but DB_FILENAME does not, insert DB_FILENAME before DB_FILE
+          $configContent = preg_replace($pattern, addcslashes($replacementFilename . "\n", '\\$') . '$0', $configContent);
+        } else {
+          // If neither exists, append to the end
+          $configContent = rtrim($configContent) . "\n\n" . $replacementFilename;
+        }
       } else {
-        $configContent = rtrim($configContent) . "\n" . $replacementFilename . "\n";
+        // If DB_FILENAME exists, replace it in place
+        $configContent = preg_replace($patternFilename, addcslashes($replacementFilename, '\\$'), $configContent);
+      }
+
+      // 2. Ensure DB_FILE is present/updated
+      if (preg_match($pattern, $configContent)) {
+        // If DB_FILE exists (it might have been original or shifted by the step above), replace it in place
+        $configContent = preg_replace($pattern, addcslashes($replacementFile, '\\$'), $configContent);
+      } else {
+        // If it doesn't exist, append after DB_FILENAME
+        $configContent = rtrim($configContent) . "\n" . $replacementFile . "\n";
       }
 
       $zip->addFromString('config.php', $configContent);
@@ -220,14 +231,21 @@ try {
       $filePath = json_decode($line);
       if (!$filePath) continue;
 
-      // Normalize paths
-      $normFilePath = str_replace('\\', '/', $filePath);
-      $normUploadDir = str_replace('\\', '/', $uploadDir);
+      $realFilePath = realpath($filePath);
+      $realUploadDir = realpath($uploadDir);
 
-      if (stripos($normFilePath, $normUploadDir) === 0) {
-        $relativePath = 'assets/uploads' . substr($normFilePath, strlen($normUploadDir));
-        if (file_exists($filePath) && is_readable($filePath)) {
-          $zip->addFile($filePath, $relativePath);
+      // Ensure both paths exist and are fully resolved to absolute paths
+      if ($realFilePath && $realUploadDir) {
+        // Normalize paths for reliable comparison across OS (especially Windows)
+        $normRealFilePath = str_replace('\\', '/', $realFilePath);
+        $normRealUploadDir = rtrim(str_replace('\\', '/', $realUploadDir), '/') . '/';
+
+        // Strictly verify that the file is located inside the upload directory
+        if (stripos($normRealFilePath, $normRealUploadDir) === 0) {
+          $relativePath = 'assets/uploads/' . ltrim(substr($normRealFilePath, strlen($normRealUploadDir)), '/');
+          if (is_readable($realFilePath)) {
+            $zip->addFile($realFilePath, $relativePath);
+          }
         }
       }
       $count++;

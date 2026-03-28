@@ -415,7 +415,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
               $fileName = is_array($_FILES[$fk]['name']) ? ($_FILES[$fk]['name'][0] ?? '') : $_FILES[$fk]['name'];
               $ext = strtolower(pathinfo((string)$fileName, PATHINFO_EXTENSION));
               if (!in_array($ext, ['ico', 'png'])) {
-                throw new Exception('Favicon must be .ico or .png');
+                throw new Exception(function_exists('_t') ? _t('err_invalid_favicon_ext') : 'Favicon must be .ico or .png');
               }
             }
 
@@ -731,6 +731,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (!in_array($role, ['admin', 'editor']))
           $role = 'editor';
 
+        $useCustomPerms = isset($_POST['use_custom_perms']);
+        $userPerms = $useCustomPerms ? json_encode($_POST['user_perms'] ?? [], JSON_UNESCAPED_UNICODE) : null;
+
         if (empty($newUser) || empty($newPass))
           throw new Exception(_t('username_and_password_required'));
         if (empty($newEmail))
@@ -754,8 +757,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $hash = password_hash($newPass, PASSWORD_DEFAULT);
         // Insert user
         $now = date('Y-m-d H:i:s');
-        $stmt = $pdo->prepare("INSERT INTO users (username, password, email, role, created_at) VALUES (?, ?, ?, ?, ?)");
-        $stmt->execute([$newUser, $hash, $newEmail, $role, $now]);
+        $stmt = $pdo->prepare("INSERT INTO users (username, password, email, role, created_at, permissions) VALUES (?, ?, ?, ?, ?, ?)");
+        $stmt->execute([$newUser, $hash, $newEmail, $role, $now, $userPerms]);
         set_flash(_t('msg_user_added'));
         break;
 
@@ -780,6 +783,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           $role = Routing::getString($_POST, 'role', 'editor');
           if (!in_array($role, ['admin', 'editor']))
             $role = 'editor';
+
+          $useCustomPerms = isset($_POST['use_custom_perms']);
+          $userPerms = $useCustomPerms ? json_encode($_POST['user_perms'] ?? [], JSON_UNESCAPED_UNICODE) : null;
 
           // Verify current password
           if (empty($currentPass))
@@ -814,16 +820,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
               throw new Exception(_t('err_pass_max_len'));
             $hash = password_hash($newPass, PASSWORD_DEFAULT);
             // Update role
-            $stmt = $pdo->prepare("UPDATE users SET email = ?, password = ?, role = ? WHERE id = ?");
-            $stmt->execute([$email, $hash, $role, $targetId]);
+            $stmt = $pdo->prepare("UPDATE users SET email = ?, password = ?, role = ?, permissions = ? WHERE id = ?");
+            $stmt->execute([$email, $hash, $role, $userPerms, $targetId]);
 
             // Invalidate existing tokens on password change
             $pdo->prepare("DELETE FROM user_tokens WHERE user_id = ?")->execute([$targetId]);
             grinds_invalidate_user_sessions($targetId);
           } else {
             // Update role
-            $stmt = $pdo->prepare("UPDATE users SET email = ?, role = ? WHERE id = ?");
-            $stmt->execute([$email, $role, $targetId]);
+            $stmt = $pdo->prepare("UPDATE users SET email = ?, role = ?, permissions = ? WHERE id = ?");
+            $stmt->execute([$email, $role, $userPerms, $targetId]);
+          }
+
+          if ($targetId == App::user()['id']) {
+            $_SESSION['user_permissions'] = $userPerms;
           }
           $pdo->commit();
         } catch (Exception $e) {

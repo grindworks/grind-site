@@ -903,6 +903,7 @@ return [
     'chk_mbstring' => 'MBString Extension',
     'chk_zip' => 'Zip Extension',
     'chk_journal_mode' => 'DB Journal Mode',
+    'chk_fts5_support' => 'FTS5 Support (Search)',
     'adv_install_del' => 'Please delete "install.php" immediately.',
     'adv_config_ro' => 'Recommended: Make "config.php" read-only (444 or 400).',
     'adv_writable' => 'Must be writable.',
@@ -914,6 +915,7 @@ return [
     'val_installed' => 'Installed',
     'chk_sqlite_ver' => 'SQLite Version',
     'adv_sqlite_req' => 'Running in Legacy Mode (FTS5 disabled). Works fine but limits performance.',
+    'adv_fts5_disabled' => 'FTS5 is disabled. Search performance may be degraded. Upgrading SQLite on the server is recommended.',
     'adv_sqlite_rec' => 'v3.27.0+ is recommended for full backup capabilities.',
 
     // Define update strings.
@@ -1277,6 +1279,7 @@ return [
     'ssg_limit_search' => 'Search: Converted to JavaScript-based search.',
     'ssg_limit_form' => 'Forms: Standard PHP forms will not work.',
     'ssg_limit_link' => 'Links: Automatically converted to relative paths.',
+    'ssg_limit_js_img' => 'Dynamic Assets: Images loaded dynamically via JavaScript (e.g. in Custom HTML) may not be exported.',
     'ssg_label_url' => 'Target URL (Optional)',
     'ssg_desc_url' => 'Used for `canonical` tags and `sitemap.xml`. If empty, links will be converted to <strong>relative paths</strong> (playable on local disk).',
     'ssg_label_form' => 'Form Endpoint (Optional)',
@@ -1615,4 +1618,7 @@ return [
     'ssg_label_chunk_size' => 'Search Index Chunk Size',
     'ssg_desc_chunk_size' => 'Number of posts per JSON file (Default: 500)',
     'err_random_bytes' => 'Cannot generate a secure random token. Please check your server environment.',
+    'err_invalid_favicon_ext' => 'Invalid favicon extension. Only .ico and .png are allowed.',
+    'st_use_custom_perms' => 'Use Custom Permissions',
+    'msg_upload_may_take_time' => 'Uploading may take some time depending on the file size.',
 ];

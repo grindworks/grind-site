@@ -75,6 +75,7 @@ final class App
                 'username' => (string)($_SESSION['username'] ?? ''),
                 'role'     => (string)($_SESSION['user_role'] ?? 'editor'),
                 'avatar'   => (string)($_SESSION['user_avatar'] ?? ''),
+                'permissions' => $_SESSION['user_permissions'] ?? null,
             ];
         }
         return null;

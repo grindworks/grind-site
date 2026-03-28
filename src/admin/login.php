@@ -92,20 +92,6 @@ $check_lockout = function ($table, $column, $value) use ($pdo, &$is_locked, &$er
 
 $attempt = $check_lockout('login_attempts', 'ip_address', $ip_address);
 
-// Garbage collect login attempts
-if (rand(1, 20) === 1) {
-    try {
-        $yesterday = gmdate('Y-m-d H:i:s', time() - 86400);
-        $pdo->prepare("DELETE FROM login_attempts WHERE last_attempt_at < ?")->execute([$yesterday]);
-        $pdo->prepare("DELETE FROM username_login_attempts WHERE last_attempt_at < ?")->execute([$yesterday]);
-
-        // Clean up expired remember me tokens
-        $pdo->prepare("DELETE FROM user_tokens WHERE expires_at < ?")->execute([date('Y-m-d H:i:s')]);
-    } catch (Exception $e) {
-        // Ignore cleanup errors
-    }
-}
-
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$is_locked) {
     // Validate CSRF token
     if (!validate_csrf_token(Routing::getString($_POST, 'csrf_token'))) {
@@ -158,6 +144,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$is_locked) {
                     $_SESSION['username'] = $user['username'];
                     $_SESSION['user_role'] = $user['role'] ?? 'admin';
                     $_SESSION['user_avatar'] = $user['avatar'] ?? '';
+                    $_SESSION['user_permissions'] = $user['permissions'] ?? null;
                     $_SESSION['last_activity'] = time();
 
                     // Process remember me
@@ -259,6 +246,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$is_locked) {
         <?= defined('SITE_NAME') ? h(SITE_NAME) : 'GrindSite' ?>
     </title>
     <link rel="icon" href="<?= h(get_favicon_url()) ?>">
+    <link rel="apple-touch-icon" href="<?= h(get_favicon_url()) ?>">
     <?php require __DIR__ . '/layout/assets_loader.php'; ?>
     <style>
         /* Force form elements to inherit root color scheme */
@@ -325,7 +313,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$is_locked) {
             ?>
             <?php if ((string)$showLogoLogin === '1'): ?>
                 <?php if ($logo): ?>
-                    <img src="<?= h($logo) ?>" alt="<?= _t('lbl_logo') ?>" class="mx-auto mb-4 w-auto h-16 object-contain">
+                    <?php $siteNameAlt = get_option('admin_title') ?: get_option('site_name') ?: CMS_NAME; ?>
+                    <img src="<?= h($logo) ?>" alt="<?= h($siteNameAlt) ?>" class="mx-auto mb-4 w-auto h-16 object-contain">
                 <?php
                 else: ?>
                     <div

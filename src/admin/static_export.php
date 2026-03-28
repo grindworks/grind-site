@@ -138,6 +138,10 @@ ob_start();
               <span class="font-bold text-theme-warning shrink-0">•</span>
               <span><?= _t('ssg_limit_link') ?></span>
             </li>
+            <li class="flex gap-3 opacity-90 text-theme-text text-sm">
+              <span class="font-bold text-theme-warning shrink-0">•</span>
+              <span><?= _t('ssg_limit_js_img') ?></span>
+            </li>
           </ul>
         </div>
 

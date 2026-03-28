@@ -183,6 +183,12 @@ $lang = grinds_detect_language();
   endif; ?>
 
   <script>
+    document.addEventListener('alpine:init', () => {
+      Alpine.data('alpineSearchData', () => (<?= $alpineSearchData ?>));
+    });
+  </script>
+
+  <script>
     window.grindsBaseUrl = <?= json_encode(resolve_url('/'), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNESCAPED_UNICODE) ?>;
     window.grindsCsrfToken = <?= json_encode(generate_csrf_token(), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNESCAPED_UNICODE) ?>;
     window.grindsLang = <?= json_encode($lang, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNESCAPED_UNICODE) ?>;

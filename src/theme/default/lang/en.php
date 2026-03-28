@@ -69,7 +69,7 @@ return [
     'Sent Successfully' => 'Sent Successfully',
     'Admin Preview' => 'Admin Preview',
     'Please select' => 'Please select',
-    'I agree to the <a href="%s" target="_blank" class="text-grinds-red underline hover:no-underline">Privacy Policy</a>' => 'I agree to the <a href="%s" target="_blank" class="text-grinds-red underline hover:no-underline">Privacy Policy</a>',
+    'I agree to the <a href="%s" target="_blank" class="text-grinds-red underline hover:no-underline">Privacy Policy</a>' => 'I agree to the <a href="%s" target="_blank" class="text-red-700 underline hover:no-underline">Privacy Policy</a>',
     'Maintenance' => 'Maintenance',
     'Setup Incomplete' => 'Setup Incomplete',
     'Send' => 'Send',

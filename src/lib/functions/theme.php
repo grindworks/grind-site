@@ -261,11 +261,29 @@ function _theme_generate_json_ld(string $siteName, string $pageType, string $pag
     }
     $graph[] = $orgNode;
 
+    $extractedAuthor = null;
+    $rawContent = $pageData['post']['content'] ?? '{}';
+    $contentData = $pageData['post']['content_decoded'] ?? json_decode($rawContent, true);
+
+    if (is_array($contentData) && !empty($contentData['blocks'])) {
+        foreach ($contentData['blocks'] as $block) {
+            if (($block['type'] ?? '') === 'author' && !empty($block['data']['name'])) {
+                $extractedAuthor = [
+                    'name' => html_entity_decode(strip_tags($block['data']['name']), ENT_QUOTES | ENT_HTML5, 'UTF-8'),
+                    'jobTitle' => !empty($block['data']['role']) ? html_entity_decode(strip_tags($block['data']['role']), ENT_QUOTES | ENT_HTML5, 'UTF-8') : '',
+                    'description' => !empty($block['data']['bio']) ? html_entity_decode(strip_tags($block['data']['bio']), ENT_QUOTES | ENT_HTML5, 'UTF-8') : '',
+                    'url' => !empty($block['data']['link']) ? filter_var($block['data']['link'], FILTER_VALIDATE_URL) : false
+                ];
+                break;
+            }
+        }
+    }
+
     $heroSettings = isset($pageData['post']['hero_settings_decoded'])
         ? $pageData['post']['hero_settings_decoded']
         : json_decode($pageData['post']['hero_settings'] ?? '{}', true);
 
-    $postAuthor = trim($heroSettings['seo_author'] ?? '');
+    $postAuthor = $extractedAuthor['name'] ?? trim($heroSettings['seo_author'] ?? '');
 
     if ($postAuthor) {
         $authorNode = [
@@ -274,19 +292,32 @@ function _theme_generate_json_ld(string $siteName, string $pageType, string $pag
             "name" => $postAuthor
         ];
 
-        if (!empty($socialLinks)) {
-            $authorNode["sameAs"] = $socialLinks;
-        }
+        if ($extractedAuthor) {
+            if (!empty($extractedAuthor['jobTitle'])) {
+                $authorNode["jobTitle"] = $extractedAuthor['jobTitle'];
+            }
+            if (!empty($extractedAuthor['description'])) {
+                $authorNode["description"] = $extractedAuthor['description'];
+            }
+            if (!empty($extractedAuthor['url'])) {
+                $authorNode["url"] = $extractedAuthor['url'];
+                $authorNode["sameAs"] = [$extractedAuthor['url']];
+            }
+        } else {
+            if (!empty($socialLinks)) {
+                $authorNode["sameAs"] = $socialLinks;
+            }
 
-        if (function_exists('get_sidebar_widgets')) {
-            foreach (get_sidebar_widgets() as $w) {
-                if ($w['type'] === 'profile') {
-                    $pSettings = json_decode($w['settings'] ?? '{}', true);
-                    $bio = $w['content'] ?? $pSettings['text'] ?? '';
-                    if ($bio) {
-                        $authorNode["description"] = function_exists('grinds_extract_text_from_content') ? grinds_extract_text_from_content($bio) : strip_tags($bio);
+            if (function_exists('get_sidebar_widgets')) {
+                foreach (get_sidebar_widgets() as $w) {
+                    if ($w['type'] === 'profile') {
+                        $pSettings = json_decode($w['settings'] ?? '{}', true);
+                        $bio = $w['content'] ?? $pSettings['text'] ?? '';
+                        if ($bio) {
+                            $authorNode["description"] = function_exists('grinds_extract_text_from_content') ? grinds_extract_text_from_content($bio) : strip_tags($bio);
+                        }
+                        break;
                     }
-                    break;
                 }
             }
         }
@@ -409,7 +440,7 @@ function _theme_generate_json_ld(string $siteName, string $pageType, string $pag
 
         $articleIdx = -1;
         if ($pageType === 'single') {
-            $plainTextContent = trim(preg_replace('/\s+/u', ' ', grinds_extract_text_from_content($pageData['post']['content'])));
+            $plainTextContent = trim(preg_replace('/\s+/u', ' ', grinds_extract_text_from_content($rawContent)));
 
             $lang = grinds_get_current_language();
             $wordCount = ($lang === 'ja')

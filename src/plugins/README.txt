@@ -43,7 +43,7 @@ Any ".php" files placed here will be automatically loaded at system startup.
   });
 
 - Samples:
-  Two sample files are included (disabled by default):
+  Seven sample files are included (disabled by default):
 
   1. `_custom_helpers.php`
      Useful functions for theme development (e.g., debug `dd()`, reading time).
@@ -52,6 +52,26 @@ Any ".php" files placed here will be automatically loaded at system startup.
   2. `_sample_hooks.php`
      Demonstrates how to use Action Hooks to inject code or handle events.
      Rename to "sample_hooks.php" to enable.
+
+  3. `_slack_notifier.php`
+     Sends a notification to a specified Slack or Discord Webhook URL when a post is saved as "published".
+     Rename to "slack_notifier.php" to enable.
+
+  4. `_admin_ip_restrict.php`
+     Restricts access to the admin area (/admin/) to specific IP addresses.
+     Rename to "admin_ip_restrict.php" to enable.
+
+  5. `_basic_auth.php`
+     Adds Basic Authentication to the entire site or specific pages.
+     Rename to "basic_auth.php" to enable.
+
+  6. `_maintenance_mode.php`
+     Displays a "Maintenance Mode" screen (503 status) to non-logged-in users.
+     Rename to "maintenance_mode.php" to enable.
+
+  7. `_sample_filters.php`
+     Demonstrates how to use Filter Hooks (e.g., auto-linking keywords, custom shortcodes).
+     Rename to "sample_filters.php" to enable.
 
 -------------------------------------------------------------------------
 
@@ -96,7 +116,7 @@ Any ".php" files placed here will be automatically loaded at system startup.
   });
 
 - サンプル:
-  2つのサンプルファイルが同梱されています（デフォルトでは無効です）。
+  7つのサンプルファイルが同梱されています（デフォルトでは無効です）。
 
   1. `_custom_helpers.php`
      テーマ開発に便利な関数集（デバッグ用 `dd()` や読了時間表示など）。
@@ -105,3 +125,23 @@ Any ".php" files placed here will be automatically loaded at system startup.
   2. `_sample_hooks.php`
      フックシステムを使ってコードを挿入したり、イベントを処理する方法の実演です。
      リネームして "sample_hooks.php" にすると有効になります。
+
+  3. `_slack_notifier.php`
+     記事が「公開」として保存された際に、指定したSlackやDiscordへ通知を送ります。
+     リネームして "slack_notifier.php" にすると有効になります。
+
+  4. `_admin_ip_restrict.php`
+     管理画面（/admin/）へのアクセスを、特定のIPアドレスからのみに制限します。
+     リネームして "admin_ip_restrict.php" にすると有効になります。
+
+  5. `_basic_auth.php`
+     サイト全体、または特定のページにBasic認証（簡易的なID/パスワード制限）を追加します。
+     リネームして "basic_auth.php" にすると有効になります。
+
+  6. `_maintenance_mode.php`
+     ログインしていない一般ユーザーに対して「メンテナンス中」の画面（503ステータス）を表示します。
+     リネームして "maintenance_mode.php" にすると有効になります。
+
+  7. `_sample_filters.php`
+     フィルターフックを利用して、表示直前の文字列を操作（キーワードの自動リンク化など）します。
+     リネームして "sample_filters.php" にすると有効になります。

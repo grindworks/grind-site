@@ -46,7 +46,7 @@ $activeClass = 'bg-theme-primary border-theme-primary text-theme-on-primary font
 </style>
 
 <body class="flex flex-col h-screen antialiased" :class="searchOpen ? 'overflow-hidden' : ''"
-  x-data="<?= htmlspecialchars($alpineSearchData, ENT_QUOTES, 'UTF-8') ?>"
+  x-data="alpineSearchData"
   @keydown.window.prevent.cmd.k="searchOpen = true; reset(); $refs.searchInput.focus();"
   @keydown.window.prevent.ctrl.k="searchOpen = true; reset(); $refs.searchInput.focus();"
   @keydown.window.escape="searchOpen = false">

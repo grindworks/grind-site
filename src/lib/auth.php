@@ -27,6 +27,15 @@ function current_user_can($cap)
     if (in_array($cap, $base_caps))
         return true;
 
+    $userPermsJson = $user['permissions'] ?? null;
+    if ($userPermsJson !== null) {
+        $userPermissions = json_decode($userPermsJson, true);
+        if (!is_array($userPermissions)) {
+            $userPermissions = [];
+        }
+        return in_array($cap, $userPermissions);
+    }
+
     $perms_json = get_option('editor_permissions', '[]');
     $permissions = json_decode($perms_json, true);
     if (!is_array($permissions))
@@ -164,6 +173,7 @@ function grinds_check_remember_me()
                 $_SESSION['username'] = $user['username'];
                 $_SESSION['user_role'] = $user['role'] ?? 'admin';
                 $_SESSION['user_avatar'] = $user['avatar'] ?? '';
+                $_SESSION['user_permissions'] = $user['permissions'] ?? null;
                 $_SESSION['last_activity'] = time();
 
                 // Skip session/token regeneration on AJAX requests to prevent race conditions

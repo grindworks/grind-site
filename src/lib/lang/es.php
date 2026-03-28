@@ -903,6 +903,7 @@ return [
     'chk_mbstring' => 'Extensión MBString',
     'chk_zip' => 'Extensión Zip',
     'chk_journal_mode' => 'Modo Journal BD',
+    'chk_fts5_support' => 'Soporte FTS5 (Búsqueda)',
     'adv_install_del' => 'Por favor elimine "install.php" inmediatamente.',
     'adv_config_ro' => 'Recomendado: Haga "config.php" de solo lectura (444 o 400).',
     'adv_writable' => 'Debe tener permisos de escritura.',
@@ -914,6 +915,7 @@ return [
     'val_installed' => 'Instalado',
     'chk_sqlite_ver' => 'Versión SQLite',
     'adv_sqlite_req' => 'Ejecutándose en Modo Heredado (FTS5 deshabilitado). Funciona, pero limita el rendimiento.',
+    'adv_fts5_disabled' => 'FTS5 está deshabilitado. El rendimiento de la búsqueda puede verse degradado. Se recomienda actualizar SQLite en el servidor.',
     'adv_sqlite_rec' => 'Se recomienda v3.27.0+ para capacidades completas de copia de seguridad.',
 
     // Define update strings.
@@ -1277,6 +1279,7 @@ return [
     'ssg_limit_search' => 'Búsqueda: Convertida en búsqueda basada en JavaScript.',
     'ssg_limit_form' => 'Formularios: Los formularios PHP estándar no funcionarán.',
     'ssg_limit_link' => 'Enlaces: Convertidos automáticamente a rutas relativas.',
+    'ssg_limit_js_img' => 'Recursos Dinámicos: Las imágenes cargadas dinámicamente a través de JavaScript (por ejemplo, en HTML personalizado) pueden no exportarse.',
     'ssg_label_url' => 'URL de Destino (Opcional)',
     'ssg_desc_url' => 'Se usa para etiquetas `canonical` y `sitemap.xml`. Si está en blanco, los enlaces se convertirán a <strong>rutas relativas</strong> (pueden verse desde un disco local).',
     'ssg_label_form' => 'Endpoint del Formulario (Opcional)',
@@ -1615,4 +1618,7 @@ return [
     'ssg_label_chunk_size' => 'Tamaño de fragmento del índice de búsqueda',
     'ssg_desc_chunk_size' => 'Número de publicaciones por archivo JSON (Predeterminado: 500)',
     'err_random_bytes' => 'No se puede generar un token aleatorio seguro. Por favor, compruebe el entorno de su servidor.',
+    'err_invalid_favicon_ext' => 'Extensión de favicon no válida. Solo se permiten .ico y .png.',
+    'st_use_custom_perms' => 'Usar permisos personalizados',
+    'msg_upload_may_take_time' => 'La subida puede tardar un tiempo dependiendo del tamaño del archivo.',
 ];

@@ -17,7 +17,7 @@ $statusLabel = strtoupper($sysStatus['status']);
 /** @var string $alpineSearchData */
 ?>
 
-<body class="flex flex-col bg-theme-bg h-screen overflow-hidden antialiased" x-data="<?= htmlspecialchars($alpineSearchData, ENT_QUOTES, 'UTF-8') ?>"
+<body class="flex flex-col bg-theme-bg h-screen overflow-hidden antialiased" x-data="alpineSearchData"
   @keydown.window.prevent.cmd.k="searchOpen = true; reset(); $refs.searchInput.focus();"
   @keydown.window.prevent.ctrl.k="searchOpen = true; reset(); $refs.searchInput.focus();"
   @keydown.window.escape="searchOpen = false">
@@ -48,7 +48,8 @@ $statusLabel = strtoupper($sysStatus['status']);
               <?php $adminLogo = get_option('admin_logo'); ?>
               <a href="index.php" class="flex items-center gap-2">
                 <?php if ($adminLogo): ?>
-                  <img src="<?= h(resolve_url($adminLogo)) ?>" alt="<?= _t('admin_logo_alt') ?>"
+                  <?php $siteNameAlt = get_option('admin_title') ?: get_option('site_name') ?: CMS_NAME; ?>
+                  <img src="<?= h(resolve_url($adminLogo)) ?>" alt="<?= h($siteNameAlt) ?>"
                     class="w-auto h-8 object-contain">
                   <?php if (get_option('admin_show_site_name')): ?>
                     <span class="font-bold text-theme-text text-lg uppercase tracking-tighter">

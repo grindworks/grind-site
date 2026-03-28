@@ -10,7 +10,7 @@ $pdo = App::db();
 if (!$pdo) {
     return;
 }
-$cats = $pdo->query("SELECT DISTINCT c.* FROM categories c JOIN posts p ON c.id = p.category_id WHERE p.status='published' AND (p.type='post' OR p.type IS NULL) AND p.deleted_at IS NULL ORDER BY c.sort_order ASC")->fetchAll();
+$cats = $pdo->query("SELECT c.* FROM categories c WHERE EXISTS (SELECT 1 FROM posts p WHERE p.category_id = c.id AND p.status='published' AND (p.type='post' OR p.type IS NULL) AND p.deleted_at IS NULL) ORDER BY c.sort_order ASC")->fetchAll();
 ?>
 <div class="bg-white shadow-sm mb-8 p-6 border border-gray-200 rounded-lg widget-categories">
     <?php if (!empty($title)): ?>

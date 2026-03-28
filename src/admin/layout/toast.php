@@ -22,7 +22,7 @@ if (!defined('GRINDS_APP')) exit;
     x-transition:leave="transition ease-in duration-200"
     x-transition:leave-start="opacity-100 translate-y-0 scale-100"
     x-transition:leave-end="opacity-0 translate-y-4 scale-95"
-    class="right-4 bottom-4 z-[100] fixed w-full max-w-sm cursor-pointer"
+    class="right-4 bottom-24 md:bottom-4 z-[100] fixed w-full max-w-sm cursor-pointer"
     @click="show = false"
     x-cloak>
 
@@ -55,7 +55,7 @@ if (!defined('GRINDS_APP')) exit;
     x-transition:enter="transition ease-out duration-300"
     x-transition:enter-start="opacity-0 translate-y-4 scale-95"
     x-transition:enter-end="opacity-100 translate-y-0 scale-100"
-    class="right-4 bottom-4 z-[100] fixed w-full max-w-sm cursor-pointer"
+    class="right-4 bottom-24 md:bottom-4 z-[100] fixed w-full max-w-sm cursor-pointer"
     x-cloak>
 
     <div class="flex items-start bg-theme-surface shadow-theme p-4 border-theme-danger border-l-4 rounded-r-theme ring-1 ring-black/5">

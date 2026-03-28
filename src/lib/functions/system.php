@@ -346,6 +346,21 @@ function grinds_run_garbage_collection()
         } catch (Exception $e) { /* Ignore */
         }
     }
+
+    // Clean login attempts and tokens
+    try {
+        $pdo = App::db();
+        if ($pdo) {
+            $yesterday = gmdate('Y-m-d H:i:s', time() - 86400);
+            $pdo->prepare("DELETE FROM login_attempts WHERE last_attempt_at < ?")->execute([$yesterday]);
+            $pdo->prepare("DELETE FROM username_login_attempts WHERE last_attempt_at < ?")->execute([$yesterday]);
+
+            // Clean up expired remember me tokens
+            $pdo->prepare("DELETE FROM user_tokens WHERE expires_at < ?")->execute([date('Y-m-d H:i:s')]);
+        }
+    } catch (Exception $e) {
+        error_log("GC Error (Login Attempts): " . $e->getMessage());
+    }
 }
 
 /**
@@ -1041,6 +1056,15 @@ class GrindsSystemCheck
                     'msg' => ''
                 ];
             }
+        }
+
+        // Check FTS5 support
+        if (function_exists('grinds_is_fts5_enabled') && !grinds_is_fts5_enabled()) {
+            $checks[] = [
+                'label' => _t('chk_fts5_support'),
+                'status' => 'warning',
+                'msg' => _t('adv_fts5_disabled')
+            ];
         }
 
         // Check journal mode

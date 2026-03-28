@@ -110,7 +110,8 @@ if (!isset($userList)) {
                       id: <?= htmlspecialchars(json_encode($u['id']), ENT_QUOTES) ?>,
                       username: <?= htmlspecialchars(json_encode($u['username']), ENT_QUOTES) ?>,
                       email: <?= htmlspecialchars(json_encode($u['email']), ENT_QUOTES) ?>,
-                      role: <?= htmlspecialchars(json_encode($uRole), ENT_QUOTES) ?>
+                      role: <?= htmlspecialchars(json_encode($uRole), ENT_QUOTES) ?>,
+                      permissions: <?= htmlspecialchars(json_encode($u['permissions'] ?? null), ENT_QUOTES) ?>
                   })"
                   class="inline-flex items-center gap-1 bg-transparent p-0 border-none font-bold text-theme-primary text-xs hover:underline cursor-pointer">
                   <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -195,7 +196,8 @@ if (!isset($userList)) {
                 id: <?= htmlspecialchars(json_encode($u['id']), ENT_QUOTES) ?>,
                 username: <?= htmlspecialchars(json_encode($u['username']), ENT_QUOTES) ?>,
                 email: <?= htmlspecialchars(json_encode($u['email']), ENT_QUOTES) ?>,
-                role: <?= htmlspecialchars(json_encode($uRole), ENT_QUOTES) ?>
+                role: <?= htmlspecialchars(json_encode($uRole), ENT_QUOTES) ?>,
+                permissions: <?= htmlspecialchars(json_encode($u['permissions'] ?? null), ENT_QUOTES) ?>
             })"
             class="flex items-center gap-1 bg-transparent p-0 border-none font-bold text-theme-primary text-xs hover:underline cursor-pointer">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -402,7 +404,9 @@ if (!isset($userList)) {
         email: '',
         password: '',
         passwordConfirm: '',
-        role: 'editor'
+        role: 'editor',
+        useCustomPerms: false,
+        userPerms: []
       }" x-effect="document.body.style.overflow = isOpen ? 'hidden' : ''"
       @open-user-modal.window="
         isOpen = true;
@@ -413,6 +417,20 @@ if (!isset($userList)) {
         role = $event.detail.role || 'editor';
         password = '';
         passwordConfirm = '';
+
+        let permsRaw = $event.detail.permissions;
+        if (permsRaw !== null && permsRaw !== undefined && permsRaw !== '') {
+            useCustomPerms = true;
+            try {
+                userPerms = JSON.parse(permsRaw);
+            } catch(e) {
+                userPerms = [];
+            }
+            if (!Array.isArray(userPerms)) userPerms = [];
+        } else {
+            useCustomPerms = false;
+            userPerms = [];
+        }
       " x-show="isOpen" class="z-50 fixed inset-0 flex justify-center items-center p-4" style="display: none;" x-cloak>
 
       <div class="fixed inset-0 skin-modal-overlay backdrop-blur-sm transition-opacity" @click="isOpen = false"></div>
@@ -463,6 +481,53 @@ if (!isset($userList)) {
               <input type="email" name="new_email" x-model="email" class="text-sm form-control"
                 placeholder="user@example.com" :required="mode === 'add'">
             </label>
+
+            <div x-show="role === 'editor'" x-cloak>
+              <hr class="border-theme-border my-4">
+              <label class="flex items-center gap-2 cursor-pointer mb-3">
+                <input type="checkbox" name="use_custom_perms" value="1" x-model="useCustomPerms" class="bg-theme-bg border-theme-border rounded focus:ring-theme-primary w-4 h-4 text-theme-primary form-checkbox">
+                <span class="font-bold text-theme-text text-sm"><?= function_exists('_t') ? _t('st_use_custom_perms') ?? 'Use Custom Permissions' : 'Use Custom Permissions' ?></span>
+              </label>
+
+              <div x-show="useCustomPerms" class="bg-theme-bg/30 p-4 border border-theme-border rounded-theme space-y-3">
+                <label class="flex items-start gap-2 cursor-pointer">
+                  <input type="checkbox" name="user_perms[]" value="manage_categories" x-model="userPerms" class="mt-0.5 bg-theme-bg border-theme-border rounded focus:ring-theme-primary w-4 h-4 text-theme-primary form-checkbox">
+                  <div>
+                    <div class="font-bold text-theme-text text-sm leading-tight"><?= _t('menu_categories') ?> / <?= _t('menu_tags') ?></div>
+                  </div>
+                </label>
+                <label class="flex items-start gap-2 cursor-pointer">
+                  <input type="checkbox" name="user_perms[]" value="manage_menus" x-model="userPerms" class="mt-0.5 bg-theme-bg border-theme-border rounded focus:ring-theme-primary w-4 h-4 text-theme-primary form-checkbox">
+                  <div>
+                    <div class="font-bold text-theme-text text-sm leading-tight"><?= _t('menu_menus') ?></div>
+                  </div>
+                </label>
+                <label class="flex items-start gap-2 cursor-pointer">
+                  <input type="checkbox" name="user_perms[]" value="manage_widgets" x-model="userPerms" class="mt-0.5 bg-theme-bg border-theme-border rounded focus:ring-theme-primary w-4 h-4 text-theme-primary form-checkbox">
+                  <div>
+                    <div class="font-bold text-theme-text text-sm leading-tight"><?= _t('menu_widgets') ?></div>
+                  </div>
+                </label>
+                <label class="flex items-start gap-2 cursor-pointer">
+                  <input type="checkbox" name="user_perms[]" value="manage_banners" x-model="userPerms" class="mt-0.5 bg-theme-bg border-theme-border rounded focus:ring-theme-primary w-4 h-4 text-theme-primary form-checkbox">
+                  <div>
+                    <div class="font-bold text-theme-text text-sm leading-tight"><?= _t('menu_banners') ?></div>
+                  </div>
+                </label>
+                <label class="flex items-start gap-2 cursor-pointer">
+                  <input type="checkbox" name="user_perms[]" value="manage_tools" x-model="userPerms" class="mt-0.5 bg-theme-bg border-theme-border rounded focus:ring-theme-primary w-4 h-4 text-theme-primary form-checkbox">
+                  <div>
+                    <div class="font-bold text-theme-text text-sm leading-tight"><?= _t('perm_manage_tools') ?></div>
+                  </div>
+                </label>
+                <label class="flex items-start gap-2 cursor-pointer">
+                  <input type="checkbox" name="user_perms[]" value="manage_settings" x-model="userPerms" class="mt-0.5 bg-theme-bg border-theme-danger/30 rounded focus:ring-theme-danger w-4 h-4 text-theme-danger form-checkbox">
+                  <div>
+                    <div class="font-bold text-theme-text text-sm leading-tight text-theme-danger"><?= _t('menu_settings') ?></div>
+                  </div>
+                </label>
+              </div>
+            </div>
 
             <hr class="border-theme-border">
 

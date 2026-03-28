@@ -38,7 +38,7 @@ return [
     'admin_dashboard' => '管理ダッシュボード',
     'admin_login' => '管理ログイン',
     'search_placeholder' => '検索...',
-    'read_more' => '続きを読む',
+    'read_more' => '記事を読む',
     'read_more_aria' => '%s の続きを読む',
 
     // Contact Form
@@ -69,7 +69,7 @@ return [
     'Sent Successfully' => '送信完了',
     'Admin Preview' => '管理者プレビュー',
     'Please select' => '選択してください',
-    'I agree to the <a href="%s" target="_blank" class="text-grinds-red underline hover:no-underline">Privacy Policy</a>' => '<a href="%s" target="_blank" class="text-grinds-red underline hover:no-underline">プライバシーポリシー</a>に同意する',
+    'I agree to the <a href="%s" target="_blank" class="text-grinds-red underline hover:no-underline">Privacy Policy</a>' => '<a href="%s" target="_blank" class="text-red-700 underline hover:no-underline">プライバシーポリシー</a>に同意する',
     'Maintenance' => 'メンテナンス中',
     'Setup Incomplete' => '設定未完了',
     'Send' => '送信',

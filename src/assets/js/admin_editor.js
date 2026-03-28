@@ -1569,6 +1569,13 @@ document.addEventListener('alpine:init', () => {
         const item = this.blocks[index];
         this.blocks.splice(index, 1);
         this.blocks.splice(targetIndex, 0, item);
+
+        this.$nextTick(() => {
+          const el = document.getElementById('block-wrapper-' + item.id);
+          if (el) {
+            el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }
+        });
       }
     },
 
@@ -1584,6 +1591,13 @@ document.addEventListener('alpine:init', () => {
       if (fromIndex === toIndex) return;
       const item = this.blocks.splice(fromIndex, 1)[0];
       this.blocks.splice(toIndex, 0, item);
+
+      this.$nextTick(() => {
+        const el = document.getElementById('block-wrapper-' + item.id);
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      });
     },
 
     /**

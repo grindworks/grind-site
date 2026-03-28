@@ -484,16 +484,28 @@ $basePath = rtrim($parsedBase['path'] ?? '/', '/') . '/';
                             'text_gradient_end' => 'rgb(var(--color-primary) / var(--color-primary-alpha, 1))',
                             'icon' => 'outline-sparkles'
                         ];
-                        ?>
-                        <div class="group relative flex flex-col justify-center items-center gap-3 py-16 border-2 rounded-theme text-center transition-all cursor-pointer overflow-hidden"
-                            style="background-color: <?= $aiConfig['bg_start'] ?>; border-color: <?= $aiConfig['border'] ?>; border-style: <?= $aiConfig['border_style'] ?>;"
-                            onmouseover="this.style.borderColor='<?= $aiConfig['border_hover'] ?>'; this.style.backgroundColor='<?= $aiConfig['bg_end'] ?>'"
-                            onmouseout="this.style.borderColor='<?= $aiConfig['border'] ?>'; this.style.backgroundColor='<?= $aiConfig['bg_start'] ?>'"
+                        ?> <div class="group relative flex flex-col justify-center items-center gap-3 py-16 border-2 rounded-theme text-center transition-all overflow-hidden"
+                            x-data="{
+                                isSecureContext: window.isSecureContext,
+                                aiBgStart: '<?= $aiConfig['bg_start'] ?>',
+                                aiBgEnd: '<?= $aiConfig['bg_end'] ?>',
+                                aiBorder: '<?= $aiConfig['border'] ?>',
+                                aiBorderStyle: '<?= $aiConfig['border_style'] ?>',
+                                aiBorderHover: '<?= $aiConfig['border_hover'] ?>',
+                                currentBg: '<?= $aiConfig['bg_start'] ?>',
+                                currentBorder: '<?= $aiConfig['border'] ?>',
+                            }"
+                            :class="{ 'opacity-50 cursor-not-allowed': !isSecureContext, 'cursor-pointer': isSecureContext }"
+                            :title="!isSecureContext ? '<?= _t('err_https_required') ?>' : ''"
+                            :style="`background-color: ${currentBg}; border-color: ${currentBorder}; border-style: ${aiBorderStyle};`"
+                            @mouseover="if (isSecureContext) { currentBorder = aiBorderHover; currentBg = aiBgEnd; }"
+                            @mouseout="if (isSecureContext) { currentBorder = aiBorder; currentBg = aiBgStart; }"
                             @click="if (!navigator.clipboard || !navigator.clipboard.readText) {
                                 alert(window.grindsTranslations.ai_paste_error || 'Clipboard API is not supported in this environment (HTTPS required).');
                                 return;
                             }
                             navigator.clipboard.readText().then(text => {
+                                if (!isSecureContext) { alert('<?= _t('err_https_required') ?>'); return; } // Safeguard, though button should be disabled
                                 if (!text) {
                                     alert(window.grindsTranslations.ai_paste_empty);
                                     return;

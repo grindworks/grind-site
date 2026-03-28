@@ -495,7 +495,7 @@ ob_start();
                                 <span class="inline-flex items-center bg-theme-danger/10 px-2 py-0.5 border border-theme-danger/20 rounded-theme font-medium text-theme-danger text-xs" x-text="link.reason"></span>
                             </td>
                             <td class="px-6 py-4 font-medium text-sm text-right whitespace-nowrap">
-                                <a :href="getEditUrl(link)" class="font-bold text-theme-primary hover:text-theme-primary-dark hover:underline">
+                                <a :href="getEditUrl(link)" target="_blank" rel="noopener noreferrer" class="font-bold text-theme-primary hover:text-theme-primary-dark hover:underline">
                                     <?= _t('edit') ?>
                                 </a>
                             </td>

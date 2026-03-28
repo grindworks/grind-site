@@ -308,6 +308,12 @@ if (!function_exists('body_class')) {
 if (!function_exists('grinds_head')) {
     function grinds_head()
     {
+        // ファビコンが設定されている場合、スマホのホーム画面用アイコンも出力
+        $favicon = function_exists('get_favicon_url') ? get_favicon_url() : '';
+        if ($favicon) {
+            echo "<link rel=\"apple-touch-icon\" href=\"" . h($favicon) . "\">\n";
+        }
+
         // Google Analytics
         if (function_exists('get_option')) {
             $gaId = get_option('google_analytics_id');
