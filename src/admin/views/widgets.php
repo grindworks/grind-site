@@ -428,4 +428,5 @@ $csrf_token = generate_csrf_token();
   </div>
 </div>
 
+<script src="<?= grinds_asset_url('assets/js/media_manager.js') ?>"></script>
 <?php include __DIR__ . '/parts/media_picker.php'; ?>
