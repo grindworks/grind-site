@@ -72,6 +72,32 @@ document.addEventListener('alpine:init', () => {
     },
 
     /**
+     * Recursively clones an object and regenerates any 'id' properties.
+     * @param {object} obj The object to clone and process.
+     * @returns {object} The new object with regenerated IDs.
+     */
+    recursivelyRegenerateIds(obj) {
+      if (obj === null || typeof obj !== 'object') {
+        return obj;
+      }
+
+      if (Array.isArray(obj)) {
+        return obj.map((item) => this.recursivelyRegenerateIds(item));
+      }
+
+      const newObj = {};
+      for (const key in obj) {
+        if (Object.prototype.hasOwnProperty.call(obj, key)) {
+          newObj[key] =
+            key === 'id' && (typeof obj[key] === 'string' || typeof obj[key] === 'number')
+              ? this.generateId()
+              : this.recursivelyRegenerateIds(obj[key]);
+        }
+      }
+      return newObj;
+    },
+
+    /**
      * Encode string to Base64.
      * @param {string} str
      */
@@ -370,7 +396,7 @@ document.addEventListener('alpine:init', () => {
           blocks.push({
             id: this.generateId(),
             type: 'quote',
-            data: { text: parseInline(quoteContent.join('<br>')), cite: '' },
+            data: { text: parseInline(quoteContent.join('\n')), cite: '' },
             collapsed: false,
           });
           i = j - 1;
@@ -378,7 +404,7 @@ document.addEventListener('alpine:init', () => {
         }
 
         // 5. Images
-        const imgMatch = line.match(/^!\[([^\]]*)\]\(([^)]+)\)$/);
+        const imgMatch = trimmed.match(/^!\[([^\]]*)\]\(([^)]+)\)$/);
         if (imgMatch) {
           flushBuffer();
           let imgUrl = imgMatch[2].trim();
@@ -447,8 +473,8 @@ document.addEventListener('alpine:init', () => {
             return rowLine
               .trim()
               .replace(/^\||\|$/g, '')
-              .split('|')
-              .map((cell) => parseInline(cell.trim()));
+              .split(/(?<!\\)\|/)
+              .map((cell) => parseInline(cell.trim().replace(/\\\|/g, '|')));
           };
 
           // Process header and subsequent rows
@@ -605,17 +631,20 @@ document.addEventListener('alpine:init', () => {
         this.isComposing = true;
       });
       window.addEventListener('compositionend', () => {
-        this.isComposing = false;
-        // Ensure final state is recorded
-        if (!this.isSubmitting) {
-          this.isDirty = true;
-          this.saveLocalDraft();
-          clearTimeout(this.historyTimeout);
-          const delay = window.grindsEditorDebounce ? parseInt(window.grindsEditorDebounce) : 1000;
-          this.historyTimeout = setTimeout(() => {
-            this.recordHistory();
-          }, delay);
-        }
+        // Delay the release of the composition flag to ensure DOM and data bindings are fully synced
+        requestAnimationFrame(() => {
+          this.isComposing = false;
+          // Ensure final state is recorded
+          if (!this.isSubmitting) {
+            this.isDirty = true;
+            this.saveLocalDraft();
+            clearTimeout(this.historyTimeout);
+            const delay = window.grindsEditorDebounce ? parseInt(window.grindsEditorDebounce) : 1000;
+            this.historyTimeout = setTimeout(() => {
+              this.recordHistory();
+            }, delay);
+          }
+        });
       });
 
       // Watch blocks for changes
@@ -992,7 +1021,7 @@ document.addEventListener('alpine:init', () => {
           this.isDirty = true;
           this.draftRecoveryOpen = false;
           // Translation applied
-          alert(window.grindsTranslations.draft_restored || 'Draft restored.');
+          window.showToast(window.grindsTranslations.draft_restored || 'Draft restored.', 'success');
         });
       } catch (e) {
         console.error(e);
@@ -1352,16 +1381,14 @@ document.addEventListener('alpine:init', () => {
           if (previewWindow) previewWindow.close();
           // Translation applied
           const msg = window.grindsTranslations.js_preview_error || 'Preview Error: ';
-          setTimeout(() => alert(msg + (result.error || 'Unknown')), 100);
+          window.showToast(msg + (result.error || 'Unknown'), 'error');
         }
       } catch (e) {
         if (previewWindow) previewWindow.close();
         if (window.grindsDebug) console.error(e);
         // Alert already handled if it was session expiry
         if (!this._sessionExpiryAlertShown) {
-          setTimeout(() => {
-            alert(window.grindsTranslations.js_preview_net_err || 'Preview Failed: Network Error');
-          }, 100);
+          window.showToast(window.grindsTranslations.js_preview_net_err || 'Preview Failed: Network Error', 'error');
         }
       } finally {
         this.isSaving = false;
@@ -1407,14 +1434,12 @@ document.addEventListener('alpine:init', () => {
           localStorage.removeItem(this.draftKey);
           localStorage.removeItem(this.draftKey + '_time');
 
-          // 新規作成時のみリダイレクトし、更新時はリロードせずスクロール位置を維持
           if (!form.querySelector('input[name="id"]')?.value) {
             const base = (window.grindsBaseUrl || '').replace(/\/$/, '');
             window.location.href = `${base}/admin/posts.php?action=edit&id=${data.id}&saved=1`;
           } else {
             this.isSubmitting = false;
 
-            // 楽観的ロックの隠しフィールドを最新値で書き換え
             if (data.version) {
               const vInput = form.querySelector('input[name="original_version"]');
               if (vInput) vInput.value = data.version;
@@ -1424,42 +1449,21 @@ document.addEventListener('alpine:init', () => {
               if (uInput) uInput.value = data.updated_at;
             }
 
-            // 動的トースト通知の表示
             const msg = data.message || 'Saved successfully';
-            const toastHtml = `
-              <div id="ajax-toast" class="right-4 bottom-4 z-[100] fixed w-full max-w-sm cursor-pointer transition-all duration-300 transform translate-y-0 opacity-100">
-                <div class="flex items-start bg-theme-surface shadow-theme p-4 border-theme-success border-l-4 rounded-r-theme ring-1 ring-black/5">
-                  <div class="flex-shrink-0">
-                    <svg class="w-6 h-6 text-theme-success" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <use href="${(window.grindsBaseUrl || '').replace(/\/$/, '')}/assets/img/sprite.svg#outline-check-circle"></use>
-                    </svg>
-                  </div>
-                  <div class="flex-1 ml-3 pt-0.5 w-0">
-                    <p class="font-bold text-theme-text text-sm">${window.grindsTranslations?.success || 'Success'}</p>
-                    <p class="opacity-80 mt-1 text-theme-text text-sm">${msg}</p>
-                  </div>
-                </div>
-              </div>`;
-
-            document.getElementById('ajax-toast')?.remove();
-            document.body.insertAdjacentHTML('beforeend', toastHtml);
-
-            setTimeout(() => {
-              const t = document.getElementById('ajax-toast');
-              if (t) {
-                t.classList.add('translate-y-4', 'opacity-0');
-                setTimeout(() => t.remove(), 300);
-              }
-            }, 4000);
+            if (typeof window.showToast === 'function') {
+              window.showToast(msg, 'success');
+            } else {
+              alert(msg);
+            }
           }
         } else {
-          alert(data.error || 'Error');
+          window.showToast(data.error || 'Error', 'error');
           this.isSubmitting = false;
           this.isDirty = true;
         }
       } catch (e) {
         console.error(e);
-        alert('Network Error');
+        window.showToast('Network Error', 'error');
         this.isSubmitting = false;
         this.isDirty = true;
       }
@@ -1534,8 +1538,7 @@ document.addEventListener('alpine:init', () => {
      */
     duplicateBlock(index) {
       const originalBlock = this.blocks[index];
-      const newBlock = JSON.parse(JSON.stringify(originalBlock));
-      newBlock.id = this.generateId();
+      const newBlock = this.recursivelyRegenerateIds(originalBlock);
       this.blocks.splice(index + 1, 0, newBlock);
     },
 
@@ -1547,11 +1550,43 @@ document.addEventListener('alpine:init', () => {
       const block = this.blocks[index];
       const d = block.data || {};
 
-      const isEmpty =
-        (!d.text || String(d.text).trim() === '') &&
-        (!d.url || String(d.url).trim() === '') &&
-        (!d.code || String(d.code).trim() === '') &&
-        (!d.images || d.images.length === 0);
+      let isEmpty = true;
+
+      switch (block.type) {
+        case 'paragraph':
+        case 'header':
+        case 'html':
+        case 'quote':
+        case 'callout':
+        case 'section':
+          isEmpty = !d.text || String(d.text).trim().length === 0;
+          break;
+        case 'image':
+        case 'video':
+        case 'audio':
+        case 'pdf':
+        case 'download':
+        case 'embed':
+        case 'card':
+          isEmpty = !d.url || String(d.url).trim().length === 0;
+          break;
+        case 'list':
+        case 'accordion':
+          isEmpty =
+            !d.items ||
+            d.items.length === 0 ||
+            (d.items.length === 1 &&
+              (!d.items[0] || (typeof d.items[0] === 'string' ? d.items[0].trim() === '' : !d.items[0].title)));
+          break;
+        case 'code':
+        case 'math':
+          isEmpty = !d.code || String(d.code).trim().length === 0;
+          break;
+        default:
+          const dataString = JSON.stringify(d);
+          isEmpty = dataString === '{}' || dataString.length < 20;
+          break;
+      }
 
       if (isEmpty || confirm(window.grindsTranslations.confirm_delete || 'Are you sure?')) {
         this.blocks.splice(index, 1);
@@ -1605,7 +1640,27 @@ document.addEventListener('alpine:init', () => {
      * @param {number} index
      */
     toggleCollapse(index) {
-      this.blocks[index].collapsed = !this.blocks[index].collapsed;
+      const block = this.blocks[index];
+      if (!block) return;
+
+      block.collapsed = !block.collapsed;
+
+      // If expanding, recalculate textarea heights to fix collapse bug
+      if (!block.collapsed) {
+        this.$nextTick(() => {
+          const blockEl = document.getElementById('block-wrapper-' + block.id);
+          if (blockEl) {
+            const textareas = blockEl.querySelectorAll('textarea');
+            textareas.forEach((ta) => {
+              // Only target textareas with auto-height behavior (identified by overflow:hidden)
+              if (ta.style.overflow === 'hidden') {
+                ta.style.height = 'auto';
+                ta.style.height = ta.scrollHeight + 'px';
+              }
+            });
+          }
+        });
+      }
     },
 
     /**
@@ -1675,7 +1730,8 @@ document.addEventListener('alpine:init', () => {
      * @param {string} tag
      */
     insertTag(blockIndex, tag) {
-      const textarea = document.getElementById('block-text-' + blockIndex);
+      const blockId = this.blocks[blockIndex].id;
+      const textarea = document.getElementById('block-' + blockId + '-text');
       if (!textarea) return;
 
       const start = textarea.selectionStart;
@@ -1793,7 +1849,8 @@ document.addEventListener('alpine:init', () => {
      * @param {number} blockIndex
      */
     async insertLink(blockIndex) {
-      const textarea = document.getElementById('block-text-' + blockIndex);
+      const blockId = this.blocks[blockIndex].id;
+      const textarea = document.getElementById('block-' + blockId + '-text');
       if (!textarea) return;
 
       const start = textarea.selectionStart;
@@ -2077,7 +2134,7 @@ document.addEventListener('alpine:init', () => {
           this.handleSessionExpiry();
           return;
         }
-        if (!this._sessionExpiryAlertShown) alert('Delete error occurred.');
+        if (!this._sessionExpiryAlertShown) window.showToast('Delete error occurred.', 'error');
       }
     },
 
@@ -2205,7 +2262,7 @@ document.addEventListener('alpine:init', () => {
 
         // Notify user
         if (errorMessages.length > 0) {
-          alert(`Uploaded ${successCount} files.\nErrors:\n` + errorMessages.join('\n'));
+          window.showToast(`Uploaded ${successCount} files. Errors: ` + errorMessages.join(', '), 'error');
         }
       } finally {
         this.isUploading = false;
@@ -2241,7 +2298,7 @@ document.addEventListener('alpine:init', () => {
           block.data.image = this.normalizeUrl(json.data.image);
         } else {
           // Translation applied
-          alert(window.grindsTranslations.fetch_failed || 'Fetch failed');
+          window.showToast(window.grindsTranslations.fetch_failed || 'Fetch failed', 'error');
           block.data.title = originalTitle || '';
         }
       } catch (e) {
@@ -2352,17 +2409,17 @@ document.addEventListener('alpine:init', () => {
           this.tplTab = 'load';
           this.fetchTemplates();
           // Translation applied
-          alert(window.grindsTranslations.template_saved || 'Template saved');
+          window.showToast(window.grindsTranslations.template_saved || 'Template saved', 'success');
         } else {
           // Translation applied
           const msg = window.grindsTranslations.error || 'Error: %s';
-          alert(msg.replace('%s', data.error));
+          window.showToast(msg.replace('%s', data.error), 'error');
         }
       } catch (e) {
         if (window.grindsDebug) console.error(e);
         if (!this._sessionExpiryAlertShown) {
           // Translation applied
-          alert(window.grindsTranslations.system_error || 'System Error');
+          window.showToast(window.grindsTranslations.system_error || 'System Error', 'error');
         }
       }
     },

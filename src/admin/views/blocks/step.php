@@ -5,7 +5,7 @@ if (!defined('GRINDS_APP')) exit;
 $step_styles = $block_config['library']['design']['items']['step']['styles'] ?? [];
 ?>
 <div class="space-y-4"
-  x-init="if(!block.data.items) block.data.items = [{id: Math.random().toString(36).substr(2, 9), title:<?= htmlspecialchars(json_encode(_t('def_step') . ' 1'), ENT_QUOTES) ?>, desc:''}]; block.data.items.forEach(i => { if(!i.id) i.id = Math.random().toString(36).substr(2, 9); })"
+  x-init="if(!block.data.items) block.data.items = [{id: generateId(), title:<?= htmlspecialchars(json_encode(_t('def_step') . ' 1'), ENT_QUOTES) ?>, desc:''}]; block.data.items.forEach(i => { if(!i.id) i.id = generateId(); })"
   x-data="{ styles: <?= htmlspecialchars(json_encode($step_styles), ENT_QUOTES) ?> }">
   <!-- Loop steps -->
   <template x-for="(item, i) in block.data.items" :key="item.id">
@@ -26,16 +26,19 @@ $step_styles = $block_config['library']['design']['items']['step']['styles'] ?? 
         <!-- Title input -->
         <div>
           <label class="block opacity-50 mb-1 font-bold text-[10px] text-theme-text"><?= _t('lbl_step_title') ?></label>
-          <input type="text" x-model="item.title" class="w-full font-bold form-control-sm" placeholder="<?= _t('ph_step_title') ?>">
+          <input type="text" x-model="item.title" :id="'block-' + block.id + '-item-' + i + '-title'" class="w-full font-bold form-control-sm" placeholder="<?= _t('ph_step_title') ?>">
         </div>
         <!-- Description input -->
         <div>
           <label class="block opacity-50 mb-1 font-bold text-[10px] text-theme-text"><?= _t('lbl_step_desc') ?></label>
-          <textarea x-model="item.desc" rows="3" class="w-full text-xs form-control-sm" placeholder="<?= _t('ph_step_desc') ?>"></textarea>
+          <textarea x-model="item.desc" :id="'block-' + block.id + '-item-' + i + '-desc'" rows="3"
+            x-init="$nextTick(() => { $el.style.height = 'auto'; $el.style.height = $el.scrollHeight + 'px' })"
+            @input="$el.style.height = 'auto'; $el.style.height = $el.scrollHeight + 'px'"
+            class="w-full text-xs form-control-sm overflow-hidden resize-none" placeholder="<?= _t('ph_step_desc') ?>"></textarea>
         </div>
       </div>
     </div>
   </template>
   <!-- Add step button -->
-  <button type="button" @click="block.data.items.push({id: Math.random().toString(36).substr(2, 9), title:'', desc:''})" class="ml-10 px-3 py-2 border-2 hover:border-theme-primary/50 border-dashed w-auto text-xs btn-secondary">+ <?= _t('btn_add_step') ?></button>
+  <button type="button" @click="block.data.items.push({id: generateId(), title:'', desc:''})" class="ml-10 px-3 py-2 border-2 hover:border-theme-primary/50 border-dashed w-auto text-xs btn-secondary">+ <?= _t('btn_add_step') ?></button>
 </div>

@@ -358,7 +358,7 @@ if (!defined('GRINDS_APP')) exit; ?>
       <?= _t('system') ?> <?= _t('menu_settings') ?>
     </h4>
 
-    <form method="post" class="space-y-4" x-data="{ enabled: <?= !empty($opt['trust_proxies']) ? 'true' : 'false' ?> }">
+    <form method="post" class="space-y-4 warn-on-unsaved" x-data="{ enabled: <?= !empty($opt['trust_proxies']) ? 'true' : 'false' ?> }">
       <input type="hidden" name="csrf_token" value="<?= h(generate_csrf_token()) ?>">
       <input type="hidden" name="action" value="update_proxy_settings">
 
@@ -391,7 +391,7 @@ if (!defined('GRINDS_APP')) exit; ?>
       </div>
     </form>
 
-    <form method="post" class="flex sm:flex-row flex-col justify-between sm:items-center gap-4"
+    <form method="post" class="flex sm:flex-row flex-col justify-between sm:items-center gap-4 warn-on-unsaved"
       x-data="{ current: <?= !empty($opt['debug_mode']) ? 'true' : 'false' ?>, initial: <?= !empty($opt['debug_mode']) ? 'true' : 'false' ?> }">
       <input type="hidden" name="csrf_token" value="<?= h(generate_csrf_token()) ?>">
       <input type="hidden" name="action" value="update_debug_mode">
@@ -426,7 +426,7 @@ if (!defined('GRINDS_APP')) exit; ?>
       </div>
     </form>
 
-    <form method="post"
+    <form method="post" class="warn-on-unsaved"
       x-data="{
       current: <?= file_exists(ROOT_PATH . '/.maintenance') ? 'true' : 'false' ?>,
       initial: <?= file_exists(ROOT_PATH . '/.maintenance') ? 'true' : 'false' ?>,

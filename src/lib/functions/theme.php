@@ -791,6 +791,25 @@ function grinds_get_header_data(array $context = []): array
         }
     }
 
+    $ogImageWidth = '';
+    $ogImageHeight = '';
+    if ($ogImage) {
+        global $grinds_image_meta_cache;
+        if (function_exists('grinds_preload_image_meta')) {
+            grinds_preload_image_meta([$ogImage]);
+        }
+        $baseUrl = rtrim(resolve_url('/'), '/') . '/';
+        $relPath = preg_replace('/\?.*$/', '', ltrim(str_replace($baseUrl, '', $ogImage), '/'));
+
+        if (isset($grinds_image_meta_cache[$relPath])) {
+            $meta = $grinds_image_meta_cache[$relPath];
+            if (!empty($meta['width']) && !empty($meta['height'])) {
+                $ogImageWidth = $meta['width'];
+                $ogImageHeight = $meta['height'];
+            }
+        }
+    }
+
     // Canonical & URL Path
     [$canonicalUrl, $showCanonical, $ogpUrl] = _theme_generate_canonical_url($pageType, $pageData, $finalTitle, $finalDesc);
 
@@ -852,6 +871,8 @@ function grinds_get_header_data(array $context = []): array
         'finalTitle' => $finalTitle,
         'finalDesc' => $finalDesc,
         'ogImage' => $ogImage,
+        'ogImageWidth' => $ogImageWidth,
+        'ogImageHeight' => $ogImageHeight,
         'ogType' => $ogType,
         'canonicalUrl' => $canonicalUrl,
         'ogpUrl' => $ogpUrl,

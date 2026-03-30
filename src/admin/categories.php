@@ -167,7 +167,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
       redirect($redirect_url);
     } catch (Exception $e) {
-      $error = $e->getMessage();
+      $msg = $e->getMessage();
+      // Check for unique constraint violation from DB
+      if (stripos($msg, 'UNIQUE constraint failed') !== false || stripos($msg, 'Duplicate entry') !== false) {
+        $error = _t('err_duplicate_entry'); // Example: "The name or slug is already in use."
+      } else {
+        $error = $msg;
+      }
     }
   }
 }
@@ -177,8 +183,16 @@ $limit = isset($params['limit']) ? (int)$params['limit'] : 20;
 $page = isset($params['page']) ? (int)$params['page'] : 1;
 $sorter = new Sorter(['id', 'name', 'slug', 'sort_order'], 'sort_order', 'ASC');
 
+$search_q = Routing::getString($params, 'q');
+$whereSql = '';
+$whereParams = [];
+if ($search_q !== '') {
+  $whereSql = 'name LIKE ? OR slug LIKE ?';
+  $whereParams = ["%$search_q%", "%$search_q%"];
+}
+
 // Fetch categories using the paginator helper
-$paginationResult = grinds_paginate_query($pdo, 'categories', $page, $limit, $sorter);
+$paginationResult = grinds_paginate_query($pdo, 'categories', $page, $limit, $sorter, $whereSql, $whereParams);
 $categories = $paginationResult['data'];
 $paginator = $paginationResult['paginator'];
 

@@ -1,7 +1,7 @@
 {
-  "version": "1.1.2",
-  "release_date": "YYYY-MM-DD",
-  "message": "Added theme-specific display options for banners and widgets. Improved database connection stability.",
-  "download_url": "https://github.com/grindworks/grind-site/releases/download/v1.1.2/grindsite-v1.1.2.zip",
-  "sha256": "b4ce12679e42e4fb67071379e25ab24e90adaadcfaab9bb9bb069e8dca1f7ec4"
+  "version": "1.2.0",
+  "release_date": "2026-03-30",
+  "message": "Added offline mode assets, unsaved form warnings, and major UI enhancements.",
+  "download_url": "https://github.com/grindworks/grind-site/releases/download/v1.2.0/grindsite-v1.2.0.zip",
+  "sha256": "d203115c24ad80d86721b7ae05b9394e1b45cf2f2937119e9459fe3655071be1"
 }

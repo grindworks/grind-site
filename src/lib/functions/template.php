@@ -832,7 +832,7 @@ if (!function_exists('get_permalink')) {
         }
 
         if (empty($slug))
-            return resolve_url('');
+            return resolve_url('/');
 
         $path = $slug;
         if (defined('GRINDS_IS_SSG') && GRINDS_IS_SSG) {

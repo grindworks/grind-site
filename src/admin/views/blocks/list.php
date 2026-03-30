@@ -13,10 +13,12 @@ if (!defined('GRINDS_APP')) exit; ?>
   <!-- Items container -->
   <div class="space-y-2 pl-2">
     <!-- Loop items -->
-    <template x-for="(item, i) in block.data.items">
+    <template x-for="(item, i) in block.data.items" :key="i">
       <div class="group/item flex items-center gap-2">
         <span class="opacity-50 font-mono text-theme-text text-xs" x-text="block.data.style === 'ordered' ? (i+1)+'.' : '•'"></span>
-        <input type="text" x-model="block.data.items[i]" class="flex-1 bg-transparent py-1 border-theme-border focus:border-theme-primary border-b focus:outline-none text-theme-text text-sm placeholder-theme-text/30" @keydown.enter.prevent="addListItem(index, i+1); $nextTick(() => { $el.closest('.space-y-2').querySelectorAll('input[type=text]')[i+1]?.focus() })">
+        <input type="text" x-model="block.data.items[i]" :id="'block-' + block.id + '-item-' + i" class="flex-1 bg-transparent py-1 border-theme-border focus:border-theme-primary border-b focus:outline-none text-theme-text text-sm placeholder-theme-text/30"
+          @keydown.enter.prevent="if(!$event.isComposing) { addListItem(index, i+1); $nextTick(() => { $el.closest('.space-y-2').querySelectorAll('input[type=text]')[i+1]?.focus() }) }"
+          @keydown.backspace="if(!$event.isComposing && block.data.items[i] === '' && block.data.items.length > 1) { $event.preventDefault(); removeListItem(index, i); $nextTick(() => { $el.closest('.space-y-2').querySelectorAll('input[type=text]')[Math.max(0, i-1)]?.focus() }) }">
         <button type="button" @click="removeListItem(index, i)" class="opacity-40 hover:opacity-100 p-2 min-w-[40px] min-h-[40px] flex items-center justify-center text-xl text-theme-text hover:text-theme-danger transition-opacity" x-show="block.data.items.length > 1">&times;</button>
       </div>
     </template>

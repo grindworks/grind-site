@@ -12,6 +12,7 @@ if (!isset($backups)) {
   $backups = [];
   $backupDir = ROOT_PATH . '/data/backups';
   if (is_dir($backupDir)) {
+    clearstatcache();
     foreach (glob($backupDir . '/*.db') as $file) {
       $name = basename($file);
       $size = filesize($file);
@@ -120,7 +121,7 @@ if (!isset($backups)) {
       </p>
     </div>
 
-    <form method="post" action="settings.php?tab=backup" x-data="{
+    <form method="post" action="settings.php?tab=backup" class="warn-on-unsaved" x-data="{
         currentLimit: <?= (int)$opt['bk_limit'] ?>,
         checkLimit(e) {
           const newLimit = parseInt(this.$el.querySelector('[name=backup_retention_limit]').value);
@@ -218,7 +219,7 @@ if (!isset($backups)) {
         <?= _t('st_manual_backup_desc') ?>
       </p>
     </div>
-    <form method="post" class="flex flex-col gap-5" action="settings.php?tab=backup">
+    <form method="post" class="flex flex-col gap-5 warn-on-unsaved" action="settings.php?tab=backup">
       <input type="hidden" name="csrf_token" value="<?= h(generate_csrf_token()) ?>">
       <input type="hidden" name="action" value="create_backup">
       <div class="flex md:flex-row flex-col md:items-end gap-5">
@@ -270,9 +271,9 @@ if (!isset($backups)) {
       </svg>
       <div class="text-xs leading-relaxed opacity-90">
         <strong class="block mb-1 font-bold">
-          <?= (function_exists('get_option') && get_option('site_lang', 'en') === 'ja') ? '【重要】完全な復元のために' : 'Important Notice for Complete Recovery' ?>
+          <?= _t('st_backup_important_title') ?>
         </strong>
-        <?= (function_exists('get_option') && get_option('site_lang', 'en') === 'ja') ? 'ここからダウンロードできるのはデータベース（記事や設定データ）のみです。<br>万が一のサーバー障害や移転に備えて、必ずFTPやコントロールパネル等で <strong>config.php</strong> および <strong>assets/uploads/</strong> フォルダも別途バックアップして手元に保管してください。' : 'These backups only contain the database (posts and settings). For a complete recovery or server migration, please ensure you manually download your <strong>config.php</strong> file and the <strong>assets/uploads/</strong> directory via FTP.' ?>
+        <?= _t('st_backup_important_desc') ?>
       </div>
     </div>
   </div>

@@ -31,7 +31,7 @@ if (!function_exists('css_var_color')) {
      */
     function css_var_color(string $name, string $hex): string
     {
-        $str = hex2rgb($hex);
+        $str = grinds_normalize_color($hex);
         $parts = explode(' / ', $str);
         $rgb = $parts[0];
         $alpha = $parts[1] ?? '1';
@@ -59,18 +59,18 @@ $required_colors = [
     'surface' => $colors['surface'] ?? '#ffffff',
     'text' => $colors['text'] ?? '#334155',
     'primary' => $colors['primary'] ?? '#2563eb',
-    'on-primary' => $colors['on-primary'] ?? '#ffffff',
+    'on-primary' => $colors['on_primary'] ?? '#ffffff',
     'secondary' => $colors['secondary'] ?? '#64748b',
-    'on-secondary' => $colors['on-secondary'] ?? '#ffffff',
+    'on-secondary' => $colors['on_secondary'] ?? '#ffffff',
     'border' => $colors['border'] ?? '#e2e8f0',
     'success' => $colors['success'] ?? '#22c55e',
-    'on-success' => $colors['on-success'] ?? '#ffffff',
+    'on-success' => $colors['on_success'] ?? '#ffffff',
     'danger' => $colors['danger'] ?? '#ef4444',
-    'on-danger' => $colors['on-danger'] ?? '#ffffff',
+    'on-danger' => $colors['on_danger'] ?? '#ffffff',
     'warning' => $colors['warning'] ?? '#eab308',
-    'on-warning' => $colors['on-warning'] ?? '#ffffff',
+    'on-warning' => $colors['on_warning'] ?? '#ffffff',
     'info' => $colors['info'] ?? '#0ea5e9',
-    'on-info' => $colors['on-info'] ?? '#ffffff',
+    'on-info' => $colors['on_info'] ?? '#ffffff',
     'sidebar-text' => $colors['sidebar_text'] ?? ($is_sidebar_dark ? '#ffffff' : '#334155'),
     'sidebar-active-bg' => $colors['sidebar_active_bg'] ?? ($colors['primary'] ?? '#2563eb'),
     'sidebar-active-text' => $colors['sidebar_active_text'] ?? ($colors['on-primary'] ?? '#ffffff'),
@@ -137,7 +137,7 @@ $css_vars_string = implode("\n        ", $css_vars);
 $is_login_page = (isset($current_page) && $current_page === 'login') || (basename($_SERVER['SCRIPT_NAME']) === 'login.php');
 
 $disable_external_assets = get_option('disable_external_assets');
-$use_local_assets = $disable_external_assets && file_exists(ROOT_PATH . '/assets/js/vendor/alpine.min.js') && file_exists(ROOT_PATH . '/assets/js/vendor/collapse.min.js');
+$use_local_assets = file_exists(ROOT_PATH . '/assets/js/vendor/alpine.min.js') && file_exists(ROOT_PATH . '/assets/js/vendor/collapse.min.js');
 
 $media_bg_key = $skin['media_bg_css'] ?? '';
 $media_bg_css = $skinAssets['media_backgrounds'][$media_bg_key] ?? $media_bg_key;
@@ -231,9 +231,19 @@ endif; ?>
 
     /* Slow ping animation for normal system status */
     @keyframes ping-slow {
-        0%, 100% { transform: scale(1); opacity: 0.75; }
-        50% { transform: scale(1.8); opacity: 0; }
+
+        0%,
+        100% {
+            transform: scale(1);
+            opacity: 0.75;
+        }
+
+        50% {
+            transform: scale(1.8);
+            opacity: 0;
+        }
     }
+
     .animate-ping-slow {
         animation: ping-slow 3s cubic-bezier(0, 0, 0.2, 1) infinite;
     }

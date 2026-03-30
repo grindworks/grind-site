@@ -17,7 +17,7 @@ $csrf_token = generate_csrf_token();
 <?php include __DIR__ . '/parts/hidden_action_form.php'; ?>
 
 <div class="relative flex lg:flex-row flex-col gap-8"
-  x-effect="document.body.style.overflow = (mobileFormOpen || guideOpen) ? 'hidden' : ''"
+  x-effect="window.toggleScrollLock(mobileFormOpen || guideOpen)"
   x-data="{
     mobileFormOpen: <?= $edit_id ? 'true' : 'false' ?>,
     guideOpen: false
@@ -305,7 +305,7 @@ $csrf_token = generate_csrf_token();
                 </button>
               </div>
 
-              <form method="post" enctype="multipart/form-data" x-data='{
+              <form method="post" enctype="multipart/form-data" class="warn-on-unsaved" x-data='{
         type: <?= json_encode($edit_data['type'] ?? 'image', JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS) ?>,
         imageWidth: <?= (int)($edit_data['image_width'] ?? 100) ?>,
         fileName: "",
@@ -467,7 +467,7 @@ $csrf_token = generate_csrf_token();
                 <!-- Action buttons. -->
                 <div class="flex gap-3">
                   <?php if ($edit_id): ?>
-                    <a href="banners.php" class="flex-1 py-2.5 rounded-theme text-sm text-center btn-secondary"><?= _t('cancel') ?></a>
+                    <a href="banners.php" class="js-skip-warning flex-1 py-2.5 rounded-theme text-sm text-center btn-secondary"><?= _t('cancel') ?></a>
                   <?php else: ?>
                     <button type="button" @click="mobileFormOpen = false" class="lg:hidden flex-1 py-2.5 rounded-theme text-sm text-center btn-secondary"><?= _t('cancel') ?></button>
                   <?php endif; ?>
@@ -567,5 +567,6 @@ $csrf_token = generate_csrf_token();
 
     </div>
 
+    <script src="<?= grinds_asset_url('assets/js/admin_form_unsaved.js') ?>"></script>
     <script src="<?= grinds_asset_url('assets/js/media_manager.js') ?>"></script>
     <?php include __DIR__ . '/parts/media_picker.php'; ?>

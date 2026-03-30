@@ -544,7 +544,7 @@ function grinds_save_post(PDO $pdo, array $data, array $files, string $action, ?
             }
 
             // 3. Re-encode once
-            $postData['content'] = json_encode($contentArray, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_INVALID_UTF8_IGNORE);
+            $postData['content'] = json_encode($contentArray, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR);
         } else {
             // Abort save for invalid JSON to prevent data loss / corruption
             throw new Exception(function_exists('_t') ? _t('err_invalid_json') : "Invalid Content JSON. Save aborted to prevent data loss.");
@@ -614,7 +614,7 @@ function grinds_save_post(PDO $pdo, array $data, array $files, string $action, ?
         $hero_image_mobile = Routing::convertToDbUrl($hero_image_mobile);
 
         $hero_settings = grinds_build_hero_settings($data, $hero_image_mobile);
-        $hero_settings_json = json_encode($hero_settings, JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_IGNORE | JSON_THROW_ON_ERROR);
+        $hero_settings_json = json_encode($hero_settings, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR);
 
         $category_name = '';
         if (!empty($postData['category_id'])) {
@@ -819,6 +819,11 @@ function grinds_save_post(PDO $pdo, array $data, array $files, string $action, ?
         if (!$saved) {
             throw new Exception(_t('err_slug_conflict'));
         }
+    } catch (JsonException $e) {
+        if ($e->getCode() === JSON_ERROR_UTF8) {
+            throw new Exception(function_exists('_t') ? _t('err_invalid_utf8_content') : 'The content contains invalid characters and could not be saved.');
+        }
+        throw new Exception(function_exists('_t') ? _t('err_json_encode', $e->getMessage()) : 'JSON Error: ' . $e->getMessage());
     } catch (Exception $e) {
         // Rollback only if this function started the main transaction
         if ($startedTransaction && $pdo->inTransaction()) {

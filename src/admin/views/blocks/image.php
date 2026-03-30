@@ -2,11 +2,11 @@
 
 /** Image Block View */
 if (!defined('GRINDS_APP')) exit; ?>
-<div class="space-y-3 bg-theme-bg/40 p-4 border border-theme-border rounded-theme" x-data="{ isUploading: false }">
+<div class="space-y-3 bg-theme-bg/40 p-4 border border-theme-border rounded-theme" x-init="if(block.data.width === undefined) block.data.width = 100" x-data="{ isUploading: false }">
   <!-- Source controls -->
   <div class="flex gap-2">
     <!-- URL input -->
-    <input type="text" x-model="block.data.url" @blur="block.data.url = normalizeUrl(block.data.url)" class="flex-1 font-mono text-xs form-control-sm" placeholder="<?= _t('ph_image_url') ?>">
+    <input type="text" x-model="block.data.url" :id="'block-' + block.id + '-url'" @blur="block.data.url = normalizeUrl(block.data.url)" class="flex-1 font-mono text-xs form-control-sm" placeholder="<?= _t('ph_image_url') ?>">
     <!-- Open media library -->
     <button type="button" @click="openMediaLibrary(index, null, 'url')" class="flex items-center gap-1 px-3 py-1 text-xs btn-secondary shrink-0">
       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -30,8 +30,19 @@ if (!defined('GRINDS_APP')) exit; ?>
   <div x-show="block.data.url" class="relative bg-theme-bg p-2 border border-theme-border rounded-theme text-center">
     <img :src="resolvePreviewUrl(block.data.url)" class="shadow-theme mx-auto rounded-theme max-h-60" @error="$el.src = <?= htmlspecialchars(json_encode(PLACEHOLDER_IMG), ENT_QUOTES) ?>">
   </div>
+  <!-- Width slider -->
+  <div x-show="block.data.url" class="flex items-center gap-3 px-1">
+    <label class="opacity-50 font-bold text-theme-text text-[10px] whitespace-nowrap"><?= _t('lbl_image_width') ?? 'Width' ?></label>
+    <input type="range" x-model="block.data.width" min="10" max="100" step="5" class="bg-theme-border rounded-theme w-full h-2 accent-theme-primary appearance-none cursor-pointer">
+    <span class="w-12 font-mono text-[10px] text-theme-text text-right"><span x-text="block.data.width"></span>%</span>
+  </div>
   <!-- Caption input -->
-  <input type="text" x-model="block.data.caption" class="w-full text-xs text-center transition-colors form-control-sm" placeholder="<?= _t('ph_caption') ?>">
+  <input type="text" x-model="block.data.caption" :id="'block-' + block.id + '-caption'" class="w-full text-xs text-center transition-colors form-control-sm" placeholder="<?= _t('ph_caption') ?>">
   <!-- Alt text input -->
-  <input type="text" x-model="block.data.alt" class="w-full text-xs text-center transition-colors form-control-sm" placeholder="<?= _t('ph_alt_text') ?>">
+  <div class="relative">
+    <input type="text" x-model="block.data.alt" :id="'block-' + block.id + '-alt'" class="w-full text-xs text-center transition-colors form-control-sm" placeholder="<?= _t('ph_alt_text') ?>">
+    <p class="opacity-50 mt-1 text-[10px] text-theme-text text-center">
+      <span><?= _t('msg_alt_help') ?></span>
+    </p>
+  </div>
 </div>

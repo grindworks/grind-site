@@ -185,16 +185,6 @@ if (!function_exists('grinds_normalize_color')) {
     }
 }
 
-/**
- * @deprecated Use grinds_normalize_color() instead.
- */
-if (!function_exists('hex2rgb')) {
-    function hex2rgb($hex)
-    {
-        return grinds_normalize_color($hex);
-    }
-}
-
 /** Extract plain text from content */
 if (!function_exists('grinds_extract_text_from_content')) {
     function grinds_extract_text_from_content(?string $content): string
@@ -429,7 +419,7 @@ if (!function_exists('grinds_replace_css_urls')) {
         if (empty($content) || !is_string($content))
             return $content;
 
-        $result = preg_replace_callback('/url\(\s*(?>([\'"]?))(?!data:|https?:|\/\/)([^\'")]*)\1\s*\)/i', function ($matches) use ($callback) {
+        $result = preg_replace_callback('/url\(\s*+(?>([\'"]?))(?!data:|https?:|\/\/)([^\'")]*+)\1\s*+\)/i', function ($matches) use ($callback) {
             $quote = $matches[1] ?: '"';
             $url = trim($matches[2]);
             $newUrl = $callback($url);
@@ -1940,11 +1930,7 @@ if (!function_exists('grinds_get_bigram')) {
     function grinds_get_bigram(string $text): string
     {
         $text = mb_strtolower(strip_tags($text), 'UTF-8');
-
-        // 英数字・記号の塊と、それ以外の文字（日本語など）の境界にスペースを挿入して分離する
         $text = preg_replace('/([a-z0-9\-_]+)/u', ' $1 ', $text);
-
-        // 連続するスペースを1つにまとめる
         $text = preg_replace('/[\s　]+/u', ' ', $text);
         $tokens = [];
         $parts = explode(' ', trim($text));
@@ -1974,5 +1960,43 @@ if (!function_exists('grinds_get_bigram')) {
             }
         }
         return implode(' ', $tokens);
+    }
+}
+
+/**
+ * Clean up files in a directory based on prefix, expiration time, and exclusion list.
+ *
+ * @param string $dir Directory path
+ * @param string $prefix Prefix of files to delete (empty for all files)
+ * @param int|null $expireTime Files older than this timestamp will be deleted. Null to ignore time.
+ * @param array $exclude Array of exact filenames to exclude
+ * @return int Number of deleted files
+ */
+if (!function_exists('grinds_clean_directory_files')) {
+    function grinds_clean_directory_files(string $dir, string $prefix = '', ?int $expireTime = null, array $exclude = []): int
+    {
+        if (!is_dir($dir)) return 0;
+
+        $count = 0;
+        try {
+            foreach (new DirectoryIterator($dir) as $fileInfo) {
+                if (!$fileInfo->isFile()) continue;
+
+                $filename = $fileInfo->getFilename();
+
+                if (!empty($exclude) && in_array($filename, $exclude, true)) continue;
+                if ($prefix !== '' && !str_starts_with($filename, $prefix)) continue;
+                if ($expireTime !== null && $fileInfo->getMTime() >= $expireTime) continue;
+
+                if (function_exists('grinds_force_unlink')) {
+                    if (grinds_force_unlink($fileInfo->getPathname())) $count++;
+                } else {
+                    if (@unlink($fileInfo->getPathname())) $count++;
+                }
+            }
+        } catch (Exception $e) { /* Ignore */
+        }
+
+        return $count;
     }
 }

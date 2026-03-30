@@ -138,9 +138,9 @@ function grinds_db_connect()
 
   // Optimize performance.
   $enableWal = defined('ENABLE_WAL_MODE') ? ENABLE_WAL_MODE : true;
-  try {
-    $pdo->exec("PRAGMA busy_timeout = 30000;");
+  $pdo->exec("PRAGMA busy_timeout = 30000;");
 
+  try {
     if ($enableWal) {
       $stmt = $pdo->query("PRAGMA journal_mode = WAL;");
       $mode = $stmt->fetchColumn();

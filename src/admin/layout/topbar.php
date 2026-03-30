@@ -17,7 +17,7 @@ $statusLabel = strtoupper($sysStatus['status']);
 /** @var string $alpineSearchData */
 ?>
 
-<body class="flex flex-col bg-theme-bg h-screen overflow-hidden antialiased" x-data="alpineSearchData"
+<body class="flex flex-col bg-theme-bg h-[100dvh] overflow-hidden antialiased" x-data="alpineSearchData"
   @keydown.window.prevent.cmd.k="searchOpen = true; reset(); $refs.searchInput.focus();"
   @keydown.window.prevent.ctrl.k="searchOpen = true; reset(); $refs.searchInput.focus();"
   @keydown.window.escape="searchOpen = false">
@@ -47,10 +47,10 @@ $statusLabel = strtoupper($sysStatus['status']);
               <?php endif; ?>
               <?php $adminLogo = get_option('admin_logo'); ?>
               <a href="index.php" class="flex items-center gap-2">
-                <?php if ($adminLogo): ?>
-                  <?php $siteNameAlt = get_option('admin_title') ?: get_option('site_name') ?: CMS_NAME; ?>
-                  <img src="<?= h(resolve_url($adminLogo)) ?>" alt="<?= h($siteNameAlt) ?>"
-                    class="w-auto h-8 object-contain">
+                <?php if ($adminLogo):
+                  $siteNameAlt = get_option('admin_title') ?: get_option('site_name') ?: CMS_NAME;
+                  $logo_style = $is_dark_mode ? 'style="filter: drop-shadow(0 0 3px rgba(255,255,255,0.4));"' : ''; ?>
+                  <img src="<?= h(resolve_url($adminLogo)) ?>" alt="<?= h($siteNameAlt) ?>" class="w-auto h-8 object-contain" <?= $logo_style ?>>
                   <?php if (get_option('admin_show_site_name')): ?>
                     <span class="font-bold text-theme-text text-lg uppercase tracking-tighter">
                       <?= h(get_option('admin_title') ?: get_option('site_name') ?: CMS_NAME) ?>
@@ -385,8 +385,7 @@ $statusLabel = strtoupper($sysStatus['status']);
     </main>
 
     <!-- Footer -->
-    <footer
-      class="hidden md:block z-20 relative flex-shrink-0 bg-theme-bg border-theme-border border-t font-mono text-[11px] text-theme-text/60">
+    <footer class="hidden md:block z-20 mt-auto relative flex-shrink-0 bg-theme-bg border-theme-border border-t font-mono text-[11px] text-theme-text/60">
       <div class="flex justify-between items-center px-4 sm:px-6 w-full h-12 whitespace-nowrap">
         <div class="flex items-center gap-6">
           <?php if (current_user_can('manage_settings')): ?>
@@ -404,21 +403,11 @@ $statusLabel = strtoupper($sysStatus['status']);
               <span class="opacity-30">|</span>
               <a href="settings.php?tab=general" class="flex items-center gap-2 hover:text-theme-text transition-colors"
                 title="<?= _t('license') ?>">
-                <?php if ($licStatus === 'trial'): ?>
-                  <span class="relative flex w-2 h-2"><span
-                      class="inline-flex relative bg-theme-info rounded-full w-2 h-2"></span></span>
-                  <span class="font-bold text-theme-info tracking-wide">
-                    <?= _t('trial') ?>
-                  </span>
-                <?php
-                else: ?>
-                  <span class="relative flex w-2 h-2"><span
-                      class="inline-flex relative bg-theme-warning rounded-full w-2 h-2"></span></span>
-                  <span class="font-bold text-theme-warning tracking-wide">
-                    <?= _t('unregistered') ?>
-                  </span>
-                <?php
-                endif; ?>
+                <span class="relative flex w-2 h-2"><span
+                    class="inline-flex relative bg-theme-info rounded-full w-2 h-2"></span></span>
+                <span class="font-bold text-theme-info tracking-wide">
+                  <?= _t('trial') ?>
+                </span>
               </a>
             <?php
             endif; ?>

@@ -81,7 +81,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       $postId = $result['id'];
       $finalSlug = $result['slug'];
 
-      set_flash($result['message']);
+      set_flash(_t('msg_post_saved'));
 
       if (function_exists('grinds_clear_specific_cache')) {
         $targetsToClear = [
@@ -118,14 +118,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           'success' => true,
           'id' => $postId,
           'slug' => $finalSlug,
-          'message' => $result['message']
+          'version' => $result['version'] ?? null,
+          'updated_at' => $result['updated_at'] ?? null,
+          'message' => _t('msg_post_saved')
         ]);
       }
 
       redirect('admin/posts.php?action=edit&id=' . $postId . '&saved=1');
     } catch (Exception $e) {
       // Check version conflict
-      $isConflict = (stripos($e->getMessage(), 'conflict') !== false || stripos($e->getMessage(), 'stale') !== false);
+      $isConflict = (
+        $e->getMessage() === _t('err_conflict') ||
+        $e->getMessage() === _t('err_post_conflict')
+      );
 
       if (!empty($_POST['ajax_mode'])) {
         if ($isConflict) {

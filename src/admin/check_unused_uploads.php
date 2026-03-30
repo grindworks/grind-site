@@ -111,6 +111,7 @@ if (isset($params['action'])) {
           'exclude_dirs' => ['node_modules', 'vendor', '.git', '_trash']
         ]);
         $rootPathStr = str_replace('\\', '/', ROOT_PATH);
+        clearstatcache();
 
         foreach ($foundFiles as $filePath) {
           $relPath = $filePath;

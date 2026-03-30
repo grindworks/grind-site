@@ -41,7 +41,6 @@ try {
     }
 
     // Fetch categories (assuming a standard 'categories' table structure)
-    // 一般的な categories テーブルを想定した取得処理です
     $stmt = $pdo->query("SELECT id, name, slug FROM categories ORDER BY id ASC");
     $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
 

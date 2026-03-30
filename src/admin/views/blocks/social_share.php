@@ -13,7 +13,7 @@ if (!defined('GRINDS_APP')) exit; ?>
 
     <div class="flex-1 w-full">
       <label class="block opacity-70 mb-1 font-bold text-theme-text text-[10px]"><?= _t('lbl_share_text') ?></label>
-      <input type="text" x-model="block.data.text" class="form-control-sm w-full" placeholder="<?= _t('ph_share_text') ?>">
+      <input type="text" x-model="block.data.text" :id="'block-' + block.id + '-text'" class="form-control-sm w-full" placeholder="<?= _t('ph_share_text') ?>">
     </div>
 
     <div class="shrink-0 w-full sm:w-auto">

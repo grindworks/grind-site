@@ -10,5 +10,5 @@ if (!defined('GRINDS_APP')) exit; ?>
     </svg>
   </div>
   <!-- Placeholder input -->
-  <input type="text" x-model="block.data.placeholder" class="w-full text-sm form-control-sm" placeholder="<?= _t('ph_search_box') ?>">
+  <input type="text" x-model="block.data.placeholder" :id="'block-' + block.id + '-placeholder'" class="w-full text-sm form-control-sm" placeholder="<?= _t('ph_search_box') ?>">
 </div>

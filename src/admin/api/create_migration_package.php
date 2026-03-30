@@ -105,6 +105,7 @@ try {
     $uploadsSize = 0;
     $totalFiles = 0;
 
+    clearstatcache();
     if (is_dir($uploadDir) && class_exists('FileManager')) {
       try {
         // Use FileManager::scanDirectory to standardize exclusion rules

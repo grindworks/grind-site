@@ -153,13 +153,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
       redirect($redirect_url);
     } catch (Exception $e) {
-      $error = $e->getMessage();
+      $msg = $e->getMessage();
+      // Check for unique constraint violation from DB
+      if (stripos($msg, 'UNIQUE constraint failed') !== false || stripos($msg, 'Duplicate entry') !== false) {
+        $error = _t('err_duplicate_entry');
+      } else {
+        $error = $msg;
+      }
     }
   }
 }
 
+$search_q = Routing::getString($params, 'q');
+$whereSql = '';
+$whereParams = [];
+if ($search_q !== '') {
+  $whereSql = 'WHERE title LIKE ? OR type LIKE ?';
+  $whereParams = ["%$search_q%", "%$search_q%"];
+}
+
 // Fetch widgets
-$stmt = $pdo->query("SELECT * FROM widgets ORDER BY sort_order ASC");
+$stmt = $pdo->prepare("SELECT * FROM widgets $whereSql ORDER BY sort_order ASC");
+$stmt->execute($whereParams);
 $widgets = $stmt->fetchAll();
 
 // Prepare edit data

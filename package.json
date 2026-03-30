@@ -1,6 +1,6 @@
 {
   "name": "grind-site",
-  "version": "1.1.2",
+  "version": "1.2.0",
   "private": true,
   "description": "The simplest CMS on earth. Developed by Koji Udagawa (Grind Works Inc.)",
   "author": "Koji Udagawa (Grind Works Inc.)",
@@ -9,8 +9,8 @@
     "build": "run-s build:admin build:install build:theme",
     "build:admin": "tailwindcss -c ./tailwind.admin.config.js -i ./src/assets/css/input.css -o ./src/assets/css/admin.css --minify",
     "watch:admin": "tailwindcss -c ./tailwind.admin.config.js -i ./src/assets/css/input.css -o ./src/assets/css/admin.css --watch",
-    "build:install": "tailwindcss -c ./tailwind.admin.config.js -i ./src/assets/css/install-input.css -o ./src/assets/css/install.css --minify",
-    "watch:install": "tailwindcss -c ./tailwind.admin.config.js -i ./src/assets/css/install-input.css -o ./src/assets/css/install.css --watch",
+    "build:install": "tailwindcss -c ./tailwind.install.config.js -i ./src/assets/css/install-input.css -o ./src/assets/css/install.css --minify",
+    "watch:install": "tailwindcss -c ./tailwind.install.config.js -i ./src/assets/css/install-input.css -o ./src/assets/css/install.css --watch",
     "build:theme": "run-p build:theme:*",
     "build:theme:default": "tailwindcss -c ./src/theme/default/tailwind.config.js -i ./src/theme/default/css/theme-input.css -o ./src/theme/default/css/style.css --minify",
     "watch:theme:default": "tailwindcss -c ./src/theme/default/tailwind.config.js -i ./src/theme/default/css/theme-input.css -o ./src/theme/default/css/style.css --watch",

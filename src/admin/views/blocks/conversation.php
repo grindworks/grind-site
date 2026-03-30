@@ -13,7 +13,7 @@ $conv_styles = $block_config['library']['layout']['items']['conversation']['styl
       <button type="button" @click="block.data.position = 'left'" :class="{'bg-theme-primary text-theme-on-primary': block.data.position === 'left', 'text-theme-text hover:bg-theme-surface': block.data.position !== 'left'}" class="px-3 py-1 rounded-theme text-xs transition-colors"><?= _t('align_left') ?></button>
       <button type="button" @click="block.data.position = 'right'" :class="{'bg-theme-primary text-theme-on-primary': block.data.position === 'right', 'text-theme-text hover:bg-theme-surface': block.data.position !== 'right'}" class="px-3 py-1 rounded-theme text-xs transition-colors"><?= _t('align_right') ?></button>
     </div>
-    <input type="text" x-model="block.data.name" class="flex-1 font-bold text-xs form-control-sm" placeholder="<?= _t('ph_name') ?>">
+    <input type="text" x-model="block.data.name" :id="'block-' + block.id + '-name'" class="flex-1 font-bold text-xs form-control-sm" placeholder="<?= _t('ph_name') ?>">
   </div>
 
   <!-- Content area -->
@@ -44,7 +44,7 @@ $conv_styles = $block_config['library']['layout']['items']['conversation']['styl
 
     <!-- Message content -->
     <div class="relative flex-1">
-      <textarea x-model="block.data.text" rows="3"
+      <textarea x-model="block.data.text" :id="'block-' + block.id + '-text'" rows="3"
         class="w-full text-sm leading-relaxed form-control-sm" :class="(styles[block.data.position] || {}).class"
         placeholder="<?= _t('ph_enter_text') ?>"></textarea>
     </div>

@@ -12,7 +12,7 @@ $btn_colors = $block_config['library']['design']['items']['button']['colors'] ??
   <!-- Text and URL inputs -->
   <div class="flex-1 space-y-2">
     <div class="flex gap-2">
-      <input type="text" x-model="block.data.text" class="flex-1 font-bold form-control-sm" placeholder="<?= _t('ph_btn_text') ?>">
+      <input type="text" x-model="block.data.text" :id="'block-' + block.id + '-text'" class="flex-1 font-bold form-control-sm" placeholder="<?= _t('ph_btn_text') ?>">
       <!-- Style preview -->
       <div class="flex justify-center items-center px-3 py-1 border rounded-theme font-bold text-xs transition-colors shrink-0"
         :class="(colors[block.data.color] || {}).class"
@@ -20,7 +20,7 @@ $btn_colors = $block_config['library']['design']['items']['button']['colors'] ??
         <?= _t('preview') ?>
       </div>
     </div>
-    <input type="text" x-model="block.data.url" @blur="block.data.url = normalizeUrl(block.data.url)" class="w-full font-mono text-xs form-control-sm" placeholder="<?= _t('ph_btn_url') ?>">
+    <input type="text" x-model="block.data.url" :id="'block-' + block.id + '-url'" @blur="block.data.url = normalizeUrl(block.data.url)" class="w-full font-mono text-xs form-control-sm" placeholder="<?= _t('ph_btn_url') ?>">
     <p class="opacity-50 ml-1 text-[10px] text-theme-text"><?= _t('help_relative_path') ?></p>
   </div>
   <!-- Color and link options -->

@@ -337,6 +337,7 @@ class Installer
       'use_existing_db' => isset($_POST['use_existing_db']),
       'disable_wal' => isset($_POST['disable_wal']),
       'enable_options' => isset($_POST['enable_options']),
+      'disable_external_assets' => isset($_POST['disable_external_assets']),
     ];
 
     if (!hash_equals($_SESSION['install_csrf'] ?? '', $this->getParam('csrf_token'))) {
@@ -619,6 +620,7 @@ PHP;
       'site_name' => $data['site_name'],
       'system_base_url' => $currentBaseUrl,
       'timezone' => $timezone,
+      'disable_external_assets' => !empty($data['disable_external_assets']) ? '1' : '0',
     ]);
 
     $stmt = $this->pdo->prepare("INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)");
@@ -801,21 +803,21 @@ PHP;
         'install_blocked_msg' => 'Please fix the server requirements (NG items) and reload.',
         'err_required' => 'All fields are required.',
         'err_pass_match' => 'Passwords do not match.',
-        'err_pass_len' => 'Password must be at least 8 characters.',
+        'err_pass_len' => 'Password must be at least 8 characters and include both letters and numbers.',
         'err_pass_max_len' => 'Password is too long (maximum 256 characters).',
         'err_db_init' => 'Database initialization failed: ',
         'err_write_conf' => 'Failed to write config.php.',
-        'step_site_config' => '1. Site Configuration',
+        'step_site_config' => 'Site Configuration',
         'lbl_site_name' => 'Site Name',
         'lbl_lang' => 'Language',
         'lbl_timezone' => 'Timezone',
-        'step_admin_account' => '2. Administrator Account',
+        'step_admin_account' => 'Administrator Account',
         'lbl_username' => 'Username',
         'lbl_email' => 'Email Address',
         'lbl_pass' => 'Admin Password',
         'lbl_pass_conf' => 'Confirm Password',
         'ph_site_name' => 'My Awesome Site',
-        'note_pass' => '* Password must be at least 8 characters.',
+        'note_pass' => '* Password must be at least 8 characters (letters and numbers required).',
         'note_existing_db' => '* Site name and settings will be loaded from the existing database.',
         'btn_install' => 'Agree & Install',
         'complete_title' => 'Installation Complete!',
@@ -849,6 +851,8 @@ PHP;
         'btn_confirm_nginx' => 'I have configured Nginx (Hide Warning)',
         'js_rewrite_warn_title' => '⚠️ URL Rewrite Error Potential',
         'js_rewrite_warn_msg' => 'Due to server specifications, articles might return 404 errors.<br>Please open <code>src/.htaccess</code> and remove the <code>#</code> at the beginning of the <code># RewriteBase</code> line to uncomment it.',
+        'lbl_offline_mode' => 'Offline Mode (Local Fallback)',
+        'desc_offline_mode' => 'Disable external assets (Google Fonts, CDNs) to prioritize local files for privacy or intranet usage.',
       ],
       'ja' => [
         'title' => 'インストール',
@@ -881,21 +885,21 @@ PHP;
         'install_blocked_msg' => 'サーバー要件(NGの項目)を満たしてから再読み込みしてください。',
         'err_required' => 'すべての項目を入力してください。',
         'err_pass_match' => 'パスワードが一致しません。',
-        'err_pass_len' => 'パスワードは8文字以上で設定してください。',
+        'err_pass_len' => 'パスワードは8文字以上で、英字と数字を含める必要があります。',
         'err_pass_max_len' => 'パスワードが長すぎます（最大256文字）。',
         'err_db_init' => 'データベース初期化エラー: ',
         'err_write_conf' => 'config.phpの書き込みに失敗しました。',
-        'step_site_config' => '1. サイト設定',
+        'step_site_config' => 'サイト設定',
         'lbl_site_name' => 'サイト名',
         'lbl_lang' => '言語設定',
         'lbl_timezone' => 'タイムゾーン',
-        'step_admin_account' => '2. 管理者アカウント設定',
+        'step_admin_account' => '管理者アカウント設定',
         'lbl_username' => 'ユーザー名',
         'lbl_email' => 'メールアドレス',
         'lbl_pass' => '管理者パスワード',
         'lbl_pass_conf' => 'パスワード (確認)',
         'ph_site_name' => '私の素晴らしいサイト',
-        'note_pass' => '※ パスワードは8文字以上で設定してください。',
+        'note_pass' => '※ パスワードは8文字以上で、英字と数字を含めてください。',
         'note_existing_db' => '※ サイト名などの設定は既存のデータベースから読み込まれます。',
         'btn_install' => '規約に同意してインストール',
         'complete_title' => 'インストール完了！',
@@ -928,6 +932,8 @@ PHP;
         'btn_confirm_nginx' => '設定完了（警告を隠す）',
         'js_rewrite_warn_title' => '⚠️ URLリライトエラーの可能性',
         'js_rewrite_warn_msg' => 'サーバー環境の仕様により、現在記事ページが 404 エラーになる可能性があります。<br><code>src/.htaccess</code> を開き、<code># RewriteBase</code> の先頭の <code>#</code> を削除（コメントアウトを解除）して保存してください。',
+        'lbl_offline_mode' => 'オフラインモード（ローカル優先）',
+        'desc_offline_mode' => '外部アセット（Google FontsやCDN等）を無効化し、プライバシー保護やイントラネット向けにローカルファイルを優先します。',
       ]
     ];
   }
@@ -1009,36 +1015,11 @@ PHP;
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <title>Install <?= h(CMS_NAME) ?></title>
-      <script src="https://cdn.tailwindcss.com"></script>
-      <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+      <link rel="stylesheet" href="<?= h($this->baseUrl . '/assets/css/install.css') ?>?v=<?= (string)(filemtime(__DIR__ . '/assets/css/install.css') ?: time()) ?>">
+      <script defer src="<?= h($this->baseUrl . '/assets/js/vendor/alpine.min.js') ?>"></script>
       <link rel="preconnect" href="https://fonts.googleapis.com">
       <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
       <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
-      <script>
-        tailwind.config = {
-          theme: {
-            extend: {
-              fontFamily: {
-                sans: ['Inter', 'Noto Sans JP', 'sans-serif']
-              },
-              colors: {
-                primary: {
-                  50: '#eff6ff',
-                  100: '#dbeafe',
-                  200: '#bfdbfe',
-                  300: '#93c5fd',
-                  400: '#60a5fa',
-                  500: '#3b82f6',
-                  600: '#0f62fe',
-                  700: '#0353e9',
-                  800: '#1e40af',
-                  900: '#1e3a8a'
-                }
-              }
-            }
-          }
-        }
-      </script>
       <style>
         ::-webkit-scrollbar {
           width: 8px;
@@ -1059,67 +1040,6 @@ PHP;
 
         [x-cloak] {
           display: none !important;
-        }
-
-        @keyframes blob {
-          0% {
-            transform: translate(0px, 0px) scale(1);
-          }
-
-          33% {
-            transform: translate(30px, -50px) scale(1.1);
-          }
-
-          66% {
-            transform: translate(-20px, 20px) scale(0.9);
-          }
-
-          100% {
-            transform: translate(0px, 0px) scale(1);
-          }
-        }
-
-        .animate-blob {
-          animation: blob 7s infinite;
-        }
-
-        .animation-delay-2000 {
-          animation-delay: 2s;
-        }
-
-        .animation-delay-4000 {
-          animation-delay: 4s;
-        }
-
-        .glass-panel {
-          background: rgba(30, 41, 59, 0.4);
-          backdrop-filter: blur(20px);
-          -webkit-backdrop-filter: blur(20px);
-          border: 1px solid rgba(255, 255, 255, 0.08);
-          box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-        }
-
-        .glass-card {
-          background: rgba(255, 255, 255, 0.03);
-          border: 1px solid rgba(255, 255, 255, 0.05);
-        }
-
-        .glass-input {
-          background: rgba(15, 23, 42, 0.6);
-          border: 1px solid rgba(255, 255, 255, 0.1);
-          color: #fff;
-          transition: all 0.3s ease;
-        }
-
-        .glass-input:focus {
-          background: rgba(15, 23, 42, 0.8);
-          border-color: #3b82f6;
-          box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
-          outline: none;
-        }
-
-        .glass-input::placeholder {
-          color: rgba(255, 255, 255, 0.3);
         }
       </style>
     </head>
@@ -1384,6 +1304,16 @@ PHP;
 
               <div class="relative flex items-start bg-slate-800/40 p-4 border border-white/5 hover:border-white/10 rounded-xl transition-colors">
                 <div class="flex items-center h-6 mt-0.5">
+                  <input id="disable_external_assets" name="disable_external_assets" type="checkbox" value="1" class="bg-slate-900/50 border-white/20 rounded focus:ring-primary-500 focus:ring-offset-slate-900 w-5 h-5 text-primary-500 cursor-pointer form-checkbox transition">
+                </div>
+                <div class="ml-3 text-sm leading-6">
+                  <label for="disable_external_assets" class="font-medium text-white cursor-pointer drop-shadow-sm"><?= h($this->t('lbl_offline_mode')) ?></label>
+                  <p class="text-slate-400 text-xs mt-1 leading-relaxed"><?= h($this->t('desc_offline_mode')) ?></p>
+                </div>
+              </div>
+
+              <div class="relative flex items-start bg-slate-800/40 p-4 border border-white/5 hover:border-white/10 rounded-xl transition-colors">
+                <div class="flex items-center h-6 mt-0.5">
                   <input id="enable_options" name="enable_options" type="checkbox" value="1" class="bg-slate-900/50 border-white/20 rounded focus:ring-primary-500 focus:ring-offset-slate-900 w-5 h-5 text-primary-500 cursor-pointer form-checkbox transition">
                 </div>
                 <div class="ml-3 text-sm leading-6">
@@ -1409,18 +1339,18 @@ PHP;
           <div class="gap-6 grid grid-cols-1 md:grid-cols-2">
             <div class="col-span-1 md:col-span-2">
               <label class="block mb-2 font-medium text-slate-300 text-sm drop-shadow-sm"><?= h($this->t('lbl_username')) ?></label>
-              <input type="text" name="username" class="glass-input block w-full px-4 py-3 rounded-xl sm:text-sm sm:leading-6" placeholder="admin" :required="!useExisting" <?= !$canInstall ? 'disabled' : '' ?>>
+              <input type="text" name="username" autocomplete="username" class="glass-input block w-full px-4 py-3 rounded-xl sm:text-sm sm:leading-6" placeholder="admin" :required="!useExisting" <?= !$canInstall ? 'disabled' : '' ?>>
             </div>
 
             <div class="col-span-1 md:col-span-2">
               <label class="block mb-2 font-medium text-slate-300 text-sm drop-shadow-sm"><?= h($this->t('lbl_email')) ?></label>
-              <input type="email" name="email" class="glass-input block w-full px-4 py-3 rounded-xl sm:text-sm sm:leading-6" placeholder="admin@example.com" :required="!useExisting" <?= !$canInstall ? 'disabled' : '' ?>>
+              <input type="email" name="email" autocomplete="email" class="glass-input block w-full px-4 py-3 rounded-xl sm:text-sm sm:leading-6" placeholder="admin@example.com" :required="!useExisting" <?= !$canInstall ? 'disabled' : '' ?>>
             </div>
 
-            <div x-data="{ show: false }">
+            <div x-data="{ show: false, pass: '' }">
               <label class="block mb-2 font-medium text-slate-300 text-sm drop-shadow-sm"><?= h($this->t('lbl_pass')) ?></label>
               <div class="relative">
-                <input :type="show ? 'text' : 'password'" name="password" class="glass-input block w-full px-4 py-3 pr-10 rounded-xl sm:text-sm sm:leading-6" placeholder="••••••••" :required="!useExisting" <?= !$canInstall ? 'disabled' : '' ?>>
+                <input :type="show ? 'text' : 'password'" name="password" autocomplete="new-password" x-model="pass" class="glass-input block w-full px-4 py-3 pr-10 rounded-xl sm:text-sm sm:leading-6" placeholder="••••••••" :required="!useExisting" <?= !$canInstall ? 'disabled' : '' ?>>
                 <button type="button" @click="show = !show" class="right-0 absolute inset-y-0 flex items-center px-3 focus:outline-none text-slate-400 hover:text-primary-400 transition-colors" tabindex="-1">
                   <svg x-show="!show" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
@@ -1431,12 +1361,32 @@ PHP;
                   </svg>
                 </button>
               </div>
+              <ul class="mt-2 text-xs space-y-1" x-show="pass.length > 0" x-cloak>
+                <li class="flex items-center gap-1 transition-colors" :class="pass.length >= 8 ? 'text-emerald-400' : 'text-red-400'">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" :d="pass.length >= 8 ? 'M5 13l4 4L19 7' : 'M6 18L18 6M6 6l12 12'" />
+                  </svg>
+                  8+ Characters
+                </li>
+                <li class="flex items-center gap-1 transition-colors" :class="/[a-zA-Z]/.test(pass) ? 'text-emerald-400' : 'text-red-400'">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" :d="/[a-zA-Z]/.test(pass) ? 'M5 13l4 4L19 7' : 'M6 18L18 6M6 6l12 12'" />
+                  </svg>
+                  Includes Letter
+                </li>
+                <li class="flex items-center gap-1 transition-colors" :class="/[0-9]/.test(pass) ? 'text-emerald-400' : 'text-red-400'">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" :d="/[0-9]/.test(pass) ? 'M5 13l4 4L19 7' : 'M6 18L18 6M6 6l12 12'" />
+                  </svg>
+                  Includes Number
+                </li>
+              </ul>
             </div>
 
             <div x-data="{ show: false }">
               <label class="block mb-2 font-medium text-slate-300 text-sm drop-shadow-sm"><?= h($this->t('lbl_pass_conf')) ?></label>
               <div class="relative">
-                <input :type="show ? 'text' : 'password'" name="password_confirm" class="glass-input block w-full px-4 py-3 pr-10 rounded-xl sm:text-sm sm:leading-6" placeholder="••••••••" :required="!useExisting" <?= !$canInstall ? 'disabled' : '' ?>>
+                <input :type="show ? 'text' : 'password'" name="password_confirm" autocomplete="new-password" class="glass-input block w-full px-4 py-3 pr-10 rounded-xl sm:text-sm sm:leading-6" placeholder="••••••••" :required="!useExisting" <?= !$canInstall ? 'disabled' : '' ?>>
                 <button type="button" @click="show = !show" class="right-0 absolute inset-y-0 flex items-center px-3 focus:outline-none text-slate-400 hover:text-primary-400 transition-colors" tabindex="-1">
                   <svg x-show="!show" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />

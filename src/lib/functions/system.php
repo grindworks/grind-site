@@ -217,17 +217,8 @@ function grinds_run_garbage_collection()
         if ($lifetime < 1440)
             $lifetime = 1440;
         $expireTime = time() - $lifetime;
-
-        try {
-            foreach (new DirectoryIterator($sessionPath) as $fileInfo) {
-                if ($fileInfo->isFile() && str_starts_with($fileInfo->getFilename(), 'sess_')) {
-                    if ($fileInfo->getMTime() < $expireTime) {
-                        grinds_force_unlink($fileInfo->getPathname());
-                    }
-                }
-            }
-        } catch (Exception $e) {
-            // Ignore errors
+        if (function_exists('grinds_clean_directory_files')) {
+            grinds_clean_directory_files($sessionPath, 'sess_', $expireTime);
         }
     }
 
@@ -268,13 +259,8 @@ function grinds_run_garbage_collection()
     $tmpUploadsPath = ROOT_PATH . '/data/tmp/uploads';
     if (is_dir($tmpUploadsPath)) {
         $expireTime = time() - 3600;
-        try {
-            foreach (new DirectoryIterator($tmpUploadsPath) as $fileInfo) {
-                if ($fileInfo->isFile() && $fileInfo->getMTime() < $expireTime) {
-                    grinds_force_unlink($fileInfo->getPathname());
-                }
-            }
-        } catch (Exception $e) { /* Ignore */
+        if (function_exists('grinds_clean_directory_files')) {
+            grinds_clean_directory_files($tmpUploadsPath, '', $expireTime);
         }
     }
 
@@ -282,15 +268,8 @@ function grinds_run_garbage_collection()
     $previewDir = ROOT_PATH . '/data/tmp/preview';
     if (is_dir($previewDir)) {
         $expireTime = time() - 7200;
-        try {
-            foreach (new DirectoryIterator($previewDir) as $fileInfo) {
-                if ($fileInfo->isFile() && str_starts_with($fileInfo->getFilename(), 'preview_')) {
-                    if ($fileInfo->getMTime() < $expireTime) {
-                        grinds_force_unlink($fileInfo->getPathname());
-                    }
-                }
-            }
-        } catch (Exception $e) { /* Ignore */
+        if (function_exists('grinds_clean_directory_files')) {
+            grinds_clean_directory_files($previewDir, 'preview_', $expireTime);
         }
     }
 
@@ -298,15 +277,8 @@ function grinds_run_garbage_collection()
     $previewImagesDir = ROOT_PATH . '/assets/uploads/_preview';
     if (is_dir($previewImagesDir)) {
         $expireTime = time() - 86400; // 24 hours
-        try {
-            foreach (new DirectoryIterator($previewImagesDir) as $fileInfo) {
-                if ($fileInfo->isFile() && str_starts_with($fileInfo->getFilename(), 'preview_')) {
-                    if ($fileInfo->getMTime() < $expireTime) {
-                        grinds_force_unlink($fileInfo->getPathname());
-                    }
-                }
-            }
-        } catch (Exception $e) { /* Ignore */
+        if (function_exists('grinds_clean_directory_files')) {
+            grinds_clean_directory_files($previewImagesDir, 'preview_', $expireTime);
         }
     }
 
@@ -314,15 +286,8 @@ function grinds_run_garbage_collection()
     $trashDir = ROOT_PATH . '/assets/uploads/_trash';
     if (is_dir($trashDir)) {
         $expireTime = time() - (30 * 86400);
-        try {
-            foreach (new DirectoryIterator($trashDir) as $fileInfo) {
-                if ($fileInfo->isFile() && $fileInfo->getFilename() !== '.htaccess') {
-                    if ($fileInfo->getMTime() < $expireTime) {
-                        grinds_force_unlink($fileInfo->getPathname());
-                    }
-                }
-            }
-        } catch (Exception $e) { /* Ignore */
+        if (function_exists('grinds_clean_directory_files')) {
+            grinds_clean_directory_files($trashDir, '', $expireTime, ['.htaccess']);
         }
     }
 

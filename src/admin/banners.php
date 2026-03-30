@@ -157,7 +157,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
       redirect($redirect_url);
     } catch (Exception $e) {
-      $error = $e->getMessage();
+      $msg = $e->getMessage();
+      // Check for unique constraint violation from DB
+      if (stripos($msg, 'UNIQUE constraint failed') !== false || stripos($msg, 'Duplicate entry') !== false) {
+        $error = _t('err_duplicate_entry');
+      } else {
+        $error = $msg;
+      }
     }
   }
 }

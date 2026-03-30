@@ -218,11 +218,10 @@ function resolve_front_request($request_url)
 
 function get_nav_menus($location = 'header')
 {
-    global $activeTheme;
     $pdo = App::db();
     if (!$pdo)
         return [];
-    $currentTheme = $activeTheme ?? 'default';
+    $currentTheme = grinds_get_active_theme();
 
     try {
         $sql = "SELECT * FROM nav_menus
@@ -249,7 +248,6 @@ function get_nav_menus($location = 'header')
 
 function get_front_banners($context = [])
 {
-    global $activeTheme;
     $pdo = App::db();
     $banners = [];
 
@@ -269,7 +267,7 @@ function get_front_banners($context = [])
         $currentCatId = $pageData['post']['category_id'] ?? 0;
     }
 
-    $currentTheme = $activeTheme ?? 'default';
+    $currentTheme = grinds_get_active_theme();
 
     try {
         $stmt = $pdo->prepare("SELECT * FROM banners WHERE is_active = 1 AND (target_theme = 'all' OR target_theme = ?) ORDER BY sort_order ASC");
@@ -372,12 +370,11 @@ function get_sidebar_widgets()
         return $cachedWidgets;
     }
 
-    global $activeTheme;
     $pdo = App::db();
     if (!$pdo) {
         return $cachedWidgets = [];
     }
-    $currentTheme = $activeTheme ?? 'default';
+    $currentTheme = grinds_get_active_theme();
 
     try {
         $sql = "SELECT * FROM widgets

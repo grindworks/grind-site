@@ -112,6 +112,11 @@ $js_translations = [
     'action_publish' => _t('action_publish'),
     'update' => _t('update'),
     'action_schedule' => _t('action_schedule'),
+    'draft_restored' => _t('msg_draft_restored'),
+    'fetch_failed' => _t('js_fetch_failed'),
+    'err_conflict_confirm' => _t('err_conflict_confirm'),
+    'system_error' => _t('js_system_error'),
+    'error' => _t('error') . ': %s',
 ];
 
 // Ensure required variables exist to prevent warnings
@@ -226,13 +231,37 @@ $basePath = rtrim($parsedBase['path'] ?? '/', '/') . '/';
 <script src="<?= grinds_asset_url('assets/js/media_manager.js') ?>"></script>
 <script src="<?= grinds_asset_url('assets/js/admin_editor.js') ?>"></script>
 
-<div x-data='blockEditor(window.grindsPostContent, {
-    seoTitle: <?= json_encode($post['title'] ?? "", JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>,
-    seoDesc: <?= json_encode($post['description'] ?? "", JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>,
-    seoImage: <?= json_encode(get_media_url($post['thumbnail'] ?? ''), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>,
-    siteDomain: <?= json_encode(parse_url(BASE_URL, PHP_URL_HOST) ?? "localhost", JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>
-})'
-    x-effect="document.body.style.overflow = (inserterOpen || mediaModalOpen || templateModalOpen) ? 'hidden' : ''"
+<div x-data='{
+    ...blockEditor(window.grindsPostContent, {
+        seoTitle: <?= json_encode($post['title'] ?? "", JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>,
+        seoDesc: <?= json_encode($post['description'] ?? "", JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>,
+        seoImage: <?= json_encode(get_media_url($post['thumbnail'] ?? ''), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>,
+        siteDomain: <?= json_encode(parse_url(BASE_URL, PHP_URL_HOST) ?? "localhost", JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>
+    }),
+    draggingIndex: null,
+    dropTargetIndex: null,
+    handleDragStart(index, event) {
+        this.draggingIndex = index;
+        event.dataTransfer.effectAllowed = "move";
+    },
+    handleDragOver(index) {
+        if (index === this.draggingIndex) return;
+        this.dropTargetIndex = index;
+    },
+    handleDragLeave() {
+        this.dropTargetIndex = null;
+    },
+    handleDrop(index) {
+        if (this.draggingIndex === null || this.draggingIndex === index) return;
+        this.moveBlockTo(this.draggingIndex, index);
+        this.handleDragEnd();
+    },
+    handleDragEnd() {
+        this.draggingIndex = null;
+        this.dropTargetIndex = null;
+    }
+}'
+    x-effect="window.toggleScrollLock(inserterOpen || mediaModalOpen || templateModalOpen)"
     @announce.window="document.getElementById('a11y-live-region').textContent = $event.detail"
     :class="inserterOpen || mediaModalOpen || templateModalOpen ? 'pointer-events-none' : ''">
 
@@ -305,7 +334,9 @@ $basePath = rtrim($parsedBase['path'] ?? '/', '/') . '/';
                     <label class="block mb-2 font-bold text-theme-text text-sm"><?= _t('lbl_slug') ?></label>
                     <div class="flex">
                         <span class="inline-flex items-center bg-theme-bg opacity-70 px-3 border border-theme-border border-r-0 rounded-l-theme text-theme-text text-sm"><?= h(resolve_url('/')) ?></span>
-                        <input type="text" name="slug" value="<?= h($post['slug'] ?? '') ?>" class="rounded-l-none font-mono form-control" placeholder="<?= _t('ph_url_slug') ?>">
+                        <input type="text" name="slug" value="<?= h($post['slug'] ?? '') ?>"
+                            @blur="$el.value = $el.value.toLowerCase().trim().replace(/[\s_]+/g, '-').replace(/[^\p{L}\p{N}-]/gu, '').replace(/-+/g, '-').replace(/^-+|-+$/g, '')"
+                            class="rounded-l-none font-mono form-control" placeholder="<?= _t('ph_url_slug') ?>">
                     </div>
                 </div>
 
@@ -326,12 +357,12 @@ $basePath = rtrim($parsedBase['path'] ?? '/', '/') . '/';
 
                     <!-- Global controls. -->
                     <div class="flex gap-2">
-                        <button type="button" @click="undo()" :disabled="history.length === 0" class="p-2 rounded-theme hover:bg-theme-bg opacity-60 disabled:opacity-20 text-theme-text hover:text-theme-primary transition-colors" title="Undo">
+                        <button type="button" @click="undo()" :disabled="history.length === 0" class="p-2 rounded-theme hover:bg-theme-bg opacity-60 disabled:opacity-20 text-theme-text hover:text-theme-primary transition-colors" title="<?= h(_t('undo')) ?>">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
                             </svg>
                         </button>
-                        <button type="button" @click="redo()" :disabled="future.length === 0" class="p-2 rounded-theme hover:bg-theme-bg opacity-60 disabled:opacity-20 text-theme-text hover:text-theme-primary transition-colors" title="Redo">
+                        <button type="button" @click="redo()" :disabled="future.length === 0" class="p-2 rounded-theme hover:bg-theme-bg opacity-60 disabled:opacity-20 text-theme-text hover:text-theme-primary transition-colors" title="<?= h(_t('redo')) ?>">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 10h-10a8 8 0 00-8 8v2M21 10l-6 6m6-6l-6-6" />
                             </svg>
@@ -382,15 +413,31 @@ $basePath = rtrim($parsedBase['path'] ?? '/', '/') . '/';
                 <!-- Blocks -->
                 <div class="space-y-4 min-h-[200px]" aria-live="polite" aria-relevant="additions removals">
                     <template x-for="(block, index) in blocks" :key="block.id">
-                        <div :id="'block-wrapper-' + block.id" class="group relative bg-theme-surface hover:shadow-theme p-4 border border-theme-border rounded-theme transition-all" :class="block.collapsed ? 'py-2' : ''">
+                        <div :id="'block-wrapper-' + block.id"
+                            class="group relative bg-theme-surface hover:shadow-theme p-4 border border-theme-border rounded-theme transition-all"
+                            :class="{
+                                'py-2': block.collapsed,
+                                'opacity-50': draggingIndex === index,
+                                '!border-theme-primary ring-2 ring-theme-primary/50': dropTargetIndex === index && draggingIndex !== index
+                            }"
+                            @dragover.prevent="handleDragOver(index)"
+                            @dragleave.prevent="handleDragLeave()"
+                            @drop.prevent="handleDrop(index)">
 
                             <div class="flex items-center gap-3">
+                                <!-- Drag Handle -->
+                                <div draggable="true" @dragstart.stop="handleDragStart(index, $event)" @dragend.stop="handleDragEnd()" class="cursor-move p-1 text-theme-text/40 hover:text-theme-text transition-colors" title="<?= _t('drag_to_reorder') ?>">
+                                    <svg class="w-5 h-5 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                                    </svg>
+                                </div>
+
                                 <!-- Order Input -->
                                 <div class="shrink-0" @click.stop>
                                     <input type="number" :value="index + 1"
                                         @change="const val = parseInt($event.target.value); if (isNaN(val)) { $event.target.value = index + 1; return; } moveBlockTo(index, val - 1); $dispatch('announce', 'Block moved to position ' + val);"
                                         @keydown.enter.prevent="$event.target.blur()"
-                                        class="bg-theme-bg shadow-theme py-1 border border-theme-border focus:border-theme-primary rounded-theme focus:ring-theme-primary w-12 font-bold text-theme-text text-sm text-center"
+                                        class="bg-theme-bg shadow-theme py-1 border border-theme-border focus:border-theme-primary rounded-theme focus:ring-theme-primary w-12 font-bold text-theme-text text-sm text-center appearance-none [-moz-appearance:textfield]"
                                         min="1" :max="blocks.length" title="<?= _t('change_order') ?>">
                                 </div>
                                 <div class="flex-1 min-w-0">
@@ -1065,7 +1112,11 @@ $basePath = rtrim($parsedBase['path'] ?? '/', '/') . '/';
     </form>
 
     <!-- Mobile Floating Action Bar -->
-    <div class="lg:hidden fixed bottom-0 left-0 right-0 bg-theme-surface/95 backdrop-blur-md border-t border-theme-border p-3 z-[60] flex justify-between gap-2 shadow-[0_-4px_10px_rgba(0,0,0,0.05)] pb-[calc(0.75rem+env(safe-area-inset-bottom))]">
+    <div x-data="{ keyboardOpen: false }"
+        @focusin.window="if(['INPUT', 'TEXTAREA', 'SELECT', 'CONTENTEDITABLE'].includes($event.target.tagName) || $event.target.isContentEditable) keyboardOpen = true"
+        @focusout.window="keyboardOpen = false"
+        :class="keyboardOpen ? 'translate-y-full opacity-0 pointer-events-none' : 'translate-y-0 opacity-100'"
+        class="transition-all duration-200 lg:hidden fixed bottom-0 left-0 right-0 bg-theme-surface/95 backdrop-blur-md border-t border-theme-border p-3 z-[60] flex justify-between gap-2 shadow-[0_-4px_10px_rgba(0,0,0,0.05)] pb-[calc(0.75rem+env(safe-area-inset-bottom))]">
         <button type="button" @click="if(document.getElementById('post-form').reportValidity()) saveDraftAndPreview()" :disabled="isSaving || isSubmitting || isUploading" class="flex-1 py-3 bg-theme-bg border border-theme-border text-theme-text rounded-theme font-bold text-sm flex items-center justify-center gap-1 shadow-sm transition-colors hover:bg-theme-surface disabled:opacity-50 disabled:cursor-not-allowed">
             <svg class="w-4 h-4 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-eye"></use>

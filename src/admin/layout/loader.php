@@ -12,19 +12,9 @@ if (!defined('GRINDS_APP'))
 $layout = get_option('admin_layout', 'sidebar');
 $currentUser = App::user();
 if ($currentUser && isset($currentUser['id'])) {
-  $pdo = App::db();
-  if ($pdo) {
-    try {
-      $stmt = $pdo->prepare("SELECT admin_layout FROM users WHERE id = ?");
-      $stmt->execute([$currentUser['id']]);
-      $userLayout = $stmt->fetchColumn();
-      if (!empty($userLayout) && $userLayout !== 'system') {
-        $layout = $userLayout;
-      }
-    }
-    catch (Exception $e) {
-    // Ignore and fallback
-    }
+  $userLayout = $_SESSION['admin_layout'] ?? null;
+  if (!empty($userLayout) && $userLayout !== 'system') {
+    $layout = $userLayout;
   }
 }
 

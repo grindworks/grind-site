@@ -6,7 +6,7 @@ if (!defined('GRINDS_APP')) exit; ?>
   <!-- URL input and fetch button -->
   <div class="flex items-center gap-2">
     <span class="opacity-50 font-bold text-theme-text text-xs"><?= _t('col_url') ?>:</span>
-    <input type="text" x-model="block.data.url" @blur="block.data.url = normalizeUrl(block.data.url)" class="flex-1 text-xs form-control-sm" placeholder="<?= h(_t('ph_card_url')) ?>">
+    <input type="text" x-model="block.data.url" :id="'block-' + block.id + '-url'" @blur="block.data.url = normalizeUrl(block.data.url)" class="flex-1 text-xs form-control-sm" placeholder="<?= h(_t('ph_card_url')) ?>">
     <button type="button" @click="fetchMeta(index)" class="px-3 py-1 text-xs whitespace-nowrap btn-secondary"><?= _t('btn_fetch_meta') ?></button>
   </div>
   <!-- Content editor -->
@@ -22,12 +22,12 @@ if (!defined('GRINDS_APP')) exit; ?>
         <span class="text-[9px] text-theme-primary hover:underline" x-text="isUploading ? '...' : '<?= _t('upload') ?>'"></span>
         <input type="file" class="hidden" accept="image/*" @change="isUploading = true; await uploadImage($event, index, 'image'); isUploading = false" :disabled="isUploading">
       </label>
-      <input type="text" x-model="block.data.image" @blur="block.data.image = normalizeUrl(block.data.image)" class="mt-1 w-full text-[10px] form-control-sm" placeholder="<?= h(_t('ph_card_img')) ?>">
+      <input type="text" x-model="block.data.image" :id="'block-' + block.id + '-image'" @blur="block.data.image = normalizeUrl(block.data.image)" class="mt-1 w-full text-[10px] form-control-sm" placeholder="<?= h(_t('ph_card_img')) ?>">
     </div>
     <!-- Title and description -->
     <div class="flex-1 space-y-2">
-      <input type="text" x-model="block.data.title" class="w-full font-bold text-sm form-control-sm" placeholder="<?= h(_t('ph_card_title')) ?>">
-      <textarea x-model="block.data.description" rows="2" class="opacity-80 w-full text-xs form-control-sm" placeholder="<?= h(_t('ph_card_desc')) ?>"></textarea>
+      <input type="text" x-model="block.data.title" :id="'block-' + block.id + '-title'" class="w-full font-bold text-sm form-control-sm" placeholder="<?= h(_t('ph_card_title')) ?>">
+      <textarea x-model="block.data.description" :id="'block-' + block.id + '-description'" rows="2" class="opacity-80 w-full text-xs form-control-sm" placeholder="<?= h(_t('ph_card_desc')) ?>"></textarea>
     </div>
   </div>
 </div>

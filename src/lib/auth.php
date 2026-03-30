@@ -174,6 +174,8 @@ function grinds_check_remember_me()
                 $_SESSION['user_role'] = $user['role'] ?? 'admin';
                 $_SESSION['user_avatar'] = $user['avatar'] ?? '';
                 $_SESSION['user_permissions'] = $user['permissions'] ?? null;
+                $_SESSION['admin_layout'] = $user['admin_layout'] ?? null;
+                $_SESSION['admin_skin'] = $user['admin_skin'] ?? null;
                 $_SESSION['last_activity'] = time();
 
                 // Skip session/token regeneration on AJAX requests to prevent race conditions

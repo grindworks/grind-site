@@ -15,5 +15,5 @@ if (!defined('GRINDS_APP')) exit; ?>
     </button>
   </div>
   <!-- Text input -->
-  <textarea :id="'block-text-' + index" x-model="block.data.text" rows="1" x-init="$nextTick(() => { $el.style.height = 'auto'; $el.style.height = $el.scrollHeight + 'px' })" @input="$el.style.height = 'auto'; $el.style.height = $el.scrollHeight + 'px'" class="bg-transparent px-3 py-2 border-none focus:ring-0 w-full text-theme-text text-base leading-relaxed overflow-hidden resize-none placeholder-theme-text/30" placeholder="<?= _t('ph_enter_text') ?>"></textarea>
+  <textarea :id="'block-' + block.id + '-text'" x-model="block.data.text" rows="1" x-init="$nextTick(() => { $el.style.height = 'auto'; $el.style.height = $el.scrollHeight + 'px' })" @input="$el.style.height = 'auto'; $el.style.height = $el.scrollHeight + 'px'" class="bg-transparent px-3 py-2 border-none focus:ring-0 w-full text-theme-text text-base leading-relaxed overflow-hidden resize-none placeholder-theme-text/30" placeholder="<?= _t('ph_enter_text') ?>"></textarea>
 </div>

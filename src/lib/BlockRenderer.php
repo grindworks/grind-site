@@ -122,18 +122,17 @@ class BlockRenderer
      */
     public static function outputFooterScripts()
     {
-        $use_local = function_exists('get_option') ? get_option('disable_external_assets') : false;
         $root = defined('ROOT_PATH') ? ROOT_PATH : '';
 
         // KaTeX
-        $katex_css = $use_local && file_exists($root . '/assets/css/vendor/katex.min.css') ? resolve_url('assets/css/vendor/katex.min.css') : 'https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css';
-        $katex_js = $use_local && file_exists($root . '/assets/js/vendor/katex.min.js') ? resolve_url('assets/js/vendor/katex.min.js') : 'https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js';
-        $katex_auto = $use_local && file_exists($root . '/assets/js/vendor/auto-render.min.js') ? resolve_url('assets/js/vendor/auto-render.min.js') : 'https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js';
+        $katex_css = file_exists($root . '/assets/css/vendor/katex.min.css') ? resolve_url('assets/css/vendor/katex.min.css') : 'https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css';
+        $katex_js = file_exists($root . '/assets/js/vendor/katex.min.js') ? resolve_url('assets/js/vendor/katex.min.js') : 'https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js';
+        $katex_auto = file_exists($root . '/assets/js/vendor/auto-render.min.js') ? resolve_url('assets/js/vendor/auto-render.min.js') : 'https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js';
 
         // Prism.js
-        $prism_css = $use_local && file_exists($root . '/assets/css/vendor/prism-tomorrow.min.css') ? resolve_url('assets/css/vendor/prism-tomorrow.min.css') : 'https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css';
-        $prism_js = $use_local && file_exists($root . '/assets/js/vendor/prism.min.js') ? resolve_url('assets/js/vendor/prism.min.js') : 'https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js';
-        $prism_auto = $use_local && file_exists($root . '/assets/js/vendor/prism-autoloader.min.js') ? resolve_url('assets/js/vendor/prism-autoloader.min.js') : 'https://cdn.jsdelivr.net/npm/prismjs@1.29.0/plugins/autoloader/prism-autoloader.min.js';
+        $prism_css = file_exists($root . '/assets/css/vendor/prism-tomorrow.min.css') ? resolve_url('assets/css/vendor/prism-tomorrow.min.css') : 'https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css';
+        $prism_js = file_exists($root . '/assets/js/vendor/prism.min.js') ? resolve_url('assets/js/vendor/prism.min.js') : 'https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js';
+        $prism_auto = file_exists($root . '/assets/js/vendor/prism-autoloader.min.js') ? resolve_url('assets/js/vendor/prism-autoloader.min.js') : 'https://cdn.jsdelivr.net/npm/prismjs@1.29.0/plugins/autoloader/prism-autoloader.min.js';
 
         echo <<<HTML
 <script>
@@ -179,11 +178,12 @@ window.grindsInitDynamicBlocks = function(rootNode) {
         var msg = el.getAttribute('data-finish-msg');
         var display = el.querySelector('.timer-display');
         if(!deadline || !display) return;
-        var end = new Date(deadline).getTime();
+        var safeDeadline = deadline.replace(/-/g, '/');
+        var end = new Date(safeDeadline).getTime();
         var timer = setInterval(function() {
             var now = new Date().getTime();
             var dist = end - now;
-            if (dist < 0) {
+            if (dist < 0 || isNaN(dist)) {
                 clearInterval(timer);
                 display.innerHTML = msg;
                 return;
@@ -199,7 +199,8 @@ window.grindsInitDynamicBlocks = function(rootNode) {
     // 4. Math (KaTeX Loader)
     var mathBlocks = rootNode.querySelectorAll('.cms-block-math');
     if (mathBlocks.length > 0) {
-        var renderMath = function() {
+        var renderMath = function(retries) {
+            retries = retries || 0;
             if (typeof renderMathInElement === 'function') {
                 renderMathInElement(rootNode, {
                     delimiters:[
@@ -210,6 +211,8 @@ window.grindsInitDynamicBlocks = function(rootNode) {
                     ],
                     throwOnError: false
                 });
+            } else if (retries < 50) {
+                setTimeout(function() { renderMath(retries + 1); }, 100);
             }
         };
         if (!window.grindsKatexLoaded) {
@@ -232,9 +235,12 @@ window.grindsInitDynamicBlocks = function(rootNode) {
     // 5. Code Syntax Highlighting (Prism.js Loader)
     var codeBlocks = rootNode.querySelectorAll('pre code[class*="language-"]');
     if (codeBlocks.length > 0) {
-        var highlightCode = function() {
+        var highlightCode = function(retries) {
+            retries = retries || 0;
             if (typeof Prism !== 'undefined') {
                 Prism.highlightAllUnder(rootNode);
+            } else if (retries < 50) {
+                setTimeout(function() { highlightCode(retries + 1); }, 100);
             }
         };
         if (!window.grindsPrismLoaded) {
@@ -366,6 +372,11 @@ HTML;
     private function renderBlock($block)
     {
         $type = $block['type'] ?? 'unknown';
+
+        // Ignore nested password_protect blocks to prevent rendering issues.
+        if ($type === 'password_protect') {
+            return '';
+        }
 
         if (!preg_match('/^[a-zA-Z0-9_-]+$/', $type)) {
             return '';
@@ -801,10 +812,12 @@ HTML;
                 $url = resolve_url($data['url'] ?? '');
                 if (!$url) return '';
                 $caption = h($data['caption'] ?? '');
-                $html = "<figure class='{$commonClass} my-8'>";
+                $width = (int)($data['width'] ?? 100);
+                $figStyle = ($width > 0 && $width < 100) ? " style='max-width: {$width}%; margin-left: auto; margin-right: auto;'" : "";
+                $html = "<figure class='{$commonClass} my-8'{$figStyle}>";
                 $attrs = [
                     'loading' => 'lazy',
-                    'class' => 'w-full rounded-theme shadow-theme mx-auto border border-gray-100'
+                    'class' => 'w-full rounded-theme shadow-theme border border-gray-100' . ($width === 100 ? ' mx-auto' : '')
                 ];
                 if (isset($data['alt']) && $data['alt'] !== '') {
                     $attrs['alt'] = $data['alt'];
@@ -969,7 +982,7 @@ HTML;
                         $html .= get_image_html($src, [
                             'class'   => 'w-full h-full object-cover rounded-theme shadow-theme',
                             'loading' => 'lazy',
-                            'alt'     => $img['caption'] ?? ''
+                            'alt'     => $img['alt'] ?? $img['caption'] ?? ''
                         ]);
                         if ($cap) $html .= "<div class='mt-1 text-gray-500 text-xs text-center'>{$cap}</div>";
                         $html .= "</div>";
@@ -1252,7 +1265,7 @@ HTML;
                     $rawUrl = '#';
                 }
                 if (empty($rawUrl) || $rawUrl === '#') return '';
-                $url = resolve_url($pathFixer($rawUrl));
+                $url = resolve_url($rawUrl);
                 $size = h($data['fileSize'] ?? '');
                 $iconSvg = '<svg class="w-8 h-8 text-grinds-red" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="' . $spriteUrl . '#outline-arrow-down-tray"></use></svg>';
                 $html = "<a href='" . h($url) . "' class='{$commonClass} flex items-center p-5 my-8 bg-gray-50 border border-gray-200 rounded-theme hover:bg-white hover:border-grinds-red hover:shadow-theme transition-all group no-underline' download>";
@@ -1472,7 +1485,9 @@ HTML;
                 $images = $data['images'] ?? [];
                 if (empty($images)) return '';
                 $count = count($images);
-                $html = "<div x-data='{ active: 0, total: {$count}, next() { this.active = (this.active + 1) % this.total }, prev() { this.active = (this.active - 1 + this.total) % this.total } }' class='{$commonClass} relative w-full my-10 rounded-theme overflow-hidden shadow-theme group'>";
+                $autoplay = !empty($data['autoplay']) ? 'true' : 'false';
+                $alpineData = "{ active: 0, total: {$count}, autoplay: {$autoplay}, timer: null, next() { this.active = (this.active + 1) % this.total }, prev() { this.active = (this.active - 1 + this.total) % this.total }, start() { if(this.autoplay) this.timer = setInterval(() => { this.next() }, 3000); }, stop() { clearInterval(this.timer); } }";
+                $html = "<div x-data='{$alpineData}' x-init='start()' @mouseenter='stop()' @mouseleave='start()' class='{$commonClass} relative w-full my-10 rounded-theme overflow-hidden shadow-theme group'>";
 
                 $html .= "<div class='relative bg-gray-100 w-full aspect-video'>";
                 foreach ($images as $i => $img) {
@@ -1480,8 +1495,8 @@ HTML;
                     $caption = h($img['caption'] ?? '');
                     $html .= "<div x-show='active === {$i}' x-transition:enter='transition ease-out duration-300' x-transition:enter-start='opacity-0' x-transition:enter-end='opacity-100' x-transition:leave='transition ease-in duration-200' x-transition:leave-start='opacity-100' x-transition:leave-end='opacity-0' class='absolute inset-0 w-full h-full'>";
                     $html .= get_image_html($src, [
-                        'class' => 'w-full h-full object-cover',
-                        'alt' => $img['caption'] ?? ''
+                        'class'   => 'w-full h-full object-cover',
+                        'alt'     => $img['alt'] ?? $img['caption'] ?? ''
                     ]);
                     if ($caption) {
                         $html .= "<div class='right-0 bottom-0 left-0 absolute bg-gradient-to-t from-black/70 to-transparent p-4 text-white text-sm text-center'>{$caption}</div>";
@@ -1547,7 +1562,19 @@ HTML;
         $out .= "<svg class='w-12 h-12 mx-auto mb-4 text-gray-400' fill='none' stroke='currentColor' viewBox='0 0 24 24'><use href='{$this->spriteUrl}#outline-lock-closed'></use></svg>";
         $out .= "<p class='mb-6 text-gray-700 font-bold leading-relaxed'>{$safeMsg}</p>";
         $out .= "<form onsubmit=\"event.preventDefault(); window.grindsDecrypt('{$uid}', '{$payload}', '{$errText}');\" class='flex flex-col sm:flex-row gap-3'>";
-        $out .= "<input type='password' id='{$uid}-input' placeholder='{$phText}' class='flex-1 px-4 py-3 border border-gray-300 rounded-theme focus:outline-none focus:border-grinds-red focus:ring-2 focus:ring-grinds-red/20 transition-all text-center tracking-widest' required>";
+
+        $eyeIcon = "<svg class='w-5 h-5' fill='none' stroke='currentColor' viewBox='0 0 24 24'><use href='{$this->spriteUrl}#outline-eye'></use></svg>";
+        $eyeSlashIcon = "<svg class='w-5 h-5' fill='none' stroke='currentColor' viewBox='0 0 24 24' style='display:none;'><use href='{$this->spriteUrl}#outline-eye-slash'></use></svg>";
+
+        $out .= "<div class='relative flex-1'>";
+        $out .= "<input type='password' id='{$uid}-input' placeholder='{$phText}' class='w-full flex-1 px-4 py-3 border border-gray-300 rounded-theme focus:outline-none focus:border-grinds-red focus:ring-2 focus:ring-grinds-red/20 transition-all text-center tracking-widest pr-10' required>";
+        $out .= "<button type='button'
+            onclick=\"var inp = document.getElementById('{$uid}-input'); var isPass = inp.type === 'password'; inp.type = isPass ? 'text' : 'password'; var btn = this; btn.querySelector('svg:first-child').style.display = isPass ? 'none' : 'block'; btn.querySelector('svg:last-child').style.display = isPass ? 'block' : 'none';\"
+            class='absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none'>
+            {$eyeIcon}{$eyeSlashIcon}
+        </button>";
+        $out .= "</div>";
+
         $out .= "<button type='submit' class='bg-grinds-red hover:bg-red-700 text-white font-bold px-8 py-3 rounded-theme shadow-theme transition-colors whitespace-nowrap flex items-center justify-center gap-2 transform hover:-translate-y-0.5'>";
         $out .= "<svg class='w-4 h-4' fill='none' stroke='currentColor' viewBox='0 0 24 24'><use href='{$this->spriteUrl}#outline-key'></use></svg>";
         $out .= "{$btnText}</button>";

@@ -83,5 +83,5 @@ try {
 } catch (Exception $e) {
     // Log error but don't fail loudly
     error_log("Auto backup failed: " . $e->getMessage());
-    json_response(['success' => false, 'error' => $e->getMessage()]);
+    json_response(['success' => false, 'error' => $e->getMessage()], 500);
 }

@@ -24,6 +24,16 @@ if (!defined('GRINDS_APP'))
             this.type = e.detail.type || 'all';
             this.loadMedia(1);
         });
+
+        const observer = new IntersectionObserver((entries) => {
+            if (entries[0].isIntersecting && this.hasMore && !this.loading) {
+                this.loadMedia(this.page + 1);
+            }
+        }, { rootMargin: '100px' });
+
+        this.$nextTick(() => {
+            if (this.$refs.loadMoreTrigger) observer.observe(this.$refs.loadMoreTrigger);
+        });
     },
 
     async loadMedia(p = 1) {
@@ -127,7 +137,7 @@ if (!defined('GRINDS_APP'))
                 </template>
             </div>
 
-            <div x-show="hasMore" class="mt-4 text-center">
+            <div x-show="hasMore" x-ref="loadMoreTrigger" class="mt-4 pb-8 text-center">
                 <button @click="loadMedia(page + 1)" class="btn-secondary px-4 py-2 text-xs" :disabled="loading">
                     <span x-show="!loading">
                         <?= _t('load_more') ?>

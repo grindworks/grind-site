@@ -115,6 +115,9 @@ if (current_user_can('manage_settings')) {
         }
     }
 
+    // Clear file status cache before checking sizes
+    clearstatcache();
+
     // Check log size
     $logFile = ROOT_PATH . '/data/logs/error.log';
     if (file_exists($logFile) && filesize($logFile) > 2 * 1024 * 1024) {
@@ -268,7 +271,7 @@ $jsRewriteWarningMsg = $isJa
 
 ob_start();
 ?>
-<?php if (get_option('disable_external_assets') && file_exists(ROOT_PATH . '/assets/js/vendor/chart.min.js')): ?>
+<?php if (file_exists(ROOT_PATH . '/assets/js/vendor/chart.min.js')): ?>
     <script src="<?= grinds_asset_url('assets/js/vendor/chart.min.js') ?>"></script>
 <?php else: ?>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>

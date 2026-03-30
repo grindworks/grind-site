@@ -9,7 +9,7 @@ function withAlpha(variable) {
 }
 
 module.exports = {
-  content: ['./src/admin/**/*.php', './src/lib/**/*.php', './src/assets/js/**/*.js'],
+  content: ['./src/install.php', './src/admin/**/*.php', './src/lib/**/*.php', './src/assets/js/**/*.js'],
   safelist: [
     // Safelist for dynamic block classes (colors, grids)
     {
@@ -50,6 +50,17 @@ module.exports = {
           'on-warning': withAlpha('--color-on-warning'),
           info: withAlpha('--color-info'),
           'on-info': withAlpha('--color-on-info'),
+          'sidebar-text': withAlpha('--color-sidebar-text'),
+          'sidebar-active-bg': withAlpha('--color-sidebar-active-bg'),
+          'sidebar-active-text': withAlpha('--color-sidebar-active-text'),
+          'sidebar-hover-bg': withAlpha('--color-sidebar-hover-bg'),
+          'sidebar-hover-text': withAlpha('--color-sidebar-hover-text'),
+          'input-bg': withAlpha('--color-input-bg'),
+          'input-text': withAlpha('--color-input-text'),
+          'input-placeholder': withAlpha('--color-input-placeholder'),
+          'input-border': withAlpha('--color-input-border'),
+          'table-header-bg': withAlpha('--color-table-header-bg'),
+          'table-header-text': withAlpha('--color-table-header-text'),
         },
       },
       borderRadius: {

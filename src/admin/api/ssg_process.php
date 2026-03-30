@@ -735,7 +735,8 @@ class GrindsSSG
             include $defaultThemePath;
             $searchContent = ob_get_clean();
         } else {
-            $searchContent = '<div class="mb-10"><h2 class="mb-6 pl-4 border-grinds-red border-l-4 font-bold text-3xl">Search</h2><div id="static-search-results" class="min-h-[200px]"></div></div>';
+            $searchTitle = h(str_replace('...', '', _t('search')));
+            $searchContent = '<div class="mb-10"><h2 class="mb-6 pl-4 border-grinds-red border-l-4 font-bold text-3xl">' . $searchTitle . '</h2><div id="static-search-results" class="min-h-[200px]"></div></div>';
         }
 
         // Build search config script to inject into the search page
@@ -1346,5 +1347,5 @@ try {
 
     json_response($response);
 } catch (Exception $e) {
-    json_response(['success' => false, 'error' => $e->getMessage()]);
+    json_response(['success' => false, 'error' => $e->getMessage()], 500);
 }

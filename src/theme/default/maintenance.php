@@ -38,12 +38,12 @@ $font_family = !empty($skin['font']) ? $skin['font'] : 'sans-serif';
 
   <style>
     :root {
-      --color-bg: <?= hex2rgb($colors['bg'] ?? '#f8fafc') ?>;
-      --color-surface: <?= hex2rgb($colors['surface'] ?? '#ffffff') ?>;
-      --color-text: <?= hex2rgb($colors['text'] ?? '#334155') ?>;
-      --color-primary: <?= hex2rgb($colors['primary'] ?? '#2563eb') ?>;
-      --color-border: <?= hex2rgb($colors['border'] ?? '#e2e8f0') ?>;
-      --color-info: <?= hex2rgb($colors['info'] ?? '#0ea5e9') ?>;
+      --color-bg: <?= grinds_normalize_color($colors['bg'] ?? '#f8fafc') ?>;
+      --color-surface: <?= grinds_normalize_color($colors['surface'] ?? '#ffffff') ?>;
+      --color-text: <?= grinds_normalize_color($colors['text'] ?? '#334155') ?>;
+      --color-primary: <?= grinds_normalize_color($colors['primary'] ?? '#2563eb') ?>;
+      --color-border: <?= grinds_normalize_color($colors['border'] ?? '#e2e8f0') ?>;
+      --color-info: <?= grinds_normalize_color($colors['info'] ?? '#0ea5e9') ?>;
       --font-body: <?= $font_family ?>;
       --border-radius: <?= $skin['rounded'] ?? '0.5rem' ?>;
       --box-shadow: <?= $skin['shadow'] ?? '0 1px 3px 0 rgba(0, 0, 0, 0.1)' ?>;

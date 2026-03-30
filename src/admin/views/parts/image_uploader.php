@@ -137,6 +137,9 @@ $previewUrl = get_media_url($value);
             </p>
         <?php
         endif; ?>
+        <p class="text-[10px] text-theme-text opacity-40 mt-0.5 font-mono" x-show="window.grindsUploadMax" x-cloak>
+            <span x-text="'Max: ' + Math.max(1, Math.floor(window.grindsUploadMax / 1048576)) + 'MB'"></span>
+        </p>
     </div>
 </div>
 <?php

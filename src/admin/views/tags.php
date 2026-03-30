@@ -16,7 +16,7 @@ $csrf_token = generate_csrf_token();
 <?php include __DIR__ . '/parts/hidden_action_form.php'; ?>
 
 <div class="relative flex lg:flex-row flex-col gap-8"
-  x-effect="document.body.style.overflow = mobileFormOpen ? 'hidden' : ''"
+  x-effect="window.toggleScrollLock(mobileFormOpen)"
   x-data="{
     mobileFormOpen: <?= $edit_id ? 'true' : 'false' ?>,
     isSubmitting: false
@@ -38,17 +38,28 @@ $csrf_token = generate_csrf_token();
     </div>
 
     <!-- Bulk actions and limit selector. -->
-    <div class="flex justify-end items-center gap-4 mb-4">
-      <div class="flex items-center gap-2">
-        <select id="bulk-action-selector" class="bg-theme-bg border-theme-border w-32 text-theme-text cursor-pointer form-control-sm">
-          <option value=""><?= _t('lbl_bulk_actions') ?></option>
-          <option value="delete"><?= _t('delete') ?></option>
-        </select>
-        <button type="button" id="bulk-apply" class="px-3 py-1.5 text-xs whitespace-nowrap btn-secondary">
-          <?= _t('apply') ?>
-        </button>
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
+      <!-- Search form. -->
+      <form method="get" action="tags.php" class="relative w-full sm:w-auto">
+        <input type="text" name="q" value="<?= h($_GET['q'] ?? '') ?>" placeholder="<?= _t('search') ?>"
+          class="bg-theme-bg pl-8 border-theme-border w-full sm:w-48 focus:w-64 text-theme-text text-xs transition-all form-control-sm">
+        <svg class="top-1/2 left-2.5 absolute opacity-50 w-3.5 h-3.5 text-theme-text -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-magnifying-glass"></use>
+        </svg>
+      </form>
+
+      <div class="flex justify-end items-center gap-4 w-full sm:w-auto">
+        <div class="flex items-center gap-2">
+          <select id="bulk-action-selector" class="bg-theme-bg border-theme-border w-32 text-theme-text cursor-pointer form-control-sm">
+            <option value=""><?= _t('lbl_bulk_actions') ?></option>
+            <option value="delete"><?= _t('delete') ?></option>
+          </select>
+          <button type="button" id="bulk-apply" class="px-3 py-1.5 text-xs whitespace-nowrap btn-secondary">
+            <?= _t('apply') ?>
+          </button>
+        </div>
+        <?php include __DIR__ . '/parts/limit_selector.php'; ?>
       </div>
-      <?php include __DIR__ . '/parts/limit_selector.php'; ?>
     </div>
 
     <!-- Desktop table view. -->
@@ -214,7 +225,7 @@ $csrf_token = generate_csrf_token();
         </button>
       </div>
 
-      <form method="post" @submit="setTimeout(() => isSubmitting = true, 10)">
+      <form method="post" class="warn-on-unsaved" @submit="setTimeout(() => isSubmitting = true, 10)">
         <input type="hidden" name="csrf_token" value="<?= h(generate_csrf_token()) ?>">
         <input type="hidden" name="action" value="save">
         <?php if ($edit_id): ?><input type="hidden" name="target_id" value="<?= h($edit_id) ?>"><?php endif; ?>
@@ -228,13 +239,15 @@ $csrf_token = generate_csrf_token();
           <label class="block mb-2 font-bold text-theme-text text-sm"><?= _t('col_slug') ?></label>
           <div class="flex">
             <span class="inline-flex items-center bg-theme-bg opacity-60 px-3 border border-theme-border border-r-0 rounded-l-theme text-theme-text text-xs">/</span>
-            <input type="text" name="slug" value="<?= h($edit_data['slug']) ?>" class="rounded-l-none font-mono text-sm form-control placeholder-theme-text/30" placeholder="<?= _t('ph_auto_generate') ?>">
+            <input type="text" name="slug" value="<?= h($edit_data['slug']) ?>"
+              @blur="$el.value = $el.value.toLowerCase().trim().replace(/[\s_]+/g, '-').replace(/[^\p{L}\p{N}-]/gu, '').replace(/-+/g, '-').replace(/^-+|-+$/g, '')"
+              class="rounded-l-none font-mono text-sm form-control placeholder-theme-text/30" placeholder="<?= _t('ph_auto_generate') ?>">
           </div>
         </div>
 
         <div class="flex gap-3">
           <?php if ($edit_id): ?>
-            <a href="tags.php" class="flex-1 py-2.5 rounded-theme text-sm text-center btn-secondary"><?= _t('cancel') ?></a>
+            <a href="tags.php" class="js-skip-warning flex-1 py-2.5 rounded-theme text-sm text-center btn-secondary"><?= _t('cancel') ?></a>
           <?php else: ?>
             <button type="button" @click="mobileFormOpen = false" class="lg:hidden flex-1 py-2.5 rounded-theme text-sm text-center btn-secondary"><?= _t('cancel') ?></button>
           <?php endif; ?>
@@ -259,3 +272,5 @@ $csrf_token = generate_csrf_token();
     </div>
   </div>
 </div>
+
+<script src="<?= grinds_asset_url('assets/js/admin_form_unsaved.js') ?>"></script>

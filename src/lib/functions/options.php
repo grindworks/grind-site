@@ -109,6 +109,12 @@ if (!function_exists('get_default_share_buttons')) {
             ['id' => 'line', 'name' => 'LINE', 'url' => 'https://social-plugins.line.me/lineit/share?url={URL}', 'icon' => 'icon-line', 'color' => '#06C755', 'enabled' => true],
             ['id' => 'instagram', 'name' => 'Instagram', 'url' => 'https://www.instagram.com/', 'icon' => 'icon-instagram', 'color' => '#E4405F', 'enabled' => true],
             ['id' => 'discord', 'name' => 'Discord', 'url' => 'https://discord.com/', 'icon' => 'icon-discord', 'color' => '#5865F2', 'enabled' => true],
+            ['id' => 'threads', 'name' => 'Threads', 'url' => 'https://threads.net/intent/post?text={title}%20{url}', 'icon' => 'icon-threads', 'color' => '#000000', 'enabled' => false],
+            ['id' => 'tiktok', 'name' => 'TikTok', 'url' => '', 'icon' => 'icon-tiktok', 'color' => '#000000', 'enabled' => false],
+            ['id' => 'linkedin', 'name' => 'LinkedIn', 'url' => 'https://www.linkedin.com/sharing/share-offsite/?url={url}', 'icon' => 'icon-linkedin', 'color' => '#0A66C2', 'enabled' => false],
+            ['id' => 'pinterest', 'name' => 'Pinterest', 'url' => 'https://pinterest.com/pin/create/button/?url={url}&description={title}', 'icon' => 'icon-pinterest', 'color' => '#E60023', 'enabled' => false],
+            ['id' => 'github', 'name' => 'GitHub', 'url' => '', 'icon' => 'icon-github', 'color' => '#181717', 'enabled' => false],
+            ['id' => 'twitch', 'name' => 'Twitch', 'url' => '', 'icon' => 'icon-twitch', 'color' => '#9146FF', 'enabled' => false]
         ];
     }
 }

@@ -59,7 +59,7 @@ include __DIR__ . '/parts/hidden_action_form.php';
 </script>
 
 <div class="relative flex lg:flex-row flex-col gap-8"
-  x-effect="document.body.style.overflow = mobileFormOpen ? 'hidden' : ''"
+  x-effect="window.toggleScrollLock(mobileFormOpen)"
   x-data='{
      mobileFormOpen: <?= $edit_id ? 'true' : 'false' ?>,
      activeAccordion: "custom",
@@ -395,7 +395,7 @@ include __DIR__ . '/parts/hidden_action_form.php';
       </div>
 
       <!-- Add/Edit form. -->
-      <form method="post" @submit="setTimeout(() => isSubmitting = true, 10)">
+      <form method="post" class="warn-on-unsaved" @submit="setTimeout(() => isSubmitting = true, 10)">
         <input type="hidden" name="csrf_token" value="<?= h($csrf_token) ?>">
         <input type="hidden" name="location" value="<?= h($current_location) ?>">
         <?php if ($edit_id): ?><input type="hidden" name="target_id" value="<?= h($edit_id) ?>"><?php endif; ?>
@@ -438,7 +438,7 @@ include __DIR__ . '/parts/hidden_action_form.php';
         </div>
         <div class="flex gap-2">
           <?php if ($edit_id): ?>
-            <a href="menus.php?location=<?= $current_location ?>" class="flex-1 py-2.5 rounded-theme text-sm text-center btn-secondary"><?= _t('cancel') ?></a>
+            <a href="menus.php?location=<?= $current_location ?>" class="js-skip-warning flex-1 py-2.5 rounded-theme text-sm text-center btn-secondary"><?= _t('cancel') ?></a>
           <?php else: ?>
             <button type="button" @click="mobileFormOpen = false" class="lg:hidden flex-1 py-2.5 rounded-theme text-sm text-center btn-secondary"><?= _t('cancel') ?></button>
           <?php endif; ?>
@@ -462,3 +462,5 @@ include __DIR__ . '/parts/hidden_action_form.php';
     </div>
   </div>
 </div>
+
+<script src="<?= grinds_asset_url('assets/js/admin_form_unsaved.js') ?>"></script>

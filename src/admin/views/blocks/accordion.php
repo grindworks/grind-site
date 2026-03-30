@@ -2,7 +2,7 @@
 
 /** Accordion Block View */
 if (!defined('GRINDS_APP')) exit; ?>
-<div class="space-y-3" x-init="if(!block.data.items) block.data.items = [{id: Math.random().toString(36).substr(2, 9), title:'', content:''}]; block.data.items.forEach(i => { if(!i.id) i.id = Math.random().toString(36).substr(2, 9); })">
+<div class="space-y-3" x-init="if(!block.data.items) block.data.items = [{id: generateId(), title:'', content:''}]; block.data.items.forEach(i => { if(!i.id) i.id = generateId(); })">
   <!-- Loop items -->
   <template x-for="(item, i) in block.data.items" :key="item.id">
     <div class="group/item relative bg-theme-bg/40 mb-2 p-4 border border-theme-border rounded-theme">
@@ -16,12 +16,12 @@ if (!defined('GRINDS_APP')) exit; ?>
         <!-- Question input -->
         <div>
           <label class="block opacity-50 mb-1 font-bold text-[10px] text-theme-text"><?= _t('lbl_question') ?></label>
-          <input type="text" x-model="item.title" class="w-full font-bold form-control-sm" placeholder="<?= _t('ph_question') ?>">
+          <input type="text" x-model="item.title" :id="'block-' + block.id + '-item-' + i + '-title'" class="w-full font-bold form-control-sm" placeholder="<?= _t('ph_question') ?>">
         </div>
         <!-- Answer input -->
         <div>
           <label class="block opacity-50 mb-1 font-bold text-[10px] text-theme-text"><?= _t('lbl_answer') ?></label>
-          <textarea x-model="item.content" rows="2"
+          <textarea x-model="item.content" :id="'block-' + block.id + '-item-' + i + '-content'" rows="2"
             x-init="$nextTick(() => { $el.style.height = 'auto'; $el.style.height = $el.scrollHeight + 'px' })"
             @input="$el.style.height = 'auto'; $el.style.height = $el.scrollHeight + 'px'"
             class="w-full text-xs form-control-sm overflow-hidden resize-none" placeholder="<?= _t('ph_answer') ?>"></textarea>
@@ -31,5 +31,5 @@ if (!defined('GRINDS_APP')) exit; ?>
   </template>
 
   <!-- Add item button -->
-  <button type="button" @click="block.data.items.push({id: Math.random().toString(36).substr(2, 9), title:'', content:''}); $nextTick(() => { $el.closest('.space-y-3').querySelectorAll('input[type=text]')[block.data.items.length-1]?.focus() })" class="py-2 border-2 hover:border-theme-primary/50 border-dashed w-full text-xs btn-secondary">+ <?= _t('btn_add_item') ?></button>
+  <button type="button" @click="block.data.items.push({id: generateId(), title:'', content:''}); $nextTick(() => { $el.closest('.space-y-3').querySelectorAll('input[type=text]')[block.data.items.length-1]?.focus() })" class="py-2 border-2 hover:border-theme-primary/50 border-dashed w-full text-xs btn-secondary">+ <?= _t('btn_add_item') ?></button>
 </div>
