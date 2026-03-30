@@ -1,7 +1,7 @@
 {
-  "version": "1.2.0",
+  "version": "1.2.1",
   "release_date": "2026-03-30",
-  "message": "Added offline mode assets, unsaved form warnings, and major UI enhancements.",
-  "download_url": "https://github.com/grindworks/grind-site/releases/download/v1.2.0/grindsite-v1.2.0.zip",
-  "sha256": "4ff2f5c12371585134db89b8e94c642b0c3952b1ee9e1c3b7d17b45110ae860e"
+  "message": "Fixed a critical bug in the Static Site Generation (SSG) process for offline environments.",
+  "download_url": "https://github.com/grindworks/grind-site/releases/download/v1.2.1/grindsite-v1.2.1.zip",
+  "sha256": "76c3746409b313c4cf24e2094fd303fbe460f7165d916da07158b7a3537cf23b"
 }

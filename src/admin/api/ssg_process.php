@@ -1083,7 +1083,7 @@ class GrindsSSG
 
         $dom = new DOMDocument();
         $internalErrors = libxml_use_internal_errors(true);
-        if (!@$dom->loadHTML('<?xml encoding="UTF-8"?>' . $protectedHtml, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD)) {
+        if (!@$dom->loadHTML('<?xml encoding="UTF-8"?>' . $protectedHtml, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD | LIBXML_NONET)) {
             libxml_clear_errors();
             libxml_use_internal_errors($internalErrors);
             return $html;
