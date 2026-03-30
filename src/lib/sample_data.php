@@ -50,7 +50,7 @@ function Grinds_GetSampleData($lang = 'en')
                 'hero_image' => '',
                 'hero_settings' => [
                     'title' => $isJa ? 'ビジネスを加速させる次世代CMS' : 'Accelerate Your Business',
-                    'subtext' => $isJa ? 'GrindSiteは、直感的な操作と高いパフォーマンスを兼ね備えた、\nモダンなウェブサイト構築プラットフォームです。' : 'GrindSite is a modern website building platform\ncombining intuitive operation with high performance.',
+                    'subtext' => $isJa ? "GrindSiteは、直感的な操作と高いパフォーマンスを兼ね備えた、\nモダンなウェブサイト構築プラットフォームです。" : "GrindSite is a modern website building platform\ncombining intuitive operation with high performance.",
                     'layout' => 'standard',
                     'buttons' => [
                         ['text' => $isJa ? '無料で始める' : 'Get Started Free', 'url' => '#', 'style' => 'primary'],

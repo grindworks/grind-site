@@ -11,7 +11,7 @@ if (!defined('GRINDS_APP')) exit; ?>
     <span><?= _t('ph_map_iframe') ?> (Google Maps / OpenStreetMap)</span>
   </div>
   <!-- Embed code -->
-  <textarea x-model="block.data.code" rows="4" class="w-full font-mono text-xs form-control-sm" placeholder='<iframe src="https://www.google.com/maps/embed?..."></iframe>'></textarea>
+  <textarea x-model="block.data.code" :id="'block-' + block.id + '-code'" rows="4" class="w-full font-mono text-xs form-control-sm" placeholder='<iframe src="https://www.google.com/maps/embed?..."></iframe>'></textarea>
   <!-- Map preview -->
   <div x-show="block.data.code" class="bg-theme-bg mt-2 border border-theme-border rounded-theme aspect-video overflow-hidden">
     <div x-html="block.data.code" class="w-full [&_iframe]:w-full h-full [&_iframe]:h-full"></div>

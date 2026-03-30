@@ -2,7 +2,7 @@
 
 /** Gallery Block View */
 if (!defined('GRINDS_APP')) exit; ?>
-<div class="bg-theme-bg/40 p-4 border border-theme-border rounded-theme" x-init="if(!block.data.images) block.data.images = []; if(!block.data.columns) block.data.columns = '3'; $watch('block.data.images', v => v && v.forEach(i => { if(!i.id) i.id = Math.random().toString(36).substr(2, 9) })); block.data.images.forEach(i => { if(!i.id) i.id = Math.random().toString(36).substr(2, 9) })" x-data="{ isUploading: false }">
+<div class="bg-theme-bg/40 p-4 border border-theme-border rounded-theme" x-init="if(!block.data.images) block.data.images = []; if(!block.data.columns) block.data.columns = '3'; $watch('block.data.images', v => v && v.forEach(i => { if(!i.id) i.id = generateId() })); block.data.images.forEach(i => { if(!i.id) i.id = generateId() })" x-data="{ isUploading: false }">
   <!-- Column selector -->
   <div class="flex items-center gap-4 mb-3">
     <label class="opacity-70 font-bold text-theme-text text-xs"><?= _t('lbl_columns') ?>:</label>
@@ -22,14 +22,32 @@ if (!defined('GRINDS_APP')) exit; ?>
     <template x-for="(img, i) in block.data.images" :key="img.id">
       <div class="group relative bg-theme-bg/40 border border-theme-border rounded-theme aspect-square overflow-hidden">
         <img :src="resolvePreviewUrl(img.url)" class="w-full h-full object-cover" @error="$el.src = <?= htmlspecialchars(json_encode(PLACEHOLDER_IMG), ENT_QUOTES) ?>">
-        <!-- Delete image -->
-        <button type="button" @click="block.data.images.splice(i, 1)" class="top-1 right-1 absolute bg-theme-surface/90 md:opacity-0 opacity-100 group-hover:opacity-100 shadow-theme p-2 min-w-[32px] min-h-[32px] flex items-center justify-center border border-theme-border rounded-full text-theme-danger transition-opacity">
-          <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-x-mark"></use>
-          </svg>
-        </button>
-        <!-- Caption input -->
-        <input type="text" x-model="img.caption" class="bottom-0 left-0 absolute skin-modal-overlay opacity-0 group-hover:opacity-100 p-1 border-none focus:ring-0 w-full text-[10px] text-white text-center transition-opacity" placeholder="<?= _t('ph_caption') ?>">
+        <!-- Action Buttons -->
+        <div class="top-1 right-1 absolute flex items-center gap-1 md:opacity-0 opacity-100 group-hover:opacity-100 transition-opacity z-10">
+          <!-- Move Left -->
+          <button type="button" @click.prevent="if(i > 0) { let temp = block.data.images[i]; block.data.images.splice(i, 1); block.data.images.splice(i - 1, 0, temp); }" x-show="i > 0" class="bg-theme-surface/90 shadow-theme p-1.5 min-w-[28px] min-h-[28px] flex items-center justify-center border border-theme-border rounded-full text-theme-text hover:text-theme-primary transition-colors">
+            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-chevron-left"></use>
+            </svg>
+          </button>
+          <!-- Move Right -->
+          <button type="button" @click.prevent="if(i < block.data.images.length - 1) { let temp = block.data.images[i]; block.data.images.splice(i, 1); block.data.images.splice(i + 1, 0, temp); }" x-show="i < block.data.images.length - 1" class="bg-theme-surface/90 shadow-theme p-1.5 min-w-[28px] min-h-[28px] flex items-center justify-center border border-theme-border rounded-full text-theme-text hover:text-theme-primary transition-colors">
+            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-chevron-right"></use>
+            </svg>
+          </button>
+          <!-- Delete image -->
+          <button type="button" @click.prevent="block.data.images.splice(i, 1)" class="bg-theme-surface/90 shadow-theme p-1.5 min-w-[28px] min-h-[28px] flex items-center justify-center border border-theme-border rounded-full text-theme-danger hover:bg-theme-danger/10 transition-colors" title="<?= h(_t('delete')) ?>">
+            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-x-mark"></use>
+            </svg>
+          </button>
+        </div>
+        <!-- Caption and Alt inputs -->
+        <div class="bottom-0 left-0 absolute w-full skin-modal-overlay opacity-0 group-hover:opacity-100 p-1.5 space-y-1 transition-opacity">
+          <input type="text" x-model="img.caption" :id="'block-' + block.id + '-caption-' + i" class="bg-black/30 border-white/20 focus:ring-white/50 focus:border-white/50 w-full text-[10px] text-white text-center form-control-sm" placeholder="<?= _t('ph_caption') ?>">
+          <input type="text" x-model="img.alt" :id="'block-' + block.id + '-alt-' + i" class="bg-black/30 border-white/20 focus:ring-white/50 focus:border-white/50 w-full text-[10px] text-white text-center form-control-sm" placeholder="<?= _t('ph_alt_text') ?>">
+        </div>
       </div>
     </template>
     <!-- Add from library -->

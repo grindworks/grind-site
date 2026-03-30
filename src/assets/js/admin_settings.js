@@ -87,7 +87,7 @@ document.addEventListener('alpine:init', () => {
           this.progress = 0;
         }, 3000);
       } catch (e) {
-        alert('Error: ' + e.message);
+        window.showToast('Error: ' + e.message, 'error');
         this.processing = false;
         window.onbeforeunload = null;
       }
@@ -191,7 +191,7 @@ document.addEventListener('alpine:init', () => {
           this.statusMsg = this.trans.doneMsg || 'Done!';
           this.percentage = 100;
           setTimeout(() => {
-            alert(this.trans.done);
+            window.showToast(this.trans.done, 'success');
             this.processing = false;
             this.percentage = 0;
             window.onbeforeunload = null;
@@ -199,7 +199,7 @@ document.addEventListener('alpine:init', () => {
         }
       } catch (e) {
         console.error(e);
-        alert(this.trans.error.replace('%s', e.message));
+        window.showToast(this.trans.error.replace('%s', e.message), 'error');
         this.processing = false;
         window.onbeforeunload = null;
       }

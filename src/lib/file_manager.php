@@ -260,7 +260,7 @@ class FileManager
                 $path,
                 $mime,
                 $finalSize,
-                json_encode($metaToSave, JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_IGNORE),
+                json_encode($metaToSave, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR),
                 date('Y-m-d H:i:s')
             ]);
         } catch (Exception $e) {
@@ -556,7 +556,10 @@ class FileManager
 
         // Handle SVG MIME
         if ($uploadedExt === 'svg' && in_array($mime, ['text/plain', 'text/xml'])) {
-            $mime = 'image/svg+xml';
+            $header = file_get_contents($tmpPath, false, null, 0, 256);
+            if ($header !== false && (stripos($header, '<svg') !== false || stripos($header, '<?xml') !== false)) {
+                $mime = 'image/svg+xml';
+            }
         }
 
         // Validate MIME against Extension
@@ -588,9 +591,7 @@ class FileManager
             $size = @getimagesize($tmpPath);
             if ($size) {
                 $imageSize = $size;
-                if (!self::checkMemoryRequirement($size[0], $size[1], $mime)) {
-                    throw new Exception(_t('err_image_memory_limit') . ' (Please resize image to < 2500px width)');
-                }
+                self::checkMemoryRequirement($size[0], $size[1], $mime);
             } else {
                 throw new Exception(_t('err_image_corrupt'));
             }
@@ -612,25 +613,21 @@ class FileManager
                         _t('err_gif_too_many_frames'),
                         $frameCount,
                         self::MAX_GIF_FRAMES
-                    ));
+                    ), 413);
                 }
 
                 // Scale the memory estimate for frame expansion during coalesceImages
                 // Accurately estimate for all frames to prevent OOM crashes
                 if ($frameCount > 1 && $imageSize) {
-                    if (!self::checkMemoryRequirement(
+                    self::checkMemoryRequirement(
                         $imageSize[0] * $frameCount,
                         $imageSize[1],
                         $mime
-                    )) {
-                        throw new Exception(_t('err_image_memory_limit'));
-                    }
+                    );
                 }
             } catch (Exception $e) {
-                if (
-                    str_contains($e->getMessage(), _t('err_image_memory_limit')) ||
-                    str_contains($e->getMessage(), 'frames')
-                ) {
+                // Re-throw security-related exceptions (memory limit, frame count)
+                if ($e->getCode() === 413) {
                     throw $e; // Re-throw security exceptions
                 }
                 // Non-fatal: if Imagick cannot ping the file, fall through gracefully
@@ -1131,11 +1128,19 @@ class FileManager
             }
         }
 
-        // Clean up parent directory only if it is empty
+        // Clean up parent directories if they are empty
         $dirPath = dirname($fullPath);
-        if (is_dir($dirPath)) {
+        while (is_dir($dirPath)) {
+            $normDirPath = rtrim(str_replace('\\', '/', realpath($dirPath) ?: $dirPath), '/') . '/';
+            // Stop if we reach the base uploads directory or go outside it
+            if (strlen($normDirPath) <= strlen($normAllowedDir) || !str_starts_with(strtolower($normDirPath), strtolower($normAllowedDir))) {
+                break;
+            }
             if (count(array_diff(scandir($dirPath), ['.', '..'])) === 0) {
                 @rmdir($dirPath);
+                $dirPath = dirname($dirPath); // Move up to parent
+            } else {
+                break; // Not empty, stop traversing
             }
         }
 
@@ -1344,13 +1349,13 @@ class FileManager
         $maxDimension = defined('MAX_IMAGE_DIMENSION') ? (int) constant('MAX_IMAGE_DIMENSION') : self::MAX_DIMENSION;
         if ($width > $maxDimension || $height > $maxDimension) {
             $msg = function_exists('_t') ? _t('err_image_dimension', $maxDimension) : "Image dimensions exceed the maximum allowed limit ({$maxDimension}px).";
-            throw new Exception($msg);
+            throw new Exception($msg, 413);
         }
 
         $maxPixels = defined('MAX_IMAGE_PIXELS') ? (int) constant('MAX_IMAGE_PIXELS') : self::MAX_PIXELS;
         $pixels = $width * $height;
         if ($pixels > $maxPixels) {
-            throw new Exception(_t('err_pixel_flood', number_format($pixels), number_format($maxPixels)) . ' (Please resize image to < 2500px width)');
+            throw new Exception(_t('err_pixel_flood', number_format($pixels), number_format($maxPixels)) . ' (Please resize image to < 2500px width)', 413);
         }
 
         // Estimate memory
@@ -1368,7 +1373,7 @@ class FileManager
             // Verify memory
             $newLimitBytes = grinds_return_bytes(@ini_get('memory_limit'));
             if ($newLimitBytes !== -1 && $newLimitBytes < $requiredBytes) {
-                return false;
+                throw new Exception(_t('err_image_memory_limit'), 413);
             }
         }
         return true;

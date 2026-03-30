@@ -15,18 +15,9 @@ $defaults = require __DIR__ . '/config/skin_defaults.php';
 $currentSkin = get_option('admin_skin', 'default');
 $currentUser = App::user();
 if ($currentUser && isset($currentUser['id'])) {
-  $pdo = App::db();
-  if ($pdo) {
-    try {
-      $stmt = $pdo->prepare("SELECT admin_skin FROM users WHERE id = ?");
-      $stmt->execute([$currentUser['id']]);
-      $userSkin = $stmt->fetchColumn();
-      if (!empty($userSkin) && $userSkin !== 'system') {
-        $currentSkin = $userSkin;
-      }
-    } catch (Exception $e) {
-      // Ignore and fallback
-    }
+  $userSkin = $_SESSION['admin_skin'] ?? null;
+  if (!empty($userSkin) && $userSkin !== 'system') {
+    $currentSkin = $userSkin;
   }
 }
 
@@ -150,12 +141,12 @@ if (isset($finalSkin['effects']) && is_array($finalSkin['effects'])) {
 
 // Calculate derived values
 if (!isset($finalSkin['is_dark'])) {
-  $bg_rgb = hex2rgb($finalSkin['colors']['bg'] ?? '#f8fafc');
+  $bg_rgb = grinds_normalize_color($finalSkin['colors']['bg'] ?? '#f8fafc');
   $finalSkin['is_dark'] = is_dark($bg_rgb);
 }
 
 if (!isset($finalSkin['is_sidebar_dark'])) {
-  $sidebar_rgb = hex2rgb($finalSkin['colors']['sidebar'] ?? $finalSkin['colors']['surface'] ?? '#1e293b');
+  $sidebar_rgb = grinds_normalize_color($finalSkin['colors']['sidebar'] ?? $finalSkin['colors']['surface'] ?? '#1e293b');
   $finalSkin['is_sidebar_dark'] = is_dark($sidebar_rgb);
 }
 

@@ -12,7 +12,7 @@ if (!defined('GRINDS_APP'))
 
   <!-- ========== Section 1: Theme & Layout ========== -->
   <div class="bg-theme-surface shadow-theme p-4 sm:p-6 border border-theme-border rounded-theme">
-    <form method="post" x-data="{
+    <form method="post" class="warn-on-unsaved" x-data="{
       currentTheme: <?= htmlspecialchars(json_encode($opt['theme'], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT), ENT_QUOTES, 'UTF-8') ?>,
       selectedTheme: <?= htmlspecialchars(json_encode($opt['theme'], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT), ENT_QUOTES, 'UTF-8') ?>,
       selectedSkin: <?= htmlspecialchars(json_encode($opt['skin'], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT), ENT_QUOTES, 'UTF-8') ?>,
@@ -512,7 +512,7 @@ if (!defined('GRINDS_APP'))
     </div>
 
     <form method="post"
-      class="flex sm:flex-row flex-col items-end gap-5 bg-theme-bg/50 p-5 rounded-theme border border-theme-border/50"
+      class="flex sm:flex-row flex-col items-end gap-5 bg-theme-bg/50 p-5 rounded-theme border border-theme-border/50 warn-on-unsaved"
       onsubmit="return confirm(<?= htmlspecialchars(json_encode(_t('st_confirm_duplicate')), ENT_QUOTES) ?>);">
       <input type="hidden" name="csrf_token" value="<?= h(generate_csrf_token()) ?>">
       <input type="hidden" name="action" value="duplicate_theme">

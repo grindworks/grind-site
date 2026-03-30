@@ -145,6 +145,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$is_locked) {
                     $_SESSION['user_role'] = $user['role'] ?? 'admin';
                     $_SESSION['user_avatar'] = $user['avatar'] ?? '';
                     $_SESSION['user_permissions'] = $user['permissions'] ?? null;
+                    $_SESSION['admin_layout'] = $user['admin_layout'] ?? null;
+                    $_SESSION['admin_skin'] = $user['admin_skin'] ?? null;
                     $_SESSION['last_activity'] = time();
 
                     // Process remember me
@@ -229,7 +231,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$is_locked) {
                     }
                 }
             } catch (Exception $e) {
-                $error = "System Error: " . h($e->getMessage());
+                error_log("Login page exception: " . $e->getMessage());
+                $error = _t('js_system_error');
             }
         }
     }

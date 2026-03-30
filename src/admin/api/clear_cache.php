@@ -33,19 +33,8 @@ $previewDirs = [
   ROOT_PATH . '/assets/uploads/_preview'
 ];
 foreach ($previewDirs as $pDir) {
-  if (is_dir($pDir)) {
-    try {
-      foreach (new DirectoryIterator($pDir) as $fileInfo) {
-        if ($fileInfo->isFile() && str_starts_with($fileInfo->getFilename(), 'preview_')) {
-          if (function_exists('grinds_force_unlink')) {
-            grinds_force_unlink($fileInfo->getPathname());
-          } else {
-            @unlink($fileInfo->getPathname());
-          }
-        }
-      }
-    } catch (Exception $e) { /* Ignore */
-    }
+  if (function_exists('grinds_clean_directory_files')) {
+    grinds_clean_directory_files($pDir, 'preview_');
   }
 }
 

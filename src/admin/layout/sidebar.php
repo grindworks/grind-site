@@ -45,7 +45,7 @@ $activeClass = 'bg-theme-primary border-theme-primary text-theme-on-primary font
   }
 </style>
 
-<body class="flex flex-col h-screen antialiased" :class="searchOpen ? 'overflow-hidden' : ''"
+<body class="flex flex-col h-[100dvh] antialiased" :class="searchOpen ? 'overflow-hidden' : ''"
   x-data="alpineSearchData"
   @keydown.window.prevent.cmd.k="searchOpen = true; reset(); $refs.searchInput.focus();"
   @keydown.window.prevent.ctrl.k="searchOpen = true; reset(); $refs.searchInput.focus();"
@@ -70,8 +70,9 @@ $activeClass = 'bg-theme-primary border-theme-primary text-theme-on-primary font
       <div class="flex justify-between items-center px-6 skin-sidebar-border border-b h-16 shrink-0">
         <?php $adminLogo = get_option('admin_logo'); ?>
         <a href="index.php" class="flex items-center gap-2">
-          <?php if ($adminLogo): ?>
-            <img src="<?= h(resolve_url($adminLogo)) ?>" alt="Admin Logo" class="w-auto h-8 object-contain">
+          <?php if ($adminLogo):
+            $logo_style = $is_dark_mode ? 'style="filter: drop-shadow(0 0 3px rgba(255,255,255,0.4));"' : ''; ?>
+            <img src="<?= h(resolve_url($adminLogo)) ?>" alt="Admin Logo" class="w-auto h-8 object-contain" <?= $logo_style ?>>
             <?php if (get_option('admin_show_site_name')): ?>
               <span class="font-bold text-theme-primary text-lg uppercase tracking-tighter">
                 <?= h(get_option('admin_title') ?: get_option('site_name') ?: CMS_NAME) ?>
@@ -136,7 +137,7 @@ $activeClass = 'bg-theme-primary border-theme-primary text-theme-on-primary font
       </nav>
 
       <!-- Sidebar footer -->
-      <div class="space-y-4 bg-theme-bg/10 p-4 skin-sidebar-border border-t shrink-0">
+      <div class="mt-auto space-y-4 bg-theme-bg/10 p-4 skin-sidebar-border border-t shrink-0">
         <?php require __DIR__ . '/../views/parts/sidebar_footer.php'; ?>
       </div>
     </aside>

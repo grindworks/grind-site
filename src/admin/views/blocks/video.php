@@ -2,9 +2,9 @@
 
 /** Video Block View */
 if (!defined('GRINDS_APP')) exit; ?>
-<div class="bg-theme-bg/40 p-4 border border-theme-border rounded-theme" x-data="{ isUploading: false }">
+<div class="bg-theme-bg/40 p-4 border border-theme-border rounded-theme" x-init="if(block.data.autoplay === undefined) block.data.autoplay = false; if(block.data.loop === undefined) block.data.loop = false; if(block.data.muted === undefined) block.data.muted = false;" x-data="{ isUploading: false }">
   <div class="flex gap-2 mb-3">
-    <input type="text" x-model="block.data.url" @blur="block.data.url = normalizeUrl(block.data.url)" class="flex-1 font-mono text-xs form-control-sm" placeholder="<?= _t('ph_video_url') ?>">
+    <input type="text" x-model="block.data.url" :id="'block-' + block.id + '-url'" @blur="block.data.url = normalizeUrl(block.data.url)" class="flex-1 font-mono text-xs form-control-sm" placeholder="<?= _t('ph_video_url') ?>">
 
     <button type="button" @click="openMediaLibrary(index, null, 'url')" class="flex items-center gap-1 px-3 py-1 text-xs btn-secondary shrink-0">
       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -30,7 +30,7 @@ if (!defined('GRINDS_APP')) exit; ?>
 
   <div class="flex flex-wrap gap-4 text-xs text-theme-text mb-3">
     <label class="flex items-center cursor-pointer select-none">
-      <input type="checkbox" x-model="block.data.autoplay" class="mr-1.5 bg-theme-bg border-theme-border rounded focus:ring-theme-primary w-4 h-4 text-theme-primary form-checkbox"> <?= _t('lbl_autoplay') ?>
+      <input type="checkbox" x-model="block.data.autoplay" @change="if(block.data.autoplay) block.data.muted = true" class="mr-1.5 bg-theme-bg border-theme-border rounded focus:ring-theme-primary w-4 h-4 text-theme-primary form-checkbox"> <?= _t('lbl_autoplay') ?>
     </label>
     <label class="flex items-center cursor-pointer select-none">
       <input type="checkbox" x-model="block.data.loop" class="mr-1.5 bg-theme-bg border-theme-border rounded focus:ring-theme-primary w-4 h-4 text-theme-primary form-checkbox"> <?= _t('lbl_loop') ?>

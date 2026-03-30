@@ -152,7 +152,7 @@ function executeAction(actionOrSelector, targetId = null) {
   }
 
   if (!action) {
-    alert(window.grindsTrans?.select_action || 'Please select an action.');
+    window.showToast(window.grindsTrans?.select_action || 'Please select an action.', 'warning');
     return;
   }
 
@@ -162,7 +162,7 @@ function executeAction(actionOrSelector, targetId = null) {
       'input[name="ids[]"]:checked, input.item-checkbox:checked, input.post-checkbox:checked'
     );
     if (checkboxes.length === 0) {
-      alert(window.grindsTrans?.no_items || 'No items selected.');
+      window.showToast(window.grindsTrans?.no_items || 'No items selected.', 'warning');
       return;
     }
   }
@@ -203,7 +203,7 @@ function submitActionForm(action, targetId) {
       catInput.className = 'dynamic-input';
       form.appendChild(catInput);
     } else {
-      alert(window.grindsTrans?.select_category || 'Please select a category.');
+      window.showToast(window.grindsTrans?.select_category || 'Please select a category.', 'warning');
       return;
     }
   }

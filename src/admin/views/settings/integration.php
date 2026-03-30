@@ -11,22 +11,6 @@ $shareButtons = json_decode($shareButtonsJson, true);
 
 $defaultButtons = function_exists('get_default_share_buttons') ? get_default_share_buttons() : [];
 
-$extendedButtons = [
-  ['id' => 'threads', 'name' => 'Threads', 'url' => 'https://threads.net/intent/post?text={title}%20{url}', 'icon' => 'icon-threads', 'color' => '#000000', 'enabled' => false],
-  ['id' => 'tiktok', 'name' => 'TikTok', 'url' => '', 'icon' => 'icon-tiktok', 'color' => '#000000', 'enabled' => false],
-  ['id' => 'linkedin', 'name' => 'LinkedIn', 'url' => 'https://www.linkedin.com/sharing/share-offsite/?url={url}', 'icon' => 'icon-linkedin', 'color' => '#0A66C2', 'enabled' => false],
-  ['id' => 'pinterest', 'name' => 'Pinterest', 'url' => 'https://pinterest.com/pin/create/button/?url={url}&description={title}', 'icon' => 'icon-pinterest', 'color' => '#E60023', 'enabled' => false],
-  ['id' => 'github', 'name' => 'GitHub', 'url' => '', 'icon' => 'icon-github', 'color' => '#181717', 'enabled' => false],
-  ['id' => 'twitch', 'name' => 'Twitch', 'url' => '', 'icon' => 'icon-twitch', 'color' => '#9146FF', 'enabled' => false]
-];
-
-$defaultIds = array_column($defaultButtons, 'id');
-foreach ($extendedButtons as $extBtn) {
-  if (!in_array($extBtn['id'], $defaultIds)) {
-    $defaultButtons[] = $extBtn;
-  }
-}
-
 if (!is_array($shareButtons) || empty($shareButtons)) {
   $shareButtons = $defaultButtons;
 } else {
@@ -74,7 +58,7 @@ if (!is_array($shareButtons) || empty($shareButtons)) {
         }
      }">
 
-  <form method="post" @submit="setTimeout(() => isSubmitting = true, 10)">
+  <form method="post" class="warn-on-unsaved" @submit="setTimeout(() => isSubmitting = true, 10)">
     <input type="hidden" name="csrf_token" value="<?= h(generate_csrf_token()) ?>">
     <input type="hidden" name="action" value="update_integration">
 

@@ -54,14 +54,12 @@ document.addEventListener('DOMContentLoaded', () => {
         let result = escapeHtml(text || '');
         if (!keywords || keywords.length === 0) return result;
 
-        // 検索キーワード内の正規表現メタ文字をエスケープしてエラーを防ぐ
         const escapeRegExp = (string) => string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
         keywords.forEach((kw) => {
           if (!kw) return;
           const escapedKw = escapeRegExp(escapeHtml(kw));
           const regex = new RegExp(`(${escapedKw})`, 'gi');
-          // Tailwindクラスを使用してハイライト
           result = result.replace(regex, '<mark class="bg-yellow-200 text-gray-900 rounded-sm px-0.5">$1</mark>');
         });
         return result;

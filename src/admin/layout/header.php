@@ -166,10 +166,10 @@ $lang = grinds_detect_language();
   <?php require __DIR__ . '/assets_loader.php'; ?>
 
   <?php if ($load_flatpickr): ?>
-    <?php if (get_option('disable_external_assets') && file_exists(ROOT_PATH . '/assets/js/vendor/flatpickr.min.js') && file_exists(ROOT_PATH . '/assets/css/vendor/flatpickr.min.css')): ?>
+    <?php if (file_exists(ROOT_PATH . '/assets/js/vendor/flatpickr.min.js') && file_exists(ROOT_PATH . '/assets/css/vendor/flatpickr.min.css')): ?>
       <link rel="stylesheet" href="<?= grinds_asset_url('assets/css/vendor/flatpickr.min.css') ?>">
       <script src="<?= grinds_asset_url('assets/js/vendor/flatpickr.min.js') ?>"></script>
-      <?php if ($lang === 'ja'): ?>
+      <?php if ($lang === 'ja' && file_exists(ROOT_PATH . '/assets/js/vendor/flatpickr_ja.js')): ?>
         <script src="<?= grinds_asset_url('assets/js/vendor/flatpickr_ja.js') ?>"></script>
       <?php endif; ?>
     <?php else: ?>
@@ -204,6 +204,28 @@ $lang = grinds_detect_language();
       more: <?= json_encode(_t('more'), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNESCAPED_UNICODE) ?>
     };
     window.grindsTrans = window.grindsTranslations;
+
+    window.scrollLockCount = window.scrollLockCount || 0;
+    window.toggleScrollLock = function(isLocked) {
+      if (isLocked) {
+        window.scrollLockCount++;
+        if (window.scrollLockCount === 1) {
+          document.body.dataset.scrollY = window.scrollY;
+          document.body.style.top = `-${window.scrollY}px`;
+          document.body.classList.add('fixed', 'w-full', 'overflow-hidden');
+        }
+      } else {
+        window.scrollLockCount = Math.max(0, window.scrollLockCount - 1);
+        if (window.scrollLockCount === 0) {
+          document.body.classList.remove('fixed', 'w-full', 'overflow-hidden');
+          document.body.style.top = '';
+          if (document.body.dataset.scrollY) {
+            window.scrollTo(0, parseInt(document.body.dataset.scrollY));
+            delete document.body.dataset.scrollY;
+          }
+        }
+      }
+    };
   </script>
   <script src="<?= grinds_asset_url('assets/js/admin_list_actions.js') ?>" defer></script>
 

@@ -27,10 +27,10 @@ if (!defined('GRINDS_APP')) exit; ?>
   </div>
   <div class="flex-1 space-y-2 w-full">
     <div class="flex sm:flex-row flex-col gap-2">
-      <input type="text" x-model="block.data.name" class="font-bold form-control-sm flex-1" placeholder="<?= _t('ph_author_name') ?>">
-      <input type="text" x-model="block.data.role" class="form-control-sm flex-1" placeholder="<?= _t('ph_author_role') ?>">
+      <input type="text" x-model="block.data.name" :id="'block-' + block.id + '-name'" class="font-bold form-control-sm flex-1" placeholder="<?= _t('ph_author_name') ?>">
+      <input type="text" x-model="block.data.role" :id="'block-' + block.id + '-role'" class="form-control-sm flex-1" placeholder="<?= _t('ph_author_role') ?>">
     </div>
-    <textarea x-model="block.data.bio" rows="2" class="form-control-sm w-full text-xs" placeholder="<?= _t('ph_bio') ?>"></textarea>
-    <input type="text" x-model="block.data.link" class="form-control-sm w-full font-mono text-xs" placeholder="<?= _t('ph_sns_link') ?>">
+    <textarea x-model="block.data.bio" :id="'block-' + block.id + '-bio'" rows="2" class="form-control-sm w-full text-xs" placeholder="<?= _t('ph_bio') ?>"></textarea>
+    <input type="text" x-model="block.data.link" :id="'block-' + block.id + '-link'" @blur="block.data.link = normalizeUrl(block.data.link)" class="form-control-sm w-full font-mono text-xs" placeholder="<?= _t('ph_sns_link') ?>">
   </div>
 </div>

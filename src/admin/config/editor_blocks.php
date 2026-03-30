@@ -196,7 +196,7 @@ $config = [
           'label' => _t('blk_image'),
           'icon'  => 'outline-photo',
           'desc'  => _t('desc_image'),
-          'default' => ['url' => '', 'caption' => '', 'alt' => '']
+          'default' => ['url' => '', 'caption' => '', 'alt' => '', 'width' => 100]
         ],
         'gallery' => [
           'label' => _t('blk_gallery'),

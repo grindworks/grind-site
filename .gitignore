@@ -4,7 +4,7 @@
 
 # 📦 Dependencies
 node_modules/
-vendor/
+/vendor/
 
 # 🔐 Environment & Secrets
 .env

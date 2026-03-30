@@ -579,7 +579,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $key = str_replace('custom_skin_', '', $postKey);
 
             if (in_array($key, $colorDefKeys, true)) {
-              $cKey = str_replace('_', '-', $key); // Convert to JSON key (e.g. on-primary)
+              $cKey = $key; // Keep underscore consistently
               if (!isset($skinData['colors'])) $skinData['colors'] = [];
               $skinData['colors'][$cKey] = trim((string)$postVal);
             } else {
@@ -644,7 +644,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           grinds_recursive_copy(ROOT_PATH . '/theme/' . $srcTheme, ROOT_PATH . '/theme/' . $newTheme);
 
           // Verify copy
-          if (!file_exists(ROOT_PATH . '/theme/' . $newTheme . '/layout.php')) {
+          if (!is_dir(ROOT_PATH . '/theme/' . $newTheme)) {
             throw new Exception('Theme copy failed: Destination incomplete.');
           }
 
@@ -710,6 +710,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           }
           // Update session
           $_SESSION['user_avatar'] = $avatar;
+          $_SESSION['admin_layout'] = $adminLayout;
+          $_SESSION['admin_skin'] = $adminSkin;
           $pdo->commit();
         } catch (Exception $e) {
           if ($pdo->inTransaction()) {
@@ -1139,67 +1141,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         break;
 
-      // Regenerate DB Filename
-      case 'regenerate_db_filename':
-        $redirectTab = 'system';
-
-        $currentDbFile = grinds_get_db_path();
-        if (!file_exists($currentDbFile)) {
-          throw new Exception('Current database file not found.');
-        }
-
-        $configFile = ROOT_PATH . '/config.php';
-        if (!is_writable($configFile)) {
-          throw new Exception(function_exists('_t') ? _t('err_config_not_writable') : 'config.php is not writable.');
-        }
-
-        // Flush WAL to DB before renaming
-        try {
-          $pdo->exec("PRAGMA wal_checkpoint(TRUNCATE);");
-        } catch (Exception $e) {
-        }
-
-        // Disconnect PDO to release file locks on Windows
-        $pdo = null;
-        if (class_exists('App')) {
-          App::bind('db', null);
-        }
-        if (function_exists('gc_collect_cycles')) gc_collect_cycles();
-        usleep(500000);
-
-        // Generate unpredictable new filename
-        $newFilename = 'grinds_' . bin2hex(random_bytes(16)) . '.db';
-        $newDbPath = dirname($currentDbFile) . '/' . $newFilename;
-
-        $configContent = file_get_contents($configFile);
-
-        // Remove existing DB_FILENAME definition in config.php
-        $newConfigContent = preg_replace(
-          '/(?:if\s*\(!defined\(\s*[\'"]DB_FILENAME[\'"]\s*\)\s*\)\s*)?define\(\s*[\'"]DB_FILENAME[\'"]\s*,\s*[\'"][^\'"]+[\'"]\s*\)\s*;\s*/i',
-          '',
-          $configContent
-        );
-
-        // Replace DB_FILE definition with new format using DB_FILENAME
-        $newConfigContent = preg_replace(
-          '/(if\s*\(!defined\(\s*[\'"]DB_FILE[\'"]\s*\)\s*\)\s*)?define\(\s*[\'"]DB_FILE[\'"]\s*,\s*[^)]+\)\s*;/i',
-          "if (!defined('DB_FILENAME')) define('DB_FILENAME', '{$newFilename}');\nif (!defined('DB_FILE')) define('DB_FILE', __DIR__ . '/data/' . DB_FILENAME);",
-          $newConfigContent
-        );
-
-        if ($newConfigContent !== $configContent && @rename($currentDbFile, $newDbPath)) {
-          // Rename associated WAL and SHM files
-          if (file_exists($currentDbFile . '-wal')) @rename($currentDbFile . '-wal', $newDbPath . '-wal');
-          if (file_exists($currentDbFile . '-shm')) @rename($currentDbFile . '-shm', $newDbPath . '-shm');
-
-          file_put_contents($configFile, $newConfigContent);
-
-          set_flash(function_exists('_t') ? _t('msg_saved') . ' (DB Renamed)' : 'Database renamed successfully.');
-        } else {
-          throw new Exception('Failed to rename database file or update config.php.');
-        }
-        break;
-
       case 'clear_all_cache':
         $redirectTab = 'system';
         if (function_exists('clear_page_cache')) {
@@ -1324,7 +1265,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Redirect
     redirect('admin/settings.php?tab=' . $redirectTab);
   } catch (Exception $e) {
-    $error = $e->getMessage();
+    $msg = $e->getMessage();
+    // Check for unique constraint violation from DB
+    if (stripos($msg, 'UNIQUE constraint failed') !== false || stripos($msg, 'Duplicate entry') !== false) {
+      $error = _t('err_duplicate_entry');
+    } else {
+      $error = $msg;
+    }
+
     if (!isset($pdo) || $pdo === null) {
       // Reconnect DB
       $pdo = grinds_db_connect();

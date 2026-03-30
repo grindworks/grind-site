@@ -27,7 +27,7 @@ if (!defined('GRINDS_APP')) exit; ?>
         <!-- Limit -->
         <div>
             <label class="block opacity-70 mb-1 font-bold text-theme-text text-[10px]"><?= _t('lbl_grid_limit') ?></label>
-            <input type="number" x-model="block.data.limit" min="1" max="100" class="form-control-sm w-full">
+            <input type="number" x-model="block.data.limit" :id="'block-' + block.id + '-limit'" min="1" max="100" class="form-control-sm w-full">
         </div>
 
         <!-- Category -->

@@ -21,7 +21,7 @@ if (!defined('GRINDS_APP')) exit; ?>
 
   <div>
     <label class="block opacity-70 mb-1 font-bold text-theme-text text-[10px]"><?= _t('lbl_math_code') ?></label>
-    <textarea x-model="block.data.code" rows="4" class="w-full font-mono text-xs form-control-sm" placeholder="<?= _t('ph_math_code') ?>"></textarea>
+    <textarea x-model="block.data.code" :id="'block-' + block.id + '-code'" rows="4" class="w-full font-mono text-xs form-control-sm" placeholder="<?= _t('ph_math_code') ?>"></textarea>
   </div>
 
   <div class="mt-2 space-y-1">

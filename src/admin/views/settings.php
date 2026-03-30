@@ -20,6 +20,7 @@ if ($latestVersion && version_compare($latestVersion, CMS_VERSION, '>')) {
 ?>
 
 <script src="<?= grinds_asset_url('assets/js/admin_settings.js') ?>"></script>
+<script src="<?= grinds_asset_url('assets/js/admin_form_unsaved.js') ?>"></script>
 <script>
   window.grindsSettingsData = {
     activeTab: <?= json_encode($init_tab) ?>,

@@ -123,5 +123,5 @@ try {
     ]
   ]);
 } catch (Exception $e) {
-  json_response(['success' => false, 'error' => $e->getMessage()]);
+  json_response(['success' => false, 'error' => $e->getMessage()], 500);
 }

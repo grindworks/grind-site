@@ -18,7 +18,7 @@ if (!isset($myUser)) {
 
 ?>
 <div class="space-y-6 bg-theme-surface shadow-theme p-4 sm:p-6 border border-theme-border rounded-theme">
-  <form method="post" enctype="multipart/form-data" x-data="{
+  <form method="post" enctype="multipart/form-data" class="warn-on-unsaved" x-data="{
     isSubmitting: false,
     avatarPreview: <?= htmlspecialchars(json_encode(get_media_url($myUser['avatar'] ?? '')), ENT_QUOTES) ?>,
     fileName: ''
@@ -140,12 +140,14 @@ if (!isset($myUser)) {
           </div>
 
           <div class="gap-4 grid grid-cols-1 sm:grid-cols-2">
-            <div class="block" x-data="{ show: false }">
+            <div class="block" x-data="{ show: false, pass: '', reqLength: false, reqLetter: false, reqNumber: false }">
               <label for="new_password" class="block opacity-70 mb-1 font-bold text-theme-text text-xs">
                 <?= _t('st_new_password') ?>
               </label>
               <div class="relative">
-                <input :type="show ? 'text' : 'password'" name="new_password" id="new_password" class="font-mono pr-10 text-sm form-control"
+                <input :type="show ? 'text' : 'password'" name="new_password" id="new_password" x-model="pass"
+                  @input="reqLength = pass.length >= 8; reqLetter = /[a-zA-Z]/.test(pass); reqNumber = /[0-9]/.test(pass);"
+                  class="font-mono pr-10 text-sm form-control"
                   placeholder="<?= _t('ph_pass_8_chars') ?>" autocomplete="new-password">
                 <button type="button" @click="show = !show"
                   class="right-0 absolute inset-y-0 flex items-center opacity-50 hover:opacity-100 px-3 focus:outline-none text-theme-text">
@@ -157,6 +159,26 @@ if (!isset($myUser)) {
                   </svg>
                 </button>
               </div>
+              <ul class="mt-2 text-[10px] space-y-1" x-show="pass.length > 0" x-cloak>
+                <li class="flex items-center gap-1 transition-colors" :class="reqLength ? 'text-theme-success' : 'text-theme-danger'">
+                  <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" :d="reqLength ? 'M5 13l4 4L19 7' : 'M6 18L18 6M6 6l12 12'" />
+                  </svg>
+                  8+ Characters
+                </li>
+                <li class="flex items-center gap-1 transition-colors" :class="reqLetter ? 'text-theme-success' : 'text-theme-danger'">
+                  <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" :d="reqLetter ? 'M5 13l4 4L19 7' : 'M6 18L18 6M6 6l12 12'" />
+                  </svg>
+                  Includes Letter
+                </li>
+                <li class="flex items-center gap-1 transition-colors" :class="reqNumber ? 'text-theme-success' : 'text-theme-danger'">
+                  <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" :d="reqNumber ? 'M5 13l4 4L19 7' : 'M6 18L18 6M6 6l12 12'" />
+                  </svg>
+                  Includes Number
+                </li>
+              </ul>
             </div>
 
             <div class="block" x-data="{ show: false }">

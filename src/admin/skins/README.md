@@ -29,7 +29,7 @@ Skin files are written in JSON format.
   "colors": {
     "bg": "#1e293b",
     "primary": "#3b82f6",
-    "on-primary": "#ffffff"
+    "on_primary": "#ffffff"
   },
   "rounded": "0.5rem",
   "effects": ["btn_lift", "input_glow_modern"],
@@ -80,7 +80,7 @@ Define colors for various UI parts within the `colors` object.
 | `sidebar_active_text`                     | Text color of the active menu item        |
 | **Brand Colors**                          |                                           |
 | `primary`                                 | Main color (Primary buttons, links)       |
-| `on-primary`                              | Text color on top of the primary color    |
+| `on_primary`                              | Text color on top of the primary color    |
 | `secondary`                               | Secondary color                           |
 | `danger` / `warning` / `success` / `info` | Colors representing various status states |
 | **Forms**                                 |                                           |
@@ -101,11 +101,11 @@ Define colors for various UI parts within the `colors` object.
 
 #### Advanced Settings (Optional)
 
-| Key | Description | Example |
-| :--- | :--- | :--- |
-| `is_dark` | Force dark mode detection (Boolean). Auto-calculated if omitted. | `true` |
-| `is_sidebar_dark` | Force sidebar dark mode (Boolean). Auto-calculated if omitted. | `true` |
-| `ai_paste` | Custom styling for the "AI Smart Paste" upload area. | `{"bg_start": "#1e293b", ...}` |
+| Key               | Description                                                      | Example                        |
+| :---------------- | :--------------------------------------------------------------- | :----------------------------- |
+| `is_dark`         | Force dark mode detection (Boolean). Auto-calculated if omitted. | `true`                         |
+| `is_sidebar_dark` | Force sidebar dark mode (Boolean). Auto-calculated if omitted.   | `true`                         |
+| `ai_paste`        | Custom styling for the "AI Smart Paste" upload area.             | `{"bg_start": "#1e293b", ...}` |
 
 ### Effects
 
@@ -124,7 +124,7 @@ If you use the following effects, you must load the corresponding font via `font
 
 ### Tips
 
-- **Color Contrast:** Ensure a high contrast between background and text colors (e.g., `primary` vs. `on-primary`) for better accessibility.
+- **Color Contrast:** Ensure a high contrast between background and text colors (e.g., `primary` vs. `on_primary`) for better accessibility.
 - **CSS Units:** Use valid CSS units such as `px`, `rem`, or `em` for size definitions.
 - **JSON Syntax:** Be careful with syntax errors; trailing commas are **not** allowed in standard JSON files.
 
@@ -155,7 +155,7 @@ If you use the following effects, you must load the corresponding font via `font
   "colors": {
     "bg": "#1e293b",
     "primary": "#3b82f6",
-    "on-primary": "#ffffff"
+    "on_primary": "#ffffff"
   },
   "rounded": "0.5rem",
   "effects": ["btn_lift", "input_glow_modern"],
@@ -206,7 +206,7 @@ If you use the following effects, you must load the corresponding font via `font
 | `sidebar_active_text`                     | 選択中のメニュー文字色         |
 | **ブランドカラー**                        |                                |
 | `primary`                                 | メインカラー（主要なボタン等） |
-| `on-primary`                              | メインカラー上の文字色         |
+| `on_primary`                              | メインカラー上の文字色         |
 | `secondary`                               | サブカラー                     |
 | `danger` / `warning` / `success` / `info` | 各状態を表す色                 |
 | **入力フォーム**                          |                                |
@@ -227,11 +227,11 @@ If you use the following effects, you must load the corresponding font via `font
 
 #### 高度な設定（オプション）
 
-| キー | 説明 | 例 |
-| :--- | :--- | :--- |
-| `is_dark` | ダークモードの強制指定 (Boolean)。省略時は背景色から自動判定。| `true` |
-| `is_sidebar_dark` | サイドバーのダークモード強制指定 (Boolean)。自動判定あり。| `true` |
-| `ai_paste` | 「スマートペースト (AI取込)」エリアの独自スタイル設定。 | `{"bg_start": "#1e293b", ...}` |
+| キー              | 説明                                                           | 例                             |
+| :---------------- | :------------------------------------------------------------- | :----------------------------- |
+| `is_dark`         | ダークモードの強制指定 (Boolean)。省略時は背景色から自動判定。 | `true`                         |
+| `is_sidebar_dark` | サイドバーのダークモード強制指定 (Boolean)。自動判定あり。     | `true`                         |
+| `ai_paste`        | 「スマートペースト (AI取込)」エリアの独自スタイル設定。        | `{"bg_start": "#1e293b", ...}` |
 
 ### Effects (エフェクト)
 
@@ -250,6 +250,6 @@ If you use the following effects, you must load the corresponding font via `font
 
 ### ヒント
 
-- **色のコントラスト**: `primary` と `on-primary` のように、背景色と文字色の組み合わせは視認性を考慮して設定してください。
+- **色のコントラスト**: `primary` と `on_primary` のように、背景色と文字色の組み合わせは視認性を考慮して設定してください。
 - **CSS 単位**: サイズ指定には `px`, `rem`, `em` などの有効な CSS 単位を使用してください。
 - **JSON 構文**: JSON ファイルでは末尾のカンマ（trailing comma）は許容されないため注意してください。

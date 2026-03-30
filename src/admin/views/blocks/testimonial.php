@@ -25,13 +25,16 @@ if (!defined('GRINDS_APP')) exit; ?>
     </div>
     <!-- Content inputs -->
     <div class="flex-1 space-y-3 w-full">
-      <textarea x-model="block.data.comment" rows="4" class="w-full text-sm form-control-sm" placeholder="<?= _t('ph_comment') ?>"></textarea>
+      <textarea x-model="block.data.comment" :id="'block-' + block.id + '-comment'" rows="2"
+        x-init="$nextTick(() => { $el.style.height = 'auto'; $el.style.height = $el.scrollHeight + 'px' })"
+        @input="$el.style.height = 'auto'; $el.style.height = $el.scrollHeight + 'px'"
+        class="w-full text-sm form-control-sm resize-none overflow-hidden" placeholder="<?= _t('ph_comment') ?>"></textarea>
       <div class="flex sm:flex-row flex-col gap-3">
         <div class="flex-1">
-          <input type="text" x-model="block.data.name" class="w-full font-bold text-xs form-control-sm" placeholder="<?= _t('ph_name') ?>">
+          <input type="text" x-model="block.data.name" :id="'block-' + block.id + '-name'" class="w-full font-bold text-xs form-control-sm" placeholder="<?= _t('ph_name') ?>">
         </div>
         <div class="flex-1">
-          <input type="text" x-model="block.data.role" class="w-full text-xs form-control-sm" placeholder="<?= _t('ph_role') ?>">
+          <input type="text" x-model="block.data.role" :id="'block-' + block.id + '-role'" class="w-full text-xs form-control-sm" placeholder="<?= _t('ph_role') ?>">
         </div>
       </div>
     </div>

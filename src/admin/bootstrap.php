@@ -28,7 +28,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (function_exists('is_ajax_request') && is_ajax_request()) {
       json_response(['success' => false, 'error' => $msg], 413);
     } else {
-      die('Error: ' . htmlspecialchars($msg));
+      set_flash($msg, 'error');
+      $fallback = defined('BASE_URL') ? rtrim(BASE_URL, '/') . '/admin/' : 'index.php';
+      $referer = $_SERVER['HTTP_REFERER'] ?? $fallback;
+      header("Location: " . $referer);
+      exit;
     }
   }
 }

@@ -34,7 +34,17 @@ if (!defined('GRINDS_APP')) exit;
 
     <div class="px-6 md:px-10 pb-10">
         <!-- Render table of contents -->
-        <?php if (!empty($pageData['post']['show_toc'])): ?>
+        <?php
+        $hasTocBlock = false;
+        $blocks = $pageData['post']['content_decoded']['blocks'] ?? [];
+        foreach ($blocks as $block) {
+            if (($block['type'] ?? '') === 'toc') {
+                $hasTocBlock = true;
+                break;
+            }
+        }
+        ?>
+        <?php if (!empty($pageData['post']['show_toc']) && !$hasTocBlock): ?>
             <?php $headers = get_post_toc($pageData['post']['content_decoded'] ?? []); ?>
             <?php if (!empty($headers)): ?>
                 <details open class="mb-10 p-6 bg-gray-50 border border-gray-200 rounded-lg">

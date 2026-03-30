@@ -39,15 +39,16 @@ $il_colors = $block_config['library']['design']['items']['icon_list']['colors'] 
 
   <!-- Render items -->
   <div class="space-y-2 pl-1">
-    <template x-for="(item, i) in block.data.items">
+    <template x-for="(item, i) in block.data.items" :key="i">
       <div class="group/item flex items-start gap-2">
         <div class="mt-2 shrink-0 transition-colors" :class="(colors[block.data.color] || {}).class">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <use :href="'<?= grinds_asset_url('assets/img/sprite.svg') ?>#' + (icons[block.data.icon] ? icons[block.data.icon].svg : 'outline-check')"></use>
           </svg>
         </div>
-        <!-- Handle text input -->
-        <input type="text" x-model="block.data.items[i]" class="flex-1 bg-transparent py-1.5 border-theme-border focus:border-theme-primary border-b focus:outline-none text-theme-text text-sm placeholder-theme-text/30" placeholder="<?= _t('ph_enter_text') ?>" @keydown.enter.prevent="block.data.items.splice(i+1, 0, ''); $nextTick(() => { $el.closest('.space-y-2').querySelectorAll('input[type=text]')[i+1]?.focus() })">
+        <input type="text" x-model="block.data.items[i]" :id="'block-' + block.id + '-item-' + i" class="flex-1 bg-transparent py-1.5 border-theme-border focus:border-theme-primary border-b focus:outline-none text-theme-text text-sm placeholder-theme-text/30" placeholder="<?= _t('ph_enter_text') ?>"
+          @keydown.enter.prevent="if(!$event.isComposing) { block.data.items.splice(i+1, 0, ''); $nextTick(() => { $el.closest('.space-y-2').querySelectorAll('input[type=text]')[i+1]?.focus() }) }"
+          @keydown.backspace="if(!$event.isComposing && block.data.items[i] === '' && block.data.items.length > 1) { $event.preventDefault(); block.data.items.splice(i, 1); $nextTick(() => { $el.closest('.space-y-2').querySelectorAll('input[type=text]')[Math.max(0, i-1)]?.focus() }) }">
         <!-- Remove item -->
         <button type="button" @click="block.data.items.splice(i, 1)" class="opacity-40 hover:opacity-100 mt-0.5 p-2 min-w-[40px] min-h-[40px] flex items-center justify-center text-xl text-theme-text hover:text-theme-danger transition-opacity" x-show="block.data.items.length > 1">&times;</button>
       </div>

@@ -34,7 +34,7 @@ if (!isset($skin) || !is_array($skin)) {
 <script src="<?= grinds_asset_url('assets/js/media_manager.js') ?>"></script>
 
 <div class="flex flex-col gap-4 mb-6" x-data="{ ...mediaManager(), dragCount: 0 }" x-init="init()"
-  x-effect="document.body.style.overflow = detailModalOpen ? 'hidden' : ''"
+  x-effect="window.toggleScrollLock(detailModalOpen)"
   @dragenter.prevent="dragCount++; isDragging = true"
   @dragleave.prevent="dragCount--; if (dragCount === 0) isDragging = false"
   @dragover.prevent=""
@@ -274,6 +274,22 @@ if (!isset($skin) || !is_array($skin)) {
       </select>
     </div>
 
+    <!-- Active Filters Display (Chips) -->
+    <div x-show="activeFilters.length > 0" class="flex flex-wrap items-center gap-2 pt-3 border-theme-border border-t" style="display: none;" x-transition x-cloak>
+      <span class="text-xs text-theme-text opacity-70 font-bold">
+        <?= _t('active_filters') ?? 'Filter:' ?>
+      </span>
+      <template x-for="filter in activeFilters" :key="filter.type">
+        <span class="flex items-center gap-1 bg-theme-primary/10 px-2 py-0.5 border border-theme-primary/20 rounded-theme text-xs text-theme-primary font-bold">
+          <span x-text="filter.label"></span>
+          <button type="button" @click="clearFilter(filter.type)" class="focus:outline-none hover:text-theme-danger p-0.5 -mr-1" aria-label="<?= h(_t('remove') ?? 'Remove') ?>">&times;</button>
+        </span>
+      </template>
+      <button type="button" @click="clearFilter('all')" class="text-xs text-theme-text opacity-60 hover:opacity-100 hover:underline ml-1">
+        <?= _t('clear_all') ?? 'Clear all' ?>
+      </button>
+    </div>
+
     <!-- Select All + Bulk Actions -->
     <div class="flex flex-wrap justify-between items-center gap-3 pt-3 border-theme-border border-t">
       <label class="flex items-center gap-2 cursor-pointer select-none">
@@ -311,6 +327,9 @@ if (!isset($skin) || !is_array($skin)) {
       style="display: none;" x-transition>
       <p class="font-bold text-2xl pointer-events-none">
         <?= _t('media_drop_hint') ?>
+      </p>
+      <p class="text-sm opacity-80 mt-2 font-bold pointer-events-none" x-show="window.grindsUploadMax">
+        <span x-text="'Max: ' + Math.max(1, Math.floor(window.grindsUploadMax / 1048576)) + 'MB'"></span>
       </p>
     </div>
 
@@ -520,6 +539,9 @@ if (!isset($skin) || !is_array($skin)) {
       </h3>
       <p class="text-sm text-theme-text opacity-60">
         <?= _t('media_drop_hint') ?>
+      </p>
+      <p class="text-[10px] text-theme-text opacity-40 mt-1 font-mono" x-show="window.grindsUploadMax">
+        <span x-text="'Max: ' + Math.max(1, Math.floor(window.grindsUploadMax / 1048576)) + 'MB'"></span>
       </p>
     </div>
 

@@ -37,7 +37,10 @@ if (!defined('GRINDS_APP'))
          try {
            const baseUrl = (window.grindsBaseUrl || '').replace(/\/$/, '');
            const res = await fetch(`${baseUrl}/admin/api/post_search.php?q=${encodeURIComponent(this.keyword)}`);
-           if (res.ok) {
+           if (res.status === 401) {
+             this.handleSessionExpiry();
+             this.results = [];
+           } else if (res.ok) {
              this.results = await res.json();
            } else {
              this.results = [];
@@ -54,7 +57,9 @@ if (!defined('GRINDS_APP'))
          try {
            const baseUrl = (window.grindsBaseUrl || '').replace(/\/$/, '');
            const res = await fetch(`${baseUrl}/admin/api/post_search.php?q=${encodeURIComponent(id)}`);
-           if (res.ok) {
+           if (res.status === 401) {
+             this.handleSessionExpiry();
+           } else if (res.ok) {
              const data = await res.json();
              const list = Array.isArray(data) ? data : (data.data || []);
              const match = list.find(p => String(p.id) === String(id));
@@ -88,7 +93,7 @@ if (!defined('GRINDS_APP'))
 
   <div class="relative">
     <div class="relative">
-      <input type="text" x-model="keyword" @input.debounce.300ms="performSearch()"
+      <input type="text" x-model="keyword" :id="'block-' + block.id + '-keyword'" @input.debounce.300ms="performSearch()"
         @focus="if(keyword && results.length > 0) searching = true" class="w-full text-xs form-control-sm pr-8"
         placeholder="<?= _t('ph_type_to_search') ?>...">
       <div x-show="loading" class="absolute right-2 top-1/2 -translate-y-1/2 text-theme-text opacity-50" x-cloak>

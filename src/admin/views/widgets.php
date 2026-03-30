@@ -47,7 +47,7 @@ $csrf_token = generate_csrf_token();
 </script>
 
 <div class="relative flex lg:flex-row flex-col gap-8"
-  x-effect="document.body.style.overflow = mobileFormOpen ? 'hidden' : ''"
+  x-effect="window.toggleScrollLock(mobileFormOpen)"
   x-data='{
     mobileFormOpen: <?= $edit_id ? 'true' : 'false' ?>,
     selectedType: <?= json_encode($edit_data['type'], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS) ?>,
@@ -69,15 +69,26 @@ $csrf_token = generate_csrf_token();
       </h2>
     </div>
 
-    <div class="flex sm:flex-row flex-col justify-between items-start sm:items-center gap-4 mb-4">
-      <!-- Theme filter. -->
-      <div class="flex items-center gap-2">
-        <label class="opacity-70 font-bold text-theme-text text-xs whitespace-nowrap"><?= _t('lbl_filter') ?></label>
-        <select onchange="filterWidgets(this.value)" class="bg-theme-surface py-1.5 pr-8 pl-3 border-theme-border w-auto text-theme-text text-xs cursor-pointer form-control-sm">
-          <?php foreach ($themes as $key => $label): ?>
-            <option value="<?= h($key) ?>"><?= h($label) ?></option>
-          <?php endforeach; ?>
-        </select>
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
+      <div class="flex flex-col sm:flex-row items-start sm:items-center gap-4 w-full sm:w-auto">
+        <!-- Search form. -->
+        <form method="get" action="widgets.php" class="relative w-full sm:w-auto">
+          <input type="text" name="q" value="<?= h($_GET['q'] ?? '') ?>" placeholder="<?= _t('search') ?>"
+            class="bg-theme-bg pl-8 border-theme-border w-full sm:w-48 focus:w-64 text-theme-text text-xs transition-all form-control-sm">
+          <svg class="top-1/2 left-2.5 absolute opacity-50 w-3.5 h-3.5 text-theme-text -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-magnifying-glass"></use>
+          </svg>
+        </form>
+
+        <!-- Theme filter. -->
+        <div class="flex items-center gap-2 w-full sm:w-auto">
+          <label class="opacity-70 font-bold text-theme-text text-xs whitespace-nowrap"><?= _t('lbl_filter') ?></label>
+          <select onchange="filterWidgets(this.value)" class="bg-theme-surface py-1.5 pr-8 pl-3 border-theme-border w-full sm:w-auto text-theme-text text-xs cursor-pointer form-control-sm">
+            <?php foreach ($themes as $key => $label): ?>
+              <option value="<?= h($key) ?>"><?= h($label) ?></option>
+            <?php endforeach; ?>
+          </select>
+        </div>
       </div>
 
       <!-- Bulk actions. -->
@@ -272,7 +283,7 @@ $csrf_token = generate_csrf_token();
           </svg></button>
       </div>
 
-      <form method="post" enctype="multipart/form-data" @submit.prevent="
+      <form method="post" enctype="multipart/form-data" class="warn-on-unsaved" @submit.prevent="
         setTimeout(() => isSubmitting = true, 10);
         if (selectedType === 'html') {
           const textarea = $el.querySelector('textarea[name=\'content\']');
@@ -403,7 +414,7 @@ $csrf_token = generate_csrf_token();
 
         <div class="flex gap-3 mt-8">
           <?php if ($edit_id): ?>
-            <a href="widgets.php" class="flex-1 py-2.5 rounded-theme text-sm text-center btn-secondary"><?= _t('cancel') ?></a>
+            <a href="widgets.php" class="js-skip-warning flex-1 py-2.5 rounded-theme text-sm text-center btn-secondary"><?= _t('cancel') ?></a>
           <?php else: ?>
             <button type="button" @click="mobileFormOpen = false" class="lg:hidden flex-1 py-2.5 rounded-theme text-sm text-center btn-secondary"><?= _t('cancel') ?></button>
           <?php endif; ?>
@@ -428,5 +439,6 @@ $csrf_token = generate_csrf_token();
   </div>
 </div>
 
+<script src="<?= grinds_asset_url('assets/js/admin_form_unsaved.js') ?>"></script>
 <script src="<?= grinds_asset_url('assets/js/media_manager.js') ?>"></script>
 <?php include __DIR__ . '/parts/media_picker.php'; ?>

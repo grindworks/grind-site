@@ -11,14 +11,16 @@ $proscons_styles = $block_config['library']['marketing']['items']['proscons']['s
       <svg class="w-5 h-5 text-theme-success" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-face-smile"></use>
       </svg>
-      <input type="text" x-model="block.data.pros_title" class="bg-transparent p-1 focus:outline-none w-full font-bold text-inherit text-sm placeholder-current/50" placeholder="<?= _t('lbl_pros_title') ?>">
+      <input type="text" x-model="block.data.pros_title" :id="'block-' + block.id + '-pros_title'" class="bg-transparent p-1 focus:outline-none w-full font-bold text-inherit text-sm placeholder-current/50" placeholder="<?= _t('lbl_pros_title') ?>">
     </div>
     <div class="space-y-2">
       <!-- Loop pros -->
-      <template x-for="(item, i) in block.data.pros_items">
+      <template x-for="(item, i) in block.data.pros_items" :key="i">
         <div class="group/item flex items-center gap-2">
           <span class="text-theme-success">✔</span>
-          <input type="text" x-model="block.data.pros_items[i]" class="flex-1 border border-theme-success/30 focus:border-theme-success form-control-sm" placeholder="<?= _t('ph_pros_item') ?>" @keydown.enter.prevent="block.data.pros_items.splice(i+1, 0, ''); $nextTick(() => { $el.closest('.space-y-2').querySelectorAll('input[type=text]')[i+1]?.focus() })">
+          <input type="text" x-model="block.data.pros_items[i]" :id="'block-' + block.id + '-pros_item-' + i" class="flex-1 border border-theme-success/30 focus:border-theme-success form-control-sm" placeholder="<?= _t('ph_pros_item') ?>"
+            @keydown.enter.prevent="if(!$event.isComposing) { block.data.pros_items.splice(i+1, 0, ''); $nextTick(() => { $el.closest('.space-y-2').querySelectorAll('input[type=text]')[i+1]?.focus() }) }"
+            @keydown.backspace="if(!$event.isComposing && block.data.pros_items[i] === '' && block.data.pros_items.length > 1) { $event.preventDefault(); block.data.pros_items.splice(i, 1); $nextTick(() => { $el.closest('.space-y-2').querySelectorAll('input[type=text]')[Math.max(0, i-1)]?.focus() }) }">
           <button type="button" @click="block.data.pros_items.splice(i, 1)" class="px-1 text-theme-success/50 hover:text-theme-success transition-colors" x-show="block.data.pros_items.length > 1">&times;</button>
         </div>
       </template>
@@ -38,14 +40,16 @@ $proscons_styles = $block_config['library']['marketing']['items']['proscons']['s
       <svg class="w-5 h-5 text-theme-danger" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-face-frown"></use>
       </svg>
-      <input type="text" x-model="block.data.cons_title" class="bg-transparent p-1 focus:outline-none w-full font-bold text-inherit text-sm placeholder-current/50" placeholder="<?= _t('lbl_cons_title') ?>">
+      <input type="text" x-model="block.data.cons_title" :id="'block-' + block.id + '-cons_title'" class="bg-transparent p-1 focus:outline-none w-full font-bold text-inherit text-sm placeholder-current/50" placeholder="<?= _t('lbl_cons_title') ?>">
     </div>
     <div class="space-y-2">
       <!-- Loop cons -->
-      <template x-for="(item, i) in block.data.cons_items">
+      <template x-for="(item, i) in block.data.cons_items" :key="i">
         <div class="group/item flex items-center gap-2">
           <span class="text-theme-danger">✖</span>
-          <input type="text" x-model="block.data.cons_items[i]" class="flex-1 border border-theme-danger/30 focus:border-theme-danger form-control-sm" placeholder="<?= _t('ph_cons_item') ?>" @keydown.enter.prevent="block.data.cons_items.splice(i+1, 0, ''); $nextTick(() => { $el.closest('.space-y-2').querySelectorAll('input[type=text]')[i+1]?.focus() })">
+          <input type="text" x-model="block.data.cons_items[i]" :id="'block-' + block.id + '-cons_item-' + i" class="flex-1 border border-theme-danger/30 focus:border-theme-danger form-control-sm" placeholder="<?= _t('ph_cons_item') ?>"
+            @keydown.enter.prevent="if(!$event.isComposing) { block.data.cons_items.splice(i+1, 0, ''); $nextTick(() => { $el.closest('.space-y-2').querySelectorAll('input[type=text]')[i+1]?.focus() }) }"
+            @keydown.backspace="if(!$event.isComposing && block.data.cons_items[i] === '' && block.data.cons_items.length > 1) { $event.preventDefault(); block.data.cons_items.splice(i, 1); $nextTick(() => { $el.closest('.space-y-2').querySelectorAll('input[type=text]')[Math.max(0, i-1)]?.focus() }) }">
           <button type="button" @click="block.data.cons_items.splice(i, 1)" class="px-1 text-theme-danger/50 hover:text-theme-danger transition-colors" x-show="block.data.cons_items.length > 1">&times;</button>
         </div>
       </template>

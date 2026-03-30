@@ -5,7 +5,7 @@ if (!defined('GRINDS_APP')) exit;
 $pb_colors = $block_config['library']['design']['items']['progress_bar']['colors'] ?? [];
 ?>
 <div class="space-y-4 bg-theme-bg/40 p-4 border border-theme-border rounded-theme"
-  x-init="if(!block.data.items) block.data.items =[{id: Math.random().toString(36).substr(2, 9), label:'Skill', percentage:80, color:'primary'}]; block.data.items.forEach(i => { if(!i.id) i.id = Math.random().toString(36).substr(2, 9); if(!i.color) i.color = 'primary'; })"
+  x-init="if(!block.data.items) block.data.items =[{id: generateId(), label:'Skill', percentage:80, color:'primary'}]; block.data.items.forEach(i => { if(!i.id) i.id = generateId(); if(!i.color) i.color = 'primary'; })"
   x-data="{ colors: <?= htmlspecialchars(json_encode($pb_colors), ENT_QUOTES) ?> }">
 
   <div class="space-y-3">
@@ -17,14 +17,14 @@ $pb_colors = $block_config['library']['design']['items']['progress_bar']['colors
           </svg>
         </button>
         <div class="flex items-center gap-3">
-          <input type="text" x-model="item.label" class="w-1/2 font-bold form-control-sm" placeholder="<?= _t('ph_skill_name') ?>">
+          <input type="text" x-model="item.label" :id="'block-' + block.id + '-item-' + i + '-label'" class="w-1/2 font-bold form-control-sm" placeholder="<?= _t('ph_skill_name') ?>">
           <select x-model="item.color" class="w-1/4 text-xs cursor-pointer form-control-sm">
             <?php foreach ($pb_colors as $key => $details): ?>
               <option value="<?= h($key) ?>"><?= h($details['label']) ?></option>
             <?php endforeach; ?>
           </select>
           <div class="flex items-center gap-2 w-1/4">
-            <input type="number" x-model="item.percentage" min="0" max="100" class="w-full text-center form-control-sm">
+            <input type="number" x-model="item.percentage" :id="'block-' + block.id + '-item-' + i + '-percentage'" min="0" max="100" class="w-full text-center form-control-sm">
             <span class="text-xs text-theme-text opacity-70">%</span>
           </div>
         </div>
@@ -34,5 +34,5 @@ $pb_colors = $block_config['library']['design']['items']['progress_bar']['colors
       </div>
     </template>
   </div>
-  <button type="button" @click="block.data.items.push({id: Math.random().toString(36).substr(2, 9), label:'', percentage:50, color:'primary'}); $nextTick(() => { $el.closest('.space-y-4').querySelectorAll('input[type=text]')[block.data.items.length-1]?.focus() })" class="w-full py-2 border-2 hover:border-theme-primary/50 border-dashed text-xs btn-secondary">+ <?= _t('btn_add_item') ?></button>
+  <button type="button" @click="block.data.items.push({id: generateId(), label:'', percentage:50, color:'primary'}); $nextTick(() => { $el.closest('.space-y-4').querySelectorAll('input[type=text]')[block.data.items.length-1]?.focus() })" class="w-full py-2 border-2 hover:border-theme-primary/50 border-dashed text-xs btn-secondary">+ <?= _t('btn_add_item') ?></button>
 </div>

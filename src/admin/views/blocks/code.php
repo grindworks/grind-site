@@ -14,9 +14,17 @@ if (!defined('GRINDS_APP')) exit; ?>
     <option value="plaintext">Plain Text</option>
   </select>
   <!-- Code content -->
-  <textarea x-model="block.data.code" rows="8"
-    class="w-full font-mono text-xs form-control-sm resize-y overflow-hidden min-h-[10rem]"
+  <textarea x-model="block.data.code" :id="'block-' + block.id + '-code'" rows="8"
+    class="w-full font-mono text-xs form-control-sm resize-y overflow-y-auto min-h-[10rem] max-h-[500px]"
     placeholder="<?= _t('ph_code') ?>"
     x-init="$nextTick(() => { $el.style.height = 'auto'; $el.style.height = $el.scrollHeight + 'px' })"
-    @input="$el.style.height = 'auto'; $el.style.height = $el.scrollHeight + 'px'"></textarea>
+    @input="$el.style.height = 'auto'; $el.style.height = $el.scrollHeight + 'px'"
+    @keydown.tab.prevent="
+        let start = $el.selectionStart;
+        let end = $el.selectionEnd;
+        block.data.code = block.data.code.substring(0, start) + '  ' + block.data.code.substring(end);
+        $nextTick(() => {
+            $el.selectionStart = $el.selectionEnd = start + 2;
+        });
+    "></textarea>
 </div>

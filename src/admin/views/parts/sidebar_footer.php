@@ -25,11 +25,7 @@ if (!isset($statusDot) && isset($sysStatus)) {
 
 <?php if (current_user_can('manage_settings')): ?>
     <?php if (!in_array($licStatus, ['pro', 'agency'])):
-        if ($licStatus === 'trial') {
-            $licenseWidgetClass = 'bg-theme-info/10 border-theme-info/30 hover:bg-theme-info/20';
-        } else {
-            $licenseWidgetClass = 'bg-theme-warning/10 border-theme-warning/30 hover:bg-theme-warning/20';
-        }
+        $licenseWidgetClass = 'bg-theme-info/10 border-theme-info/30 hover:bg-theme-info/20';
     ?>
         <a href="settings.php?tab=general"
             class="block p-3 rounded-theme border transition-colors group relative overflow-hidden <?= $licenseWidgetClass ?>">
@@ -37,34 +33,21 @@ if (!isset($statusDot) && isset($sysStatus)) {
                 <span class="opacity-70 font-bold text-[10px] tracking-widest">
                     <?= _t('license') ?>
                 </span>
-                <?php if ($licStatus === 'trial'): ?>
-                    <span class="flex items-center gap-1 font-bold text-theme-info text-xs"><svg class="w-3 h-3" fill="none"
-                            stroke="currentColor" viewBox="0 0 24 24">
-                            <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-beaker"></use>
-                        </svg>
-                        <?= _t('trial') ?>
-                    </span>
-                <?php
-                else: ?>
-                    <span class="flex items-center gap-1 font-bold text-theme-warning text-xs"><svg class="w-3 h-3" fill="none"
-                            stroke="currentColor" viewBox="0 0 24 24">
-                            <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-exclamation-triangle"></use>
-                        </svg>
-                        <?= _t('unregistered') ?>
-                    </span>
-                <?php
-                endif; ?>
+                <span class="flex items-center gap-1 font-bold text-theme-info text-xs"><svg class="w-3 h-3" fill="none"
+                        stroke="currentColor" viewBox="0 0 24 24">
+                        <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-key"></use>
+                    </svg>
+                    <?= _t('trial') ?>
+                </span>
             </div>
             <div class="opacity-80 text-[10px] leading-tight">
-                <?php if ($licStatus === 'trial'): ?><span class="text-theme-info">
+                <span class="text-theme-info">
+                    <?php if ($licStatus === 'trial'): ?>
                         <?= _t('license_trial_message') ?>
-                    </span>
-                <?php
-                else: ?><span class="text-theme-warning">
+                    <?php else: ?>
                         <?= _t('license_free_message') ?>
-                    </span>
-                <?php
-                endif; ?>
+                    <?php endif; ?>
+                </span>
             </div>
         </a>
     <?php

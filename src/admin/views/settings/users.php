@@ -249,7 +249,7 @@ if (!isset($userList)) {
       <?= _t('st_editor_perms_desc') ?>
     </p>
 
-    <form method="post">
+    <form method="post" class="warn-on-unsaved">
       <input type="hidden" name="csrf_token" value="<?= h(generate_csrf_token()) ?>">
       <input type="hidden" name="action" value="update_permissions">
 
@@ -407,7 +407,7 @@ if (!isset($userList)) {
         role: 'editor',
         useCustomPerms: false,
         userPerms: []
-      }" x-effect="document.body.style.overflow = isOpen ? 'hidden' : ''"
+      }" x-effect="window.toggleScrollLock(isOpen)"
       @open-user-modal.window="
         isOpen = true;
         mode = $event.detail.mode;
@@ -435,8 +435,7 @@ if (!isset($userList)) {
 
       <div class="fixed inset-0 skin-modal-overlay backdrop-blur-sm transition-opacity" @click="isOpen = false"></div>
 
-      <form method="post" enctype="multipart/form-data"
-        class="z-10 relative flex flex-col bg-theme-surface shadow-theme border border-theme-border rounded-theme w-full max-w-md max-h-[90vh] overflow-hidden transition-all transform">
+      <form method="post" enctype="multipart/form-data" class="warn-on-unsaved z-10 relative flex flex-col bg-theme-surface shadow-theme border border-theme-border rounded-theme w-full max-w-md max-h-[90vh] overflow-hidden transition-all transform">
         <input type="hidden" name="csrf_token" value="<?= h(generate_csrf_token()) ?>">
         <input type="hidden" name="action" :value="mode === 'add' ? 'add_user' : 'edit_user'">
         <input type="hidden" name="target_id" :value="targetId">
@@ -523,7 +522,7 @@ if (!isset($userList)) {
                 <label class="flex items-start gap-2 cursor-pointer">
                   <input type="checkbox" name="user_perms[]" value="manage_settings" x-model="userPerms" class="mt-0.5 bg-theme-bg border-theme-danger/30 rounded focus:ring-theme-danger w-4 h-4 text-theme-danger form-checkbox">
                   <div>
-                    <div class="font-bold text-theme-text text-sm leading-tight text-theme-danger"><?= _t('menu_settings') ?></div>
+                    <div class="font-bold text-sm leading-tight text-theme-danger"><?= _t('menu_settings') ?></div>
                   </div>
                 </label>
               </div>
@@ -584,8 +583,8 @@ if (!isset($userList)) {
             <div x-show="mode === 'edit'">
               <hr class="border-theme-border mb-4">
               <div class="block" x-data="{ show: false }">
-                <label for="current_password_user_modal" class="block mb-1 font-bold text-theme-text text-xs">
-                  <?= _t('st_current_password') ?>
+                <label for="current_password_user_modal" class="block mb-1 font-bold text-xs">
+                  <span class="text-theme-text"><?= _t('st_current_password') ?></span>
                   <span class="ml-1 text-[10px] text-theme-danger">
                     <?= _t('lbl_required') ?>
                   </span>
@@ -605,6 +604,26 @@ if (!isset($userList)) {
                     </svg>
                   </button>
                 </div>
+                <ul class="mt-2 text-[10px] space-y-1" x-show="password.length > 0" x-cloak>
+                  <li class="flex items-center gap-1 transition-colors" :class="password.length >= 8 ? 'text-theme-success' : 'text-theme-danger'">
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" :d="password.length >= 8 ? 'M5 13l4 4L19 7' : 'M6 18L18 6M6 6l12 12'" />
+                    </svg>
+                    8+ Characters
+                  </li>
+                  <li class="flex items-center gap-1 transition-colors" :class="/[a-zA-Z]/.test(password) ? 'text-theme-success' : 'text-theme-danger'">
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" :d="/[a-zA-Z]/.test(password) ? 'M5 13l4 4L19 7' : 'M6 18L18 6M6 6l12 12'" />
+                    </svg>
+                    Includes Letter
+                  </li>
+                  <li class="flex items-center gap-1 transition-colors" :class="/[0-9]/.test(password) ? 'text-theme-success' : 'text-theme-danger'">
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" :d="/[0-9]/.test(password) ? 'M5 13l4 4L19 7' : 'M6 18L18 6M6 6l12 12'" />
+                    </svg>
+                    Includes Number
+                  </li>
+                </ul>
               </div>
             </div>
 
