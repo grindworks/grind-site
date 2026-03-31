@@ -51,6 +51,7 @@ return [
     'Email' => 'メールアドレス',
     'Message' => 'お問い合わせ内容',
     'Send' => '送信する',
+    'Processing...' => '送信中...',
     'Download' => 'ダウンロード',
     'Pros' => 'メリット',
     'Cons' => 'デメリット',

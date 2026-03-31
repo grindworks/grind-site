@@ -104,7 +104,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       </div>
     <?php endif; ?>
 
-    <form method="post" class="needs-validation" novalidate>
+    <form method="post" class="needs-validation" novalidate onsubmit="
+      var btn = this.querySelector('button[type=submit]');
+      if(btn) {
+          btn.disabled = true;
+          btn.innerHTML = '<span class=\'spinner-border spinner-border-sm me-2\' role=\'status\' aria-hidden=\'true\'></span><?= theme_t('Processing...') ?>';
+          btn.classList.add('disabled');
+      }
+    ">
       <input type="hidden" name="csrf_token" value="<?= h(generate_csrf_token()) ?>">
       <!-- Honeypot field for spam protection -->
       <div style="position: absolute; left: -9999px;" aria-hidden="true">

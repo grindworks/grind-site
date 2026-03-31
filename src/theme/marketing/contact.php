@@ -117,7 +117,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
       <?php endif; ?>
 
-      <form method="post" class="space-y-6 mx-auto max-w-2xl">
+      <form method="post" class="space-y-6 mx-auto max-w-2xl" onsubmit="
+        var btn = this.querySelector('button[type=submit]');
+        if(btn) {
+            btn.disabled = true;
+            btn.innerHTML = '<?= theme_t('Processing...') ?>';
+            btn.classList.add('opacity-70', 'cursor-not-allowed');
+        }
+      ">
         <input type="hidden" name="csrf_token" value="<?= h(generate_csrf_token()) ?>">
 
         <!-- Honeypot field. -->

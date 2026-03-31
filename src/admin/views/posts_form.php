@@ -253,7 +253,7 @@ $basePath = rtrim($parsedBase['path'] ?? '/', '/') . '/';
     },
     handleDrop(index) {
         if (this.draggingIndex === null || this.draggingIndex === index) return;
-        this.moveBlockTo(this.draggingIndex, index);
+        this.moveBlockTo(this.draggingIndex, index, false);
         this.handleDragEnd();
     },
     handleDragEnd() {
@@ -800,7 +800,9 @@ $basePath = rtrim($parsedBase['path'] ?? '/', '/') . '/';
                                 <button type="button" @click.stop="removeTag(index)" class="focus:outline-none hover:text-theme-danger p-0.5 -mr-1" aria-label='<?= h(_t('remove')) ?>'>&times;</button>
                             </span>
                         </template>
-                        <input type="text" x-ref="tagInput" x-model="tagInput" @input="if(tagInput.includes(',') || tagInput.includes('、')) addTag()" @keydown.enter.prevent="if(!$event.isComposing) addTag()" @keydown.backspace="if(tagInput === '' && tags.length > 0) removeTag(tags.length - 1)" class="flex-1 bg-transparent p-0 border-none outline-none focus:ring-0 min-w-[60px] text-theme-text text-sm placeholder-theme-text/40" placeholder="<?= _t('ph_tags') ?>">
+                        <input type="text" x-ref="tagInput" x-model="tagInput"
+                            @input="if(tagInput.includes(',') || tagInput.includes('、')) addTag()" @keydown.enter.prevent="if(!$event.isComposing) addTag()" @keydown.backspace="if(tagInput === '' && tags.length > 0) removeTag(tags.length - 1)"
+                            @blur="if(tagInput.trim() !== '') addTag()" class="flex-1 bg-transparent p-0 border-none outline-none focus:ring-0 min-w-[60px] text-theme-text text-sm placeholder-theme-text/40" placeholder="<?= _t('ph_tags') ?>">
                     </div>
                     <input type="hidden" name="tags" :value="tags.join(',')">
                     <p class="opacity-50 mt-1 text-[10px] text-theme-text">

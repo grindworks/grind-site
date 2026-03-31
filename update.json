@@ -1,7 +1,7 @@
 {
-  "version": "1.2.1",
+  "version": "1.2.2",
   "release_date": "2026-03-30",
   "message": "Fixed a critical bug in the Static Site Generation (SSG) process for offline environments.",
-  "download_url": "https://github.com/grindworks/grind-site/releases/download/v1.2.1/grindsite-v1.2.1.zip",
-  "sha256": "76c3746409b313c4cf24e2094fd303fbe460f7165d916da07158b7a3537cf23b"
+  "download_url": "https://github.com/grindworks/grind-site/releases/download/v1.2.2/grindsite-v1.2.2.zip",
+  "sha256": "a87ef97547e3921db301c4e311c2d1030cb7201a8c9c116597da72aa77ba7293"
 }

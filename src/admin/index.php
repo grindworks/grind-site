@@ -268,6 +268,7 @@ $jsRewriteWarningTitle = $isJa ? '⚠️ URLリライトエラー検知' : '⚠�
 $jsRewriteWarningMsg = $isJa
     ? '現在、記事ページが 404 エラーで表示できない状態になっている可能性があります。<br><code>src/.htaccess</code> を開き、<code># RewriteBase</code> の先頭の <code>#</code> を削除（コメントアウトを解除）して保存してください。'
     : 'Articles might currently be returning 404 errors.<br>Please open <code>src/.htaccess</code> and remove the <code>#</code> at the beginning of the <code># RewriteBase</code> line to uncomment it.';
+$jsDismissText = _t('btn_dismiss');
 
 ob_start();
 ?>
@@ -718,28 +719,34 @@ ob_start();
 
 <script>
     document.addEventListener('DOMContentLoaded', () => {
-        // Check URL rewrite health
-        fetch((window.grindsBaseUrl || '').replace(/\/$/, '') + '/robots.txt', {
-                method: 'HEAD',
-                cache: 'no-store'
-            })
-            .then(response => {
-                if (response.status === 404 || response.status === 500) {
-                    const container = document.querySelector('.space-y-4.mb-8') || document.querySelector('.gap-6.grid');
-                    if (container) {
-                        const alertHtml = `
-                            <div class="mb-8 p-4 border-l-4 rounded-r-theme shadow-theme transition-all border bg-theme-danger/10 text-theme-danger border-theme-danger/20 relative" style="border-left-color: currentColor;">
-                                <p class="mb-1 font-bold text-sm">${<?= json_encode($jsRewriteWarningTitle) ?>}</p>
-                                <p class="opacity-90 text-sm">
-                                    ${<?= json_encode($jsRewriteWarningMsg) ?>}
-                                </p>
-                            </div>
-                        `;
-                        container.insertAdjacentHTML('beforebegin', alertHtml);
+        // Check URL rewrite health, but only if not dismissed in this session
+        if (!sessionStorage.getItem('grindsRewriteWarningDismissed')) {
+            fetch((window.grindsBaseUrl || '').replace(/\/$/, '') + '/robots.txt', {
+                    method: 'HEAD',
+                    cache: 'no-store'
+                })
+                .then(response => {
+                    if (response.status === 404 || response.status === 500) {
+                        const container = document.querySelector('.space-y-4.mb-8') || document.querySelector('.gap-6.grid');
+                        if (container) {
+                            const alertHtml = `
+                                <div x-data="{ open: true }" x-show="open" x-transition class="mb-8 p-4 border-l-4 rounded-r-theme shadow-theme transition-all border bg-theme-danger/10 text-theme-danger border-theme-danger/20 relative" style="border-left-color: currentColor;">
+                                    <button @click="open = false; sessionStorage.setItem('grindsRewriteWarningDismissed', 'true')" class="top-2 right-2 absolute opacity-50 hover:opacity-100 p-1 transition-opacity">
+                                        <span class="sr-only">${<?= json_encode($jsDismissText) ?>}</span>
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-x-mark"></use></svg>
+                                    </button>
+                                    <p class="mb-1 font-bold text-sm">${<?= json_encode($jsRewriteWarningTitle) ?>}</p>
+                                    <p class="opacity-90 text-sm">
+                                        ${<?= json_encode($jsRewriteWarningMsg) ?>}
+                                    </p>
+                                </div>
+                            `;
+                            container.insertAdjacentHTML('beforebegin', alertHtml);
+                        }
                     }
-                }
-            })
-            .catch(e => console.error('Health check failed', e));
+                })
+                .catch(e => console.error('Health check failed', e));
+        }
 
         // Read CSS variables
         const getThemeColor = (varName) => {

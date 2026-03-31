@@ -120,7 +120,14 @@ $hasHeroTitle = $hasHero && !empty($heroSettings['title']);
                 </div>
             <?php endif; ?>
 
-            <form method="post" class="space-y-10">
+            <form method="post" class="space-y-10" onsubmit="
+              var btn = this.querySelector('button[type=submit]');
+              if(btn) {
+                  btn.disabled = true;
+                  btn.innerHTML = '<?= theme_t('Processing...') ?>';
+                  btn.classList.add('opacity-70', 'cursor-not-allowed');
+              }
+            ">
                 <input type="hidden" name="csrf_token" value="<?= h(generate_csrf_token()) ?>">
 
                 <!-- Honeypot. -->

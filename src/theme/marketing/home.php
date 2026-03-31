@@ -23,11 +23,20 @@ if (!defined('GRINDS_APP')) exit;
 
     <?php if (!empty($pageData['posts'])): ?>
       <div class="gap-8 grid grid-cols-1 md:grid-cols-3">
-        <?php foreach ($pageData['posts'] as $post): ?>
+        <?php foreach ($pageData['posts'] as $index => $post): ?>
           <a href="<?= h(resolve_url($post['slug'])) ?>" class="group block bg-white shadow-lg hover:shadow-xl border border-slate-200 rounded-2xl overflow-hidden transition-all duration-300">
             <div class="relative bg-slate-100 aspect-video overflow-hidden">
               <?php if ($post['thumbnail']): ?>
-                <?= get_image_html($post['thumbnail'], ['class' => 'w-full h-full object-cover group-hover:scale-105 transition-transform duration-500', 'alt' => h($post['title']), 'loading' => 'lazy']) ?>
+                <?php
+                $imgAttrs = ['class' => 'w-full h-full object-cover group-hover:scale-105 transition-transform duration-500', 'alt' => h($post['title'])];
+                if ($index < 2) {
+                  $imgAttrs['loading'] = 'eager';
+                  $imgAttrs['fetchpriority'] = 'high';
+                } else {
+                  $imgAttrs['loading'] = 'lazy';
+                }
+                ?>
+                <?= get_image_html($post['thumbnail'], $imgAttrs) ?>
               <?php else: ?>
                 <div class="flex justify-center items-center bg-slate-50 w-full h-full text-slate-300">
                   <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">

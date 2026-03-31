@@ -1504,7 +1504,7 @@ document.addEventListener('alpine:init', () => {
         if (newBlockEl) {
           newBlockEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
           const firstInput = newBlockEl.querySelector('textarea, input[type="text"]');
-          if (firstInput) {
+          if (firstInput && window.innerWidth >= 768) {
             setTimeout(() => firstInput.focus(), 300);
           }
         } else {
@@ -1601,16 +1601,7 @@ document.addEventListener('alpine:init', () => {
     moveBlock(index, dir) {
       const targetIndex = index + dir;
       if (targetIndex >= 0 && targetIndex < this.blocks.length) {
-        const item = this.blocks[index];
-        this.blocks.splice(index, 1);
-        this.blocks.splice(targetIndex, 0, item);
-
-        this.$nextTick(() => {
-          const el = document.getElementById('block-wrapper-' + item.id);
-          if (el) {
-            el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          }
-        });
+        this.moveBlockTo(index, targetIndex, true);
       }
     },
 
@@ -1618,8 +1609,9 @@ document.addEventListener('alpine:init', () => {
      * Move block to specific position.
      * @param {number} fromIndex
      * @param {number} toIndex
+     * @param {boolean} shouldScroll
      */
-    moveBlockTo(fromIndex, toIndex) {
+    moveBlockTo(fromIndex, toIndex, shouldScroll = true) {
       if (isNaN(toIndex)) return;
       if (toIndex < 0) toIndex = 0;
       if (toIndex >= this.blocks.length) toIndex = this.blocks.length - 1;
@@ -1627,12 +1619,14 @@ document.addEventListener('alpine:init', () => {
       const item = this.blocks.splice(fromIndex, 1)[0];
       this.blocks.splice(toIndex, 0, item);
 
-      this.$nextTick(() => {
-        const el = document.getElementById('block-wrapper-' + item.id);
-        if (el) {
-          el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }
-      });
+      if (shouldScroll) {
+        this.$nextTick(() => {
+          const el = document.getElementById('block-wrapper-' + item.id);
+          if (el) {
+            el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }
+        });
+      }
     },
 
     /**
@@ -2237,32 +2231,42 @@ document.addEventListener('alpine:init', () => {
 
       try {
         const files = Array.from(inputFiles);
-        let successCount = 0;
-        let errorMessages = [];
 
-        for (const file of files) {
-          try {
-            const uploadedFile = await GrindsMediaHelpers.uploadFile(file, window.grindsCsrfToken);
-            if (uploadedFile) {
-              const meta = uploadedFile.metadata || {};
-              this.blocks[blockIndex].data.images.push({
-                url: uploadedFile.url,
-                caption: meta.caption || '',
-              });
-              successCount++;
-            }
-          } catch (error) {
+        // Upload files in parallel but wait for all to complete to maintain order.
+        const uploadPromises = files.map((file) =>
+          GrindsMediaHelpers.uploadFile(file, window.grindsCsrfToken).catch((error) => {
             if (error.message === 'SESSION_EXPIRED') {
               this.handleSessionExpiry();
-              break;
             }
-            errorMessages.push(`Error ${file.name}: ${error.message || 'Upload failed'}`);
+            // Return an object to identify the error source
+            return { error: true, message: error.message || 'Upload failed', name: file.name };
+          })
+        );
+
+        const results = await Promise.all(uploadPromises);
+
+        const successfulUploads = [];
+        const errorMessages = [];
+
+        results.forEach((result) => {
+          if (result && !result.error) {
+            const meta = result.metadata || {};
+            successfulUploads.push({
+              url: result.url,
+              caption: meta.caption || '',
+            });
+          } else if (result && result.error) {
+            errorMessages.push(`Error ${result.name}: ${result.message}`);
           }
+        });
+
+        if (successfulUploads.length > 0) {
+          // Push all at once to maintain order and improve reactivity performance.
+          this.blocks[blockIndex].data.images.push(...successfulUploads);
         }
 
-        // Notify user
         if (errorMessages.length > 0) {
-          window.showToast(`Uploaded ${successCount} files. Errors: ` + errorMessages.join(', '), 'error');
+          window.showToast(`Uploaded ${successfulUploads.length} files. Errors: ` + errorMessages.join(', '), 'error');
         }
       } finally {
         this.isUploading = false;

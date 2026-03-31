@@ -198,7 +198,7 @@ class FrontController
       _safe_session_start();
     }
 
-    $currentAuthHash = md5($sharedPassword . 'grinds_preview');
+    $currentAuthHash = hash('sha256', $sharedPassword . 'grinds_preview');
 
     // Skip if already authenticated.
     if (!empty($_SESSION['grinds_preview_auth']) && $_SESSION['grinds_preview_auth'] === $currentAuthHash) {

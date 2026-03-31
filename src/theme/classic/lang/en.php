@@ -33,4 +33,5 @@ return [
     'Cons' => 'Cons',
     'Download' => 'Download',
     'Share' => 'Share',
+    'Processing...' => 'Processing...',
 ];

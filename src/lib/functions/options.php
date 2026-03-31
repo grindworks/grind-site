@@ -69,29 +69,54 @@ if (!function_exists('update_option')) {
         $pdo = App::db();
         if (!$pdo) return false;
 
-        if ($autoload !== null) {
-            $autoloadVal = $autoload ? 1 : 0;
-            $stmt = $pdo->prepare("UPDATE settings SET value = ?, autoload = ? WHERE key = ?");
-            $result = $stmt->execute([$value, $autoloadVal, $key]);
-            if ($result && $stmt->rowCount() === 0) {
-                $stmt = $pdo->prepare("INSERT OR IGNORE INTO settings (key, value, autoload) VALUES (?, ?, ?)");
+        $ownsTransaction = false;
+        try {
+            // Start transaction to prevent race conditions
+            if (!$pdo->inTransaction()) {
+                $pdo->beginTransaction();
+                $ownsTransaction = true;
+            }
+
+            // 1. Check if the record exists
+            $stmtCheck = $pdo->prepare("SELECT 1 FROM settings WHERE key = ?");
+            $stmtCheck->execute([$key]);
+            $exists = $stmtCheck->fetchColumn();
+
+            if ($exists) {
+                // 2. If record exists, UPDATE it
+                if ($autoload !== null) {
+                    $autoloadVal = $autoload ? 1 : 0;
+                    $stmt = $pdo->prepare("UPDATE settings SET value = ?, autoload = ? WHERE key = ?");
+                    $result = $stmt->execute([$value, $autoloadVal, $key]);
+                } else {
+                    $stmt = $pdo->prepare("UPDATE settings SET value = ? WHERE key = ?");
+                    $result = $stmt->execute([$value, $key]);
+                }
+            } else {
+                // 3. If record does not exist, INSERT it
+                $autoloadVal = ($autoload !== null) ? ($autoload ? 1 : 0) : 1; // Default to 1 (autoload)
+                $stmt = $pdo->prepare("INSERT INTO settings (key, value, autoload) VALUES (?, ?, ?)");
                 $result = $stmt->execute([$key, $value, $autoloadVal]);
             }
-        } else {
-            $stmt = $pdo->prepare("UPDATE settings SET value = ? WHERE key = ?");
-            $result = $stmt->execute([$value, $key]);
-            if ($result && $stmt->rowCount() === 0) {
-                $stmt = $pdo->prepare("INSERT OR IGNORE INTO settings (key, value) VALUES (?, ?)");
-                $result = $stmt->execute([$key, $value]);
+
+            if ($ownsTransaction) {
+                $pdo->commit();
             }
-        }
 
-        // Update cache if successful (unconditionally keep the cache array up-to-date)
-        if ($result && $GLOBALS['_grinds_options_cache'] !== null) {
-            $GLOBALS['_grinds_options_cache'][$key] = $value;
-        }
+            // Update cache if successful
+            if ($result && isset($GLOBALS['_grinds_options_cache'])) {
+                $GLOBALS['_grinds_options_cache'][$key] = $value;
+            }
 
-        return $result;
+            return $result;
+        } catch (Exception $e) {
+            if ($ownsTransaction && $pdo->inTransaction()) {
+                $pdo->rollBack();
+            }
+            // Log the error for debugging
+            error_log("GrindsCMS update_option Error: " . $e->getMessage());
+            return false;
+        }
     }
 }
 

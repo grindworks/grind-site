@@ -13,7 +13,20 @@ if (!defined('GRINDS_APP'))
         class="group block relative bg-slate-100 h-56 md:h-64 overflow-hidden shrink-0 border-b-2 border-slate-900"
         aria-label="<?= h($post['title']) ?>">
         <?php if ($post['thumbnail']): ?>
-            <?= get_image_html($post['thumbnail'], ['class' => 'w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500', 'alt' => h($post['title']), 'loading' => 'lazy']) ?>
+            <?php
+            $isLcp = (isset($index) && $index < 2);
+            $imgAttrs = [
+                'class' => 'w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500',
+                'alt' => h($post['title'])
+            ];
+            if ($isLcp) {
+                $imgAttrs['loading'] = 'eager';
+                $imgAttrs['fetchpriority'] = 'high';
+            } else {
+                $imgAttrs['loading'] = 'lazy';
+            }
+            ?>
+            <?= get_image_html($post['thumbnail'], $imgAttrs) ?>
         <?php
         else: ?>
             <div class="flex justify-center items-center h-full text-slate-400 text-sm font-bold uppercase tracking-widest">

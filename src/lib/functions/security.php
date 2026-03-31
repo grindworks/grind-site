@@ -67,14 +67,19 @@ if (!function_exists('validate_csrf_token')) {
 if (!function_exists('check_csrf_token')) {
     function check_csrf_token()
     {
+        // 1. Check POST data
         $token = $_POST['csrf_token'] ?? '';
 
-        // Support JSON input
+        // 2. Check JSON body
         if (empty($token)) {
             $input = get_json_input();
             if (is_array($input)) {
                 $token = $input['csrf_token'] ?? '';
             }
+        }
+        // 3. Check request header (Common practice for AJAX)
+        if (empty($token)) {
+            $token = $_SERVER['HTTP_X_CSRF_TOKEN'] ?? '';
         }
 
         if (!validate_csrf_token($token)) {

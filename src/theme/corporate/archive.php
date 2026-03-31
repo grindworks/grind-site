@@ -55,13 +55,22 @@ $isSearch = (isset($pageType) && $pageType === 'search');
   <?php
   else: ?>
     <div class="gap-8 grid grid-cols-1 md:grid-cols-2">
-      <?php foreach ($pageData['posts'] as $post): ?>
+      <?php foreach ($pageData['posts'] as $index => $post): ?>
         <article
           class="flex flex-col bg-white shadow-md hover:shadow-xl border border-gray-100 rounded-lg h-full overflow-hidden transition-shadow duration-300">
           <a href="<?= h(resolve_url($post['slug'])) ?>"
             class="group block relative bg-gray-200 h-48 overflow-hidden shrink-0" aria-label="<?= h($post['title']) ?>">
             <?php if ($post['thumbnail']): ?>
-              <?= get_image_html($post['thumbnail'], ['class' => 'w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500', 'alt' => h($post['title']), 'loading' => 'lazy']) ?>
+              <?php
+              $imgAttrs = ['class' => 'w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500', 'alt' => h($post['title'])];
+              if ($index < 2) {
+                $imgAttrs['loading'] = 'eager';
+                $imgAttrs['fetchpriority'] = 'high';
+              } else {
+                $imgAttrs['loading'] = 'lazy';
+              }
+              ?>
+              <?= get_image_html($post['thumbnail'], $imgAttrs) ?>
             <?php
             else: ?>
               <div class="flex justify-center items-center h-full text-gray-400">

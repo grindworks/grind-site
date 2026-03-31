@@ -57,6 +57,7 @@ return [
     'Email' => 'Email',
     'Message' => 'Message',
     'Send Message' => 'Send Message',
+    'Processing...' => 'Processing...',
     'Menu' => 'Menu',
     'Close' => 'Close',
     'home' => 'Home',

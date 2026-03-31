@@ -1080,6 +1080,10 @@ if (!function_exists('grinds_fetch_url')) {
                 curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, $verifySsl);
                 curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, $verifySsl ? 2 : 0);
 
+                // Restrict protocols to HTTP/HTTPS for security hardening (SSRF prevention)
+                curl_setopt($ch, CURLOPT_PROTOCOLS, CURLPROTO_HTTP | CURLPROTO_HTTPS);
+                curl_setopt($ch, CURLOPT_REDIR_PROTOCOLS, CURLPROTO_HTTP | CURLPROTO_HTTPS);
+
                 // Abort download if file exceeds max size
                 curl_setopt($ch, CURLOPT_NOPROGRESS, false);
                 curl_setopt($ch, CURLOPT_PROGRESSFUNCTION, function (...$args) use ($maxSize) {

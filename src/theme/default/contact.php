@@ -199,8 +199,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$maintenanceMode) {
             <?= h($error) ?>
           </div>
         <?php endif; ?>
-
-        <form method="post" class="max-w-2xl mx-auto space-y-6">
+        <form method="post" class="max-w-2xl mx-auto space-y-6" onsubmit="
+          var btn = this.querySelector('button[type=submit]');
+          if(btn) {
+              btn.disabled = true;
+              btn.innerHTML = '<?= theme_t('Processing...') ?>';
+              btn.classList.add('opacity-70', 'cursor-not-allowed');
+          }
+        ">
           <input type="hidden" name="csrf_token" value="<?= h(generate_csrf_token()) ?>">
 
           <!-- Honeypot (Hidden via CSS) -->

@@ -90,12 +90,12 @@ DirectoryIndex index.php index.html
 
 # Block system data
 <IfModule mod_authz_core.c>
-<FilesMatch "\.(db|db-wal|db-shm|db-journal|sql|log|ini|bak|old|temp|swp)$">
+<FilesMatch "\.(db|sqlite|sqlite3|db-wal|db-shm|db-journal|sql|log|ini|bak|old|temp|swp)$">
     Require all denied
 </FilesMatch>
 </IfModule>
 <IfModule !mod_authz_core.c>
-<FilesMatch "\.(db|db-wal|db-shm|db-journal|sql|log|ini|bak|old|temp|swp)$">
+<FilesMatch "\.(db|sqlite|sqlite3|db-wal|db-shm|db-journal|sql|log|ini|bak|old|temp|swp)$">
     Order allow,deny
     Deny from all
 </FilesMatch>

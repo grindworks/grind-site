@@ -518,9 +518,16 @@ if (!function_exists('has_post_thumbnail')) {
 if (!function_exists('the_post_thumbnail')) {
     function the_post_thumbnail()
     {
-        global $post;
+        global $post, $grinds_query;
         if (!empty($post['thumbnail'])) {
-            echo get_image_html($post['thumbnail'], ['alt' => h($post['title'] ?? ''), 'loading' => 'lazy']);
+            $imgAttrs = ['alt' => h($post['title'] ?? '')];
+            if (isset($grinds_query['current_post']) && $grinds_query['current_post'] < 2) {
+                $imgAttrs['loading'] = 'eager';
+                $imgAttrs['fetchpriority'] = 'high';
+            } else {
+                $imgAttrs['loading'] = 'lazy';
+            }
+            echo get_image_html($post['thumbnail'], $imgAttrs);
         }
     }
 }

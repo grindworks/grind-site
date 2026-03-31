@@ -54,7 +54,7 @@ try {
     $doc = new DOMDocument();
     // Convert to HTML entities (PHP 8.2+ compatible)
     $html = mb_encode_numericentity($html, [0x80, 0x10FFFF, 0, 0x1FFFFF], 'UTF-8');
-    @$doc->loadHTML($html, LIBXML_NOERROR | LIBXML_NOWARNING);
+    @$doc->loadHTML($html, LIBXML_NOERROR | LIBXML_NOWARNING | LIBXML_NONET);
     libxml_clear_errors();
 
     // Extract metadata

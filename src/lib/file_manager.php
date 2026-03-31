@@ -1542,31 +1542,49 @@ class FileManager
 
             // Scan settings
             try {
-                $stmt = $pdo->query("SELECT value FROM settings");
-                while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-                    if (!empty($row['value']) && (
-                        str_contains($row['value'], 'assets/uploads') ||
-                        str_contains($row['value'], 'assets\/uploads') ||
-                        str_contains($row['value'], '{{CMS_URL}}')
-                    )) {
-                        $used_files[] = self::normalizeDbPath($row['value']);
+                $settingOffset = 0;
+                $settingLimit = 500;
+                $stmt = $pdo->prepare("SELECT value FROM settings LIMIT ? OFFSET ?");
+                do {
+                    $stmt->execute([$settingLimit, $settingOffset]);
+                    $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                    if (empty($rows)) break;
+
+                    foreach ($rows as $row) {
+                        if (!empty($row['value']) && (
+                            str_contains($row['value'], 'assets/uploads') ||
+                            str_contains($row['value'], 'assets\/uploads') ||
+                            str_contains($row['value'], '{{CMS_URL}}')
+                        )) {
+                            $used_files[] = self::normalizeDbPath($row['value']);
+                        }
                     }
-                }
+                    $settingOffset += $settingLimit;
+                } while (count($rows) === $settingLimit);
             } catch (Exception $e) {
             }
 
             // Scan widgets
             try {
-                $stmt = $pdo->query("SELECT content, settings FROM widgets");
-                while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-                    $settings = json_decode($row['settings'] ?? '{}', true);
-                    if (is_array($settings) && !empty($settings['image'])) {
-                        $used_files[] = self::normalizeDbPath($settings['image']);
+                $widgetOffset = 0;
+                $widgetLimit = 500;
+                $stmt = $pdo->prepare("SELECT content, settings FROM widgets LIMIT ? OFFSET ?");
+                do {
+                    $stmt->execute([$widgetLimit, $widgetOffset]);
+                    $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                    if (empty($rows)) break;
+
+                    foreach ($rows as $row) {
+                        $settings = json_decode($row['settings'] ?? '{}', true);
+                        if (is_array($settings) && !empty($settings['image'])) {
+                            $used_files[] = self::normalizeDbPath($settings['image']);
+                        }
+                        if (!empty($row['content'])) {
+                            self::extractPathsFromContent($row['content'], $used_files);
+                        }
                     }
-                    if (!empty($row['content'])) {
-                        self::extractPathsFromContent($row['content'], $used_files);
-                    }
-                }
+                    $widgetOffset += $widgetLimit;
+                } while (count($rows) === $widgetLimit);
             } catch (Exception $e) {
             }
         }

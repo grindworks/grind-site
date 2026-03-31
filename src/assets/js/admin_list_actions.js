@@ -266,4 +266,23 @@ document.addEventListener('DOMContentLoaded', () => {
       executeAction();
     });
   }
+
+  /**
+   * Global Ctrl+S / Cmd+S save shortcut for forms
+   */
+  document.addEventListener('keydown', (e) => {
+    if ((e.metaKey || e.ctrlKey) && e.key === 's') {
+      // Skip if in the post editor (handled by admin_editor.js)
+      if (typeof window.grindsPostContent !== 'undefined') return;
+
+      const form = document.querySelector('form.warn-on-unsaved');
+      if (form) {
+        e.preventDefault();
+        const submitBtn = form.querySelector('button[type="submit"], input[type="submit"]');
+        if (submitBtn && !submitBtn.disabled) {
+          form.requestSubmit(submitBtn);
+        }
+      }
+    }
+  });
 });

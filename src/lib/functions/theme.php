@@ -231,6 +231,17 @@ function _theme_generate_json_ld(string $siteName, string $pageType, string $pag
     $pubLogo = get_option('admin_logo') ?: get_option('site_ogp_image');
     $pubLogoUrl = $pubLogo ? resolve_url($pubLogo) : (function_exists('get_favicon_url') ? get_favicon_url() : resolve_url('/favicon.ico'));
 
+    // Ensure logo is absolute URL with scheme for JSON-LD validation
+    if (str_starts_with($pubLogoUrl, '//')) {
+        $parsedBase = parse_url(resolve_url('/'));
+        $scheme = $parsedBase['scheme'] ?? 'https';
+        $pubLogoUrl = $scheme . ':' . $pubLogoUrl;
+    } elseif (!str_starts_with($pubLogoUrl, 'http') && !str_starts_with($pubLogoUrl, 'data:')) {
+        $scheme = (function_exists('is_ssl') && is_ssl()) ? 'https://' : 'http://';
+        $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
+        $pubLogoUrl = $scheme . $host . '/' . ltrim($pubLogoUrl, '/');
+    }
+
     $socialLinksRaw = get_option('official_social_links', '');
 
     $socialLinks = array_values(array_filter(array_map('trim', explode("\n", $socialLinksRaw)), function ($link) {

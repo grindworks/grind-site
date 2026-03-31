@@ -57,6 +57,7 @@ return [
     'Email' => 'メールアドレス',
     'Message' => 'メッセージ',
     'Send Message' => '送信する',
+    'Processing...' => '送信中...',
     'Menu' => 'メニュー',
     'Close' => '閉じる',
     'home' => 'ホーム',

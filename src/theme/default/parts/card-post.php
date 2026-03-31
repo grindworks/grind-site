@@ -9,7 +9,18 @@ if (!defined('GRINDS_APP')) exit;
 <article class="flex flex-col bg-white shadow-md hover:shadow-xl border border-gray-100 rounded-lg h-full overflow-hidden transition-shadow duration-300">
     <a href="<?= h(resolve_url($post['slug'])) ?>" class="group block relative bg-gray-200 h-48 overflow-hidden shrink-0">
         <?php if ($post['thumbnail']): ?>
-            <?= get_image_html($post['thumbnail'], ['class' => 'w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500', 'alt' => h($post['title'])]) ?>
+            <?php
+            $isLcp = (isset($index) && $index < 2);
+            $imgAttrs = [
+                'class' => 'w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500',
+                'alt' => h($post['title'])
+            ];
+            if ($isLcp) {
+                $imgAttrs['loading'] = 'eager';
+                $imgAttrs['fetchpriority'] = 'high';
+            }
+            ?>
+            <?= get_image_html($post['thumbnail'], $imgAttrs) ?>
         <?php else: ?>
             <div class="flex justify-center items-center h-full text-gray-400"><?= theme_t('No Image') ?></div>
         <?php endif; ?>

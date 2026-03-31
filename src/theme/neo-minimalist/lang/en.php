@@ -73,6 +73,7 @@ return [
     'Maintenance' => 'Maintenance',
     'Setup Incomplete' => 'Setup Incomplete',
     'Send' => 'Send',
+    'Processing...' => 'Processing...',
     'Prev' => 'Prev',
     'Next' => 'Next',
     'msg_pdf_error' => 'Unable to display PDF.',

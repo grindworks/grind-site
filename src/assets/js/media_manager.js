@@ -89,7 +89,7 @@ window.GrindsMediaApi = {
       if (onProgress && xhr.upload) {
         xhr.upload.onprogress = (e) => {
           if (e.lengthComputable) {
-            const percentComplete = Math.round((e.loaded / e.total) * 100);
+            const percentComplete = e.total > 0 ? Math.round((e.loaded / e.total) * 100) : 100;
             onProgress(percentComplete);
           }
         };

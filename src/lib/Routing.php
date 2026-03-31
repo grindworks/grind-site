@@ -247,7 +247,7 @@ class Routing
 
         // Match style attributes
         $newContent = preg_replace_callback(
-            '/(style)\s*=\s*(?:(")([^"]*)"|(\')([^\']*)\')/i',
+            '/(style)\s*=\s*(?:(")((?:\\\\.|[^"\\\\])*+)"|(\')((?:\\\\.|[^\'\\\\])*+)\')/i',
             function ($matches) use ($flexiblePath) {
                 $attr = $matches[1];
                 $quote = !empty($matches[2]) ? $matches[2] : $matches[4];
@@ -292,7 +292,7 @@ class Routing
 
         // Match srcset attributes
         $newContent = preg_replace_callback(
-            '/(srcset)\s*=\s*(?:(")([^"]*)"|(\')([^\']*)\')/i',
+            '/(srcset)\s*=\s*(?:(")((?:\\\\.|[^"\\\\])*+)"|(\')((?:\\\\.|[^\'\\\\])*+)\')/i',
             function ($matches) use ($flexiblePath) {
                 $attr = $matches[1];
                 $quote = !empty($matches[2]) ? $matches[2] : $matches[4];

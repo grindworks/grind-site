@@ -51,6 +51,7 @@ return [
     'Email' => 'Email',
     'Message' => 'Message',
     'Send' => 'Send Message',
+    'Processing...' => 'Processing...',
     'Download' => 'Download',
     'Pros' => 'Pros',
     'Cons' => 'Cons',

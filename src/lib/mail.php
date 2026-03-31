@@ -73,6 +73,7 @@ class SimpleMailer
 
         $this->read($socket, "220");
         $ehloHost = explode(':', $_SERVER['HTTP_HOST'] ?? 'localhost')[0];
+        $ehloHost = preg_replace('/[^a-zA-Z0-9.-]/', '', $ehloHost);
         $this->write($socket, "EHLO " . $ehloHost);
         $this->read($socket, "250");
 

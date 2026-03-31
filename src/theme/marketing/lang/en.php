@@ -75,6 +75,7 @@ return [
     'contact_email_lbl' => 'Email',
     'contact_body' => 'Message',
     'contact_btn' => 'Send Message',
+    'Processing...' => 'Processing...',
     'get_started' => 'Get Started',
     'contact_us' => 'Contact Us',
     'menu' => 'Menu',

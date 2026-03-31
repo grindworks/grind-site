@@ -64,6 +64,7 @@ return [
     'contact_email_lbl' => 'メールアドレス',
     'contact_body' => 'メッセージ',
     'contact_btn' => '送信する',
+    'Processing...' => '送信中...',
     'Download' => 'ダウンロード',
     'download_pdf_aria' => 'PDFをダウンロード',
     'Good' => '良い点',

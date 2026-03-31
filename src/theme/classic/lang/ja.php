@@ -33,4 +33,5 @@ return [
     'Cons' => 'デメリット',
     'Download' => 'ダウンロード',
     'Share' => 'シェア',
+    'Processing...' => '送信中...',
 ];

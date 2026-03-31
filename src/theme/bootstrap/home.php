@@ -29,12 +29,21 @@ if (!defined('GRINDS_APP')) exit;
   </div>
 <?php else: ?>
   <div class="row row-cols-1 row-cols-md-2 g-4">
-    <?php foreach ($pageData['posts'] as $post): ?>
+    <?php foreach ($pageData['posts'] as $index => $post): ?>
       <div class="col">
         <div class="hover-shadow shadow-sm border-0 h-100 transition card">
           <a href="<?= h(resolve_url($post['slug'])) ?>" class="d-block bg-light ratio ratio-16x9">
             <?php if ($post['thumbnail']): ?>
-              <?= get_image_html($post['thumbnail'], ['class' => 'card-img-top object-fit-cover', 'alt' => h($post['title']), 'loading' => 'lazy']) ?>
+              <?php
+              $imgAttrs = ['class' => 'card-img-top object-fit-cover', 'alt' => h($post['title'])];
+              if ($index < 2) {
+                $imgAttrs['loading'] = 'eager';
+                $imgAttrs['fetchpriority'] = 'high';
+              } else {
+                $imgAttrs['loading'] = 'lazy';
+              }
+              ?>
+              <?= get_image_html($post['thumbnail'], $imgAttrs) ?>
             <?php else: ?>
               <div class="d-flex align-items-center justify-content-center w-100 h-100 text-muted">
                 <i class="bi bi-image fs-1"></i>

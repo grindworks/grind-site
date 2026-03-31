@@ -75,6 +75,7 @@ return [
     'contact_email_lbl' => 'メールアドレス',
     'contact_body' => 'メッセージ',
     'contact_btn' => '送信する',
+    'Processing...' => '送信中...',
     'get_started' => '今すぐ始める',
     'contact_us' => 'お問い合わせ',
     'menu' => 'メニュー',

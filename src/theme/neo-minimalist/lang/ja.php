@@ -73,6 +73,7 @@ return [
     'Maintenance' => 'メンテナンス中',
     'Setup Incomplete' => '設定未完了',
     'Send' => '送信',
+    'Processing...' => '送信中...',
     'Prev' => '前へ',
     'Next' => '次へ',
     'msg_pdf_error' => 'PDFを表示できません。',

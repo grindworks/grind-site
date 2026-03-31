@@ -419,7 +419,7 @@ if (!function_exists('get_license_status')) {
         } else {
             if ($hasValidCache && in_array($cache['status'], ['pro', 'agency'])) {
                 $cache['expires'] = time() + (30 * 86400);
-                update_option('license_check_cache', $cache);
+                update_option('license_check_cache', json_encode($cache, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_INVALID_UTF8_IGNORE));
                 return $cache['status'];
             }
         }

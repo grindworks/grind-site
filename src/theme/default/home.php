@@ -44,8 +44,8 @@ if (!defined('GRINDS_APP')) exit;
   <?php if (!empty($pageData['posts'])): ?>
     <!-- Posts grid -->
     <div class="gap-8 grid grid-cols-1 md:grid-cols-2">
-      <?php foreach ($pageData['posts'] as $post): ?>
-        <?php get_template_part('parts/card-post', null, ['post' => $post]); ?>
+      <?php foreach ($pageData['posts'] as $index => $post): ?>
+        <?php get_template_part('parts/card-post', null, ['post' => $post, 'index' => $index]); ?>
       <?php endforeach; ?>
     </div>
 

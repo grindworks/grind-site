@@ -64,6 +64,7 @@ return [
     'contact_email_lbl' => 'Email',
     'contact_body' => 'Message',
     'contact_btn' => 'Send Message',
+    'Processing...' => 'Processing...',
     'Download' => 'Download',
     'download_pdf_aria' => 'Download PDF',
     'Good' => 'Good',

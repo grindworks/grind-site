@@ -226,8 +226,8 @@ function grinds_is_fts5_enabled()
       return $is_enabled = true; // Assume enabled if DB is not available, to avoid false positives
     }
     // Try to create a temporary FTS5 table
-    $pdo->exec("CREATE VIRTUAL TABLE fts5_test_temp USING fts5(content)");
-    $pdo->exec("DROP TABLE fts5_test_temp");
+    $pdo->exec("CREATE VIRTUAL TABLE temp.fts5_test_temp USING fts5(content)");
+    $pdo->exec("DROP TABLE temp.fts5_test_temp");
     $is_enabled = true;
   } catch (Exception $e) {
     $is_enabled = false;
