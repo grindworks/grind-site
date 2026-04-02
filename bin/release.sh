@@ -13,6 +13,10 @@ VERSION=$1
 MESSAGE=${2:-"Release $VERSION"}
 ZIP_FILE="grindsite-${VERSION}.zip"
 
+# 0. Restore install.php if it was auto-deleted during local testing
+echo "🔄 Ensuring install.php is present..."
+git restore src/install.php 2>/dev/null || true
+
 # 1. Commit current changes
 echo "📦 Committing changes..."
 git add .
