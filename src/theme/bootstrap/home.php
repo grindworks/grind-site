@@ -65,26 +65,11 @@ if (!defined('GRINDS_APP')) exit;
             </h5>
             <p class="flex-grow-1 text-secondary card-text small">
               <?php
-              $excerpt = (!empty($post['description'])) ? h($post['description']) : get_excerpt($post['content'], 80);
-              if (isset($_GET['q']) && $_GET['q'] !== '') {
-                $q = trim($_GET['q']);
-                $plain = strip_tags($post['content']);
-                $pos = mb_stripos($plain, $q, 0, 'UTF-8');
-                if ($pos !== false) {
-                  $start = max(0, $pos - 40);
-                  $sub = mb_substr($plain, $start, 80, 'UTF-8');
-
-                  // Use placeholders to mark the search term before escaping
-                  $marker = '[[MARK]]';
-                  $endMarker = '[[/MARK]]';
-                  $subWithPlaceholders = preg_replace('/(' . preg_quote($q, '/') . ')/iu', $marker . '$1' . $endMarker, $sub);
-                  $escaped = h($subWithPlaceholders);
-                  $final = str_replace([$marker, $endMarker], ['<mark class="bg-warning p-0 text-dark">', '</mark>'], $escaped);
-
-                  $excerpt = '...' . $final . '...';
-                }
+              if (function_exists('bootstrap_get_highlighted_excerpt')) {
+                echo bootstrap_get_highlighted_excerpt($post, 80);
+              } else {
+                echo (!empty($post['description'])) ? h($post['description']) : get_excerpt($post['content'], 80);
               }
-              echo $excerpt;
               ?>
             </p>
           </div>

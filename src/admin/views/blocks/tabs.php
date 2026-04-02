@@ -21,7 +21,10 @@ if (!defined('GRINDS_APP')) exit; ?>
                 <!-- Content input -->
                 <div>
                     <label class="block opacity-50 mb-1 font-bold text-[10px] text-theme-text"><?= _t('lbl_content') ?></label>
-                    <textarea x-model="item.content" :id="'block-' + block.id + '-item-' + i + '-content'" rows="4" class="w-full text-xs form-control-sm leading-relaxed" placeholder="<?= _t('ph_tab_content') ?>"></textarea>
+                    <textarea x-model="item.content" :id="'block-' + block.id + '-item-' + i + '-content'" rows="4"
+                        x-init="$nextTick(() => { $el.style.height = 'auto'; $el.style.height = $el.scrollHeight + 'px' })"
+                        @input="$el.style.height = 'auto'; $el.style.height = $el.scrollHeight + 'px'"
+                        class="w-full text-xs form-control-sm leading-relaxed overflow-hidden resize-none" placeholder="<?= _t('ph_tab_content') ?>"></textarea>
                 </div>
             </div>
         </div>

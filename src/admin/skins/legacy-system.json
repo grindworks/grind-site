@@ -62,7 +62,6 @@
   "border_width": "1px",
   "shadow": "0 2px 10px rgba(0, 0, 0, 0.05)",
   "input_padding": "0.5rem 0.8rem",
-  "cursor": "auto",
   "sidebar_mode": "light",
   "nav_style": "underline",
   "texture": "paper",
@@ -84,7 +83,6 @@
     "text_gradient_end": "#3399ff",
     "icon": "outline-sparkles"
   },
-  "sidebar_custom_css": "",
   "css": ".card, .panel, .surface { backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border: 1px solid rgba(204, 204, 204, 0.6) !important; } .header { backdrop-filter: blur(12px); border-bottom: 1px solid rgba(204, 204, 204, 0.8) !important; } .sidebar { backdrop-filter: blur(16px); border-right: 1px solid rgba(204, 204, 204, 0.4) !important; }",
   "is_dark": false,
   "is_sidebar_dark": false

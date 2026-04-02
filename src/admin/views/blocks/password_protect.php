@@ -10,7 +10,11 @@ if (!defined('GRINDS_APP')) exit; ?>
         </svg>
         <span class="font-bold text-sm"><?= _t('blk_password_protect') ?></span>
     </div>
-    <p class="text-xs text-theme-text/70 mb-3"><?= _t('desc_password_protect_note') ?></p>
+    <p class="text-xs text-theme-text/70 mb-3 space-y-1 leading-relaxed">
+        <span><?= _t('desc_password_protect_note') ?></span>
+        <strong class="block text-theme-warning"><?= _t('desc_password_protect_usage_warn') ?></strong>
+        <strong class="block text-theme-danger"><?= _t('desc_password_protect_warn') ?></strong>
+    </p>
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
             <label class="block opacity-70 mb-1 font-bold text-[10px] text-theme-text"><?= _t('lbl_password') ?></label>

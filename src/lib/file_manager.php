@@ -626,12 +626,11 @@ class FileManager
                     );
                 }
             } catch (Exception $e) {
-                // Re-throw security-related exceptions (memory limit, frame count)
                 if ($e->getCode() === 413) {
                     throw $e; // Re-throw security exceptions
                 }
-                // Non-fatal: if Imagick cannot ping the file, fall through gracefully
-                error_log('GIF frame check skipped: ' . $e->getMessage());
+                // For other Imagick errors, assume corruption and abort.
+                throw new Exception(_t('err_image_corrupt') . ' (GIF check failed: ' . $e->getMessage() . ')');
             }
         }
 

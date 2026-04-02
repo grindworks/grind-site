@@ -53,10 +53,7 @@
     "table_row_hover_bg": "rgba(41, 32, 24, 0.8)",
     "scrollbar_track": "transparent",
     "scrollbar_thumb": "rgba(140, 120, 83, 0.6)",
-    "modal_overlay": "#000000",
-    "sidebar_crt": "transparent",
-    "sidebar_crt_shadow": "transparent",
-    "sidebar_crt_border": "transparent"
+    "modal_overlay": "#000000"
   },
   "rounded": "2px",
   "btn_radius": "2px",
@@ -66,12 +63,10 @@
   "border_width": "2px",
   "shadow": "inset 0 0 20px rgba(0, 0, 0, 0.5), 0 4px 8px rgba(0, 0, 0, 0.3)",
   "input_padding": "0.75rem 1rem",
-  "cursor": "auto",
   "sidebar_mode": "dark",
   "nav_style": "underline",
   "texture": "paper",
   "media_bg_css": "checker_dark",
-  "sidebar_crt_opacity": "0",
   "effects": ["border_double", "text_luxury_serif", "btn_uppercase", "scrollbar_custom"],
   "ai_paste": {
     "title": "AI Paste",
@@ -86,7 +81,6 @@
     "text_gradient_end": "#b5a642",
     "icon": "outline-sparkles"
   },
-  "sidebar_custom_css": "",
   "css": ".card, .panel, .surface { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 2px solid rgba(92, 77, 60, 0.6) !important; } .header { backdrop-filter: blur(16px); border-bottom: 2px solid rgba(92, 77, 60, 0.8) !important; } .sidebar { backdrop-filter: blur(20px); border-right: 2px solid rgba(92, 77, 60, 0.4) !important; } .login-logo { filter: sepia(1) hue-rotate(-30deg) saturate(1.5); }",
   "is_dark": true,
   "is_sidebar_dark": true

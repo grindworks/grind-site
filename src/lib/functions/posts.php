@@ -12,13 +12,18 @@ if (!defined('GRINDS_APP'))
  *
  * @param PDO $pdo
  * @param array|null $postIds If null, collects from all trashed posts.
- * @return array List of media URLs/paths.
+ * @param bool $collectIds If true and $postIds is null, also returns post IDs.
+ * @return array|array{media: string[], ids: int[]} List of media URLs, or a hashmap containing media and IDs.
  */
-function _grinds_collect_media_from_posts(PDO $pdo, ?array $postIds = null): array
+function _grinds_collect_media_from_posts(PDO $pdo, ?array $postIds = null, bool $collectIds = false): array
 {
     $candidates = [];
+    $ids = [];
 
-    $processRow = function ($row) use (&$candidates) {
+    $processRow = function ($row) use (&$candidates, &$ids, $collectIds) {
+        if ($collectIds && isset($row['id'])) {
+            $ids[] = $row['id'];
+        }
         if (!empty($row['thumbnail'])) $candidates[] = $row['thumbnail'];
         if (!empty($row['hero_image'])) $candidates[] = $row['hero_image'];
         if (!empty($row['hero_settings'])) {
@@ -38,7 +43,7 @@ function _grinds_collect_media_from_posts(PDO $pdo, ?array $postIds = null): arr
     try {
         if ($postIds !== null) {
             if (empty($postIds)) {
-                return [];
+                return $collectIds ? ['media' => [], 'ids' => []] : [];
             }
             // Chunk IDs to avoid SQLite placeholder limit (default 999)
             $chunks = array_chunk($postIds, 900);
@@ -51,14 +56,23 @@ function _grinds_collect_media_from_posts(PDO $pdo, ?array $postIds = null): arr
                 }
             }
         } else {
-            $stmt = $pdo->query("SELECT thumbnail, hero_image, hero_settings, content FROM posts WHERE deleted_at IS NOT NULL");
+            $selectCols = "thumbnail, hero_image, hero_settings, content";
+            if ($collectIds) {
+                $selectCols = "id, " . $selectCols;
+            }
+            $stmt = $pdo->query("SELECT {$selectCols} FROM posts WHERE deleted_at IS NOT NULL");
             while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
                 $processRow($row);
             }
         }
     } catch (Exception $e) {
     }
-    return array_unique($candidates);
+    $uniqueCandidates = array_unique($candidates);
+
+    if ($collectIds) {
+        return ['media' => $uniqueCandidates, 'ids' => array_unique($ids)];
+    }
+    return $uniqueCandidates;
 }
 
 /**
@@ -70,12 +84,11 @@ function _grinds_collect_media_from_posts(PDO $pdo, ?array $postIds = null): arr
  */
 function grinds_empty_trash(PDO $pdo): int
 {
-    // Collect file candidates before deletion
-    $candidates = _grinds_collect_media_from_posts($pdo);
+    // Collect file candidates and IDs in a single query.
+    $collected = _grinds_collect_media_from_posts($pdo, null, true);
+    $candidates = $collected['media'];
+    $ids = $collected['ids'];
 
-    // Count items to be deleted.
-    $stmt = $pdo->query("SELECT id FROM posts WHERE deleted_at IS NOT NULL");
-    $ids = $stmt->fetchAll(PDO::FETCH_COLUMN);
     $count = count($ids);
 
     if ($count === 0) {
@@ -800,13 +813,23 @@ function grinds_save_post(PDO $pdo, array $data, array $files, string $action, ?
                     $pdo->exec("ROLLBACK TO SAVEPOINT grinds_save_post_retry");
                 }
 
-                if ($e->getCode() == 23000 || $e->getCode() == 19) {
-                    // Collision detected (Race condition).
-                    // Fallback to random suffix to avoid further collisions in high concurrency.
+                // Check for slug conflict specifically
+                $isSlugConflict = ($e->getCode() == '23000' || $e->getCode() == 19)
+                    && str_contains($e->getMessage(), 'posts.slug');
+
+                if ($isSlugConflict) {
+                    // On slug collision, generate a random suffix and retry
                     $baseSlug = preg_replace('/-\d+$/', '', $finalSlug);
                     $finalSlug = $baseSlug . '-' . random_int(1000, 99999);
                     $baseSleep = 10000; // 10ms
                     $jitter = mt_rand(0, 20000);
+                    $sleepTime = ($baseSleep * (1 << $retryCount)) + $jitter;
+                    usleep($sleepTime);
+                    $retryCount++;
+                } elseif (($e->getCode() == 'HY000' || $e->getCode() == 5) && str_contains($e->getMessage(), 'database is locked')) {
+                    // On database lock, wait and retry
+                    $baseSleep = 50000; // 50ms
+                    $jitter = mt_rand(0, 50000);
                     $sleepTime = ($baseSleep * (1 << $retryCount)) + $jitter;
                     usleep($sleepTime);
                     $retryCount++;

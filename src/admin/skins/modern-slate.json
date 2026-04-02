@@ -64,8 +64,6 @@
   "input_padding": "0.75rem 1rem",
   "sidebar_mode": "dark",
   "nav_style": "pill",
-  "cursor": "auto",
-  "texture": "",
   "media_bg_css": "dots_dark",
   "effects": [
     "card_glass_modern",
@@ -86,7 +84,6 @@
     "text_gradient_end": "#818cf8",
     "icon": "outline-sparkles"
   },
-  "sidebar_custom_css": "",
   "css": ".card, .panel, .surface { backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid rgba(30, 41, 59, 0.5) !important; } .header { backdrop-filter: blur(20px); border-bottom: 1px solid rgba(30, 41, 59, 0.6) !important; } .sidebar { backdrop-filter: blur(24px); border-right: 1px solid rgba(30, 41, 59, 0.4) !important; }",
   "is_dark": true,
   "is_sidebar_dark": true

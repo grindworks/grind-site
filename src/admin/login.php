@@ -111,8 +111,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$is_locked) {
 
         if (!$is_locked) {
             try {
-                $stmt = $pdo->prepare("SELECT * FROM users WHERE LOWER(username) = LOWER(?)");
-                $stmt->execute([$input_user]);
+                $stmt = $pdo->prepare("SELECT * FROM users WHERE LOWER(username) = ?");
+                $stmt->execute([$normalized_user]);
                 $user = $stmt->fetch();
 
                 // Set dummy hash for timing attack mitigation

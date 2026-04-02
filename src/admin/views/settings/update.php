@@ -32,20 +32,32 @@ if (($init_tab ?? '') === 'update') {
   </div>
 
   <?php if ($status === null): ?>
-    <div class="flex flex-col justify-center items-center py-16 px-4 bg-theme-bg/30 border-2 border-theme-border border-dashed rounded-theme text-center">
-      <div class="flex justify-center items-center w-16 h-16 mb-4 rounded-full bg-theme-surface shadow-sm text-theme-text opacity-50">
-        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-arrow-path"></use>
-        </svg>
+    <div x-data="{ isChecking: false }">
+      <div x-show="!isChecking" class="flex flex-col justify-center items-center py-16 px-4 bg-theme-bg/30 border-2 border-theme-border border-dashed rounded-theme text-center">
+        <div class="flex justify-center items-center w-16 h-16 mb-4 rounded-full bg-theme-surface shadow-sm text-theme-text opacity-50">
+          <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-arrow-path"></use>
+          </svg>
+        </div>
+        <h3 class="mb-1 font-bold text-theme-text text-lg opacity-80"><?= _t('st_update_check_needed') ?></h3>
+        <div class="mt-6">
+          <button @click="isChecking = true; setTimeout(() => window.location.href = 'settings.php?tab=update', 2000)"
+            class="inline-block shadow-theme px-6 py-2.5 rounded-theme font-bold text-sm transition-all btn-primary no-underline">
+            <?= _t('st_check_updates') ?>
+          </button>
+        </div>
       </div>
-      <h3 class="mb-1 font-bold text-theme-text text-lg opacity-80"><?= _t('st_update_check_needed') ?></h3>
-      <div class="mt-6">
-        <a href="settings.php?tab=update"
-          class="inline-block shadow-theme px-6 py-2.5 rounded-theme font-bold text-sm transition-all btn-primary no-underline">
-          <?= _t('st_check_updates') ?>
-        </a>
+
+      <div x-show="isChecking" style="display: none;" class="flex flex-col justify-center items-center py-16 px-4 bg-theme-bg/30 border-2 border-theme-border border-dashed rounded-theme text-center">
+        <div class="flex justify-center items-center w-16 h-16 mb-4 rounded-full bg-theme-surface shadow-sm text-theme-primary">
+          <svg class="w-8 h-8 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-arrow-path"></use>
+          </svg>
+        </div>
+        <h3 class="mb-1 font-bold text-theme-text text-lg opacity-80"><?= _t('st_checking_updates') ?: 'サーバーに確認中...' ?></h3>
       </div>
     </div>
+
   <?php
   else: ?>
 
@@ -138,27 +150,48 @@ if (($init_tab ?? '') === 'update') {
 
     <?php
     else: ?>
-      <div class="flex flex-col justify-center items-center py-16 px-4 bg-theme-bg/30 border border-theme-border rounded-theme text-center">
-        <div class="flex justify-center items-center w-16 h-16 mb-4 rounded-full bg-theme-success/10 text-theme-success">
-          <svg class="w-8 h-8" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-check-circle"></use>
-          </svg>
+      <div x-data="{ isChecking: false }">
+        <div x-show="!isChecking" class="flex flex-col justify-center items-center py-16 px-4 bg-theme-bg/30 border border-theme-border rounded-theme text-center">
+          <div class="flex justify-center items-center w-16 h-16 mb-4 rounded-full bg-theme-success/10 text-theme-success">
+            <svg class="w-8 h-8" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-check-circle"></use>
+            </svg>
+          </div>
+
+          <h3 class="mb-3 font-bold text-theme-success text-xl"><?= _t('st_up_to_date') ?></h3>
+
+          <div class="flex items-center gap-2 mt-2 px-4 py-2 bg-theme-surface border border-theme-border rounded-full shadow-sm text-sm">
+            <span class="opacity-60 text-theme-text font-bold"><?= _t('st_current_ver') ?></span>
+            <span class="font-mono font-bold text-theme-text">v<?= h($status['current']) ?></span>
+          </div>
+
+          <div class="mt-8">
+            <button @click="isChecking = true; setTimeout(() => window.location.href = 'settings.php?tab=update', 2000)" class="inline-flex items-center gap-2 px-5 py-2 font-bold text-theme-text opacity-70 hover:opacity-100 bg-theme-surface border border-theme-border hover:border-theme-primary rounded-theme text-xs transition-colors shadow-sm no-underline hover:text-theme-primary cursor-pointer">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-arrow-path"></use>
+              </svg>
+              <?= _t('st_check_again') ?>
+            </button>
+          </div>
         </div>
 
-        <h3 class="mb-3 font-bold text-theme-success text-xl"><?= _t('st_up_to_date') ?></h3>
-
-        <div class="flex items-center gap-2 mt-2 px-4 py-2 bg-theme-surface border border-theme-border rounded-full shadow-sm text-sm">
-          <span class="opacity-60 text-theme-text font-bold"><?= _t('st_current_ver') ?></span>
-          <span class="font-mono font-bold text-theme-text">v<?= h($status['current']) ?></span>
-        </div>
-
-        <div class="mt-8">
-          <a href="settings.php?tab=update" class="inline-flex items-center gap-2 px-5 py-2 font-bold text-theme-text opacity-70 hover:opacity-100 bg-theme-surface border border-theme-border hover:border-theme-primary rounded-theme text-xs transition-colors shadow-sm no-underline hover:text-theme-primary">
-            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div x-show="isChecking" style="display: none;" class="flex flex-col justify-center items-center py-16 px-4 bg-theme-bg/30 border border-theme-border rounded-theme text-center">
+          <div class="flex justify-center items-center w-16 h-16 mb-4 rounded-full bg-theme-surface shadow-sm text-theme-primary">
+            <svg class="w-8 h-8 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-arrow-path"></use>
             </svg>
-            <?= _t('st_check_again') ?>
-          </a>
+          </div>
+
+          <h3 class="mb-3 font-bold text-theme-text text-xl"><?= _t('st_checking_updates') ?: 'サーバーに確認中...' ?></h3>
+
+          <div class="flex items-center gap-2 mt-2 px-4 py-2 opacity-0 text-sm">
+            <span class="opacity-60 text-theme-text font-bold"><?= _t('st_current_ver') ?></span>
+            <span class="font-mono font-bold text-theme-text">v<?= h($status['current']) ?></span>
+          </div>
+
+          <div class="mt-8 opacity-0">
+            <span class="inline-flex items-center gap-2 px-5 py-2 text-xs">...</span>
+          </div>
         </div>
       </div>
     <?php

@@ -68,7 +68,6 @@
   "modal_overlay_opacity": "0.9",
   "sidebar_mode": "dark",
   "nav_style": "underline",
-  "cursor": "auto",
   "texture": "noise",
   "media_bg_css": "grid_dark",
   "effects": [
@@ -95,7 +94,6 @@
     "text_gradient_end": "#f2d18a",
     "icon": "outline-sparkles"
   },
-  "sidebar_custom_css": "",
   "css": "body { background-color: #1a0505; background-image: radial-gradient(circle at 50% 0%, rgba(58, 13, 13, 0.8) 0%, transparent 80%), repeating-linear-gradient(90deg, transparent, transparent 24px, rgba(204, 162, 89, 0.08) 24px, rgba(204, 162, 89, 0.08) 25px); background-size: 100% 100%, 100% 100%; background-attachment: fixed; } .card, .panel, .surface { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(204, 162, 89, 0.4) !important; position: relative; } .card::before, .panel::before, .surface::before { content: ''; position: absolute; top: 4px; left: 4px; right: 4px; bottom: 4px; border: 1px solid rgba(204, 162, 89, 0.15); pointer-events: none; } .header { backdrop-filter: blur(16px); border-bottom: 2px solid rgba(204, 162, 89, 0.6) !important; } .sidebar { backdrop-filter: blur(24px); border-right: 2px solid rgba(204, 162, 89, 0.4) !important; } input:focus, select:focus, textarea:focus { background-color: rgba(26, 5, 5, 0.9) !important; }",
   "is_dark": true,
   "is_sidebar_dark": true

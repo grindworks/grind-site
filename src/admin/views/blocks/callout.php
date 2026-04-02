@@ -16,6 +16,9 @@ $callout_styles = $block_config['library']['design']['items']['callout']['styles
   <!-- Content area -->
   <div class="flex-1 p-4 border-l-4 rounded-r-theme" :class="(styles[block.data.style] || {}).class">
     <!-- Message input -->
-    <textarea x-model="block.data.text" :id="'block-' + block.id + '-text'" rows="2" class="bg-transparent opacity-90 p-1 border-none focus:ring-0 w-full text-inherit text-sm placeholder-current" placeholder="<?= _t('ph_callout') ?>"></textarea>
+    <textarea x-model="block.data.text" :id="'block-' + block.id + '-text'" rows="2"
+      x-init="$nextTick(() => { $el.style.height = 'auto'; $el.style.height = $el.scrollHeight + 'px' })"
+      @input="$el.style.height = 'auto'; $el.style.height = $el.scrollHeight + 'px'"
+      class="bg-transparent opacity-90 p-1 border-none focus:ring-0 w-full text-inherit text-sm placeholder-current overflow-hidden resize-none" placeholder="<?= _t('ph_callout') ?>"></textarea>
   </div>
 </div>

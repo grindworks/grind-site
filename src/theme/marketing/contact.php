@@ -147,7 +147,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <div>
           <label class="block mb-2 font-bold text-slate-700 text-sm"><?= theme_t('contact_body') ?> <span class="text-red-500">*</span></label>
           <textarea name="message" rows="6" required
-            class="px-4 py-3 border border-slate-300 focus:border-brand-500 rounded outline-none focus:ring-2 focus:ring-brand-200 w-full transition"><?= h(isset($messageBody) ? $messageBody : '') ?></textarea>
+            class="px-4 py-3 border border-slate-300 focus:border-brand-500 rounded outline-none focus:ring-2 focus:ring-brand-200 w-full transition"><?= h($messageBody) ?></textarea>
         </div>
 
         <div class="pt-4 text-center">

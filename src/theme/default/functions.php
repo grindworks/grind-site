@@ -7,29 +7,6 @@
 if (!defined('GRINDS_APP')) exit;
 
 /**
- * Retrieve categories for fallback navigation.
- */
-if (!function_exists('default_get_categories')) {
-  function default_get_categories()
-  {
-    static $cachedCats = null;
-    if ($cachedCats !== null) {
-      return $cachedCats;
-    }
-
-    $pdo = App::db();
-    if ($pdo) {
-      try {
-        $cachedCats = $pdo->query("SELECT name, slug FROM categories ORDER BY sort_order ASC")->fetchAll();
-        return $cachedCats;
-      } catch (Exception $e) {
-      }
-    }
-    return [];
-  }
-}
-
-/**
  * Render SNS share buttons.
  */
 if (!function_exists('default_the_share_buttons')) {

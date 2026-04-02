@@ -179,7 +179,8 @@ if (!defined('GRINDS_APP'))
           $pName = $pSettings['name'] ?? get_option('site_name');
           $pImage = resolve_url($pSettings['image'] ?? '');
           $rawText = $profileWidget['content'] ?? $pSettings['text'] ?? '';
-          $pText = nl2br(h(function_exists('grinds_extract_text_from_content') ? grinds_extract_text_from_content($rawText) : strip_tags($rawText)));
+          $resolvedText = function_exists('grinds_url_to_view') ? grinds_url_to_view($rawText) : $rawText;
+          $pText = nl2br(h(function_exists('grinds_extract_text_from_content') ? grinds_extract_text_from_content($resolvedText) : strip_tags($resolvedText)));
       ?>
           <div
             class="mt-20 p-8 md:p-12 bg-white border-2 border-slate-900 shadow-sharp flex flex-col sm:flex-row items-center sm:items-start gap-8">

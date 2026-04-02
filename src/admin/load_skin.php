@@ -80,8 +80,8 @@ else {
 // Merge settings
 $finalSkin = array_merge($defaults, $skinData);
 
-// Clear raw CSS
-$finalSkin['css'] = '';
+// Preserve raw CSS from skin
+$finalSkin['css'] = $skinData['css'] ?? '';
 
 // Merge colors
 $finalSkin['colors'] = array_merge($defaults['colors'], $skinData['colors'] ?? []);

@@ -1381,6 +1381,8 @@ if (!function_exists('_grinds_sanitize_clean_attributes')) {
             array_push($allowedAttrs, 'src', 'alt', 'width', 'height', 'loading', 'decoding', 'srcset', 'sizes', 'fetchpriority');
         elseif ($tagName === 'iframe')
             array_push($allowedAttrs, 'src', 'width', 'height', 'frameborder', 'allow', 'allowfullscreen', 'loading', 'title', 'scrolling', 'style', 'referrerpolicy');
+        elseif ($tagName === 'link')
+            array_push($allowedAttrs, 'href', 'rel', 'as', 'type', 'crossorigin', 'media', 'fetchpriority');
         elseif ($tagName === 'script')
             array_push($allowedAttrs, 'src', 'async', 'defer', 'type', 'charset');
         elseif (in_array($tagName, ['td', 'th']))

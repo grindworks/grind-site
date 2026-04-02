@@ -225,7 +225,10 @@ try {
   $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
   $pdo->exec("PRAGMA busy_timeout = 60000;");
   try {
-    $pdo->exec("PRAGMA journal_mode = WAL;");
+    $mode = $pdo->query("PRAGMA journal_mode = WAL;")->fetchColumn();
+    if (strtoupper($mode) !== 'WAL') {
+      throw new Exception("WAL mode not supported");
+    }
   } catch (Exception $e) {
     // 共有サーバー等でWALモードが拒否された場合はフォールバック
     $pdo->exec("PRAGMA journal_mode = DELETE;");

@@ -22,9 +22,10 @@ if (!defined('GRINDS_APP')) exit; ?>
     <div class="mt-3 bg-theme-surface border border-theme-border rounded-theme overflow-hidden aspect-video relative flex items-center justify-center"
       x-html="
             let u = block.data.url;
+            let safeU = typeof escapeHtml === 'function' ? escapeHtml(u) : u.replace(/[&<>'&quot;]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','\'':'&#39;','&quot;':'&quot;'}[c] || c));
             let yt = u.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^&?\/ ]{11})/i);
             if (yt) return '<iframe class=\'absolute inset-0 w-full h-full\' src=\'https://www.youtube-nocookie.com/embed/' + yt[1] + '\' frameborder=\'0\' allowfullscreen></iframe>';
-            return '<div class=\'text-xs text-theme-text opacity-50\'>External Content: <a href=\'' + u + '\' target=\'_blank\' class=\'underline text-theme-primary\'>' + u + '</a></div>';
+            return '<div class=\'text-xs text-theme-text opacity-50\'>External Content: <a href=\'' + safeU + '\' target=\'_blank\' class=\'underline text-theme-primary\'>' + safeU + '</a></div>';
          ">
     </div>
   </template>

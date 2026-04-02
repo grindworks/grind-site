@@ -65,10 +65,15 @@
   "modal_overlay_opacity": "0.3",
   "sidebar_mode": "light",
   "nav_style": "minimal",
-  "cursor": "auto",
   "texture": "dots",
   "media_bg_css": "dots_light",
-  "effects": ["card_lift", "input_solid", "btn_lift", "nav_minimal", "scrollbar_custom"],
+  "effects": [
+    "card_lift",
+    "input_solid",
+    "btn_lift",
+    "nav_minimal",
+    "scrollbar_custom"
+  ],
   "ai_paste": {
     "title": "Smart Import",
     "description": "Paste Markdown from Clipboard",
@@ -82,7 +87,6 @@
     "text_gradient_end": "#818cf8",
     "icon": "outline-sparkles"
   },
-  "sidebar_custom_css": "",
   "css": ".font-bold { font-weight: 600; } h1, h2, h3, h4 { letter-spacing: -0.02em; }",
   "is_dark": false,
   "is_sidebar_dark": false

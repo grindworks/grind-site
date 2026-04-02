@@ -5,8 +5,6 @@
   "font": "\"Lato\", sans-serif",
   "font_heading": "\"Cinzel\", serif",
   "font_size_base": "0.9rem",
-  "cursor": "auto",
-  "sidebar_custom_css": "",
   "colors": {
     "bg": "#050505",
     "sidebar": "rgba(0, 0, 0, 0.85)",
@@ -55,10 +53,7 @@
     "status_trash": "#ea0303",
     "table_header_bg": "rgba(17, 17, 17, 0.8)",
     "table_header_text": "#d4af37",
-    "table_row_hover_bg": "rgba(26, 26, 26, 0.8)",
-    "sidebar_crt": "transparent",
-    "sidebar_crt_shadow": "transparent",
-    "sidebar_crt_border": "transparent"
+    "table_row_hover_bg": "rgba(26, 26, 26, 0.8)"
   },
   "rounded": "2px",
   "btn_radius": "2px",
@@ -72,13 +67,7 @@
   "nav_style": "underline",
   "texture": "pattern_diamond",
   "media_bg_css": "checker_dark",
-  "effects": [
-    "border_luxury_gold",
-    "btn_luxury_outline",
-    "selection_gold",
-    "btn_uppercase",
-    "scrollbar_custom"
-  ],
+  "effects": ["border_luxury_gold", "btn_luxury_outline", "selection_gold", "btn_uppercase", "scrollbar_custom"],
   "ai_paste": {
     "title": "AI Paste",
     "description": "Paste Markdown from Clipboard",

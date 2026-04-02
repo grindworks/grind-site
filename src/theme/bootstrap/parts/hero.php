@@ -53,7 +53,7 @@ $altText = h(!empty($hConf['title']) ? $hConf['title'] : ($pageData['post']['tit
     <?php if ($mobileImgUrl): ?>
       <!-- Mobile image -->
       <?php if ($isFixed): ?>
-        <div class="d-md-none" style="<?= $bgBaseStyle ?> background-image: url(<?= h(json_encode($mobileImgUrl)) ?>);"></div>
+        <div class="d-md-none" style="<?= $bgBaseStyle ?> background-image: url('<?= h($mobileImgUrl) ?>');"></div>
       <?php else: ?>
         <?= get_image_html($mobileImgUrlRaw, ['alt' => $altText, 'class' => 'd-md-none', 'style' => $bgBaseStyle, 'loading' => 'eager', 'fetchpriority' => 'high']) ?>
       <?php endif; ?>
@@ -61,7 +61,7 @@ $altText = h(!empty($hConf['title']) ? $hConf['title'] : ($pageData['post']['tit
       <!-- Desktop image -->
       <?php if ($isFixed): ?>
         <?php if ($imgUrl): ?>
-          <div class="d-md-block d-none" style="<?= $bgBaseStyle ?> background-image: url(<?= h(json_encode($imgUrl)) ?>);"></div>
+          <div class="d-md-block d-none" style="<?= $bgBaseStyle ?> background-image: url('<?= h($imgUrl) ?>');"></div>
         <?php endif; ?>
       <?php else: ?>
         <?php if ($imgUrl): ?>
@@ -72,7 +72,7 @@ $altText = h(!empty($hConf['title']) ? $hConf['title'] : ($pageData['post']['tit
       <!-- Default image -->
       <?php if ($isFixed): ?>
         <?php if ($imgUrl): ?>
-          <div class="" style="<?= $bgBaseStyle ?> background-image: url(<?= h(json_encode($imgUrl)) ?>);"></div>
+          <div class="" style="<?= $bgBaseStyle ?> background-image: url('<?= h($imgUrl) ?>');"></div>
         <?php endif; ?>
       <?php else: ?>
         <?php if ($imgUrl): ?>

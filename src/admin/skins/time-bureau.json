@@ -53,10 +53,7 @@
     "on_success": "#ffffff",
     "on_danger": "#ffffff",
     "on_warning": "#000000",
-    "on_info": "#ffffff",
-    "sidebar_crt": "transparent",
-    "sidebar_crt_shadow": "transparent",
-    "sidebar_crt_border": "transparent"
+    "on_info": "#ffffff"
   },
   "rounded": "4px",
   "btn_radius": "2px",
@@ -66,17 +63,10 @@
   "border_width": "1px",
   "shadow": "0 4px 6px -1px rgba(0, 0, 0, 0.3)",
   "input_padding": "0.6rem 1rem",
-  "cursor": "auto",
   "sidebar_mode": "dark",
   "nav_style": "block",
-  "texture": "",
   "media_bg_css": "background-color: #1a1510; background-image: linear-gradient(rgba(234, 88, 12, 0.15) 1px, transparent 1px), linear-gradient(90deg, rgba(234, 88, 12, 0.15) 1px, transparent 1px); background-size: 40px 40px;",
-  "effects": [
-    "input_typewriter",
-    "btn_uppercase",
-    "border_double",
-    "scrollbar_custom"
-  ],
+  "effects": ["input_typewriter", "btn_uppercase", "border_double", "scrollbar_custom"],
   "ai_paste": {
     "title": "AI Paste",
     "description": "Paste Markdown from Clipboard",
@@ -90,7 +80,6 @@
     "text_gradient_end": "#d97706",
     "icon": "outline-sparkles"
   },
-  "sidebar_custom_css": "",
   "css": "body { background-color: #1a1510; background-image: linear-gradient(rgba(234, 88, 12, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(234, 88, 12, 0.05) 1px, transparent 1px); background-size: 40px 40px; background-attachment: fixed; } .card, .panel, .surface { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(68, 54, 38, 0.5) !important; } .sidebar { backdrop-filter: blur(16px); border-right: 1px solid rgba(68, 54, 38, 0.4) !important; } .header { backdrop-filter: blur(16px); border-bottom: 1px solid rgba(68, 54, 38, 0.6) !important; } .text-center .w-12.h-12 { position: relative; border: 3px solid #ea580c; border-radius: 50%; background-color: #1a0b05; box-shadow: 0 0 15px #ea580c, inset 0 0 10px #ea580c; overflow: hidden; } .text-center .w-12.h-12::before { content: ''; position: absolute; top: 10%; left: calc(50% - 1px); width: 2px; height: 40%; background: #ea580c; transform-origin: bottom center; animation: clock-spin 2s linear infinite; } .text-center .w-12.h-12::after { content: ''; position: absolute; top: 20%; left: calc(50% - 1px); width: 2px; height: 30%; background: #ea580c; transform-origin: bottom center; animation: clock-spin 12s linear infinite; } @keyframes clock-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }",
   "is_dark": true,
   "is_sidebar_dark": true

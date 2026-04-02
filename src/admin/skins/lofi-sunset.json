@@ -68,10 +68,15 @@
   "modal_overlay_opacity": "0.85",
   "sidebar_mode": "dark",
   "nav_style": "pill",
-  "cursor": "auto",
   "texture": "noise",
   "media_bg_css": "grid_purple",
-  "effects": ["card_glass_modern", "btn_lift", "scrollbar_custom", "btn_gradient", "text_bloom_modern"],
+  "effects": [
+    "card_glass_modern",
+    "btn_lift",
+    "scrollbar_custom",
+    "btn_gradient",
+    "text_bloom_modern"
+  ],
   "ai_paste": {
     "title": "Dream Input",
     "description": "Vaporize your ideas into text",
@@ -85,7 +90,6 @@
     "text_gradient_end": "#ffb86c",
     "icon": "outline-sparkles"
   },
-  "sidebar_custom_css": "",
   "css": "body { background: linear-gradient(135deg, #1a1025 0%, #3a1c42 50%, #61234e 100%); background-attachment: fixed; } body::after { content: ''; position: fixed; bottom: 0; left: 0; width: 100%; height: 40vh; background: linear-gradient(to top, rgba(255, 184, 108, 0.1), transparent); pointer-events: none; z-index: -1; } .card, .panel, .surface { backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255, 123, 156, 0.15) !important; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.05) !important; } .header { backdrop-filter: blur(24px); border-bottom: 1px solid rgba(255, 123, 156, 0.2) !important; } .sidebar { backdrop-filter: blur(30px); border-right: 1px solid rgba(255, 123, 156, 0.15) !important; } input, select, textarea { background-color: rgba(10, 5, 15, 0.4) !important; box-shadow: inset 0 2px 4px rgba(0,0,0,0.2) !important; transition: all 0.3s ease; } input:focus, select:focus, textarea:focus { background-color: rgba(26, 16, 37, 0.8) !important; box-shadow: 0 0 0 2px rgba(255, 123, 156, 0.3), inset 0 1px 2px rgba(0,0,0,0.2) !important; } ::selection { background-color: rgba(255, 123, 156, 0.4); color: #ffffff; }",
   "is_dark": true,
   "is_sidebar_dark": true

@@ -210,6 +210,8 @@ $lang = grinds_detect_language();
       if (isLocked) {
         window.scrollLockCount++;
         if (window.scrollLockCount === 1) {
+          const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
+          document.body.style.paddingRight = `${scrollbarWidth}px`;
           document.body.dataset.scrollY = window.scrollY;
           document.body.style.top = `-${window.scrollY}px`;
           document.body.classList.add('fixed', 'w-full', 'overflow-hidden');
@@ -217,6 +219,7 @@ $lang = grinds_detect_language();
       } else {
         window.scrollLockCount = Math.max(0, window.scrollLockCount - 1);
         if (window.scrollLockCount === 0) {
+          document.body.style.paddingRight = '';
           document.body.classList.remove('fixed', 'w-full', 'overflow-hidden');
           document.body.style.top = '';
           if (document.body.dataset.scrollY) {

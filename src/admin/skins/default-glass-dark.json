@@ -56,10 +56,7 @@
     "modal_overlay": "#000000",
     "media_checker_1": "rgba(15, 23, 42, 0.9)",
     "media_checker_2": "rgba(30, 41, 59, 0.9)",
-    "media_ring": "#3b82f6",
-    "sidebar_crt": "transparent",
-    "sidebar_crt_shadow": "transparent",
-    "sidebar_crt_border": "transparent"
+    "media_ring": "#3b82f6"
   },
   "rounded": "0.5rem",
   "btn_radius": "0.5rem",
@@ -71,16 +68,8 @@
   "modal_overlay_opacity": "0.8",
   "sidebar_mode": "dark",
   "nav_style": "pill",
-  "cursor": "auto",
-  "texture": "",
   "media_bg_css": "checker_dark",
   "effects": [],
-  "sidebar_crt_opacity": "0",
-  "sidebar_crt_shadow_x": "0",
-  "sidebar_crt_shadow_blur": "0",
-  "sidebar_crt_shadow_opacity": "0",
-  "sidebar_crt_border_width": "0",
-  "sidebar_crt_border_opacity": "0",
   "ai_paste": {
     "title": "AI Paste",
     "description": "Paste Markdown",
@@ -94,7 +83,6 @@
     "text_gradient_end": "#3b82f6",
     "icon": "outline-sparkles"
   },
-  "sidebar_custom_css": "",
   "css": "::-webkit-scrollbar { width: 8px; height: 8px; } ::-webkit-scrollbar-track { background: transparent; } ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.1); border-radius: 4px; } ::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.2); } .card, .panel, .surface { background: rgba(30, 41, 59, 0.7) !important; backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.1) !important; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); } .sidebar { background: rgba(15, 23, 42, 0.6) !important; backdrop-filter: blur(20px); border-right: 1px solid rgba(255, 255, 255, 0.1); } .header { background: rgba(15, 23, 42, 0.4) !important; backdrop-filter: blur(10px); border-bottom: 1px solid rgba(255, 255, 255, 0.05); } input, select, textarea { background-color: rgba(15, 23, 42, 0.6) !important; border-color: rgba(255, 255, 255, 0.1) !important; color: white !important; } input:focus, select:focus, textarea:focus { background-color: rgba(15, 23, 42, 0.8) !important; border-color: #3b82f6 !important; box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2) !important; } body { background-image: radial-gradient(circle at 0% 0%, rgba(37, 99, 235, 0.15) 0%, transparent 50%), radial-gradient(circle at 100% 20%, rgba(147, 51, 234, 0.15) 0%, transparent 50%), radial-gradient(circle at 20% 100%, rgba(37, 99, 235, 0.15) 0%, transparent 50%); background-attachment: fixed; } .skin-sidebar-item { text-shadow: none !important; }",
   "is_dark": true,
   "is_sidebar_dark": true

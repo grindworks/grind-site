@@ -16,7 +16,7 @@ extract($headerData);
         <link rel="canonical" href="<?= h($canonicalUrl) ?>"><?php endif; ?>
     <link rel="icon" href="<?= h(get_favicon_url()) ?>">
 
-    <link rel="stylesheet" href="<?= grinds_asset_url('theme/nexus-profile/css/style.css') ?>">
+    <link rel="stylesheet" href="<?= grinds_theme_asset_url('css/style.css') ?>">
     <?php grinds_head(); ?>
 </head>
 

@@ -21,5 +21,8 @@ $section_colors = $block_config['library']['layout']['items']['section']['colors
     </select>
   </div>
   <!-- Content input -->
-  <textarea x-model="block.data.text" :id="'block-' + block.id + '-text'" rows="3" class="w-full text-inherit text-base form-control-sm" placeholder="<?= _t('ph_enter_text') ?>"></textarea>
+  <textarea x-model="block.data.text" :id="'block-' + block.id + '-text'" rows="3"
+    x-init="$nextTick(() => { $el.style.height = 'auto'; $el.style.height = $el.scrollHeight + 'px' })"
+    @input="$el.style.height = 'auto'; $el.style.height = $el.scrollHeight + 'px'"
+    class="w-full text-inherit text-base form-control-sm overflow-hidden resize-none" placeholder="<?= _t('ph_enter_text') ?>"></textarea>
 </div>

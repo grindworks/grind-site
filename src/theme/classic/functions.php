@@ -50,370 +50,398 @@ if (!function_exists('classic_the_share_buttons')) {
 }
 
 /**
+ * Get highlighted excerpt for search results.
+ */
+if (!function_exists('classic_get_highlighted_excerpt')) {
+    function classic_get_highlighted_excerpt($post, $length = 100)
+    {
+        $excerpt = (!empty($post['description'])) ? h($post['description']) : get_excerpt($post['content'], $length);
+        if (isset($_GET['q']) && $_GET['q'] !== '') {
+            $q = trim($_GET['q']);
+            $plain = strip_tags($post['content']);
+            $pos = mb_stripos($plain, $q, 0, 'UTF-8');
+            if ($pos !== false) {
+                $start = max(0, $pos - ($length / 2));
+                $sub = mb_substr($plain, $start, $length, 'UTF-8');
+                $marker = "[[MARK_" . bin2hex(random_bytes(8)) . "_START]]";
+                $endMarker = "[[MARK_" . bin2hex(random_bytes(8)) . "_END]]";
+                $subWithPlaceholders = preg_replace('/(' . preg_quote($q, '/') . ')/iu', $marker . '$1' . $endMarker, $sub);
+                $escaped = h($subWithPlaceholders);
+                $final = str_replace([$marker, $endMarker], ['<mark>', '</mark>'], $escaped);
+                $excerpt = '...' . $final . '...';
+            }
+        }
+        return $excerpt;
+    }
+}
+
+/**
  * Render content blocks.
  */
-function classic_render_block($block, $pathFixer)
-{
-    $type = $block['type'] ?? '';
-    $data = $block['data'] ?? [];
+if (!function_exists('classic_render_block')) {
+    function classic_render_block($block, $pathFixer)
+    {
+        $type = $block['type'] ?? '';
+        $data = $block['data'] ?? [];
 
-    $commonClass = "cms-block-" . $type;
+        $commonClass = "cms-block-" . $type;
 
-    switch ($type) {
-        case 'header':
-            $level = strtolower($data['level'] ?? 'h2');
-            if (!preg_match('/^h[2-6]$/', $level))
-                $level = 'h2';
-            $text = h($data['text'] ?? '');
-            if ($text === '')
-                return '';
-            return "<{$level} class='{$commonClass}'>{$text}</{$level}>";
+        switch ($type) {
+            case 'header':
+                $level = strtolower($data['level'] ?? 'h2');
+                if (!preg_match('/^h[2-6]$/', $level))
+                    $level = 'h2';
+                $text = h($data['text'] ?? '');
+                if ($text === '')
+                    return '';
+                return "<{$level} class='{$commonClass}'>{$text}</{$level}>";
 
-        case 'paragraph':
-            $text = nl2br($pathFixer($data['text'] ?? ''));
-            if ($text === '')
-                return '';
-            return "<p class='{$commonClass}'>{$text}</p>";
+            case 'paragraph':
+                $text = nl2br($pathFixer($data['text'] ?? ''));
+                if ($text === '')
+                    return '';
+                return "<p class='{$commonClass}'>{$text}</p>";
 
-        case 'list':
-            $style = ($data['style'] ?? 'unordered') === 'ordered' ? 'ol' : 'ul';
-            $items = $data['items'] ?? [];
-            if (empty($items))
-                return '';
-            $html = "<{$style} class='{$commonClass}'>";
-            foreach ($items as $item)
-                $html .= "<li>" . $pathFixer($item) . "</li>";
-            $html .= "</{$style}>";
-            return $html;
+            case 'list':
+                $style = ($data['style'] ?? 'unordered') === 'ordered' ? 'ol' : 'ul';
+                $items = $data['items'] ?? [];
+                if (empty($items))
+                    return '';
+                $html = "<{$style} class='{$commonClass}'>";
+                foreach ($items as $item)
+                    $html .= "<li>" . $pathFixer($item) . "</li>";
+                $html .= "</{$style}>";
+                return $html;
 
-        case 'image':
-            $url = $data['url'] ?? '';
-            $caption = h($data['caption'] ?? '');
-            if (!$url)
-                return '';
-            $html = "<figure class='{$commonClass}'>" . get_image_html($url, ['alt' => $caption, 'loading' => 'lazy']);
-            if ($caption)
-                $html .= "<figcaption>{$caption}</figcaption>";
-            $html .= "</figure>";
-            return $html;
-
-        case 'quote':
-            $text = nl2br($pathFixer($data['text'] ?? ''));
-            if ($text === '')
-                return '';
-            $cite = h($data['cite'] ?? '');
-            $html = "<blockquote class='{$commonClass}'><p>{$text}</p>";
-            if ($cite)
-                $html .= "<footer>— <cite>{$cite}</cite></footer>";
-            $html .= "</blockquote>";
-            return $html;
-
-        case 'code':
-            $code = h($data['code'] ?? '');
-            if ($code === '')
-                return '';
-            return "<pre class='{$commonClass}'><code>{$code}</code></pre>";
-
-        case 'table':
-            $content = $data['content'] ?? [];
-            $withHeadings = !empty($data['withHeadings']);
-            if (empty($content))
-                return '';
-            $html = "<div class='{$commonClass}'><table>";
-            foreach ($content as $i => $row) {
-                if ($withHeadings && $i === 0) {
-                    $html .= "<thead><tr>";
-                    foreach ($row as $cell)
-                        $html .= "<th>" . nl2br($pathFixer($cell)) . "</th>";
-                    $html .= "</tr></thead><tbody>";
-                } else {
-                    if (!$withHeadings && $i === 0)
-                        $html .= "<tbody>";
-                    $html .= "<tr>";
-                    foreach ($row as $cell)
-                        $html .= "<td>" . nl2br($pathFixer($cell)) . "</td>";
-                    $html .= "</tr>";
-                }
-            }
-            $html .= "</tbody></table></div>";
-            return $html;
-
-        case 'divider':
-            return "<hr class='{$commonClass}'>";
-
-        case 'button':
-            $text = h($data['text'] ?? 'Button');
-            $rawUrl = $data['url'] ?? '';
-            if (empty($rawUrl) || $rawUrl === '#')
-                return '';
-            $url = resolve_url($rawUrl);
-            $target = !empty($data['external']) ? 'target="_blank" rel="noopener"' : '';
-            return "<div class='{$commonClass}'><a href='{$url}' {$target} class='btn'>{$text}</a></div>";
-
-        case 'columns':
-            $left = nl2br($pathFixer($data['leftText'] ?? ''));
-            $right = nl2br($pathFixer($data['rightText'] ?? ''));
-            if ($left === '' && $right === '')
-                return '';
-            return "<div class='{$commonClass}'><div class='col'>{$left}</div><div class='col'>{$right}</div></div>";
-
-        case 'callout':
-            $text = nl2br($pathFixer($data['text'] ?? ''));
-            if ($text === '')
-                return '';
-            $style = h($data['style'] ?? 'info');
-            return "<div class='{$commonClass} callout-{$style}'>{$text}</div>";
-
-        case 'section':
-            $text = nl2br($pathFixer($data['text'] ?? ''));
-            if ($text === '')
-                return '';
-            return "<div class='{$commonClass}'>{$text}</div>";
-
-        case 'accordion':
-            $items = $data['items'] ?? [];
-            if (empty($items))
-                return '';
-            $html = "<div class='{$commonClass}'>";
-            foreach ($items as $item) {
-                $html .= "<details><summary>" . h($item['title']) . "</summary><div>" . nl2br($pathFixer($item['content'])) . "</div></details>";
-            }
-            $html .= "</div>";
-            return $html;
-
-        case 'gallery':
-            $images = $data['images'] ?? [];
-            if (empty($images))
-                return '';
-            $html = "<div class='{$commonClass}'>";
-            foreach ($images as $img) {
-                if (empty($img['url']))
-                    continue;
-                $html .= "<figure>" . get_image_html($img['url'], ['loading' => 'lazy']);
-                if (!empty($img['caption']))
-                    $html .= "<figcaption>" . h($img['caption']) . "</figcaption>";
+            case 'image':
+                $url = $data['url'] ?? '';
+                $caption = h($data['caption'] ?? '');
+                if (!$url)
+                    return '';
+                $html = "<figure class='{$commonClass}'>" . get_image_html($url, ['alt' => $caption, 'loading' => 'lazy']);
+                if ($caption)
+                    $html .= "<figcaption>{$caption}</figcaption>";
                 $html .= "</figure>";
-            }
-            $html .= "</div>";
-            return $html;
+                return $html;
 
-        case 'card':
-            $url = resolve_url($data['url'] ?? '#');
-            $title = h($data['title'] ?? '');
-            $desc = h($data['description'] ?? '');
-            $img = $data['image'] ?? '';
-            if (empty($title) && empty($desc) && empty($img))
-                return '';
-            $html = "<div class='{$commonClass}'><a href='{$url}'>";
-            if ($img)
-                $html .= get_image_html($img, ['alt' => $title, 'loading' => 'lazy']);
-            if ($title)
-                $html .= "<h3>{$title}</h3>";
-            if ($desc)
-                $html .= "<p>{$desc}</p>";
-            $html .= "</a></div>";
-            return $html;
+            case 'quote':
+                $text = nl2br($pathFixer($data['text'] ?? ''));
+                if ($text === '')
+                    return '';
+                $cite = h($data['cite'] ?? '');
+                $html = "<blockquote class='{$commonClass}'><p>{$text}</p>";
+                if ($cite)
+                    $html .= "<footer>— <cite>{$cite}</cite></footer>";
+                $html .= "</blockquote>";
+                return $html;
 
-        case 'embed':
-            $url = h($data['url'] ?? '');
-            if ($url === '')
-                return '';
+            case 'code':
+                $code = h($data['code'] ?? '');
+                if ($code === '')
+                    return '';
+                return "<pre class='{$commonClass}'><code>{$code}</code></pre>";
 
-            $embedHtml = "<a href='{$url}' target='_blank'>{$url}</a>";
+            case 'table':
+                $content = $data['content'] ?? [];
+                $withHeadings = !empty($data['withHeadings']);
+                if (empty($content))
+                    return '';
+                $html = "<div class='{$commonClass}'><table>";
+                foreach ($content as $i => $row) {
+                    if ($withHeadings && $i === 0) {
+                        $html .= "<thead><tr>";
+                        foreach ($row as $cell)
+                            $html .= "<th>" . nl2br($pathFixer($cell)) . "</th>";
+                        $html .= "</tr></thead><tbody>";
+                    } else {
+                        if (!$withHeadings && $i === 0)
+                            $html .= "<tbody>";
+                        $html .= "<tr>";
+                        foreach ($row as $cell)
+                            $html .= "<td>" . nl2br($pathFixer($cell)) . "</td>";
+                        $html .= "</tr>";
+                    }
+                }
+                $html .= "</tbody></table></div>";
+                return $html;
 
-            if (preg_match('/canva\.com\/design\/([a-zA-Z0-9_-]+)\/([a-zA-Z0-9_-]+)\/view/i', $url, $matches)) {
-                $embedId = h($matches[1] . '/' . $matches[2]);
-                $embedHtml = "<div style='position:relative;width:100%;height:0;padding-bottom:56.25%;max-width:800px;margin:0 auto;box-shadow:0 4px 6px rgba(0,0,0,0.1);border-radius:8px;overflow:hidden;'><iframe src='https://www.canva.com/design/{$embedId}/view?embed' style='position:absolute;top:0;left:0;width:100%;height:100%;border:0;' allowfullscreen loading='lazy'></iframe></div>";
-            } elseif (preg_match('/figma\.com\/(file|proto)\/([a-zA-Z0-9]+)/i', $url, $matches)) {
-                $embedUrl = 'https://www.figma.com/embed?embed_host=share&url=' . urlencode($url);
-                $embedHtml = "<div style='position:relative;width:100%;height:0;padding-bottom:56.25%;max-width:800px;margin:0 auto;box-shadow:0 4px 6px rgba(0,0,0,0.1);border-radius:8px;overflow:hidden;'><iframe src='" . h($embedUrl) . "' style='position:absolute;top:0;left:0;width:100%;height:100%;border:0;' allowfullscreen loading='lazy'></iframe></div>";
-            } elseif (preg_match('/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/i', $url, $matches)) {
-                $vid = h($matches[1]);
-                $embedHtml = "<div style='position:relative;width:100%;height:0;padding-bottom:56.25%;max-width:800px;margin:0 auto;background:#000;border-radius:8px;overflow:hidden;'><iframe src='https://www.youtube-nocookie.com/embed/{$vid}' style='position:absolute;top:0;left:0;width:100%;height:100%;border:0;' allowfullscreen loading='lazy'></iframe></div>";
-            }
+            case 'divider':
+                return "<hr class='{$commonClass}'>";
 
-            return "<div class='{$commonClass}' style='text-align:center;'>{$embedHtml}</div>";
+            case 'button':
+                $text = h($data['text'] ?? 'Button');
+                $rawUrl = $data['url'] ?? '';
+                if (empty($rawUrl) || $rawUrl === '#')
+                    return '';
+                $url = resolve_url($rawUrl);
+                $target = !empty($data['external']) ? 'target="_blank" rel="noopener"' : '';
+                return "<div class='{$commonClass}'><a href='{$url}' {$target} class='btn'>{$text}</a></div>";
 
-        case 'map':
-            $code = $data['code'] ?? '';
-            if (preg_match('/<iframe\s+[^>]*src=["\']([^"\']+)["\']/i', $code, $matches)) {
-                return "<div class='{$commonClass}'><iframe src='" . htmlspecialchars($matches[1], ENT_QUOTES) . "' width='100%' height='450' style='border:0' allowfullscreen loading='lazy'></iframe></div>";
-            }
-            return '';
+            case 'columns':
+                $left = nl2br($pathFixer($data['leftText'] ?? ''));
+                $right = nl2br($pathFixer($data['rightText'] ?? ''));
+                if ($left === '' && $right === '')
+                    return '';
+                return "<div class='{$commonClass}'><div class='col'>{$left}</div><div class='col'>{$right}</div></div>";
 
-        case 'html':
-            $code = $data['code'] ?? '';
-            if ($code === '')
-                return '';
-            return "<div class='{$commonClass}'>" . ($data['code'] ?? '') . "</div>";
+            case 'callout':
+                $text = nl2br($pathFixer($data['text'] ?? ''));
+                if ($text === '')
+                    return '';
+                $style = h($data['style'] ?? 'info');
+                return "<div class='{$commonClass} callout-{$style}'>{$text}</div>";
 
-        case 'spacer':
-            $height = (int)($data['height'] ?? 50);
-            return "<div style='height:{$height}px' aria-hidden='true'></div>";
+            case 'section':
+                $text = nl2br($pathFixer($data['text'] ?? ''));
+                if ($text === '')
+                    return '';
+                return "<div class='{$commonClass}'>{$text}</div>";
 
-        case 'download':
-            $title = h($data['title'] ?? theme_t('Download'));
-            $rawUrl = $data['url'] ?? '';
-            if (empty($rawUrl) || $rawUrl === '#')
-                return '';
-            $url = resolve_url($rawUrl);
-            return "<div class='{$commonClass}'><a href='{$url}' download>⬇️ {$title}</a></div>";
-
-        case 'timeline':
-            $items = $data['items'] ?? [];
-            if (empty($items))
-                return '';
-            $html = "<div class='{$commonClass}'>";
-            foreach ($items as $item) {
-                $html .= "<div class='timeline-item'><strong>" . h($item['date']) . "</strong> <h4>" . h($item['title']) . "</h4><p>" . nl2br($pathFixer($item['content'])) . "</p></div>";
-            }
-            $html .= "</div>";
-            return $html;
-
-        case 'step':
-            $items = $data['items'] ?? [];
-            if (empty($items))
-                return '';
-            $html = "<div class='{$commonClass}'>";
-            foreach ($items as $i => $item) {
-                $html .= "<div class='step-item'><strong>" . ($i + 1) . ". " . h($item['title']) . "</strong><p>" . nl2br($pathFixer($item['desc'])) . "</p></div>";
-            }
-            $html .= "</div>";
-            return $html;
-
-        case 'price':
-            $items = $data['items'] ?? [];
-            if (empty($items))
-                return '';
-            $html = "<div class='{$commonClass}'>";
-            foreach ($items as $item) {
-                $html .= "<div class='price-item'><h3>" . h($item['plan']) . "</h3><div class='price'>" . h($item['price']) . "</div><p>" . nl2br(h($item['features'])) . "</p></div>";
-            }
-            $html .= "</div>";
-            return $html;
-
-        case 'testimonial':
-            $name = h($data['name'] ?? '');
-            $comment = nl2br($pathFixer($data['comment'] ?? ''));
-            if ($comment === '')
-                return '';
-            return "<div class='{$commonClass}'><blockquote>{$comment}</blockquote><cite>{$name}</cite></div>";
-
-        case 'audio':
-            $url = resolve_url($data['url'] ?? '');
-            if (!$url)
-                return '';
-            return "<div class='{$commonClass}'><audio controls src='{$url}'></audio></div>";
-
-        case 'pdf':
-            $url = resolve_url($data['url'] ?? '');
-            if (!$url)
-                return '';
-            return "<div class='{$commonClass}'><a href='{$url}' aria-label='" . theme_t('Download PDF') . "'>" . theme_t('Download PDF') . "</a></div>";
-
-        case 'search_box':
-            return "<div class='{$commonClass}'><form action='" . resolve_url('/') . "' method='get' class='grinds-search-form'><input type='text' name='q' placeholder='" . theme_t('Search...') . "'><button type='submit' aria-label='" . theme_t('Search') . "'><svg width='16' height='16' fill='currentColor' viewBox='0 0 16 16'><path d='M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z'/></svg></button></form></div>";
-
-        case 'internal_card':
-            $id = $data['id'] ?? '';
-            if ($id)
-                return "<div class='{$commonClass}'><a href='?p={$id}'>View Post (ID: {$id})</a></div>";
-            return '';
-
-        case 'conversation':
-            $name = h($data['name'] ?? '');
-            $img = $data['image'] ?? '';
-            $text = nl2br($pathFixer($data['text'] ?? ''));
-            if ($text === '')
-                return '';
-            $html = "<div class='{$commonClass}'>";
-            $html .= "<div class='conversation-avatar'>";
-            if ($img)
-                $html .= "<img src='" . resolve_url($img) . "' alt='{$name}'>";
-            else
-                $html .= "<span>👤</span>";
-            $html .= "</div><div class='conversation-body'><strong>{$name}</strong><p>{$text}</p></div></div>";
-            return $html;
-
-        case 'proscons':
-            $pTitle = h($data['pros_title'] ?? theme_t('Pros'));
-            $cTitle = h($data['cons_title'] ?? theme_t('Cons'));
-            $pItems = $data['pros_items'] ?? [];
-            $cItems = $data['cons_items'] ?? [];
-            if (empty($pItems) && empty($cItems))
-                return '';
-            $html = "<div class='{$commonClass}'><div class='pros'><h4>{$pTitle}</h4><ul>";
-            foreach ($pItems as $item)
-                if ($item)
-                    $html .= "<li>" . h($item) . "</li>";
-            $html .= "</ul></div><div class='cons'><h4>{$cTitle}</h4><ul>";
-            foreach ($cItems as $item)
-                if ($item)
-                    $html .= "<li>" . h($item) . "</li>";
-            $html .= "</ul></div></div>";
-            return $html;
-
-        case 'carousel':
-            $images = $data['images'] ?? [];
-            if (empty($images))
-                return '';
-            $id = 'carousel-' . uniqid();
-            $html = "<div id='{$id}' class='{$commonClass} grinds-carousel'>";
-            $html .= "<div class='carousel-inner'>";
-            foreach ($images as $i => $img) {
-                $src = $img['url'] ?? '';
-                if (!$src)
-                    continue;
-                $activeClass = ($i === 0) ? 'active' : '';
-                $html .= "<div class='carousel-item {$activeClass}'>";
-                $html .= get_image_html($src, ['alt' => h($img['caption'] ?? ''), 'loading' => ($i === 0 ? 'eager' : 'lazy')]);
-                if (!empty($img['caption']))
-                    $html .= "<div class='carousel-caption'>" . h($img['caption']) . "</div>";
+            case 'accordion':
+                $items = $data['items'] ?? [];
+                if (empty($items))
+                    return '';
+                $html = "<div class='{$commonClass}'>";
+                foreach ($items as $item) {
+                    $html .= "<details><summary>" . h($item['title']) . "</summary><div>" . nl2br($pathFixer($item['content'])) . "</div></details>";
+                }
                 $html .= "</div>";
-            }
-            $html .= "</div>";
+                return $html;
 
-            if (count($images) > 1) {
-                $html .= "<button class='carousel-control prev' aria-label='Previous'>&lt;</button>";
-                $html .= "<button class='carousel-control next' aria-label='Next'>&gt;</button>";
-                $html .= "<script>(function () {
+            case 'gallery':
+                $images = $data['images'] ?? [];
+                if (empty($images))
+                    return '';
+                $html = "<div class='{$commonClass}'>";
+                foreach ($images as $img) {
+                    if (empty($img['url']))
+                        continue;
+                    $html .= "<figure>" . get_image_html($img['url'], ['loading' => 'lazy']);
+                    if (!empty($img['caption']))
+                        $html .= "<figcaption>" . h($img['caption']) . "</figcaption>";
+                    $html .= "</figure>";
+                }
+                $html .= "</div>";
+                return $html;
+
+            case 'card':
+                $url = resolve_url($data['url'] ?? '#');
+                $title = h($data['title'] ?? '');
+                $desc = h($data['description'] ?? '');
+                $img = $data['image'] ?? '';
+                if (empty($title) && empty($desc) && empty($img))
+                    return '';
+                $html = "<div class='{$commonClass}'><a href='{$url}'>";
+                if ($img)
+                    $html .= get_image_html($img, ['alt' => $title, 'loading' => 'lazy']);
+                if ($title)
+                    $html .= "<h3>{$title}</h3>";
+                if ($desc)
+                    $html .= "<p>{$desc}</p>";
+                $html .= "</a></div>";
+                return $html;
+
+            case 'embed':
+                $url = h($data['url'] ?? '');
+                if ($url === '')
+                    return '';
+
+                $embedHtml = "<a href='{$url}' target='_blank'>{$url}</a>";
+
+                if (preg_match('/canva\.com\/design\/([a-zA-Z0-9_-]+)\/([a-zA-Z0-9_-]+)\/view/i', $url, $matches)) {
+                    $embedId = h($matches[1] . '/' . $matches[2]);
+                    $embedHtml = "<div style='position:relative;width:100%;height:0;padding-bottom:56.25%;max-width:800px;margin:0 auto;box-shadow:0 4px 6px rgba(0,0,0,0.1);border-radius:8px;overflow:hidden;'><iframe src='https://www.canva.com/design/{$embedId}/view?embed' style='position:absolute;top:0;left:0;width:100%;height:100%;border:0;' allowfullscreen loading='lazy'></iframe></div>";
+                } elseif (preg_match('/figma\.com\/(file|proto)\/([a-zA-Z0-9]+)/i', $url, $matches)) {
+                    $embedUrl = 'https://www.figma.com/embed?embed_host=share&url=' . urlencode($url);
+                    $embedHtml = "<div style='position:relative;width:100%;height:0;padding-bottom:56.25%;max-width:800px;margin:0 auto;box-shadow:0 4px 6px rgba(0,0,0,0.1);border-radius:8px;overflow:hidden;'><iframe src='" . h($embedUrl) . "' style='position:absolute;top:0;left:0;width:100%;height:100%;border:0;' allowfullscreen loading='lazy'></iframe></div>";
+                } elseif (preg_match('/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/i', $url, $matches)) {
+                    $vid = h($matches[1]);
+                    $embedHtml = "<div style='position:relative;width:100%;height:0;padding-bottom:56.25%;max-width:800px;margin:0 auto;background:#000;border-radius:8px;overflow:hidden;'><iframe src='https://www.youtube-nocookie.com/embed/{$vid}' style='position:absolute;top:0;left:0;width:100%;height:100%;border:0;' allowfullscreen loading='lazy'></iframe></div>";
+                }
+
+                return "<div class='{$commonClass}' style='text-align:center;'>{$embedHtml}</div>";
+
+            case 'map':
+                $code = $data['code'] ?? '';
+                if (preg_match('/<iframe\s+[^>]*src=["\']([^"\']+)["\']/i', $code, $matches)) {
+                    return "<div class='{$commonClass}'><iframe src='" . htmlspecialchars($matches[1], ENT_QUOTES, 'UTF-8') . "' width='100%' height='450' style='border:0' allowfullscreen loading='lazy'></iframe></div>";
+                }
+                return '';
+
+            case 'html':
+                $code = $data['code'] ?? '';
+                if ($code === '')
+                    return '';
+                return "<div class='{$commonClass}'>" . ($data['code'] ?? '') . "</div>";
+
+            case 'spacer':
+                $height = (int)($data['height'] ?? 50);
+                return "<div style='height:{$height}px' aria-hidden='true'></div>";
+
+            case 'download':
+                $title = h($data['title'] ?? theme_t('Download'));
+                $rawUrl = $data['url'] ?? '';
+                if (empty($rawUrl) || $rawUrl === '#')
+                    return '';
+                $url = resolve_url($rawUrl);
+                return "<div class='{$commonClass}'><a href='{$url}' download>⬇️ {$title}</a></div>";
+
+            case 'timeline':
+                $items = $data['items'] ?? [];
+                if (empty($items))
+                    return '';
+                $html = "<div class='{$commonClass}'>";
+                foreach ($items as $item) {
+                    $html .= "<div class='timeline-item'><strong>" . h($item['date']) . "</strong> <h4>" . h($item['title']) . "</h4><p>" . nl2br($pathFixer($item['content'])) . "</p></div>";
+                }
+                $html .= "</div>";
+                return $html;
+
+            case 'step':
+                $items = $data['items'] ?? [];
+                if (empty($items))
+                    return '';
+                $html = "<div class='{$commonClass}'>";
+                foreach ($items as $i => $item) {
+                    $html .= "<div class='step-item'><strong>" . ($i + 1) . ". " . h($item['title']) . "</strong><p>" . nl2br($pathFixer($item['desc'])) . "</p></div>";
+                }
+                $html .= "</div>";
+                return $html;
+
+            case 'price':
+                $items = $data['items'] ?? [];
+                if (empty($items))
+                    return '';
+                $html = "<div class='{$commonClass}'>";
+                foreach ($items as $item) {
+                    $html .= "<div class='price-item'><h3>" . h($item['plan']) . "</h3><div class='price'>" . h($item['price']) . "</div><p>" . nl2br(h($item['features'])) . "</p></div>";
+                }
+                $html .= "</div>";
+                return $html;
+
+            case 'testimonial':
+                $name = h($data['name'] ?? '');
+                $comment = nl2br($pathFixer($data['comment'] ?? ''));
+                if ($comment === '')
+                    return '';
+                return "<div class='{$commonClass}'><blockquote>{$comment}</blockquote><cite>{$name}</cite></div>";
+
+            case 'audio':
+                $url = resolve_url($data['url'] ?? '');
+                if (!$url)
+                    return '';
+                return "<div class='{$commonClass}'><audio controls src='{$url}'></audio></div>";
+
+            case 'pdf':
+                $url = resolve_url($data['url'] ?? '');
+                if (!$url)
+                    return '';
+                return "<div class='{$commonClass}'><a href='{$url}' aria-label='" . theme_t('Download PDF') . "'>" . theme_t('Download PDF') . "</a></div>";
+
+            case 'search_box':
+                return "<div class='{$commonClass}'><form action='" . resolve_url('/') . "' method='get' class='grinds-search-form'><input type='text' name='q' placeholder='" . theme_t('Search...') . "'><button type='submit' aria-label='" . theme_t('Search') . "'><svg width='16' height='16' fill='currentColor' viewBox='0 0 16 16'><path d='M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z'/></svg></button></form></div>";
+
+            case 'internal_card':
+                $id = $data['id'] ?? '';
+                if ($id)
+                    return "<div class='{$commonClass}'><a href='?p={$id}'>View Post (ID: {$id})</a></div>";
+                return '';
+
+            case 'conversation':
+                $name = h($data['name'] ?? '');
+                $img = $data['image'] ?? '';
+                $text = nl2br($pathFixer($data['text'] ?? ''));
+                if ($text === '')
+                    return '';
+                $html = "<div class='{$commonClass}'>";
+                $html .= "<div class='conversation-avatar'>";
+                if ($img)
+                    $html .= "<img src='" . resolve_url($img) . "' alt='{$name}'>";
+                else
+                    $html .= "<span>👤</span>";
+                $html .= "</div><div class='conversation-body'><strong>{$name}</strong><p>{$text}</p></div></div>";
+                return $html;
+
+            case 'proscons':
+                $pTitle = h($data['pros_title'] ?? theme_t('Pros'));
+                $cTitle = h($data['cons_title'] ?? theme_t('Cons'));
+                $pItems = $data['pros_items'] ?? [];
+                $cItems = $data['cons_items'] ?? [];
+                if (empty($pItems) && empty($cItems))
+                    return '';
+                $html = "<div class='{$commonClass}'><div class='pros'><h4>{$pTitle}</h4><ul>";
+                foreach ($pItems as $item)
+                    if ($item)
+                        $html .= "<li>" . h($item) . "</li>";
+                $html .= "</ul></div><div class='cons'><h4>{$cTitle}</h4><ul>";
+                foreach ($cItems as $item)
+                    if ($item)
+                        $html .= "<li>" . h($item) . "</li>";
+                $html .= "</ul></div></div>";
+                return $html;
+
+            case 'carousel':
+                $images = $data['images'] ?? [];
+                if (empty($images))
+                    return '';
+                $id = 'carousel-' . uniqid();
+                $html = "<div id='{$id}' class='{$commonClass} grinds-carousel'>";
+                $html .= "<div class='carousel-inner'>";
+                foreach ($images as $i => $img) {
+                    $src = $img['url'] ?? '';
+                    if (!$src)
+                        continue;
+                    $activeClass = ($i === 0) ? 'active' : '';
+                    $html .= "<div class='carousel-item {$activeClass}'>";
+                    $html .= get_image_html($src, ['alt' => h($img['caption'] ?? ''), 'loading' => ($i === 0 ? 'eager' : 'lazy')]);
+                    if (!empty($img['caption']))
+                        $html .= "<div class='carousel-caption'>" . h($img['caption']) . "</div>";
+                    $html .= "</div>";
+                }
+                $html .= "</div>";
+
+                if (count($images) > 1) {
+                    $html .= "<button class='carousel-control prev' aria-label='Previous'>&lt;</button>";
+                    $html .= "<button class='carousel-control next' aria-label='Next'>&gt;</button>";
+                    $html .= "<script>(function () {
                         var c = document.getElementById('$id'), items = c.querySelectorAll('.carousel-item'), idx = 0;
                         function show(n) { items[idx].classList.remove('active'); idx = (n + items.length) % items.length; items[idx].classList.add('active'); }
                         c.querySelector('.prev').addEventListener('click', function () { show(idx - 1) });
                         c.querySelector('.next').addEventListener('click', function () { show(idx + 1) });
                     })();</script>";
-            }
-            $html .= "</div>";
-            return $html;
+                }
+                $html .= "</div>";
+                return $html;
 
-        case 'rating':
-            $score = (float)($data['score'] ?? 5);
-            $max = (int)($data['max'] ?? 5);
-            $html = "<div class='{$commonClass}'><div class='stars'>";
-            for ($i = 1; $i <= $max; $i++)
-                $html .= ($i <= round($score)) ? '★' : '☆';
-            $html .= "</div><span class='score'>{$score} / {$max}</span></div>";
-            return $html;
+            case 'rating':
+                $score = (float)($data['score'] ?? 5);
+                $max = (int)($data['max'] ?? 5);
+                $html = "<div class='{$commonClass}'><div class='stars'>";
+                for ($i = 1; $i <= $max; $i++)
+                    $html .= ($i <= round($score)) ? '★' : '☆';
+                $html .= "</div><span class='score'>{$score} / {$max}</span></div>";
+                return $html;
 
-        case 'countdown':
-            $deadline = h($data['deadline'] ?? '');
-            $msg = h($data['message'] ?? theme_t('Finished'));
-            $uid = 'timer-' . uniqid();
-            $html = "<div id='{$uid}' class='{$commonClass}'><div class='label'>" . theme_t('Time Remaining') . "</div><div class='timer-display'>00:00:00:00</div></div>";
-            $html .= "<script>(function () { const end = new Date('{$deadline}').getTime(); const el = document.querySelector('#{$uid} .timer-display'); const timer = setInterval(() => { const now = new Date().getTime(); const dist = end - now; if (dist < 0) { clearInterval(timer); el.innerHTML = '{$msg}'; return; } const d = Math.floor(dist / (1000 * 60 * 60 * 24)); const h = Math.floor((dist % (1000 * 60 * 60 * 24)) / (1000 * 60)); const m = Math.floor((dist % (1000 * 60 * 60)) / (1000 * 60)); const s = Math.floor((dist % (1000 * 60)) / 1000); el.innerText = d + 'd ' + h.toString().padStart(2, '0') + 'h ' + m.toString().padStart(2, '0') + 'm ' + s.toString().padStart(2, '0') + 's'; }, 1000); })();</script>";
-            return $html;
+            case 'countdown':
+                $deadline = h($data['deadline'] ?? '');
+                $msg = h($data['message'] ?? theme_t('Finished'));
+                $uid = 'timer-' . uniqid();
+                $html = "<div id='{$uid}' class='{$commonClass}'><div class='label'>" . theme_t('Time Remaining') . "</div><div class='timer-display'>00:00:00:00</div></div>";
+                $html .= "<script>(function () { const end = new Date('{$deadline}').getTime(); const el = document.querySelector('#{$uid} .timer-display'); const timer = setInterval(() => { const now = new Date().getTime(); const dist = end - now; if (dist < 0) { clearInterval(timer); el.innerHTML = '{$msg}'; return; } const d = Math.floor(dist / (1000 * 60 * 60 * 24)); const h = Math.floor((dist % (1000 * 60 * 60 * 24)) / (1000 * 60)); const m = Math.floor((dist % (1000 * 60 * 60)) / (1000 * 60)); const s = Math.floor((dist % (1000 * 60)) / 1000); el.innerText = d + 'd ' + h.toString().padStart(2, '0') + 'h ' + m.toString().padStart(2, '0') + 'm ' + s.toString().padStart(2, '0') + 's'; }, 1000); })();</script>";
+                return $html;
 
-        case 'qrcode':
-            $url = $data['url'] ?? '';
-            $size = (int)($data['size'] ?? 150);
-            if ($url) {
-                $qrSrc = "https://api.qrserver.com/v1/create-qr-code/?size={$size}x{$size}&data=" . urlencode($url);
-                return "<div class='{$commonClass}'><img src='{$qrSrc}' alt='QR Code' width='{$size}' height='{$size}'></div>";
-            }
-            return '';
+            case 'qrcode':
+                $url = $data['url'] ?? '';
+                $size = (int)($data['size'] ?? 150);
+                if ($url) {
+                    $qrSrc = "https://api.qrserver.com/v1/create-qr-code/?size={$size}x{$size}&data=" . urlencode($url);
+                    return "<div class='{$commonClass}'><img src='{$qrSrc}' alt='QR Code' width='{$size}' height='{$size}'></div>";
+                }
+                return '';
+        }
+
+        return null;
     }
-
-    return null;
 }
 
 /**
@@ -538,7 +566,7 @@ if (!function_exists('the_pagination')) {
         global $pageData;
         if (isset($pageData['paginator'])) {
             $paginator = $pageData['paginator'];
-            include __DIR__ . '/parts/pagination.php';
+            get_template_part('parts/pagination');
         }
     }
 }

@@ -613,7 +613,7 @@ class GrindsSSG
         if ($chunkSize <= 0) $chunkSize = 500;
 
         $startTime = microtime(true);
-        $timeLimit = 15; // 15秒で安全に中断
+        $timeLimit = 15;
         $isFinished = false;
 
         while (true) {
@@ -688,7 +688,6 @@ class GrindsSSG
             }
             $offset += $batchLimit;
 
-            // タイムリミットに達したら中断して状態を返す
             if (microtime(true) - $startTime >= $timeLimit) {
                 break;
             }

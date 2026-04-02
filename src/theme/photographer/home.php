@@ -39,6 +39,6 @@ if (!defined('GRINDS_APP')) exit;
 <div class="flex justify-center mt-16 photographer-pagination">
   <?php if (isset($pageData['paginator'])) {
     $paginator = $pageData['paginator'];
-    include __DIR__ . '/parts/pagination.php';
+    get_template_part('parts/pagination');
   } ?>
 </div>

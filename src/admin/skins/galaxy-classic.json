@@ -63,7 +63,6 @@
   "border_width": "1px",
   "shadow": "0 8px 32px 0 rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(0, 240, 255, 0.2)",
   "input_padding": "0.7rem 1rem",
-  "cursor": "auto",
   "sidebar_mode": "dark",
   "nav_style": "block",
   "texture": "milano_grid",
@@ -89,7 +88,6 @@
     "text_gradient_end": "#ff9e00",
     "icon": "outline-sparkles"
   },
-  "sidebar_custom_css": "",
   "css": ".card, .panel, .surface { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(45, 58, 84, 0.6) !important; } .header { backdrop-filter: blur(16px); border-bottom: 1px solid rgba(45, 58, 84, 0.8) !important; } .sidebar { backdrop-filter: blur(20px); border-right: 1px solid rgba(45, 58, 84, 0.4) !important; }",
   "is_dark": true,
   "is_sidebar_dark": true

@@ -91,7 +91,6 @@
     "text_gradient_end": "#d946ef",
     "icon": "outline-cpu-chip"
   },
-  "sidebar_custom_css": "",
   "css": "input, textarea, select { font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; } ::selection { background-color: #00e5ff; color: #000; }",
   "is_dark": true,
   "is_sidebar_dark": true

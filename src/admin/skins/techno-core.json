@@ -68,7 +68,6 @@
   "modal_overlay_opacity": "0.9",
   "sidebar_mode": "dark",
   "nav_style": "cyber",
-  "cursor": "auto",
   "texture": "tech_grid",
   "media_bg_css": "high_tech",
   "effects": [
@@ -93,7 +92,6 @@
     "text_gradient_end": "#ff00ff",
     "icon": "outline-cpu-chip"
   },
-  "sidebar_custom_css": "",
   "css": "::selection { background-color: rgba(0, 255, 204, 0.4); color: #ffffff; } input:focus, select:focus, textarea:focus { box-shadow: 0 0 10px rgba(0, 255, 204, 0.4), inset 0 0 5px rgba(0, 255, 204, 0.2) !important; border-color: #00ffcc !important; } .card, .panel, .surface { backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border: 1px solid rgba(0, 255, 204, 0.3) !important; box-shadow: 0 0 15px rgba(0, 255, 204, 0.05), inset 0 0 20px rgba(0, 255, 204, 0.05) !important; } .header { backdrop-filter: blur(12px); border-bottom: 1px solid rgba(0, 255, 204, 0.4) !important; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5); } .sidebar { border-right: 1px solid rgba(0, 255, 204, 0.4) !important; box-shadow: 4px 0 20px rgba(0, 0, 0, 0.5); }",
   "is_dark": true,
   "is_sidebar_dark": true

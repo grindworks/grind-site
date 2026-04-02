@@ -73,11 +73,11 @@ Always use the `h()` function for HTML output to prevent XSS.
 
 ### URL Generation
 
-Use `resolve_url()` for internal links and assets to handle installation paths correctly.
+Use `resolve_url()` for internal links. For theme-specific static assets like images, use `grinds_theme_asset_url()` to correctly handle dynamic theme paths with default theme fallbacks.
 
 ```php
 <a href="<?= resolve_url('/contact') ?>">Contact Us</a>
-<img src="<?= resolve_url('/theme/my-theme/img/logo.svg') ?>" alt="Logo">
+<img src="<?= grinds_theme_asset_url('img/logo.svg') ?>" alt="Logo">
 ```
 
 ### Rendering Content

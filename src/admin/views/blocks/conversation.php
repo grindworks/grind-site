@@ -45,7 +45,9 @@ $conv_styles = $block_config['library']['layout']['items']['conversation']['styl
     <!-- Message content -->
     <div class="relative flex-1">
       <textarea x-model="block.data.text" :id="'block-' + block.id + '-text'" rows="3"
-        class="w-full text-sm leading-relaxed form-control-sm" :class="(styles[block.data.position] || {}).class"
+        x-init="$nextTick(() => { $el.style.height = 'auto'; $el.style.height = $el.scrollHeight + 'px' })"
+        @input="$el.style.height = 'auto'; $el.style.height = $el.scrollHeight + 'px'"
+        class="w-full text-sm leading-relaxed form-control-sm overflow-hidden resize-none" :class="(styles[block.data.position] || {}).class"
         placeholder="<?= _t('ph_enter_text') ?>"></textarea>
     </div>
   </div>

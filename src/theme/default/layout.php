@@ -88,7 +88,7 @@ extract($headerData);
   <?php
   endif; ?>
 
-  <meta name="twitter:card" content="<?= $ogImage ? 'summary_large_image' : 'summary' ?>">
+  <meta name="twitter:card" content="<?= ($ogImage && empty($isFallbackImage)) ? 'summary_large_image' : 'summary' ?>">
   <meta name="twitter:title" content="<?= h($finalTitle) ?>">
   <meta name="twitter:description" content="<?= h($finalDesc) ?>">
   <?php if ($ogImage): ?>

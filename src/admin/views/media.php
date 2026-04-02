@@ -272,6 +272,17 @@ if (!isset($skin) || !is_array($skin)) {
         <?php
         endforeach; ?>
       </select>
+
+      <!-- Tag Filter -->
+      <div class="relative">
+        <input type="text" x-model="tagFilter" @keydown.enter.prevent="if(!$event.isComposing) search()"
+          class="w-full text-xs form-control-sm pr-8" placeholder="<?= _t('ph_tags') ?? 'Filter by tag...' ?>">
+        <button type="button" @click="search()" class="absolute right-0 top-0 bottom-0 px-2 text-theme-text opacity-50 hover:opacity-100 hover:text-theme-primary">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-magnifying-glass"></use>
+          </svg>
+        </button>
+      </div>
     </div>
 
     <!-- Active Filters Display (Chips) -->

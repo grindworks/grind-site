@@ -66,12 +66,16 @@
   "border_width": "2px",
   "shadow": "0 8px 20px rgba(255, 141, 161, 0.2)",
   "input_padding": "0.8rem 1.2rem",
-  "cursor": "auto",
   "sidebar_mode": "light",
   "nav_style": "pill",
   "texture": "dots",
   "media_bg_css": "dots_light",
-  "effects": ["card_lift", "btn_lift", "input_solid", "scrollbar_custom"],
+  "effects": [
+    "card_lift",
+    "btn_lift",
+    "input_solid",
+    "scrollbar_custom"
+  ],
   "ai_paste": {
     "title": "AI Paste",
     "description": "Paste Markdown from Clipboard",
@@ -85,7 +89,6 @@
     "text_gradient_end": "#4deeea",
     "icon": "outline-sparkles"
   },
-  "sidebar_custom_css": "",
   "css": ".card, .panel, .surface { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 2px solid rgba(255, 204, 224, 0.4) !important; } .header { backdrop-filter: blur(16px); border-bottom: 2px solid rgba(255, 204, 224, 0.6) !important; } .sidebar { backdrop-filter: blur(20px); border-right: 2px solid rgba(255, 204, 224, 0.4) !important; } .text-center .w-12.h-12 { background-color: #ff8da1; border-radius: 50%; color: #ffffff; box-shadow: 0 4px 12px rgba(255, 141, 161, 0.4); }",
   "is_dark": false,
   "is_sidebar_dark": false

@@ -250,6 +250,24 @@ if (!function_exists('grinds_asset_url')) {
     }
 }
 
+/** Get URL for theme asset with fallback to default theme. */
+if (!function_exists('grinds_theme_asset_url')) {
+    function grinds_theme_asset_url($path)
+    {
+        $theme = grinds_get_active_theme();
+
+        $cleanPath = ltrim($path, '/');
+        $activeThemePath = 'theme/' . $theme . '/' . $cleanPath;
+        $defaultThemePath = 'theme/default/' . $cleanPath;
+
+        if ($theme !== 'default' && !file_exists(ROOT_PATH . '/' . $activeThemePath)) {
+            return grinds_asset_url($defaultThemePath);
+        }
+
+        return grinds_asset_url($activeThemePath);
+    }
+}
+
 
 /**
  * Generate body classes based on current page context.
@@ -308,7 +326,6 @@ if (!function_exists('body_class')) {
 if (!function_exists('grinds_head')) {
     function grinds_head()
     {
-        // ファビコンが設定されている場合、スマホのホーム画面用アイコンも出力
         $favicon = function_exists('get_favicon_url') ? get_favicon_url() : '';
         if ($favicon) {
             echo "<link rel=\"apple-touch-icon\" href=\"" . h($favicon) . "\">\n";
@@ -765,23 +782,6 @@ if (!function_exists('dynamic_sidebar')) {
         }
 
         return true;
-    }
-}
-
-/**
- * Display copyright information.
- */
-if (!function_exists('grinds_the_copyright')) {
-    function grinds_the_copyright($classes = 'text-xs text-gray-500 opacity-80')
-    {
-        $siteName = h(get_option('site_name', SITE_NAME));
-        $yearDisplay = date('Y');
-
-        $html = "<div class='grinds-copyright {$classes} font-sans flex flex-col sm:flex-row items-center justify-center gap-2'>";
-        $html .= "<span>&copy; {$yearDisplay} <strong>{$siteName}</strong>.</span>";
-
-        $html .= "</div>";
-        echo apply_filters('grinds_the_copyright', $html);
     }
 }
 

@@ -14,7 +14,7 @@ $isSearch = (isset($pageType) && $pageType === 'search');
     <section class="relative bg-corp-main -mt-12 py-20 md:py-32 overflow-hidden text-white">
 
       <?php
-      $bgImage = 'theme/corporate/img/hero-bg.jpg';
+      $bgImage = 'theme/' . grinds_get_active_theme() . '/img/hero-bg.jpg';
       $bgStyle = '';
 
       $hConf = json_decode($pageData['post']['hero_settings'] ?? '{}', true);
@@ -23,9 +23,9 @@ $isSearch = (isset($pageType) && $pageType === 'search');
 
       // Set hero image.
       if (!empty($pageData['post']['hero_image'])) {
-        $bgStyle = "background-image: url('" . resolve_url($pageData['post']['hero_image']) . "');";
+        $bgStyle = "background-image: url('" . h(resolve_url($pageData['post']['hero_image'])) . "');";
       } elseif (file_exists(ROOT_PATH . '/' . $bgImage)) {
-        $bgStyle = "background-image: url('" . resolve_url($bgImage) . "');";
+        $bgStyle = "background-image: url('" . h(resolve_url($bgImage)) . "');";
       } else {
         $bgStyle = "background-image: radial-gradient(#334155 1px, transparent 1px); background-size: 20px 20px;";
       }

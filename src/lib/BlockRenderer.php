@@ -100,9 +100,17 @@ class BlockRenderer
                 if ($bypass && $password !== '') {
                     $noticeLabel = function_exists('_t') ? _t('Notice') : 'Notice';
                     $bypassMsg = function_exists('_t') ? _t('Password protection bypassed (Admin / Preview mode).') : 'Password protection bypassed (Admin / Preview mode).';
-                    $html .= "<div class='cms-block-password-bypass my-8 p-4 bg-yellow-50 border-l-4 border-yellow-400 text-yellow-800 rounded-r-theme text-sm shadow-sm'>";
-                    $html .= "<strong class='font-bold mr-1'>{$noticeLabel}:</strong>{$bypassMsg}</div>";
-                    $html .= $protectedHtml;
+                    $testBtnLabel = function_exists('_t') ? _t('Test Password Screen') : 'Test Password Screen';
+
+                    $wrapperHtml = $this->renderPasswordProtectWrapper($password, $message, $protectedHtml);
+
+                    $html .= "<div id='pwd-bypass-{$index}' class='cms-block-password-bypass my-8 p-4 bg-yellow-50 border-l-4 border-yellow-400 text-yellow-800 rounded-r-theme text-sm shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3'>";
+                    $html .= "<div><strong class='font-bold mr-1'>{$noticeLabel}:</strong>{$bypassMsg}</div>";
+                    $html .= "<button type='button' onclick='document.getElementById(\"pwd-bypass-{$index}\").style.display=\"none\"; document.getElementById(\"pwd-content-{$index}\").style.display=\"none\"; document.getElementById(\"pwd-test-{$index}\").style.display=\"block\";' class='text-xs bg-white border border-yellow-400 text-yellow-800 px-3 py-1.5 rounded-theme hover:bg-yellow-100 transition-colors font-bold whitespace-nowrap shadow-sm'>{$testBtnLabel}</button>";
+                    $html .= "</div>";
+
+                    $html .= "<div id='pwd-test-{$index}' style='display:none;'>{$wrapperHtml}</div>";
+                    $html .= "<div id='pwd-content-{$index}'>{$protectedHtml}</div>";
                 } else {
                     $html .= ($password !== '') ? $this->renderPasswordProtectWrapper($password, $message, $protectedHtml) : $protectedHtml;
                 }
@@ -134,137 +142,22 @@ class BlockRenderer
         $prism_js = file_exists($root . '/assets/js/vendor/prism.min.js') ? resolve_url('assets/js/vendor/prism.min.js') : 'https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js';
         $prism_auto = file_exists($root . '/assets/js/vendor/prism-autoloader.min.js') ? resolve_url('assets/js/vendor/prism-autoloader.min.js') : 'https://cdn.jsdelivr.net/npm/prismjs@1.29.0/plugins/autoloader/prism-autoloader.min.js';
 
+        // JavaScript loader URL
+        $loader_js = resolve_url('assets/js/dynamic_blocks_loader.js');
+
+        // Output configuration JSON and load external script
         echo <<<HTML
 <script>
-window.grindsInitDynamicBlocks = function(rootNode) {
-    if (!rootNode) rootNode = document;
-    // 1. Auto Stop Media (Iframes, Audio, Video)
-    if ('IntersectionObserver' in window) {
-        var mediaObserver = new IntersectionObserver(function(entries) {
-            entries.forEach(function(e) {
-                if (!e.isIntersecting) {
-                    var i = e.target.querySelector('iframe');
-                    if (i) { i.contentWindow.postMessage('{"event":"command","func":"pauseVideo","args":""}', '*'); }
-                    var m = e.target.querySelector('audio,video');
-                    if (m && typeof m.pause === 'function') { m.pause(); }
-                }
-            });
-        });
-        rootNode.querySelectorAll('.grinds-auto-stop:not([data-observed])').forEach(function(el) {
-            mediaObserver.observe(el);
-            el.setAttribute('data-observed', 'true');
-        });
-
-        // 2. Progress Bar Animation
-        var progObserver = new IntersectionObserver(function(entries) {
-            entries.forEach(function(entry) {
-                if (entry.isIntersecting) {
-                    var bars = entry.target.querySelectorAll('div[data-width]');
-                    bars.forEach(function(bar) { bar.style.width = bar.getAttribute('data-width'); });
-                    progObserver.unobserve(entry.target);
-                }
-            });
-        }, { threshold: 0.1 });
-        rootNode.querySelectorAll('.cms-block-progress_bar:not([data-observed])').forEach(function(el) {
-            progObserver.observe(el);
-            el.setAttribute('data-observed', 'true');
-        });
-    }
-
-    // 3. Countdowns
-    rootNode.querySelectorAll('.cms-block-countdown:not([data-observed])').forEach(function(el) {
-        el.setAttribute('data-observed', 'true');
-        var deadline = el.getAttribute('data-deadline');
-        var msg = el.getAttribute('data-finish-msg');
-        var display = el.querySelector('.timer-display');
-        if(!deadline || !display) return;
-        var safeDeadline = deadline.replace(/-/g, '/');
-        var end = new Date(safeDeadline).getTime();
-        var timer = setInterval(function() {
-            var now = new Date().getTime();
-            var dist = end - now;
-            if (dist < 0 || isNaN(dist)) {
-                clearInterval(timer);
-                display.innerHTML = msg;
-                return;
-            }
-            var d = Math.floor(dist / (1000 * 60 * 60 * 24));
-            var h = Math.floor((dist % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-            var m = Math.floor((dist % (1000 * 60 * 60)) / (1000 * 60));
-            var s = Math.floor((dist % (1000 * 60)) / 1000);
-            display.innerText = d + 'd ' + h.toString().padStart(2, '0') + 'h ' + m.toString().padStart(2, '0') + 'm ' + s.toString().padStart(2, '0') + 's';
-        }, 1000);
-    });
-
-    // 4. Math (KaTeX Loader)
-    var mathBlocks = rootNode.querySelectorAll('.cms-block-math');
-    if (mathBlocks.length > 0) {
-        var renderMath = function(retries) {
-            retries = retries || 0;
-            if (typeof renderMathInElement === 'function') {
-                renderMathInElement(rootNode, {
-                    delimiters:[
-                        {left: '$$', right: '$$', display: true},
-                        {left: '$', right: '$', display: false},
-                        {left: '\\\\(', right: '\\\\)', display: false},
-                        {left: '\\\\[', right: '\\\\]', display: true}
-                    ],
-                    throwOnError: false
-                });
-            } else if (retries < 50) {
-                setTimeout(function() { renderMath(retries + 1); }, 100);
-            }
-        };
-        if (!window.grindsKatexLoaded) {
-            window.grindsKatexLoaded = true;
-            var loadCss = function(url) {
-                var link = document.createElement('link'); link.rel = 'stylesheet'; link.href = url; link.crossOrigin = 'anonymous'; document.head.appendChild(link);
-            };
-            var loadJs = function(url, callback) {
-                var script = document.createElement('script'); script.src = url; script.crossOrigin = 'anonymous'; script.onload = callback; document.head.appendChild(script);
-            };
-            loadCss('{$katex_css}');
-            loadJs('{$katex_js}', function() {
-                loadJs('{$katex_auto}', renderMath);
-            });
-        } else {
-            renderMath();
-        }
-    }
-
-    // 5. Code Syntax Highlighting (Prism.js Loader)
-    var codeBlocks = rootNode.querySelectorAll('pre code[class*="language-"]');
-    if (codeBlocks.length > 0) {
-        var highlightCode = function(retries) {
-            retries = retries || 0;
-            if (typeof Prism !== 'undefined') {
-                Prism.highlightAllUnder(rootNode);
-            } else if (retries < 50) {
-                setTimeout(function() { highlightCode(retries + 1); }, 100);
-            }
-        };
-        if (!window.grindsPrismLoaded) {
-            window.grindsPrismLoaded = true;
-            var loadCss = function(url) {
-                var link = document.createElement('link'); link.rel = 'stylesheet'; link.href = url; link.crossOrigin = 'anonymous'; document.head.appendChild(link);
-            };
-            var loadJs = function(url, callback) {
-                var script = document.createElement('script'); script.src = url; script.crossOrigin = 'anonymous'; script.onload = callback; document.head.appendChild(script);
-            };
-            loadCss('{$prism_css}');
-            loadJs('{$prism_js}', function() {
-                loadJs('{$prism_auto}', highlightCode);
-            });
-        } else {
-            highlightCode();
-        }
-    }
+window.grindsDynamicConfig = {
+    katex_css: "{$katex_css}",
+    katex_js: "{$katex_js}",
+    katex_auto: "{$katex_auto}",
+    prism_css: "{$prism_css}",
+    prism_js: "{$prism_js}",
+    prism_auto: "{$prism_auto}"
 };
-
-document.addEventListener('DOMContentLoaded', function() {
-    window.grindsInitDynamicBlocks(document);
-});
 </script>
+<script src="{$loader_js}" defer></script>
 HTML;
     }
 
@@ -459,8 +352,9 @@ HTML;
                 $afterLabel = h($data['afterLabel'] ?? '');
                 $uid = 'ba-' . bin2hex(random_bytes(4));
 
+                // Use Alpine.js to manage slider state and avoid inline scripts for CSP compliance.
                 $html = "<div class='{$commonClass} my-10 max-w-4xl mx-auto'>";
-                $html .= "<div id='{$uid}' class='relative w-full overflow-hidden rounded-theme shadow-theme select-none touch-none bg-gray-100 aspect-video'>";
+                $html .= "<div x-data=\"{ sliderPos: 50 }\" id='{$uid}' class='relative w-full overflow-hidden rounded-theme shadow-theme select-none touch-none bg-gray-100 aspect-video'>";
 
                 // Render after image
                 $html .= get_image_html($afterUrl, ['class' => 'absolute inset-0 w-full h-full object-cover pointer-events-none', 'draggable' => 'false']);
@@ -469,7 +363,7 @@ HTML;
                 }
 
                 // Render before image
-                $html .= "<div class='before-wrapper absolute inset-0 w-full h-full pointer-events-none' style='clip-path: inset(0 50% 0 0);'>";
+                $html .= "<div class='before-wrapper absolute inset-0 w-full h-full pointer-events-none' :style=\"`clip-path: inset(0 \${100 - sliderPos}% 0 0);`\">";
                 $html .= get_image_html($beforeUrl, ['class' => 'absolute inset-0 w-full h-full object-cover pointer-events-none', 'draggable' => 'false']);
                 if ($beforeLabel) {
                     $html .= "<div class='absolute top-4 left-4 bg-black/50 text-white px-3 py-1 rounded-theme text-xs font-bold backdrop-blur-sm'>{$beforeLabel}</div>";
@@ -477,24 +371,24 @@ HTML;
                 $html .= "</div>";
 
                 // Render slider control
-                $html .= "<div class='slider-line absolute top-0 bottom-0 left-[50%] w-1 bg-white shadow-[0_0_5px_rgba(0,0,0,0.5)] -translate-x-1/2 pointer-events-none z-10'>";
+                $html .= "<div class='slider-line absolute top-0 bottom-0 w-1 bg-white shadow-[0_0_5px_rgba(0,0,0,0.5)] -translate-x-1/2 pointer-events-none z-10' :style=\"`left: \${sliderPos}%;`\">";
                 $html .= "<div class='absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-8 h-8 bg-white rounded-full shadow-theme flex items-center justify-center text-gray-500'>";
                 $html .= "<svg class='w-5 h-5' fill='none' stroke='currentColor' viewBox='0 0 24 24'><path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M8 9l-3 3 3 3m8-6l3 3-3 3'></path></svg>";
                 $html .= "</div></div>";
 
                 // Render input range
-                $html .= "<input type='range' min='0' max='100' value='50' class='absolute inset-0 w-full h-full opacity-0 cursor-ew-resize z-20 m-0 p-0' ";
-                $html .= "oninput=\"document.querySelector('#{$uid} .before-wrapper').style.clipPath = 'inset(0 ' + (100 - this.value) + '% 0 0)'; document.querySelector('#{$uid} .slider-line').style.left = this.value + '%';\">";
+                $html .= "<input type='range' min='0' max='100' x-model=\"sliderPos\" class='absolute inset-0 w-full h-full opacity-0 cursor-ew-resize z-20 m-0 p-0'>";
 
                 $html .= "</div></div>";
                 return $html;
 
             case 'progress_bar':
                 $items = $data['items'] ?? [];
-                if (empty($items)) return '';
+                $validItems = array_filter($items, fn($item) => trim($item['label'] ?? '') !== '' || (int)($item['percentage'] ?? 0) > 0);
+                if (empty($validItems)) return '';
 
                 $html = "<div class='{$commonClass} my-10 space-y-4 max-w-3xl mx-auto'>";
-                foreach ($items as $item) {
+                foreach ($validItems as $item) {
                     $label = h($item['label'] ?? '');
                     $pct = (int)($item['percentage'] ?? 0);
                     $color = $item['color'] ?? 'primary';
@@ -507,7 +401,7 @@ HTML;
                         'danger'  => 'bg-red-500',
                         'warning' => 'bg-yellow-500',
                         'dark'    => 'bg-gray-800',
-                        default   => 'bg-grinds-red'
+                        default   => 'bg-theme-primary'
                     };
 
                     $html .= "<div class='flex flex-col gap-1.5'>";
@@ -551,7 +445,7 @@ HTML;
                     $indentClass = 'ml-0 font-bold';
                     if ($h['level'] === 3) $indentClass = 'ml-4 font-normal';
                     elseif ($h['level'] >= 4) $indentClass = 'ml-8 font-normal text-sm text-gray-600';
-                    $html .= "<li class='{$indentClass}'><a href='#{$h['id']}' class='hover:underline hover:text-grinds-red text-gray-700 block py-0.5 transition-colors'>" . h($h['text']) . "</a></li>";
+                    $html .= "<li class='{$indentClass}'><a href='#{$h['id']}' class='hover:underline hover:text-theme-primary text-gray-700 block py-0.5 transition-colors'>" . h($h['text']) . "</a></li>";
                 }
                 $html .= "</ul></nav></details>";
                 return $html;
@@ -585,7 +479,7 @@ HTML;
                 $html .= "<h3 class='text-xl font-bold text-gray-900 mb-2'>{$name}</h3>";
                 $html .= "<p class='text-sm text-gray-600 leading-relaxed mb-3'>{$bio}</p>";
                 if ($link) {
-                    $html .= "<a href='" . h($link) . "' target='_blank' rel='noopener noreferrer external' class='inline-flex items-center text-xs font-bold text-grinds-red hover:underline'><svg class='w-4 h-4 mr-1' fill='none' stroke='currentColor' viewBox='0 0 24 24'><use href='{$spriteUrl}#outline-link'></use></svg>Profile Link</a>";
+                    $html .= "<a href='" . h($link) . "' target='_blank' rel='noopener noreferrer external' class='inline-flex items-center text-xs font-bold text-theme-primary hover:underline'><svg class='w-4 h-4 mr-1' fill='none' stroke='currentColor' viewBox='0 0 24 24'><use href='{$spriteUrl}#outline-link'></use></svg>Profile Link</a>";
                 }
                 $html .= "</div></aside>";
                 return $html;
@@ -627,7 +521,7 @@ HTML;
                 return $html;
             case 'math':
                 $code = $data['code'] ?? '';
-                if (trim($code) === '') return '';
+                if (trim((string)$code) === '') return '';
                 $display = $data['display'] ?? 'block';
                 $isBlock = ($display === 'block');
 
@@ -644,7 +538,8 @@ HTML;
                 return $html;
             case 'icon_list':
                 $items = $data['items'] ?? [];
-                if (empty($items)) return '';
+                $validItems = array_filter($items, fn($item) => trim($item ?? '') !== '');
+                if (empty($validItems)) return '';
 
                 $iconType = $data['icon'] ?? 'check';
                 $colorType = $data['color'] ?? 'green';
@@ -664,15 +559,14 @@ HTML;
                     'red' => 'text-red-500',
                     'yellow' => 'text-yellow-500',
                     'gray' => 'text-gray-400',
-                    'primary' => 'text-grinds-red',
+                    'primary' => 'text-theme-primary',
                     default => 'text-green-500'
                 };
 
                 $iconHtml = "<svg class='mt-0.5 mr-3 w-5 h-5 shrink-0 {$colorClass}' fill='none' stroke='currentColor' viewBox='0 0 24 24'><use href='{$spriteUrl}#{$svgId}'></use></svg>";
 
                 $html = "<ul class='{$commonClass} my-8 space-y-3 list-none p-0'>";
-                foreach ($items as $item) {
-                    if (trim($item) === '') continue;
+                foreach ($validItems as $item) {
                     // Sanitize item text
                     $html .= "<li class='flex items-start text-gray-700 text-base leading-relaxed'>{$iconHtml}<span>" . $pathFixer($item) . "</span></li>";
                 }
@@ -680,14 +574,16 @@ HTML;
                 return $html;
             case 'tabs':
                 $items = $data['items'] ?? [];
-                if (empty($items)) return '';
+                $validItems = array_values(array_filter($items, fn($item) => trim($item['title'] ?? '') !== '' || trim($item['content'] ?? '') !== ''));
+                if (empty($validItems)) return '';
+
                 $html = "<div class='{$commonClass} my-10' x-data=\"{ activeTab: 0 }\">";
 
                 $html .= "<div class='flex overflow-x-auto border-b border-gray-200 no-scrollbar' role='tablist'>";
-                foreach ($items as $i => $item) {
-                    $title = h($item['title'] ?? 'Tab');
+                foreach ($validItems as $i => $item) {
+                    $title = h($item['title'] ?: theme_t('Tab'));
                     $html .= "<button type='button' @click=\"activeTab = {$i}\"
-                        :class=\"activeTab === {$i} ? 'border-grinds-red text-grinds-red' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'\"
+                        :class=\"activeTab === {$i} ? 'border-theme-primary text-theme-primary' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'\"
                         class='whitespace-nowrap py-3 px-6 border-b-2 font-bold text-sm outline-none transition-colors'
                         role='tab'
                         :aria-selected=\"activeTab === {$i}\">{$title}</button>";
@@ -695,7 +591,7 @@ HTML;
                 $html .= "</div>";
 
                 $html .= "<div class='pt-6'>";
-                foreach ($items as $i => $item) {
+                foreach ($validItems as $i => $item) {
                     $content = nl2br($pathFixer($item['content'] ?? ''));
                     $html .= "<div x-show=\"activeTab === {$i}\" x-transition:enter='transition ease-out duration-300' x-transition:enter-start='opacity-0 translate-y-2' x-transition:enter-end='opacity-100 translate-y-0' role='tabpanel' class='text-gray-700 leading-relaxed' style='" . ($i === 0 ? "" : "display: none;") . "'>{$content}</div>";
                 }
@@ -747,17 +643,17 @@ HTML;
                             $html .= "<div class='relative aspect-[16/9] overflow-hidden bg-gray-100 shrink-0'>";
                             $html .= get_image_html($thumb, ['class' => 'w-full h-full object-cover group-hover:scale-105 transition-transform duration-500', 'alt' => $title]);
                             if ($catName) {
-                                $html .= "<span class='absolute top-3 left-3 bg-grinds-red text-white text-[10px] font-bold px-2 py-1 rounded-theme shadow-theme z-10'>{$catName}</span>";
+                                $html .= "<span class='absolute top-3 left-3 bg-theme-primary text-theme-on-primary text-[10px] font-bold px-2 py-1 rounded-theme shadow-theme z-10'>{$catName}</span>";
                             }
                             $html .= "</div>";
                         }
 
                         $html .= "<div class='p-5 flex flex-col flex-grow'>";
                         if (!$thumb && $catName) {
-                            $html .= "<div class='mb-2 text-[10px] font-bold text-grinds-red uppercase tracking-wider'>{$catName}</div>";
+                            $html .= "<div class='mb-2 text-[10px] font-bold text-theme-primary uppercase tracking-wider'>{$catName}</div>";
                         }
 
-                        $html .= "<h3 class='font-bold text-gray-900 text-lg mb-3 line-clamp-2 leading-snug'><a href='{$url}' class='hover:text-grinds-red transition-colors no-underline after:absolute after:inset-0'>{$title}</a></h3>";
+                        $html .= "<h3 class='font-bold text-gray-900 text-lg mb-3 line-clamp-2 leading-snug'><a href='{$url}' class='hover:text-theme-primary transition-colors no-underline after:absolute after:inset-0'>{$title}</a></h3>";
 
                         if ($cols <= 2) {
                             $plainText = function_exists('grinds_extract_text_from_content') ? grinds_extract_text_from_content($p['content']) : strip_tags($p['content']);
@@ -781,7 +677,7 @@ HTML;
 
                         $html .= "<li class='py-4 flex sm:flex-row flex-col sm:items-center gap-2 sm:gap-6 group relative'>";
                         $html .= "<span class='text-gray-400 font-mono text-sm w-28 shrink-0'>{$date}</span>";
-                        $html .= "<a href='{$url}' class='font-bold text-gray-800 text-lg group-hover:text-grinds-red transition-colors leading-snug after:absolute after:inset-0'>{$title}</a>";
+                        $html .= "<a href='{$url}' class='font-bold text-gray-800 text-lg group-hover:text-theme-primary transition-colors leading-snug after:absolute after:inset-0'>{$title}</a>";
                         $html .= "</li>";
                     }
                     $html .= "</ul>";
@@ -858,9 +754,10 @@ HTML;
                 $style = ($data['style'] ?? 'unordered') === 'ordered' ? 'ol' : 'ul';
                 $listClass = $style === 'ol' ? 'list-decimal' : 'list-disc';
                 $items = $data['items'] ?? [];
-                if (!empty($items)) {
+                $validItems = array_filter($items, fn($item) => trim((string)$item) !== '');
+                if (!empty($validItems)) {
                     $html = "<{$style} class='{$commonClass} {$listClass} list-outside ml-6 mb-6 text-gray-700 space-y-1'>";
-                    foreach ($items as $item) {
+                    foreach ($validItems as $item) {
                         $html .= "<li>" . $pathFixer($item) . "</li>";
                     }
                     $html .= "</{$style}>";
@@ -915,7 +812,7 @@ HTML;
                     $html .= "<figcaption class='mt-2 text-gray-500 text-sm'>— <cite>";
                     if ($rawCiteUrl) {
                         $displayCite = $cite ?: $rawCiteUrl;
-                        $linkAttrs = grinds_get_link_attributes($rawCiteUrl, ['class' => 'hover:underline text-grinds-red']);
+                        $linkAttrs = grinds_get_link_attributes($rawCiteUrl, ['class' => 'hover:underline text-theme-primary']);
                         $html .= "<a{$linkAttrs}>" . h($displayCite) . "</a>";
                     } else {
                         $html .= $cite;
@@ -951,10 +848,12 @@ HTML;
 
             case 'accordion':
                 $items = $data['items'] ?? [];
-                if (empty($items)) return '';
+                $validItems = array_filter($items, fn($item) => trim($item['title'] ?? '') !== '' || trim($item['content'] ?? '') !== '');
+                if (empty($validItems)) return '';
+
                 $html = "<div class='{$commonClass} my-8 border-gray-200 border-t'>";
-                foreach ($items as $item) {
-                    $q = h($item['title'] ?? '');
+                foreach ($validItems as $item) {
+                    $q = h($item['title'] ?? theme_t('Untitled'));
                     $a = nl2br($pathFixer($item['content'] ?? ''));
                     $html .= "<details class='group border-gray-200 border-b'>";
                     $html .= "<summary class='flex justify-between items-center py-4 font-bold cursor-pointer list-none'>{$q}";
@@ -971,22 +870,18 @@ HTML;
 
             case 'gallery':
                 $images = $data['images'] ?? [];
-                if (empty($images)) return '';
+                $validImages = array_filter($images, fn($img) => !empty(resolve_url($img['url'] ?? '')));
+                if (empty($validImages)) return '';
+
                 $cols = (int)($data['columns'] ?? 3);
                 $html = "<div class='{$commonClass} grid grid-cols-2 md:grid-cols-{$cols} gap-4 my-8'>";
-                foreach ($images as $img) {
-                    $src = resolve_url($img['url'] ?? '');
+                foreach ($validImages as $img) {
+                    $src = resolve_url($img['url']);
                     $cap = h($img['caption'] ?? '');
-                    if ($src) {
-                        $html .= "<div>";
-                        $html .= get_image_html($src, [
-                            'class'   => 'w-full h-full object-cover rounded-theme shadow-theme',
-                            'loading' => 'lazy',
-                            'alt'     => $img['alt'] ?? $img['caption'] ?? ''
-                        ]);
-                        if ($cap) $html .= "<div class='mt-1 text-gray-500 text-xs text-center'>{$cap}</div>";
-                        $html .= "</div>";
-                    }
+                    $html .= "<div>";
+                    $html .= get_image_html($src, ['class' => 'w-full h-full object-cover rounded-theme shadow-theme', 'loading' => 'lazy', 'alt' => $img['alt'] ?? $img['caption'] ?? '']);
+                    if ($cap) $html .= "<div class='mt-1 text-gray-500 text-xs text-center'>{$cap}</div>";
+                    $html .= "</div>";
                 }
                 $html .= "</div>";
                 return $html;
@@ -1060,15 +955,17 @@ HTML;
 
             case 'timeline':
                 $items = $data['items'] ?? [];
-                if (empty($items)) return '';
+                $validItems = array_filter($items, fn($item) => trim($item['date'] ?? '') !== '' || trim($item['title'] ?? '') !== '' || trim($item['content'] ?? '') !== '');
+                if (empty($validItems)) return '';
+
                 $html = "<ol class='{$commonClass} my-12 space-y-8 border-l-2 border-gray-200 ml-3 pl-8 relative list-none p-0'>";
-                foreach ($items as $item) {
+                foreach ($validItems as $item) {
                     $date = h($item['date'] ?? '');
                     $title = h($item['title'] ?? '');
                     $content = nl2br($pathFixer($item['content'] ?? ''));
                     $html .= "<li class='relative'>";
-                    $html .= "<span class='top-1 -left-[41px] absolute bg-white border-4 border-grinds-red rounded-full w-5 h-5' aria-hidden='true'></span>";
-                    if ($date) $html .= "<time class='block mb-1 font-bold text-grinds-red text-sm'>{$date}</time>";
+                    $html .= "<span class='top-1 -left-[41px] absolute bg-white border-4 border-theme-primary rounded-full w-5 h-5' aria-hidden='true'></span>";
+                    if ($date) $html .= "<time class='block mb-1 font-bold text-theme-primary text-sm'>{$date}</time>";
                     if ($title) $html .= "<h4 class='mb-2 font-bold text-gray-900 text-lg'>{$title}</h4>";
                     $html .= "<div class='text-gray-600 text-sm leading-relaxed'>{$content}</div>";
                     $html .= "</li>";
@@ -1107,7 +1004,7 @@ HTML;
                         $desc = h(mb_strimwidth($plainText, 0, 100, '...', 'UTF-8'));
                     }
                     $safeUrl = h($url);
-                    $html = "<div class='{$commonClass} relative flex sm:flex-row flex-col bg-white shadow-theme hover:shadow-theme mx-auto border border-gray-200 hover:border-grinds-red/30 rounded-theme max-w-3xl overflow-hidden transition-all group my-10'>";
+                    $html = "<div class='{$commonClass} relative flex sm:flex-row flex-col bg-white shadow-theme hover:shadow-theme mx-auto border border-gray-200 hover:border-theme-primary/30 rounded-theme max-w-3xl overflow-hidden transition-all group my-10'>";
                     if ($thumb) {
                         $html .= "<div class='relative bg-gray-100 sm:w-48 h-40 sm:h-auto overflow-hidden shrink-0'>";
                         $html .= get_image_html($thumb, [
@@ -1123,7 +1020,7 @@ HTML;
                     }
                     $html .= "<div class='flex flex-col flex-1 justify-center p-5'>";
                     $html .= "<div class='mb-1 text-gray-400 text-xs'>{$date}</div>";
-                    $html .= "<h4 class='mb-2 font-bold text-gray-900 group-hover:text-grinds-red text-lg line-clamp-2 leading-snug'><a href='{$safeUrl}' class='no-underline after:absolute after:inset-0'>{$title}</a></h4>";
+                    $html .= "<h4 class='mb-2 font-bold text-gray-900 group-hover:text-theme-primary text-lg line-clamp-2 leading-snug'><a href='{$safeUrl}' class='no-underline after:absolute after:inset-0'>{$title}</a></h4>";
                     $html .= "<p class='text-gray-600 text-sm line-clamp-2 leading-relaxed'>{$desc}</p>";
                     $html .= "</div>";
                     $html .= "</div>";
@@ -1170,7 +1067,7 @@ HTML;
                     if (preg_match('/^\s*(javascript|vbscript|data):/i', $url)) {
                         $url = '#';
                     }
-                    $linkAttrs = grinds_get_link_attributes($url, ['class' => 'text-grinds-red underline']);
+                    $linkAttrs = grinds_get_link_attributes($url, ['class' => 'text-theme-primary underline']);
                     $embedHtml = "<div class='{$alignClass}'><a{$linkAttrs}>" . h($url) . "</a></div>";
                 }
                 $autoStopClass = str_contains($embedHtml, '<iframe') ? ' grinds-auto-stop' : '';
@@ -1189,7 +1086,7 @@ HTML;
                 $align = $data['align'] ?? 'center';
                 $marginClass = ($align === 'left') ? 'mr-auto' : (($align === 'right') ? 'ml-auto' : 'mx-auto');
 
-                $html = "<div class='{$commonClass} relative flex flex-col sm:flex-row bg-white border border-gray-200 rounded-theme overflow-hidden shadow-theme hover:shadow-theme hover:border-grinds-red/30 transition-all max-w-3xl {$marginClass} group my-10'>";
+                $html = "<div class='{$commonClass} relative flex flex-col sm:flex-row bg-white border border-gray-200 rounded-theme overflow-hidden shadow-theme hover:shadow-theme hover:border-theme-primary/30 transition-all max-w-3xl {$marginClass} group my-10'>";
                 if ($img) {
                     $html .= "<div class='relative bg-gray-100 sm:w-56 h-48 sm:h-auto overflow-hidden shrink-0'>";
                     $html .= get_image_html($img, [
@@ -1201,7 +1098,7 @@ HTML;
                 }
                 $html .= "<div class='flex flex-col flex-1 justify-center p-6'>";
                 $linkAttrs = grinds_get_link_attributes($url, ['class' => 'no-underline after:absolute after:inset-0']);
-                $html .= "<h4 class='mb-2 font-bold text-gray-900 group-hover:text-grinds-red text-lg line-clamp-2 leading-snug'><a{$linkAttrs}>{$title}</a></h4>";
+                $html .= "<h4 class='mb-2 font-bold text-gray-900 group-hover:text-theme-primary text-lg line-clamp-2 leading-snug'><a{$linkAttrs}>{$title}</a></h4>";
                 if ($desc) {
                     $html .= "<p class='mb-3 text-gray-600 text-sm line-clamp-2 leading-relaxed'>{$desc}</p>";
                 }
@@ -1223,7 +1120,7 @@ HTML;
                 $color = $data['color'] ?? 'primary';
                 $btnClass = "inline-flex items-center justify-center px-8 py-4 text-base font-bold rounded-theme shadow-theme transition-all duration-200 hover:shadow-theme hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-offset-2";
                 $styleClass = "is-style-" . $color;
-                if ($color === 'primary') $btnClass .= " bg-grinds-red text-white hover:bg-red-700 focus:ring-grinds-red";
+                if ($color === 'primary') $btnClass .= " bg-theme-primary text-theme-on-primary hover:opacity-90 focus:ring-theme-primary";
                 elseif ($color === 'success') $btnClass .= " bg-green-600 text-white hover:bg-green-700 focus:ring-green-600";
                 elseif ($color === 'danger') $btnClass .= " bg-red-600 text-white hover:bg-red-700 focus:ring-red-600";
                 elseif ($color === 'dark') $btnClass .= " bg-gray-900 text-white hover:bg-black focus:ring-gray-900";
@@ -1267,32 +1164,34 @@ HTML;
                 if (empty($rawUrl) || $rawUrl === '#') return '';
                 $url = resolve_url($rawUrl);
                 $size = h($data['fileSize'] ?? '');
-                $iconSvg = '<svg class="w-8 h-8 text-grinds-red" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="' . $spriteUrl . '#outline-arrow-down-tray"></use></svg>';
-                $html = "<a href='" . h($url) . "' class='{$commonClass} flex items-center p-5 my-8 bg-gray-50 border border-gray-200 rounded-theme hover:bg-white hover:border-grinds-red hover:shadow-theme transition-all group no-underline' download>";
-                $html .= "<div class='bg-white mr-5 p-3 border border-gray-200 group-hover:border-grinds-red/30 rounded-lg transition-colors'>{$iconSvg}</div>";
+                $iconSvg = '<svg class="w-8 h-8 text-theme-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="' . $spriteUrl . '#outline-arrow-down-tray"></use></svg>';
+                $html = "<a href='" . h($url) . "' class='{$commonClass} flex items-center p-5 my-8 bg-gray-50 border border-gray-200 rounded-theme hover:bg-white hover:border-theme-primary hover:shadow-theme transition-all group no-underline' download>";
+                $html .= "<div class='bg-white mr-5 p-3 border border-gray-200 group-hover:border-theme-primary/30 rounded-lg transition-colors'>{$iconSvg}</div>";
                 $html .= "<div class='flex-1 min-w-0'>";
-                $html .= "<div class='font-bold text-gray-900 group-hover:text-grinds-red text-lg truncate transition-colors'>{$title}</div>";
+                $html .= "<div class='font-bold text-gray-900 group-hover:text-theme-primary text-lg truncate transition-colors'>{$title}</div>";
                 if ($size) {
                     $html .= "<div class='mt-1 font-mono text-gray-500 text-xs'>Size: {$size}</div>";
                 }
                 $html .= "</div>";
-                $html .= "<div class='text-gray-300 group-hover:text-grinds-red transition-colors'><svg class='w-5 h-5' fill='none' stroke='currentColor' viewBox='0 0 24 24'><use href='{$spriteUrl}#outline-chevron-right'></use></svg></div>";
+                $html .= "<div class='text-gray-300 group-hover:text-theme-primary transition-colors'><svg class='w-5 h-5' fill='none' stroke='currentColor' viewBox='0 0 24 24'><use href='{$spriteUrl}#outline-chevron-right'></use></svg></div>";
                 $html .= "</a>";
                 return $html;
 
             case 'step':
                 $items = $data['items'] ?? [];
-                if (empty($items)) return '';
+                $validItems = array_values(array_filter($items, fn($item) => trim($item['title'] ?? '') !== '' || trim($item['desc'] ?? '') !== ''));
+                if (empty($validItems)) return '';
+
                 $html = "<ol class='{$commonClass} my-12 space-y-0 list-none p-0'>";
-                foreach ($items as $i => $item) {
+                foreach ($validItems as $i => $item) {
                     $num = $i + 1;
                     $title = h($item['title'] ?? '');
                     $desc = nl2br($pathFixer($item['desc'] ?? ''));
                     $html .= "<li class='relative flex gap-6 pb-10 last:pb-0'>";
-                    if ($i < count($items) - 1) {
+                    if ($i < count($validItems) - 1) {
                         $html .= "<div class='top-10 bottom-0 left-[19px] absolute bg-gray-200 w-0.5'></div>";
                     }
-                    $html .= "<div class='z-10 flex justify-center items-center bg-grinds-red shadow-theme border-4 border-white rounded-theme w-10 h-10 font-bold text-white text-lg shrink-0'>{$num}</div>";
+                    $html .= "<div class='z-10 flex justify-center items-center bg-theme-primary shadow-theme border-4 border-white rounded-theme w-10 h-10 font-bold text-theme-on-primary text-lg shrink-0'>{$num}</div>";
                     $html .= "<div class='pt-1'>";
                     $html .= "<h4 class='mb-3 font-bold text-gray-800 text-xl'>{$title}</h4>";
                     $html .= "<div class='text-gray-600 text-base leading-relaxed'>{$desc}</div>";
@@ -1303,23 +1202,25 @@ HTML;
 
             case 'price':
                 $items = $data['items'] ?? (empty($data) ? [] : [$data]);
-                if (empty($items)) return '';
-                $count = count($items);
+                $validItems = array_filter($items, fn($item) => trim($item['plan'] ?? '') !== '' || trim($item['price'] ?? '') !== '' || trim($item['features'] ?? '') !== '');
+                if (empty($validItems)) return '';
+
+                $count = count($validItems);
                 $gridClass = match ($count) {
                     1 => 'max-w-sm mx-auto',
                     2 => 'grid-cols-1 md:grid-cols-2 max-w-3xl mx-auto',
                     default => 'grid-cols-1 md:grid-cols-3 max-w-6xl mx-auto',
                 };
                 $html = "<div class='{$commonClass} grid {$gridClass} gap-8 my-12 items-start'>";
-                foreach ($items as $item) {
+                foreach ($validItems as $item) {
                     $plan = h($item['plan'] ?? '');
                     $price = h($item['price'] ?? '');
                     $features = explode("\n", h($item['features'] ?? ''));
                     $isRec = !empty($item['recommend']);
-                    $wrapperClass = $isRec ? 'border-grinds-red ring-4 ring-red-50 shadow-theme scale-105 z-10 bg-white relative' : 'border-gray-200 bg-white shadow-theme hover:shadow-theme';
+                    $wrapperClass = $isRec ? 'border-theme-primary ring-4 ring-theme-primary/10 shadow-theme scale-105 z-10 bg-white relative' : 'border-gray-200 bg-white shadow-theme hover:shadow-theme';
                     $html .= "<div class='border rounded-theme p-8 text-center transition-transform duration-300 {$wrapperClass}'>";
                     if ($isRec) {
-                        $html .= "<span class='top-0 left-1/2 absolute bg-grinds-red shadow-theme px-4 py-1 rounded-theme font-bold text-white text-xs uppercase tracking-wider -translate-x-1/2 -translate-y-1/2 transform'>Recommended</span>";
+                        $html .= "<span class='top-0 left-1/2 absolute bg-theme-primary shadow-theme px-4 py-1 rounded-theme font-bold text-theme-on-primary text-xs uppercase tracking-wider -translate-x-1/2 -translate-y-1/2 transform'>Recommended</span>";
                     }
                     $html .= "<h3 class='mb-2 font-bold text-gray-500 text-lg uppercase tracking-wide'>{$plan}</h3>";
                     $html .= "<div class='mb-8 font-extrabold text-gray-900 text-4xl'>{$price}</div>";
@@ -1360,7 +1261,7 @@ HTML;
                 $html .= "<figcaption class='mt-4 md:pl-[104px] md:text-left text-center'>"; // Calculate indentation
                 $html .= "<div class='font-bold text-gray-900'>{$name}</div>";
                 if ($role) {
-                    $html .= "<div class='mt-1 font-bold text-grinds-red text-xs uppercase tracking-wide'>{$role}</div>";
+                    $html .= "<div class='mt-1 font-bold text-theme-primary text-xs uppercase tracking-wide'>{$role}</div>";
                 }
                 $html .= "</figcaption></figure>";
                 return $html;
@@ -1395,7 +1296,7 @@ HTML;
                 $action = (defined('GRINDS_IS_SSG') && GRINDS_IS_SSG) ? 'search.html' : resolve_url('/');
                 $ph = h($data['placeholder'] ?? theme_t('Search...'));
                 $html = "<form action='{$action}' method='get' class='{$commonClass} flex my-8 grinds-search-form'>";
-                $html .= "<input type='text' name='q' placeholder='{$ph}' class='flex-1 p-2 border rounded-l-theme'><button class='bg-blue-600 px-4 rounded-r-theme text-white'>" . theme_t('Search') . "</button></form>";
+                $html .= "<input type='text' name='q' placeholder='{$ph}' class='flex-1 p-2 border rounded-l-theme'><button class='bg-theme-primary hover:opacity-90 px-4 rounded-r-theme text-theme-on-primary'>" . theme_t('Search') . "</button></form>";
                 return $html;
 
             case 'conversation':
@@ -1426,19 +1327,20 @@ HTML;
             case 'proscons':
                 $pTitle = h($data['pros_title'] ?? theme_t('Good'));
                 $cTitle = h($data['cons_title'] ?? theme_t('Bad'));
-                $pItems = $data['pros_items'] ?? [];
-                $cItems = $data['cons_items'] ?? [];
+                $pItems = array_filter($data['pros_items'] ?? [], fn($item) => trim($item ?? '') !== '');
+                $cItems = array_filter($data['cons_items'] ?? [], fn($item) => trim($item ?? '') !== '');
                 if (empty($pItems) && empty($cItems)) return '';
+
                 $html = "<div class='{$commonClass} gap-6 grid grid-cols-1 md:grid-cols-2 my-8'>";
                 $html .= "<div class='bg-green-50 p-4 border border-green-200 rounded-theme' aria-label='Pros' role='region'>";
                 $html .= "<div class='flex items-center gap-2 mb-3 font-bold text-green-800'><svg class='w-5 h-5 text-green-500' fill='none' stroke='currentColor' viewBox='0 0 24 24'><use href='{$spriteUrl}#outline-check-circle'></use></svg> {$pTitle}</div>";
                 $html .= "<ul class='space-y-2'>";
-                foreach ($pItems as $item) if ($item) $html .= "<li class='flex items-start gap-2 text-gray-700 text-sm'><svg class='mt-1 w-4 h-4 text-green-500 shrink-0' fill='none' stroke='currentColor' viewBox='0 0 24 24'><use href='{$spriteUrl}#outline-check'></use></svg> " . h($item) . "</li>";
+                foreach ($pItems as $item) $html .= "<li class='flex items-start gap-2 text-gray-700 text-sm'><svg class='mt-1 w-4 h-4 text-green-500 shrink-0' fill='none' stroke='currentColor' viewBox='0 0 24 24'><use href='{$spriteUrl}#outline-check'></use></svg> " . h($item) . "</li>";
                 $html .= "</ul></div>";
                 $html .= "<div class='bg-red-50 p-4 border border-red-200 rounded-theme' aria-label='Cons' role='region'>";
                 $html .= "<div class='flex items-center gap-2 mb-3 font-bold text-red-800'><svg class='w-5 h-5 text-red-500' fill='none' stroke='currentColor' viewBox='0 0 24 24'><use href='{$spriteUrl}#outline-x-circle'></use></svg> {$cTitle}</div>";
                 $html .= "<ul class='space-y-2'>";
-                foreach ($cItems as $item) if ($item) $html .= "<li class='flex items-start gap-2 text-gray-700 text-sm'><svg class='mt-1 w-4 h-4 text-red-500 shrink-0' fill='none' stroke='currentColor' viewBox='0 0 24 24'><use href='{$spriteUrl}#outline-x'></use></svg> " . h($item) . "</li>";
+                foreach ($cItems as $item) $html .= "<li class='flex items-start gap-2 text-gray-700 text-sm'><svg class='mt-1 w-4 h-4 text-red-500 shrink-0' fill='none' stroke='currentColor' viewBox='0 0 24 24'><use href='{$spriteUrl}#outline-x'></use></svg> " . h($item) . "</li>";
                 $html .= "</ul></div></div>";
                 return $html;
 
@@ -1483,14 +1385,18 @@ HTML;
 
             case 'carousel':
                 $images = $data['images'] ?? [];
-                if (empty($images)) return '';
-                $count = count($images);
+                $validImages = array_values(array_filter($images, fn($img) => !empty(resolve_url($img['url'] ?? ''))));
+                if (empty($validImages)) return '';
+
+                $count = count($validImages);
                 $autoplay = !empty($data['autoplay']) ? 'true' : 'false';
-                $alpineData = "{ active: 0, total: {$count}, autoplay: {$autoplay}, timer: null, next() { this.active = (this.active + 1) % this.total }, prev() { this.active = (this.active - 1 + this.total) % this.total }, start() { if(this.autoplay) this.timer = setInterval(() => { this.next() }, 3000); }, stop() { clearInterval(this.timer); } }";
-                $html = "<div x-data='{$alpineData}' x-init='start()' @mouseenter='stop()' @mouseleave='start()' class='{$commonClass} relative w-full my-10 rounded-theme overflow-hidden shadow-theme group'>";
+                // Add touch event handlers for swipe support on mobile
+                $alpineData = "{ active: 0, total: {$count}, autoplay: {$autoplay}, timer: null, touchStartX: 0, next() { this.active = (this.active + 1) % this.total }, prev() { this.active = (this.active - 1 + this.total) % this.total }, start() { if(this.autoplay) this.timer = setInterval(() => { this.next() }, 3000); }, stop() { clearInterval(this.timer); }, handleTouchStart(e) { this.touchStartX = e.changedTouches[0].screenX; this.stop(); }, handleTouchEnd(e) { let touchEndX = e.changedTouches[0].screenX; if(this.touchStartX - touchEndX > 50) this.next(); else if(touchEndX - this.touchStartX > 50) this.prev(); this.start(); } }";
+
+                $html = "<div x-data='{$alpineData}' x-init='start()' @mouseenter='stop()' @mouseleave='start()' @touchstart='handleTouchStart' @touchend='handleTouchEnd' class='{$commonClass} relative w-full my-10 rounded-theme overflow-hidden shadow-theme group touch-pan-y'>";
 
                 $html .= "<div class='relative bg-gray-100 w-full aspect-video'>";
-                foreach ($images as $i => $img) {
+                foreach ($validImages as $i => $img) {
                     $src = resolve_url($img['url'] ?? '');
                     $caption = h($img['caption'] ?? '');
                     $html .= "<div x-show='active === {$i}' x-transition:enter='transition ease-out duration-300' x-transition:enter-start='opacity-0' x-transition:enter-end='opacity-100' x-transition:leave='transition ease-in duration-200' x-transition:leave-start='opacity-100' x-transition:leave-end='opacity-0' class='absolute inset-0 w-full h-full'>";
@@ -1567,7 +1473,7 @@ HTML;
         $eyeSlashIcon = "<svg class='w-5 h-5' fill='none' stroke='currentColor' viewBox='0 0 24 24' style='display:none;'><use href='{$this->spriteUrl}#outline-eye-slash'></use></svg>";
 
         $out .= "<div class='relative flex-1'>";
-        $out .= "<input type='password' id='{$uid}-input' placeholder='{$phText}' class='w-full flex-1 px-4 py-3 border border-gray-300 rounded-theme focus:outline-none focus:border-grinds-red focus:ring-2 focus:ring-grinds-red/20 transition-all text-center tracking-widest pr-10' required>";
+        $out .= "<input type='password' id='{$uid}-input' placeholder='{$phText}' class='w-full flex-1 px-4 py-3 border border-gray-300 rounded-theme focus:outline-none focus:border-theme-primary focus:ring-2 focus:ring-theme-primary/20 transition-all text-center tracking-widest pr-10' required>";
         $out .= "<button type='button'
             onclick=\"var inp = document.getElementById('{$uid}-input'); var isPass = inp.type === 'password'; inp.type = isPass ? 'text' : 'password'; var btn = this; btn.querySelector('svg:first-child').style.display = isPass ? 'none' : 'block'; btn.querySelector('svg:last-child').style.display = isPass ? 'block' : 'none';\"
             class='absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none'>
@@ -1575,7 +1481,7 @@ HTML;
         </button>";
         $out .= "</div>";
 
-        $out .= "<button type='submit' class='bg-grinds-red hover:bg-red-700 text-white font-bold px-8 py-3 rounded-theme shadow-theme transition-colors whitespace-nowrap flex items-center justify-center gap-2 transform hover:-translate-y-0.5'>";
+        $out .= "<button type='submit' class='bg-theme-primary hover:opacity-90 text-theme-on-primary font-bold px-8 py-3 rounded-theme shadow-theme transition-colors whitespace-nowrap flex items-center justify-center gap-2 transform hover:-translate-y-0.5'>";
         $out .= "<svg class='w-4 h-4' fill='none' stroke='currentColor' viewBox='0 0 24 24'><use href='{$this->spriteUrl}#outline-key'></use></svg>";
         $out .= "{$btnText}</button>";
         $out .= "</form>";

@@ -38,6 +38,15 @@ try {
     throw new Exception(_t('err_invalid_parameters'));
   }
 
+  // Check for JSON1 extension support before starting the transaction
+  $hasJson1 = false;
+  try {
+    $testStmt = $pdo->query("SELECT json('{}')");
+    $hasJson1 = ($testStmt !== false);
+  } catch (PDOException $e) {
+    $hasJson1 = false;
+  }
+
   $pdo->beginTransaction();
   try {
     $jsonUpdateStr = json_encode($metadata, JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_IGNORE);
@@ -45,25 +54,25 @@ try {
       throw new Exception(_t('err_failed_encode_metadata'));
     }
 
-    try {
-        // High performance update using SQLite native JSON functions
-        $stmt = $pdo->prepare("UPDATE media SET metadata = json_patch(COALESCE(metadata, '{}'), ?) WHERE id = ?");
-        $stmt->execute([$jsonUpdateStr, $id]);
-    } catch (PDOException $e) {
-        // Fallback for older SQLite versions without JSON1 support
-        $stmtGet = $pdo->prepare("SELECT metadata FROM media WHERE id = ?");
-        $stmtGet->execute([$id]);
-        $existingMetaStr = $stmtGet->fetchColumn();
-        $existingMeta = $existingMetaStr ? json_decode($existingMetaStr, true) : [];
-        if (!is_array($existingMeta)) {
-          $existingMeta = [];
-        }
+    if ($hasJson1) {
+      // High performance update using SQLite native JSON functions
+      $stmt = $pdo->prepare("UPDATE media SET metadata = json_patch(COALESCE(metadata, '{}'), ?) WHERE id = ?");
+      $stmt->execute([$jsonUpdateStr, $id]);
+    } else {
+      // Fallback for older SQLite versions without JSON1 support
+      $stmtGet = $pdo->prepare("SELECT metadata FROM media WHERE id = ?");
+      $stmtGet->execute([$id]);
+      $existingMetaStr = $stmtGet->fetchColumn();
+      $existingMeta = $existingMetaStr ? json_decode($existingMetaStr, true) : [];
+      if (!is_array($existingMeta)) {
+        $existingMeta = [];
+      }
 
-        $mergedMeta = array_merge($existingMeta, $metadata);
-        $jsonMeta = json_encode($mergedMeta, JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_IGNORE);
+      $mergedMeta = array_merge($existingMeta, $metadata);
+      $jsonMeta = json_encode($mergedMeta, JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_IGNORE);
 
-        $stmt = $pdo->prepare("UPDATE media SET metadata = ? WHERE id = ?");
-        $stmt->execute([$jsonMeta, $id]);
+      $stmt = $pdo->prepare("UPDATE media SET metadata = ? WHERE id = ?");
+      $stmt->execute([$jsonMeta, $id]);
     }
 
     // Update tags

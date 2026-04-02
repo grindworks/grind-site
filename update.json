@@ -1,7 +1,7 @@
 {
-  "version": "1.2.2",
-  "release_date": "2026-03-30",
-  "message": "Fixed a critical bug in the Static Site Generation (SSG) process for offline environments.",
-  "download_url": "https://github.com/grindworks/grind-site/releases/download/v1.2.2/grindsite-v1.2.2.zip",
-  "sha256": "a87ef97547e3921db301c4e311c2d1030cb7201a8c9c116597da72aa77ba7293"
+  "version": "1.3.0",
+  "release_date": "2026-04-02",
+  "message": "Added powerful CLI tool and new admin skins",
+  "download_url": "https://github.com/grindworks/grind-site/releases/download/v1.3.0/grindsite-v1.3.0.zip",
+  "sha256": "63cdf20ce9788c703b1ccdb57c488721955eccc8123cd926f4c8500aaf20758d"
 }

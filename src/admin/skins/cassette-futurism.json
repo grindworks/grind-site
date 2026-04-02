@@ -66,12 +66,15 @@
   "border_width": "2px",
   "shadow": "4px 4px 0px 0px rgba(0, 0, 0, 0.1)",
   "input_padding": "0.75rem 1rem",
-  "cursor": "auto",
   "sidebar_mode": "dark",
   "nav_style": "block",
   "texture": "noise",
   "media_bg_css": "checker_light",
-  "effects": ["input_solid", "overlay_scanline", "crt_flicker"],
+  "effects": [
+    "input_solid",
+    "overlay_scanline",
+    "crt_flicker"
+  ],
   "ai_paste": {
     "title": "DATA INPUT",
     "description": "Insert Data Stream",

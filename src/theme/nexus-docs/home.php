@@ -35,7 +35,7 @@ $isSearch = (isset($pageType) && $pageType === 'search');
                 Welcome to the official documentation. Search below to find answers, tutorials, and API references.
             </p>
 
-            <form action="<?= h(resolve_url('/search')) ?>" method="get" class="relative max-w-2xl mx-auto shadow-lg rounded-2xl">
+            <form action="<?= h(resolve_url('/')) ?>" method="get" class="relative max-w-2xl mx-auto shadow-lg rounded-2xl">
                 <svg class="pointer-events-none absolute top-4 left-5 h-6 w-6 text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-magnifying-glass"></use>
                 </svg>

@@ -68,7 +68,6 @@
   "modal_overlay_opacity": "0.9",
   "sidebar_mode": "dark",
   "nav_style": "underline",
-  "cursor": "auto",
   "texture": "pattern_diamond",
   "media_bg_css": "grid_dark",
   "effects": [
@@ -95,7 +94,6 @@
     "text_gradient_end": "#fce588",
     "icon": "outline-sparkles"
   },
-  "sidebar_custom_css": "",
   "css": "body { background: radial-gradient(circle at 50% 0%, #0c3327 0%, #061a14 70%); background-attachment: fixed; } .card, .panel, .surface { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(212, 175, 55, 0.4) !important; position: relative; } .card::before, .panel::before, .surface::before { content: ''; position: absolute; top: 4px; left: 4px; right: 4px; bottom: 4px; border: 1px solid rgba(212, 175, 55, 0.15); pointer-events: none; } .header { backdrop-filter: blur(16px); border-bottom: 2px solid rgba(212, 175, 55, 0.6) !important; } .sidebar { backdrop-filter: blur(24px); border-right: 2px solid rgba(212, 175, 55, 0.4) !important; } input:focus, select:focus, textarea:focus { background-color: rgba(6, 26, 20, 0.9) !important; }",
   "is_dark": true,
   "is_sidebar_dark": true

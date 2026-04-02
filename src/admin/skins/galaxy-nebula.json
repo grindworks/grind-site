@@ -60,7 +60,6 @@
   "font_size_base": "15px",
   "scrollbar_width": "10px",
   "modal_overlay_opacity": "0.8",
-  "cursor": "auto",
   "border_width": "1px",
   "shadow": "0 0 15px rgba(168, 85, 247, 0.25), 0 4px 6px rgba(0, 0, 0, 0.8)",
   "input_padding": "0.75rem 1rem",
@@ -88,7 +87,6 @@
     "text_gradient_end": "#d8b4fe",
     "icon": "outline-sparkles"
   },
-  "sidebar_custom_css": "",
   "css": ".card, .panel, .surface { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(76, 29, 149, 0.5) !important; } .header { backdrop-filter: blur(16px); border-bottom: 1px solid rgba(76, 29, 149, 0.6) !important; } .sidebar { backdrop-filter: blur(20px); border-right: 1px solid rgba(76, 29, 149, 0.4) !important; }",
   "is_dark": true,
   "is_sidebar_dark": true

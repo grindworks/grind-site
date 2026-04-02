@@ -15,7 +15,7 @@ $hasHeroTitle = $hasHero && !empty($heroSettings['title']);
 <article class="mx-auto max-w-6xl">
 
   <!-- Include hero. -->
-  <?php include __DIR__ . '/parts/hero.php'; ?>
+  <?php get_template_part('parts/hero'); ?>
 
   <div class="mb-8 text-center">
     <?= get_breadcrumb_html([

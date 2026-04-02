@@ -42,6 +42,7 @@ if ($latestVersion && version_compare($latestVersion, CMS_VERSION, '>')) {
             const url = new URL(window.location);
             url.searchParams.set("tab", key);
             window.history.replaceState({}, "", url);
+            window.scrollTo({ top: 0, behavior: "smooth" });
         }
   }'>
 

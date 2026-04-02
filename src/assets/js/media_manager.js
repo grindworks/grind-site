@@ -67,6 +67,7 @@ window.GrindsMediaApi = {
       type: params.type || 'all',
       ext: params.ext || '',
       date: params.date || '',
+      tag: params.tag || '',
       status: params.status || 'all',
     });
     return this.request(`media_list.php?${query.toString()}`);
@@ -300,6 +301,7 @@ document.addEventListener('alpine:init', () => {
     typeFilter: 'all',
     extFilter: '',
     dateFilter: '',
+    tagFilter: '',
     statusFilter: 'all',
     viewMode: 'grid',
     gridCols: 5,
@@ -314,7 +316,11 @@ document.addEventListener('alpine:init', () => {
 
     get isFiltered() {
       return (
-        this.typeFilter !== 'all' || this.extFilter !== '' || this.dateFilter !== '' || this.statusFilter !== 'all'
+        this.typeFilter !== 'all' ||
+        this.extFilter !== '' ||
+        this.dateFilter !== '' ||
+        this.tagFilter !== '' ||
+        this.statusFilter !== 'all'
       );
     },
 
@@ -334,6 +340,9 @@ document.addEventListener('alpine:init', () => {
       if (this.dateFilter !== '') {
         filters.push({ type: 'date', label: this.dateFilter });
       }
+      if (this.tagFilter !== '') {
+        filters.push({ type: 'tag', label: `Tag: ${this.tagFilter}` });
+      }
       return filters;
     },
 
@@ -341,6 +350,7 @@ document.addEventListener('alpine:init', () => {
       if (type === 'type' || type === 'all') this.typeFilter = 'all';
       if (type === 'ext' || type === 'all') this.extFilter = '';
       if (type === 'date' || type === 'all') this.dateFilter = '';
+      if (type === 'tag' || type === 'all') this.tagFilter = '';
 
       this.search();
     },
@@ -390,6 +400,7 @@ document.addEventListener('alpine:init', () => {
           type: this.typeFilter,
           ext: this.extFilter,
           date: this.dateFilter,
+          tag: this.tagFilter,
           status: this.statusFilter,
         };
         const data = await GrindsMediaApi.list(this.page, params);
@@ -399,11 +410,15 @@ document.addEventListener('alpine:init', () => {
           } else {
             this.files = data.files;
             this.$nextTick(() => {
-              const mainContainer = document.querySelector('main');
-              if (mainContainer) {
-                mainContainer.scrollTop = 0;
+              // Use a more specific selector for the scroll container within the component
+              const container = this.$el.querySelector('.overflow-y-auto');
+              if (container) {
+                container.scrollTop = 0;
               } else {
-                window.scrollTo({ top: 0, behavior: 'smooth' });
+                // Fallback for the main media page view
+                const mainContainer = document.querySelector('main');
+                if (mainContainer) mainContainer.scrollTop = 0;
+                else window.scrollTo({ top: 0, behavior: 'smooth' });
               }
             });
           }
@@ -661,7 +676,7 @@ document.addEventListener('alpine:init', () => {
         this.uploadProgressPercent = 0;
         try {
           const uploadedFile = await GrindsMediaHelpers.uploadFile(file, window.grindsCsrfToken, (percent) => {
-            this.uploadProgressPercent = percent;
+            this.uploadProgressPercent = Math.round(((current - 1) / total) * 100 + percent / total);
           });
           if (uploadedFile) {
             this.files.unshift(uploadedFile);

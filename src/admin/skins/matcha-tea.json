@@ -63,7 +63,6 @@
   "border_width": "1px",
   "shadow": "0 4px 12px rgba(45, 58, 37, 0.1)",
   "input_padding": "0.75rem 1rem",
-  "cursor": "auto",
   "sidebar_mode": "dark",
   "nav_style": "pill",
   "texture": "paper",
@@ -87,7 +86,6 @@
     "text_gradient_end": "#9ccc65",
     "icon": "outline-sparkles"
   },
-  "sidebar_custom_css": "",
   "css": ".card, .panel, .surface { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(197, 225, 165, 0.5) !important; } .sidebar { backdrop-filter: blur(16px); border-right: 1px solid rgba(197, 225, 165, 0.2) !important; } .header { backdrop-filter: blur(12px); border-bottom: 1px solid rgba(197, 225, 165, 0.5) !important; } .text-center .w-12.h-12 { background-color: #6b8e23; border-radius: 50%; color: #ffffff; }",
   "is_dark": false,
   "is_sidebar_dark": true

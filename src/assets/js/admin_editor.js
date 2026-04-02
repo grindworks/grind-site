@@ -8,6 +8,7 @@ document.addEventListener('alpine:init', () => {
     seoTitle: options.seoTitle || '',
     seoDesc: options.seoDesc || '',
     seoImage: options.seoImage || '',
+    postStatus: options.postStatus || 'draft',
     siteDomain: options.siteDomain || window.location.hostname,
     mediaTargetContext: null,
 
@@ -833,21 +834,6 @@ document.addEventListener('alpine:init', () => {
           { passive: true }
         );
       });
-
-      const toggleBodyScroll = (val) => {
-        if (val) {
-          const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
-          document.body.style.paddingRight = `${scrollbarWidth}px`;
-          document.body.classList.add('overflow-hidden');
-        } else {
-          document.body.style.paddingRight = '';
-          document.body.classList.remove('overflow-hidden');
-        }
-      };
-
-      this.$watch('inserterOpen', toggleBodyScroll);
-      this.$watch('mediaModalOpen', toggleBodyScroll);
-      this.$watch('templateModalOpen', toggleBodyScroll);
     },
 
     /**
@@ -1100,6 +1086,15 @@ document.addEventListener('alpine:init', () => {
 
       this.$nextTick(() => {
         this.isUndoing = false;
+
+        // Recalculate textarea heights to prevent display issues
+        document.querySelectorAll('#post-form textarea').forEach((ta) => {
+          if (ta.style.overflow === 'hidden') {
+            ta.style.height = 'auto';
+            ta.style.height = ta.scrollHeight + 'px';
+          }
+        });
+
         if (prevState.caret && prevState.caret.id) {
           const el = document.getElementById(prevState.caret.id);
           if (el) {
@@ -1148,6 +1143,15 @@ document.addEventListener('alpine:init', () => {
 
       this.$nextTick(() => {
         this.isUndoing = false;
+
+        // Recalculate textarea heights to prevent display issues
+        document.querySelectorAll('#post-form textarea').forEach((ta) => {
+          if (ta.style.overflow === 'hidden') {
+            ta.style.height = 'auto';
+            ta.style.height = ta.scrollHeight + 'px';
+          }
+        });
+
         if (nextState.caret && nextState.caret.id) {
           const el = document.getElementById(nextState.caret.id);
           if (el) {
@@ -1226,6 +1230,9 @@ document.addEventListener('alpine:init', () => {
      */
     normalizeUrl(url) {
       if (!url) return '';
+
+      // Remove leading/trailing whitespace
+      url = url.trim();
 
       // Normalize slashes
       url = url.replace(/\\/g, '/');
@@ -1375,7 +1382,12 @@ document.addEventListener('alpine:init', () => {
           if (previewWindow) {
             previewWindow.location.href = previewUrl;
           } else {
-            window.location.href = previewUrl;
+            const msg = window.grindsTranslations.js_preview_popup_blocked || 'Popup blocked.';
+            window.showToast(
+              msg +
+                `<br><br><a href="${previewUrl}" target="_blank" class="underline text-theme-primary font-bold">Open Preview</a>`,
+              'warning'
+            );
           }
         } else {
           if (previewWindow) previewWindow.close();
@@ -1431,6 +1443,12 @@ document.addEventListener('alpine:init', () => {
         const data = await res.json();
         if (data.success) {
           this.isDirty = false;
+
+          // Unfocus active element on save to prevent misfiring change events.
+          if (document.activeElement && document.activeElement.blur) {
+            document.activeElement.blur();
+          }
+
           localStorage.removeItem(this.draftKey);
           localStorage.removeItem(this.draftKey + '_time');
 
@@ -1470,6 +1488,68 @@ document.addEventListener('alpine:init', () => {
     },
 
     /**
+     * Handle tab indentation in code blocks.
+     * @param {Event} event
+     * @param {number} blockIndex
+     */
+    handleCodeIndent(event, blockIndex) {
+      const el = event.target;
+      const start = el.selectionStart;
+      const end = el.selectionEnd;
+      const value = this.blocks[blockIndex].data.code;
+
+      const lineStart = value.lastIndexOf('\n', start - 1) + 1;
+      const lineEnd = value.indexOf('\n', end - 1);
+      const affectedEnd = lineEnd === -1 ? value.length : lineEnd;
+
+      const selectedLinesText = value.substring(lineStart, affectedEnd);
+      const lines = selectedLinesText.split('\n');
+      let change = 0;
+
+      if (event.shiftKey) {
+        // Un-indent
+        const newLines = lines.map((line) => {
+          if (line.startsWith('  ')) {
+            change -= 2;
+            return line.substring(2);
+          } else if (line.startsWith(' ')) {
+            change -= 1;
+            return line.substring(1);
+          }
+          return line;
+        });
+        this.blocks[blockIndex].data.code =
+          value.substring(0, lineStart) + newLines.join('\n') + value.substring(affectedEnd);
+        this.$nextTick(() => {
+          el.selectionStart = Math.max(
+            lineStart,
+            start + (lines[0].startsWith('  ') ? -2 : lines[0].startsWith(' ') ? -1 : 0)
+          );
+          el.selectionEnd = Math.max(el.selectionStart, end + change);
+        });
+      } else {
+        // Indent
+        if (start === end) {
+          this.blocks[blockIndex].data.code = value.substring(0, start) + '  ' + value.substring(end);
+          this.$nextTick(() => {
+            el.selectionStart = el.selectionEnd = start + 2;
+          });
+        } else {
+          const newLines = lines.map((line) => {
+            change += 2;
+            return '  ' + line;
+          });
+          this.blocks[blockIndex].data.code =
+            value.substring(0, lineStart) + newLines.join('\n') + value.substring(affectedEnd);
+          this.$nextTick(() => {
+            el.selectionStart = start + 2;
+            el.selectionEnd = end + change;
+          });
+        }
+      }
+    },
+
+    /**
      * Add new block.
      * @param {string} type
      */
@@ -1505,7 +1585,9 @@ document.addEventListener('alpine:init', () => {
           newBlockEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
           const firstInput = newBlockEl.querySelector('textarea, input[type="text"]');
           if (firstInput && window.innerWidth >= 768) {
-            setTimeout(() => firstInput.focus(), 300);
+            requestAnimationFrame(() => {
+              firstInput.focus();
+            });
           }
         } else {
           window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
@@ -1669,6 +1751,17 @@ document.addEventListener('alpine:init', () => {
      */
     expandAll() {
       this.blocks.forEach((b) => (b.collapsed = false));
+
+      // Recalculate textarea heights after expansion to fix collapse bug
+      this.$nextTick(() => {
+        const textareas = document.querySelectorAll('#post-form textarea');
+        textareas.forEach((ta) => {
+          if (ta.style.overflow === 'hidden') {
+            ta.style.height = 'auto';
+            ta.style.height = ta.scrollHeight + 'px';
+          }
+        });
+      });
     },
 
     /**
@@ -1931,28 +2024,6 @@ document.addEventListener('alpine:init', () => {
     },
 
     /**
-     * Remove row from table block.
-     * @param {number} blockIndex
-     */
-    removeTableRow(blockIndex) {
-      const block = this.blocks[blockIndex];
-      if (block.data.content.length > 1) {
-        block.data.content.pop();
-      }
-    },
-
-    /**
-     * Remove column from table block.
-     * @param {number} blockIndex
-     */
-    removeTableCol(blockIndex) {
-      const block = this.blocks[blockIndex];
-      if (block.data.content[0].length > 1) {
-        block.data.content.forEach((row) => row.pop());
-      }
-    },
-
-    /**
      * Open media library modal.
      * @param {number} index
      * @param {number|null} itemIndex
@@ -1994,8 +2065,8 @@ document.addEventListener('alpine:init', () => {
      * @param {number} page
      */
     async loadMedia(page = 1) {
-      if (this.mediaLoading && page > 1) return;
       this.mediaLoading = true;
+      this.mediaPage = page;
 
       try {
         const params = {
@@ -2005,12 +2076,17 @@ document.addEventListener('alpine:init', () => {
         };
 
         const data = await GrindsMediaApi.list(page, params);
-        if (data.success) {
-          this.mediaFiles = data.files;
-          this.mediaPage = page;
+        if (data && data.success) {
+          if (page === 1) {
+            this.mediaFiles = data.files;
+            this.$nextTick(() => {
+              const container = this.$el.querySelector('.media-picker-body .overflow-y-auto');
+              if (container) container.scrollTop = 0;
+            });
+          } else {
+            this.mediaFiles = [...this.mediaFiles, ...data.files];
+          }
           this.mediaHasMore = data.has_more;
-          const container = document.querySelector('.overflow-y-auto');
-          if (container) container.scrollTop = 0;
         }
       } catch (e) {
         if (e.message === 'SESSION_EXPIRED') this.handleSessionExpiry();

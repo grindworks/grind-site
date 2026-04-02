@@ -13,7 +13,7 @@ if (!defined('GRINDS_APP')) exit;
 <div class="mx-auto px-6 py-20 container">
   <?php if (isset($pageType) && $pageType === 'search'): ?>
     <h2 class="mb-8 font-bold text-3xl"><?= theme_t('search_results') ?></h2>
-    <?php include __DIR__ . '/archive.php'; ?>
+    <?php get_template_part('archive'); ?>
   <?php else: ?>
 
     <div class="mb-16 text-center">
@@ -56,7 +56,13 @@ if (!defined('GRINDS_APP')) exit;
                 <?= h($post['title']) ?>
               </h3>
               <p class="text-slate-500 text-sm line-clamp-2">
-                <?= (!empty($post['description'])) ? h($post['description']) : h(get_excerpt($post['content'], 80)) ?>
+                <?php
+                if (function_exists('marketing_get_highlighted_excerpt')) {
+                  echo marketing_get_highlighted_excerpt($post, 80);
+                } else {
+                  echo (!empty($post['description'])) ? h($post['description']) : h(get_excerpt($post['content'], 80));
+                }
+                ?>
               </p>
             </div>
           </a>

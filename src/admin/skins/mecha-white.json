@@ -63,7 +63,6 @@
   "border_width": "1px",
   "shadow": "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
   "input_padding": "0.75rem 1rem",
-  "cursor": "auto",
   "sidebar_mode": "dark",
   "nav_style": "block",
   "texture": "grid",
@@ -89,7 +88,6 @@
     "text_gradient_end": "#ef4444",
     "icon": "outline-sparkles"
   },
-  "sidebar_custom_css": "",
   "css": ".card, .panel, .surface { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(203, 213, 225, 0.5) !important; } .sidebar { backdrop-filter: blur(16px); border-right: 1px solid rgba(203, 213, 225, 0.4) !important; } .header { backdrop-filter: blur(12px); border-bottom: 1px solid rgba(203, 213, 225, 0.6) !important; } .text-center .w-12.h-12 { background-color: #ffffff; border: 2px solid #2563eb; border-radius: 4px; position: relative; overflow: hidden; box-shadow: 0 0 15px rgba(37, 99, 235, 0.3); } .text-center .w-12.h-12::before { content: ''; position: absolute; top: 30%; left: 50%; transform: translate(-50%, 0); width: 0; height: 0; border-left: 12px solid transparent; border-right: 12px solid transparent; border-top: 18px solid #fbbf24; } .text-center .w-12.h-12::after { content: ''; position: absolute; top: 30%; left: 50%; transform: translate(-50%, -50%); width: 8px; height: 8px; background-color: #ef4444; border-radius: 2px; }",
   "is_dark": false,
   "is_sidebar_dark": true

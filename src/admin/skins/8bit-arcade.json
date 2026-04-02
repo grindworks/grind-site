@@ -71,7 +71,6 @@
   "input_padding": "0.8rem 1rem",
   "sidebar_mode": "dark",
   "nav_style": "pill",
-  "cursor": "auto",
   "texture": "scanlines",
   "media_bg_css": "terminal_green",
   "sidebar_crt_opacity": "0.15",
@@ -105,7 +104,6 @@
     "text_gradient_end": "#33ff33",
     "icon": "outline-sparkles"
   },
-  "sidebar_custom_css": "",
   "css": "::selection { background-color: rgba(255, 0, 255, 0.4); color: #ffffff; } input:focus, select:focus, textarea:focus { box-shadow: 0 0 10px rgba(0, 255, 0, 0.5) !important; border-color: #00ff00 !important; } .btn-primary { box-shadow: 4px 4px 0px 0px rgba(255, 0, 255, 0.4) !important; } .btn-primary:active { box-shadow: 0px 0px 0px 0px rgba(255, 0, 255, 0.4) !important; } .card, .panel, .surface { backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); border: 4px double rgba(255, 255, 255, 0.4) !important; }",
   "is_dark": true,
   "is_sidebar_dark": true

@@ -56,7 +56,7 @@ if (!defined('GRINDS_APP'))
          this.loading = true;
          try {
            const baseUrl = (window.grindsBaseUrl || '').replace(/\/$/, '');
-           const res = await fetch(`${baseUrl}/admin/api/post_search.php?q=${encodeURIComponent(id)}`);
+           const res = await fetch(`${baseUrl}/admin/api/post_search.php?q=id:${encodeURIComponent(id)}`);
            if (res.status === 401) {
              this.handleSessionExpiry();
            } else if (res.ok) {

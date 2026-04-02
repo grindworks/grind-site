@@ -22,7 +22,6 @@ if (!function_exists('grinds_random_bytes')) {
         try {
             return random_bytes($length);
         } catch (\Exception $e) {
-            // 乱数生成に失敗した場合は弱い乱数にフォールバックせず、安全に処理を中断する
             http_response_code(500);
             if (function_exists('grinds_render_error_page')) {
                 $errTitle = function_exists('_t') ? _t('js_system_error') : 'System Error';

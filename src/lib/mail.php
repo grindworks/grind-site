@@ -13,6 +13,7 @@ class SimpleMailer
     private $pass;
     private $from;
     private $encryption;
+    private $allowSelfSigned;
 
     /** Initialize SMTP settings. */
     public function __construct($config = [])
@@ -30,6 +31,7 @@ class SimpleMailer
 
         $this->from = $config['smtp_from'] ?? get_option('smtp_from');
         $this->encryption = $config['smtp_encryption'] ?? get_option('smtp_encryption', 'tls');
+        $this->allowSelfSigned = isset($config['smtp_allow_self_signed']) ? (bool)$config['smtp_allow_self_signed'] : (bool)get_option('smtp_allow_self_signed', false);
     }
 
     /** Send email. */
@@ -66,7 +68,16 @@ class SimpleMailer
         }
 
         // Connect to server
-        $socket = @fsockopen($this->host, $this->port, $errno, $errstr, 5);
+        $context = stream_context_create([
+            'ssl' => [
+                // Allow self-signed certificates based on system option
+                'verify_peer' => !$this->allowSelfSigned,
+                'verify_peer_name' => !$this->allowSelfSigned,
+                'allow_self_signed' => $this->allowSelfSigned,
+            ]
+        ]);
+
+        $socket = @stream_socket_client("tcp://{$this->host}:{$this->port}", $errno, $errstr, 5, STREAM_CLIENT_CONNECT, $context);
 
         if (!$socket) throw new Exception("Connection failed: $errstr ($errno)");
         stream_set_timeout($socket, 5);

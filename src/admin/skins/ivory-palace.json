@@ -68,7 +68,6 @@
   "modal_overlay_opacity": "0.7",
   "sidebar_mode": "light",
   "nav_style": "underline",
-  "cursor": "auto",
   "texture": "paper",
   "media_bg_css": "checker_light",
   "effects": [
@@ -95,7 +94,6 @@
     "text_gradient_end": "#cfa936",
     "icon": "outline-sparkles"
   },
-  "sidebar_custom_css": "",
   "css": "body { background-color: #fcfaf5; background-image: url('data:image/svg+xml;utf8,%3Csvg viewBox=\"0 0 200 200\" xmlns=\"http://www.w3.org/2000/svg\"%3E%3Cfilter id=\"noise\"%3E%3CfeTurbulence type=\"fractalNoise\" baseFrequency=\"0.015\" numOctaves=\"4\" stitchTiles=\"stitch\"/%3E%3CfeColorMatrix type=\"matrix\" values=\"0 0 0 0 0.8, 0 0 0 0 0.7, 0 0 0 0 0.5, 0 0 0 0.12 0\" /%3E%3C/filter%3E%3Crect width=\"100%25\" height=\"100%25\" filter=\"url(%23noise)\"/%3E%3C/svg%3E'); background-attachment: fixed; } .card, .panel, .surface { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(196, 154, 69, 0.3) !important; position: relative; } .card::before, .panel::before, .surface::before { content: ''; position: absolute; top: 4px; left: 4px; right: 4px; bottom: 4px; border: 1px solid rgba(196, 154, 69, 0.15); pointer-events: none; } .header { backdrop-filter: blur(16px); border-bottom: 2px solid rgba(196, 154, 69, 0.4) !important; } .sidebar { backdrop-filter: blur(24px); border-right: 2px solid rgba(196, 154, 69, 0.3) !important; } input:focus, select:focus, textarea:focus { background-color: rgba(255, 255, 255, 0.9) !important; } .btn-primary { color: #a67c00 !important; border-color: #a67c00 !important; } .btn-primary:hover { background-color: #a67c00 !important; color: #ffffff !important; } .bg-theme-surface, .card { box-shadow: 0 0 0 2px rgb(var(--color-bg) / var(--color-bg-alpha, 1)), 0 0 0 3px rgb(var(--color-primary) / var(--color-primary-alpha, 1)), 0 4px 15px rgba(0,0,0,0.06) !important; }",
   "is_dark": false,
   "is_sidebar_dark": false

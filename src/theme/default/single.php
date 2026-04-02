@@ -154,7 +154,8 @@ if (!defined('GRINDS_APP')) exit;
           $pName = $pSettings['name'] ?? get_option('site_name');
           $pImage = resolve_url($pSettings['image'] ?? '');
           $rawText = $profileWidget['content'] ?? $pSettings['text'] ?? '';
-          $pText = nl2br(h(function_exists('grinds_extract_text_from_content') ? grinds_extract_text_from_content($rawText) : strip_tags($rawText)));
+          $resolvedText = function_exists('grinds_url_to_view') ? grinds_url_to_view($rawText) : $rawText;
+          $pText = nl2br(h(function_exists('grinds_extract_text_from_content') ? grinds_extract_text_from_content($resolvedText) : strip_tags($resolvedText)));
       ?>
           <div class="mt-16 p-6 bg-gray-50 border border-gray-100 rounded-xl flex flex-col sm:flex-row items-center sm:items-start gap-6">
             <?php if ($pImage): ?>

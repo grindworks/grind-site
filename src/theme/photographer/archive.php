@@ -17,7 +17,7 @@ $isCategory = (isset($pageType) && $pageType === 'category');
     <?php if ($isSearch): ?>
       "<?= h($_GET['q'] ?? '') ?>"
     <?php elseif ($isCategory): ?>
-      <?= h($pageData['category']['name'] ?? $pageTitle) ?>
+      <?= h($pageData['category']['name'] ?? '') ?>
     <?php elseif (isset($pageData['tag'])): ?>
       # <?= h($pageData['tag']['name']) ?>
     <?php else: ?>
@@ -25,4 +25,4 @@ $isCategory = (isset($pageType) && $pageType === 'category');
     <?php endif; ?>
   </h1>
 </header>
-<?php include __DIR__ . '/home.php'; ?>
+<?php get_template_part('home'); ?>

@@ -92,7 +92,7 @@ endif; ?>
     rel="stylesheet">
 
   <!-- Load CSS. -->
-  <link rel="stylesheet" href="<?= grinds_asset_url('theme/marketing/css/style.css')?>">
+  <link rel="stylesheet" href="<?= grinds_theme_asset_url('css/style.css')?>">
   <?php if (get_option('disable_external_assets')): ?>
   <script defer src="<?= grinds_asset_url('assets/js/vendor/collapse.min.js')?>"></script>
   <script defer src="<?= grinds_asset_url('assets/js/vendor/alpine.min.js')?>"></script>
@@ -133,7 +133,7 @@ endif; ?>
   <?php
 endif; ?>
 
-  <?php include __DIR__ . '/parts/header.php'; ?>
+  <?php get_template_part('parts/header'); ?>
 
   <main class="flex-grow">
     <?php display_banners('header_top', $ctx); ?>
@@ -170,7 +170,7 @@ else {
 }?>
   </main>
 
-  <?php include __DIR__ . '/parts/footer.php'; ?>
+  <?php get_template_part('parts/footer'); ?>
   <?php grinds_footer(); ?>
 </body>
 

@@ -63,7 +63,6 @@
   "border_width": "1px",
   "shadow": "0 4px 6px -1px rgba(0, 0, 0, 0.5)",
   "input_padding": "0.75rem 1rem",
-  "cursor": "auto",
   "sidebar_mode": "dark",
   "nav_style": "block",
   "texture": "grid",
@@ -89,7 +88,6 @@
     "text_gradient_end": "#f87171",
     "icon": "outline-sparkles"
   },
-  "sidebar_custom_css": "",
   "css": ".card, .panel, .surface { backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border: 1px solid rgba(127, 29, 29, 0.6) !important; } .header { backdrop-filter: blur(12px); border-bottom: 1px solid rgba(127, 29, 29, 0.8) !important; } .sidebar { backdrop-filter: blur(16px); border-right: 1px solid rgba(127, 29, 29, 0.4) !important; } .text-center .w-12.h-12 { background-color: #f87171; border: 3px solid #7f1d1d; border-radius: 50%; color: #ffffff; box-shadow: 0 0 15px rgba(239, 68, 68, 0.6); animation: mono-eye 3s infinite; position: relative; overflow: hidden; } .text-center .w-12.h-12::after { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 12px; height: 12px; background: #ff00ff; border-radius: 50%; box-shadow: 0 0 8px #ff00ff; animation: mono-eye-move 3s infinite; } @keyframes mono-eye-move { 0%, 100% { transform: translate(-180%, -50%); } 50% { transform: translate(50%, -50%); } }",
   "is_dark": true,
   "is_sidebar_dark": true

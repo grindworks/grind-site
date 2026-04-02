@@ -6,4 +6,4 @@
 if (!defined('GRINDS_APP')) exit;
 
 // Delegate rendering to single.php
-require __DIR__ . '/single.php';
+get_template_part('single');

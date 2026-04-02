@@ -28,7 +28,10 @@ $price_styles = $block_config['library']['design']['items']['price']['styles'] ?
           </div>
           <input type="text" x-model="item.plan" :id="'block-' + block.id + '-item-' + i + '-plan'" class="w-full font-bold text-center form-control-sm" placeholder="<?= h(_t('ph_plan_name')) ?>">
           <input type="text" x-model="item.price" :id="'block-' + block.id + '-item-' + i + '-price'" class="w-full font-black text-lg text-center form-control-sm" placeholder="<?= h(_t('ph_price')) ?>">
-          <textarea x-model="item.features" :id="'block-' + block.id + '-item-' + i + '-features'" rows="6" class="w-full text-xs leading-normal form-control-sm" placeholder="<?= h(_t('ph_features')) ?>"></textarea>
+          <textarea x-model="item.features" :id="'block-' + block.id + '-item-' + i + '-features'" rows="6"
+            x-init="$nextTick(() => { $el.style.height = 'auto'; $el.style.height = $el.scrollHeight + 'px' })"
+            @input="$el.style.height = 'auto'; $el.style.height = $el.scrollHeight + 'px'"
+            class="w-full text-xs leading-normal form-control-sm overflow-hidden resize-none" placeholder="<?= h(_t('ph_features')) ?>"></textarea>
         </div>
       </div>
     </template>

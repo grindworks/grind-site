@@ -63,7 +63,6 @@
   "border_width": "1px",
   "shadow": "0 0 15px rgba(249, 115, 22, 0.2)",
   "input_padding": "0.6rem 1rem",
-  "cursor": "auto",
   "sidebar_mode": "dark",
   "nav_style": "cyber",
   "texture": "scanlines",
@@ -90,7 +89,6 @@
     "text_gradient_end": "#22c55e",
     "icon": "outline-sparkles"
   },
-  "sidebar_custom_css": "",
   "css": "body { background-image: linear-gradient(rgba(34, 197, 94, 0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(34, 197, 94, 0.1) 1px, transparent 1px); background-size: 30px 30px; background-attachment: fixed; } .card, .panel, .surface { backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid rgba(30, 41, 59, 0.5) !important; } .header { backdrop-filter: blur(20px); border-bottom: 1px solid rgba(30, 41, 59, 0.6) !important; } .sidebar { backdrop-filter: blur(24px); border-right: 1px solid rgba(30, 41, 59, 0.4) !important; }",
   "is_dark": true,
   "is_sidebar_dark": true

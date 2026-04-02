@@ -63,7 +63,6 @@
   "border_width": "2px",
   "shadow": "0 8px 24px rgba(171, 71, 188, 0.2)",
   "input_padding": "0.8rem 1.2rem",
-  "cursor": "auto",
   "sidebar_mode": "light",
   "nav_style": "pill",
   "texture": "clouds",
@@ -87,7 +86,6 @@
     "text_gradient_end": "#81d4fa",
     "icon": "outline-sparkles"
   },
-  "sidebar_custom_css": "",
   "css": "body { background: linear-gradient(135deg, #f3e5f5 0%, #e1f5fe 100%); } body::before { content: ''; position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; background-image: url('data:image/svg+xml;utf8,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22%23ffffff%22%3E%3Cpath d=%22M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96z%22/%3E%3C/svg%3E'); background-repeat: no-repeat; background-size: 100px 100px; opacity: 0.4; animation: float-clouds 60s linear infinite; z-index: -1; } @keyframes float-clouds { 0% { background-position: -100px 10%; } 100% { background-position: 110vw 10%; } } .card, .panel, .surface { backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 2px solid rgba(225, 190, 231, 0.4) !important; } .header { backdrop-filter: blur(20px); border-bottom: 2px solid rgba(225, 190, 231, 0.6) !important; } .sidebar { backdrop-filter: blur(24px); border-right: 2px solid rgba(225, 190, 231, 0.4) !important; } .text-center .w-12.h-12 { background-color: #ab47bc; border-radius: 50%; color: #ffffff; box-shadow: 0 4px 12px rgba(171, 71, 188, 0.4); animation: float-logo 4s ease-in-out infinite; } @keyframes float-logo { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }",
   "is_dark": false,
   "is_sidebar_dark": false

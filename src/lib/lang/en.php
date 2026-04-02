@@ -565,6 +565,8 @@ return [
     'blk_password_protect' => 'Password Protect',
     'desc_password_protect' => 'Hide all blocks below this with a password.',
     'desc_password_protect_note' => 'All content placed below this block will be encrypted and hidden until the correct password is provided.',
+    'desc_password_protect_usage_warn' => 'Note: Place only one password protect block per article. All content below it will be protected.',
+    'desc_password_protect_warn' => 'Warning: The OpenSSL extension with AES-256-GCM support is required for this block to function. Content will NOT be encrypted if it is missing.',
     'lbl_password' => 'Password',
     'ph_password' => 'Enter password',
     'lbl_unlock_msg' => 'Lock Screen Message',
@@ -579,7 +581,7 @@ return [
     'msg_no_media' => 'No media files found.',
     'ph_search_media' => 'Search by filename...',
     'msg_no_results' => 'No results found',
-    'confirm_delete_media' => 'Delete this image from library? (Cannot be undone)',
+    'confirm_delete_media' => 'Delete this media file from library? (Cannot be undone)',
     'confirm_publish_preview' => "Caution:\nThis post is currently PUBLISHED.\nPreviewing will overwrite the live content immediately.\nAre you sure?",
     'sort_newest' => 'Newest',
     'sort_oldest' => 'Oldest',
@@ -1218,6 +1220,7 @@ return [
     'st_current_version' => 'Current Version',
     'st_latest_version' => 'Latest Version',
     'st_check_updates' => 'Check for Updates',
+    'st_checking_updates' => 'Checking for updates...',
     'st_update_check_needed' => 'Update check needed',
     'js_draft_found' => '⚠️ Unsaved draft found. Load it?',
 
@@ -1622,6 +1625,10 @@ return [
     'err_invalid_favicon_ext' => 'Invalid favicon extension. Only .ico and .png are allowed.',
     'st_use_custom_perms' => 'Use Custom Permissions',
     'msg_upload_may_take_time' => 'Uploading may take some time depending on the file size.',
+    'err_create_preview_dir' => 'Failed to create preview directory.',
+    'err_preview_dir_not_writable' => 'Preview directory is not writable.',
+    'err_write_preview_file' => 'Failed to write preview file.',
+    'err_encode_preview_data' => 'Failed to encode preview data to JSON.',
     'st_backup_important_title' => 'Important Notice for Complete Recovery',
     'st_backup_important_desc' => 'These backups only contain the database (posts and settings). For a complete recovery or server migration, please ensure you manually download your <strong>config.php</strong> file and the <strong>assets/uploads/</strong> directory via FTP.',
 
@@ -1637,4 +1644,6 @@ return [
     'err_json_encode' => 'Failed to encode data to JSON.',
     'msg_alt_help' => '* For SEO & screen readers (Not displayed on screen)',
     'msg_password_protect_below' => 'Content below will be locked',
+    'msg_esc_to_blur' => 'Press ESC to blur',
+    'Test Password Screen' => 'Test Password Screen',
 ];

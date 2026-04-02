@@ -69,7 +69,6 @@
   "border_width": "1px",
   "shadow": "inset 0 0 40px rgba(255, 176, 0, 0.15), 0 0 15px rgba(255, 176, 0, 0.1)",
   "input_padding": "0.6rem 1rem",
-  "cursor": "auto",
   "sidebar_mode": "dark",
   "nav_style": "block",
   "texture": "scanlines",
@@ -102,7 +101,6 @@
     "text_gradient_end": "#ffcc00",
     "icon": "outline-sparkles"
   },
-  "sidebar_custom_css": "",
   "css": "::selection { background-color: rgba(255, 176, 0, 0.4); color: #000000; } input:focus, select:focus, textarea:focus { box-shadow: 0 0 15px rgba(255, 176, 0, 0.3) !important; border-color: #ffb000 !important; } .card, .panel, .surface { backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); border: 1px solid rgba(92, 64, 26, 0.6) !important; box-shadow: 0 0 20px rgba(255, 176, 0, 0.05) !important; } .header { backdrop-filter: blur(8px); border-bottom: 1px solid rgba(92, 64, 26, 0.8) !important; } .btn-primary { box-shadow: 0 0 15px rgba(255, 176, 0, 0.3) !important; } .btn-primary:active { box-shadow: 0 0 5px rgba(255, 176, 0, 0.1) !important; }",
   "is_dark": true,
   "is_sidebar_dark": true

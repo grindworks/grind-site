@@ -65,7 +65,7 @@ if (!defined('GRINDS_APP'))
           </span>
           <select name="admin_layout" class="shadow-theme form-control">
             <?php foreach ($available_layouts as $key => $label): ?>
-              <option value="<?= h($key) ?>" <?= $opt['layout'] == $key ? 'selected' : '' ?>>
+              <option value="<?= h($key) ?>">
                 <?= h($label) ?>
               </option>
             <?php
@@ -117,7 +117,7 @@ if (!defined('GRINDS_APP'))
       </div>
 
       <!-- ========== Skin Editor ========== -->
-      <div class="mt-6" x-data="{ openSection: '' }" @input.debounce.300ms="skinDirty = true">
+      <div class="mt-6" x-data="{ openSection: '' }" @input.debounce.300ms="skinDirty = true" @change="skinDirty = true">
         <div class="bg-theme-bg p-4 sm:p-5 border border-theme-border rounded-theme">
           <h4 class="flex items-center gap-2 mb-4 font-bold text-theme-text text-sm">
             <svg class="w-4 h-4 text-theme-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">

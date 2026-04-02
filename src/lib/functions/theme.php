@@ -61,6 +61,13 @@ if (!function_exists('grinds_load_theme_functions')) {
             return;
         }
 
+        if ($theme !== 'default') {
+            $defaultFunc = ROOT_PATH . '/theme/default/functions.php';
+            if (file_exists($defaultFunc)) {
+                require_once $defaultFunc;
+            }
+        }
+
         $themeFunc = ROOT_PATH . '/theme/' . $theme . '/functions.php';
         if (file_exists($themeFunc)) {
             require_once $themeFunc;
@@ -177,9 +184,10 @@ function grinds_is_menu_active($menuUrl)
  * Helper to determine the best OGP image for a page.
  * @internal
  */
-function _theme_generate_ogp_image(array $pageData): string
+function _theme_generate_ogp_image(array $pageData, bool &$isFallback = false): string
 {
     $ogImage = '';
+    $isFallback = false;
 
     // 1. Post thumbnail
     if (isset($pageData['post']['thumbnail']) && !empty($pageData['post']['thumbnail'])) {
@@ -208,6 +216,7 @@ function _theme_generate_ogp_image(array $pageData): string
         $defaultOgp = get_option('site_ogp_image');
         if ($defaultOgp) {
             $ogImage = resolve_url((string)$defaultOgp);
+            $isFallback = true;
         }
     }
 
@@ -218,7 +227,7 @@ function _theme_generate_ogp_image(array $pageData): string
  * Helper to generate JSON-LD structured data.
  * @internal
  */
-function _theme_generate_json_ld(string $siteName, string $pageType, string $pageTitle, string $canonicalUrl, string $finalDesc, string $ogImage, array $pageData): array
+function _theme_generate_json_ld(string $siteName, string $pageType, string $pageTitle, string $canonicalUrl, string $finalDesc, string $ogImage, array $pageData, bool $isFallbackImage = false): array
 {
     $graph = [];
     $homeUrl = rtrim(resolve_url('/'), '/') . '/';
@@ -485,7 +494,7 @@ function _theme_generate_json_ld(string $siteName, string $pageType, string $pag
                 $articleNode['keywords'] = implode(', ', $tagNames);
             }
 
-            if ($ogImage) {
+            if ($ogImage && !$isFallbackImage) {
                 if (function_exists('grinds_preload_image_meta')) grinds_preload_image_meta([$ogImage]);
                 $imageNode = [
                     "@type" => "ImageObject",
@@ -783,7 +792,8 @@ function grinds_get_header_data(array $context = []): array
     $finalDesc = mb_strimwidth($finalDesc, 0, 240, '...', 'UTF-8');
 
     // OGP Image
-    $ogImage = _theme_generate_ogp_image($pageData);
+    $isFallbackImage = false;
+    $ogImage = _theme_generate_ogp_image($pageData, $isFallbackImage);
 
     // Ensure OGP image is absolute URL with scheme (Fix for JSON-LD/Schema.org and SNS)
     if ($ogImage) {
@@ -828,7 +838,7 @@ function grinds_get_header_data(array $context = []): array
     $ogType = ($pageType === 'home') ? 'website' : 'article';
 
     // JSON-LD
-    $jsonLd = _theme_generate_json_ld($siteName, $pageType, $pageTitle ?? '', $canonicalUrl, $finalDesc, $ogImage, $pageData);
+    $jsonLd = _theme_generate_json_ld($siteName, $pageType, $pageTitle ?? '', $canonicalUrl, $finalDesc, $ogImage, $pageData, $isFallbackImage);
 
     // Robots
     $stats = [];
@@ -884,6 +894,7 @@ function grinds_get_header_data(array $context = []): array
         'ogImage' => $ogImage,
         'ogImageWidth' => $ogImageWidth,
         'ogImageHeight' => $ogImageHeight,
+        'isFallbackImage' => $isFallbackImage,
         'ogType' => $ogType,
         'canonicalUrl' => $canonicalUrl,
         'ogpUrl' => $ogpUrl,

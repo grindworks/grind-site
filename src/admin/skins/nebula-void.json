@@ -53,17 +53,13 @@
     "modal_overlay": "#000000",
     "media_checker_1": "rgba(5, 2, 9, 0.9)",
     "media_checker_2": "rgba(18, 8, 33, 0.9)",
-    "media_ring": "#d946ef",
-    "sidebar_crt": "transparent",
-    "sidebar_crt_shadow": "transparent",
-    "sidebar_crt_border": "transparent"
+    "media_ring": "#d946ef"
   },
   "rounded": "8px",
   "btn_radius": "4px",
   "add_block_radius": "8px",
   "border_width": "1px",
   "scrollbar_width": "8px",
-  "cursor": "auto",
   "input_padding": "0.75rem 1rem",
   "shadow": "0 0 20px rgba(217, 70, 239, 0.2), 0 0 40px rgba(217, 70, 239, 0.1)",
   "modal_overlay_opacity": "0.8",
@@ -79,12 +75,6 @@
     "scrollbar_custom",
     "overlay_scanline"
   ],
-  "sidebar_crt_opacity": "0",
-  "sidebar_crt_shadow_x": "0px",
-  "sidebar_crt_shadow_blur": "0px",
-  "sidebar_crt_shadow_opacity": "0",
-  "sidebar_crt_border_width": "0px",
-  "sidebar_crt_border_opacity": "0",
   "ai_paste": {
     "title": "AI Paste",
     "description": "Paste Markdown from Clipboard",
@@ -98,7 +88,6 @@
     "text_gradient_end": "#e879f9",
     "icon": "outline-sparkles"
   },
-  "sidebar_custom_css": "",
   "css": ".card, .panel, .surface { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(112, 26, 117, 0.5) !important; } .sidebar { backdrop-filter: blur(16px); border-right: 1px solid rgba(112, 26, 117, 0.4) !important; } .header { backdrop-filter: blur(12px); border-bottom: 1px solid rgba(112, 26, 117, 0.6) !important; }",
   "is_dark": true,
   "is_sidebar_dark": true

@@ -244,7 +244,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
           $pdo->exec("PRAGMA busy_timeout = 60000;");
           try {
-            $pdo->exec("PRAGMA journal_mode = WAL;");
+            $mode = $pdo->query("PRAGMA journal_mode = WAL;")->fetchColumn();
+            if (strtoupper($mode) !== 'WAL') {
+              throw new Exception("WAL mode not supported");
+            }
           } catch (Exception $e) {
             // 共有サーバー等でWALモードが拒否された場合はフォールバック
             $pdo->exec("PRAGMA journal_mode = DELETE;");
@@ -252,8 +255,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           $pdo->exec("PRAGMA foreign_keys = ON;");
 
           // Search user.
-          $stmt = $pdo->prepare("SELECT id, username FROM users WHERE LOWER(username) = LOWER(?) OR LOWER(email) = LOWER(?) LIMIT 1");
-          $stmt->execute([$identity, $identity]);
+          $normalized_identity = mb_strtolower($identity, 'UTF-8');
+          $stmt = $pdo->prepare("SELECT id, username FROM users WHERE LOWER(username) = ? OR LOWER(email) = ? LIMIT 1");
+          $stmt->execute([$normalized_identity, $normalized_identity]);
           $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
           if (!$user) {

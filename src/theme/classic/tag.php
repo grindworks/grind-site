@@ -8,7 +8,7 @@ if (!defined('GRINDS_APP')) exit;
  */
 ?>
 <header class="archive-header">
-    <h1 class="archive-title"><?= theme_t('Tag: %s', h($ctx['data']['tag']['name'])) ?></h1>
+    <h1 class="archive-title"><?= theme_t('Tag: %s', h($pageData['tag']['name'] ?? '')) ?></h1>
 </header>
 
 <?php get_template_part('home'); ?>

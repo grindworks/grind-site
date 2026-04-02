@@ -68,10 +68,11 @@
   "modal_overlay_opacity": "0.9",
   "sidebar_mode": "dark",
   "nav_style": "pill",
-  "cursor": "auto",
   "texture": "noise",
   "media_bg_css": "grid_dark",
-  "effects": ["scrollbar_custom"],
+  "effects": [
+    "scrollbar_custom"
+  ],
   "ai_paste": {
     "title": "🎻 Secret Notes",
     "description": "Transcribe reality into blocks",
@@ -85,7 +86,6 @@
     "text_gradient_end": "#fda4af",
     "icon": "outline-book-open"
   },
-  "sidebar_custom_css": "",
   "css": "body { background-color: #0f0f10; background-image: radial-gradient(circle at 50% 0%, rgba(225, 29, 72, 0.1), transparent 50vw); background-attachment: fixed; } body .bg-theme-surface, body .bg-white, body .card { box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5), 0 2px 4px -1px rgba(0, 0, 0, 0.3) !important; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.05); } body header, body aside, body .bg-theme-sidebar { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-right: 1px solid rgba(255, 255, 255, 0.05); } body input:not([type=\"checkbox\"]):not([type=\"radio\"]), body select, body textarea { transition: all 0.2s ease; background-color: rgba(0, 0, 0, 0.3) !important; border: 1px solid rgba(255, 255, 255, 0.1) !important; } body input:focus, body textarea:focus, body select:focus { background-color: rgba(0, 0, 0, 0.6) !important; border-color: #e11d48 !important; box-shadow: 0 0 0 1px #e11d48 !important; outline: none; } body .btn-primary { background: #e11d48 !important; border: 1px solid rgba(255,255,255,0.1) !important; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3) !important; transition: all 0.2s ease; color: white !important; font-family: 'Cinzel', serif; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; } body .btn-primary:hover { background: #be123c !important; transform: translateY(-1px); box-shadow: 0 6px 12px rgba(225, 29, 72, 0.25) !important; } body .btn-secondary { border: 1px solid rgba(255, 255, 255, 0.1) !important; transition: all 0.2s ease; background: transparent !important; } body .btn-secondary:hover { background: rgba(255, 255, 255, 0.05) !important; border-color: rgba(255, 255, 255, 0.2) !important; } h1, h2, h3, h4, h5, h6, .font-heading { font-family: 'Cinzel', serif !important; } .skin-sidebar-item { font-family: 'Lato', sans-serif; font-weight: 500; } .skin-sidebar-item.active { border-left: 2px solid #e11d48; background: linear-gradient(90deg, rgba(225, 29, 72, 0.1) 0%, transparent 100%); }",
   "is_dark": true,
   "is_sidebar_dark": true

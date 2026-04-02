@@ -66,7 +66,6 @@
   "border_width": "1px",
   "shadow": "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
   "input_padding": "0.75rem 1rem",
-  "cursor": "auto",
   "sidebar_mode": "dark",
   "nav_style": "pill",
   "texture": "paper",
@@ -90,7 +89,6 @@
     "text_gradient_end": "#fdd835",
     "icon": "outline-sparkles"
   },
-  "sidebar_custom_css": "",
   "css": ".card, .panel, .surface { backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border: 1px solid rgba(226, 232, 240, 0.6) !important; } .header { backdrop-filter: blur(12px); border-bottom: 1px solid rgba(226, 232, 240, 0.8) !important; } .sidebar { backdrop-filter: blur(16px); } .text-center .w-12.h-12 { background-color: #00a86b; border-radius: 50%; color: #ffffff; box-shadow: 0 4px 12px rgba(0, 168, 107, 0.4); border: 2px solid #fdd835; animation: lupin-jump 3s ease-in-out infinite; } @keyframes lupin-jump { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }",
   "is_dark": false,
   "is_sidebar_dark": true

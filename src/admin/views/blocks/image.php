@@ -2,7 +2,14 @@
 
 /** Image Block View */
 if (!defined('GRINDS_APP')) exit; ?>
-<div class="space-y-3 bg-theme-bg/40 p-4 border border-theme-border rounded-theme" x-init="if(block.data.width === undefined) block.data.width = 100" x-data="{ isUploading: false }">
+<div class="space-y-3 bg-theme-bg/40 p-4 border border-theme-border rounded-theme transition-colors"
+  x-init="if(block.data.width === undefined) block.data.width = 100"
+  x-data="{ isUploading: false, isDragging: false, dragCount: 0 }"
+  @dragenter.prevent="dragCount++; isDragging = true"
+  @dragover.prevent="isDragging = true"
+  @dragleave.prevent="dragCount--; if (dragCount === 0) isDragging = false"
+  @drop.prevent="dragCount = 0; isDragging = false; if($event.dataTransfer.files.length) { isUploading = true; await uploadImage({target: {files: $event.dataTransfer.files}}, index, 'url'); isUploading = false; }"
+  :class="{'border-theme-primary bg-theme-primary/5': isDragging}">
   <!-- Source controls -->
   <div class="flex gap-2">
     <!-- URL input -->
@@ -27,8 +34,8 @@ if (!defined('GRINDS_APP')) exit; ?>
     </label>
   </div>
   <!-- Preview -->
-  <div x-show="block.data.url" class="relative bg-theme-bg p-2 border border-theme-border rounded-theme text-center">
-    <img :src="resolvePreviewUrl(block.data.url)" class="shadow-theme mx-auto rounded-theme max-h-60" @error="$el.src = <?= htmlspecialchars(json_encode(PLACEHOLDER_IMG), ENT_QUOTES) ?>">
+  <div x-show="block.data.url" class="relative bg-theme-bg p-2 border border-theme-border rounded-theme flex justify-center items-center">
+    <img :src="resolvePreviewUrl(block.data.url)" :style="'width: ' + block.data.width + '%;'" class="shadow-theme rounded-theme max-h-60 object-contain transition-all duration-200" @error="$el.src = <?= htmlspecialchars(json_encode(PLACEHOLDER_IMG), ENT_QUOTES) ?>">
   </div>
   <!-- Width slider -->
   <div x-show="block.data.url" class="flex items-center gap-3 px-1">

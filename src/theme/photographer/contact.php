@@ -88,7 +88,7 @@ $hasHeroTitle = $hasHero && !empty($heroSettings['title']);
 <article class="mx-auto max-w-6xl animate-in duration-700 fade-in">
 
     <!-- Include hero. -->
-    <?php include __DIR__ . '/parts/hero.php'; ?>
+    <?php get_template_part('parts/hero'); ?>
 
     <header class="mb-12 md:mb-16 text-center">
         <?php if (!$hasHeroTitle): ?>
@@ -152,7 +152,7 @@ $hasHeroTitle = $hasHero && !empty($heroSettings['title']);
                 <div>
                     <label class="block mb-3 font-bold text-gray-400 text-xs uppercase tracking-widest"><?= theme_t('Message') ?> *</label>
                     <textarea name="message" rows="6" required
-                        class="bg-transparent py-2 border-gray-300 focus:border-black border-b outline-none w-full font-serif leading-relaxed transition-colors resize-none"><?= h(isset($messageBody) ? $messageBody : '') ?></textarea>
+                        class="bg-transparent py-2 border-gray-300 focus:border-black border-b outline-none w-full font-serif leading-relaxed transition-colors resize-none"><?= h($messageBody) ?></textarea>
                 </div>
 
                 <div class="pt-8 text-center">

@@ -9,6 +9,15 @@ module.exports = {
     path.join(__dirname, '../../lib/**/*.php'),
     path.join(__dirname, '../../admin/config/editor_blocks.php'),
   ],
+  safelist: [
+    // Safelist for dynamic grid classes used in functions.php
+    {
+      pattern: /grid-cols-\d+/,
+      variants: ['md'],
+    },
+    'md:grid-cols-[1fr_2fr]',
+    'md:grid-cols-[2fr_1fr]',
+  ],
   theme: {
     extend: {
       colors: {

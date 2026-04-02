@@ -62,10 +62,8 @@
   "border_width": "1px",
   "shadow": "none",
   "input_padding": "0.6rem 1rem",
-  "cursor": "auto",
   "sidebar_mode": "dark",
   "nav_style": "terminal",
-  "texture": "",
   "media_bg_css": "background-color: #050505; background-image: linear-gradient(rgba(38, 38, 38, 0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(38, 38, 38, 0.5) 1px, transparent 1px); background-size: 40px 40px;",
   "effects": [
     "corner_brackets",
@@ -89,7 +87,6 @@
     "text_gradient_end": "#ef4444",
     "icon": "outline-sparkles"
   },
-  "sidebar_custom_css": "",
   "css": ".card, .panel, .surface { backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border: 1px solid rgba(38, 38, 38, 0.5) !important; } .header { backdrop-filter: blur(12px); border-bottom: 1px solid rgba(38, 38, 38, 0.6) !important; } .sidebar { backdrop-filter: blur(12px); border-right: 1px solid rgba(38, 38, 38, 0.4) !important; } .text-center .w-12.h-12 { background: radial-gradient(circle at 50% 50%, #dc2626 0%, #7f1d1d 40%, rgba(0, 0, 0, 0.8) 100%); border: 2px solid rgba(64, 64, 64, 0.8); box-shadow: 0 0 15px rgba(220, 38, 38, 0.4); border-radius: 50%; color: transparent; }",
   "is_dark": true,
   "is_sidebar_dark": true

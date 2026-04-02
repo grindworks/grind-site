@@ -32,6 +32,7 @@ try {
   $type = isset($_GET['type']) ? $_GET['type'] : 'all';
   $date = isset($_GET['date']) ? $_GET['date'] : '';
   $ext = isset($_GET['ext']) ? $_GET['ext'] : '';
+  $tag = isset($_GET['tag']) ? trim($_GET['tag']) : '';
 
   $whereConditions = [];
   $params = [];
@@ -76,6 +77,11 @@ try {
     $params[] = $endDate;
   }
 
+  // Add tag filter
+  if ($tag !== '') {
+    $whereConditions[] = "EXISTS (SELECT 1 FROM media_tags mt JOIN tags t ON mt.tag_id = t.id WHERE mt.media_id = media.id AND t.name = ?)";
+    $params[] = $tag;
+  }
 
 
   $whereClause = "";

@@ -90,26 +90,11 @@ if (!defined('GRINDS_APP'))
           </h2>
           <p class="flex-grow text-slate-500 text-sm line-clamp-3">
             <?php
-            $excerpt = (!empty($post['description'])) ? h($post['description']) : h(get_excerpt($post['content'], 120));
-            if (isset($_GET['q']) && $_GET['q'] !== '') {
-              $q = trim($_GET['q']);
-              $plain = strip_tags($post['content']);
-              $pos = mb_stripos($plain, $q, 0, 'UTF-8');
-              if ($pos !== false) {
-                $start = max(0, $pos - 60);
-                $sub = mb_substr($plain, $start, 120, 'UTF-8');
-
-                // Mark search term.
-                $marker = '[[MARK]]';
-                $endMarker = '[[/MARK]]';
-                $subWithPlaceholders = preg_replace('/(' . preg_quote($q, '/') . ')/iu', $marker . '$1' . $endMarker, $sub);
-                $escaped = h($subWithPlaceholders);
-                $final = str_replace([$marker, $endMarker], ['<mark class="bg-brand-100 text-brand-900">', '</mark>'], $escaped);
-
-                $excerpt = '...' . $final . '...';
-              }
+            if (function_exists('marketing_get_highlighted_excerpt')) {
+              echo marketing_get_highlighted_excerpt($post, 120);
+            } else {
+              echo (!empty($post['description'])) ? h($post['description']) : h(get_excerpt($post['content'], 120));
             }
-            echo $excerpt;
             ?>
           </p>
         </div>

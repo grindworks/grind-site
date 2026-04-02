@@ -26,7 +26,7 @@ if (!defined('GRINDS_APP')) exit; ?>
                 <div class="group relative bg-theme-bg/40 border border-theme-border rounded-theme w-32 h-32 overflow-hidden shrink-0">
                     <img :src="resolvePreviewUrl(img.url)" class="w-full h-full object-cover" @error="$el.src = <?= htmlspecialchars(json_encode(PLACEHOLDER_IMG), ENT_QUOTES) ?>">
                     <!-- Action Buttons -->
-                    <div class="top-1 right-1 absolute flex flex-col items-end gap-1 md:opacity-0 opacity-100 group-hover:opacity-100 transition-opacity z-10">
+                    <div class="bottom-1 right-1 absolute flex flex-col items-end gap-1 md:opacity-0 opacity-100 group-hover:opacity-100 transition-opacity z-10">
                         <!-- Delete slide -->
                         <button type="button" @click.prevent="block.data.images.splice(i, 1)" class="bg-theme-surface/90 shadow-theme p-1.5 min-w-[28px] min-h-[28px] flex items-center justify-center border border-theme-border rounded-full text-theme-danger hover:bg-theme-danger/10 transition-colors" title="<?= h(_t('delete')) ?>">
                             <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">

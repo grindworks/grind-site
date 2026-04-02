@@ -386,7 +386,7 @@ $csrf_token = generate_csrf_token();
         </div>
 
         <!-- Expanded Details -->
-        <div x-show="open" x-collapse class="bg-theme-bg/30 p-4 border-theme-border border-t">
+        <div x-show="open" style="display: none;" x-cloak x-collapse class="bg-theme-bg/30 p-4 border-theme-border border-t">
           <div class="flex gap-4 mb-4">
             <!-- Thumbnail -->
             <?php if ($row['type'] !== 'template'): ?>

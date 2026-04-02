@@ -17,7 +17,7 @@ if (!defined('GRINDS_APP')) exit;
   ?>
 
   <?php if ($showHero): ?>
-    <?php include __DIR__ . '/parts/hero.php'; ?>
+    <?php get_template_part('parts/hero'); ?>
   <?php endif; ?>
 
   <div class="max-w-4xl mt-8">

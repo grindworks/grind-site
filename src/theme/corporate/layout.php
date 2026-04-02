@@ -85,7 +85,7 @@ extract($headerData);
   <link rel="icon" href="<?= h(get_favicon_url()) ?>">
 
   <!-- Load CSS. -->
-  <link rel="stylesheet" href="<?= grinds_asset_url('theme/corporate/css/style.css') ?>">
+  <link rel="stylesheet" href="<?= grinds_theme_asset_url('css/style.css') ?>">
 
   <!-- Load fonts. -->
   <?php if (!empty($robots)): ?>

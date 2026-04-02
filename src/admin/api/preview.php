@@ -146,12 +146,12 @@ try {
   // Ensure directory exists
   if (!grinds_secure_dir($previewDir)) {
     $err = error_get_last();
-    throw new Exception("Failed to create preview directory: " . ($err['message'] ?? 'Unknown error'));
+    throw new Exception(_t('err_create_preview_dir') . ': ' . ($err['message'] ?? _t('js_unknown_error')));
   }
 
   // Check permissions
   if (!is_writable($previewDir)) {
-    throw new Exception("Preview directory is not writable. Please check permissions for: " . $previewDir);
+    throw new Exception(_t('err_preview_dir_not_writable') . ': ' . $previewDir);
   }
 
   // Save preview data
@@ -161,7 +161,7 @@ try {
 
   $jsonData = json_encode($previewData, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_INVALID_UTF8_IGNORE);
   if ($jsonData === false) {
-    throw new Exception("Failed to encode preview data to JSON.");
+    throw new Exception(_t('err_encode_preview_data'));
   }
 
   // Check size limit
@@ -173,7 +173,7 @@ try {
 
   if (file_put_contents($savePath, $jsonData) === false) {
     $err = error_get_last();
-    throw new Exception("Failed to write preview file: " . ($err['message'] ?? 'Unknown error'));
+    throw new Exception(_t('err_write_preview_file') . ': ' . ($err['message'] ?? _t('js_unknown_error')));
   }
 
   // Return preview token

@@ -63,7 +63,6 @@
   "border_width": "2px",
   "shadow": "4px 4px 0px rgba(0, 0, 0, 0.5)",
   "input_padding": "0.8rem 1rem",
-  "cursor": "auto",
   "sidebar_mode": "dark",
   "nav_style": "block",
   "texture": "noise",
@@ -86,7 +85,6 @@
     "text_gradient_end": "#ff4d4d",
     "icon": "outline-sparkles"
   },
-  "sidebar_custom_css": "",
   "css": ".card, .panel, .surface { backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); border: 2px solid rgba(64, 64, 64, 0.5) !important; } .sidebar { backdrop-filter: blur(10px); border-right: 2px solid rgba(64, 64, 64, 0.4) !important; } .header { backdrop-filter: blur(8px); border-bottom: 2px solid rgba(64, 64, 64, 0.6) !important; } .text-center .w-12.h-12 { background-color: #e60012; color: #fff; border-radius: 0; box-shadow: 0 0 15px rgba(230, 0, 18, 0.6); animation: psychic-pulse 2s infinite; } @keyframes psychic-pulse { 0% { box-shadow: 0 0 0 0 rgba(230, 0, 18, 0.7); } 70% { box-shadow: 0 0 0 20px rgba(230, 0, 18, 0); } 100% { box-shadow: 0 0 0 0 rgba(230, 0, 18, 0); } }",
   "is_dark": true,
   "is_sidebar_dark": true

@@ -23,6 +23,9 @@ src/.htaccess
 .maintenance
 src/data/*
 !src/data/.gitkeep
+!src/data/backups/
+src/data/backups/*
+!src/data/backups/.gitkeep
 !src/data/tmp/
 src/data/tmp/*
 !src/data/tmp/.gitkeep

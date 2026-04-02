@@ -1,11 +1,11 @@
 #!/bin/bash
 
 # GrindSite Release Automation Script
-# Usage: ./bin/release.sh v1.2.2 "Added powerful CLI tool and new admin skins"
+# Usage: ./bin/release.sh v1.3.0 "Added powerful CLI tool and new admin skins"
 
 if [ -z "$1" ]; then
   echo "❌ Error: Version tag is required."
-  echo "Usage: ./bin/release.sh v1.2.2 \"Release message\""
+  echo "Usage: ./bin/release.sh v1.3.0 \"Release message\""
   exit 1
 fi
 
@@ -27,8 +27,14 @@ echo "✅ Created: $ZIP_FILE"
 HASH=$(shasum -a 256 "$ZIP_FILE" | awk '{print $1}')
 echo "✅ Calculated Hash: $HASH"
 
-# 4. Update update.json with new hash (macOS sed syntax)
+# 4. Update update.json with new info (macOS sed syntax)
 echo "📝 Updating update.json..."
+RAW_VERSION=${VERSION#v}
+TODAY=$(date +%Y-%m-%d)
+sed -i '' 's/"version": "[^"]*"/"version": "'"$RAW_VERSION"'"/' update.json
+sed -i '' 's/"release_date": "[^"]*"/"release_date": "'"$TODAY"'"/' update.json
+sed -i '' 's/"message": "[^"]*"/"message": "'"$MESSAGE"'"/' update.json
+sed -i '' 's|"download_url": "[^"]*"|"download_url": "https://github.com/grindworks/grind-site/releases/download/'"$VERSION"'/grindsite-'"$VERSION"'\.zip"|' update.json
 sed -i '' 's/"sha256": "[^"]*"/"sha256": "'"$HASH"'"/' update.json
 
 # 5. Amend commit with update.json changes (keeping history clean)

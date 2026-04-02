@@ -730,8 +730,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $newPass = Routing::getString($_POST, 'password');
         $newPassConf = Routing::getString($_POST, 'password_confirm');
         $role = Routing::getString($_POST, 'role', 'editor');
-        if (!in_array($role, ['admin', 'editor']))
+        if (App::user()['role'] !== 'admin') {
           $role = 'editor';
+        } elseif (!in_array($role, ['admin', 'editor'])) {
+          $role = 'editor';
+        }
 
         $useCustomPerms = isset($_POST['use_custom_perms']);
         $userPerms = $useCustomPerms ? json_encode($_POST['user_perms'] ?? [], JSON_UNESCAPED_UNICODE) : null;
@@ -783,8 +786,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           $newPassConf = Routing::getString($_POST, 'password_confirm');
           $currentPass = Routing::getString($_POST, 'current_password');
           $role = Routing::getString($_POST, 'role', 'editor');
-          if (!in_array($role, ['admin', 'editor']))
+
+          // Get the current role of the target user
+          $stmtTargetRole = $pdo->prepare("SELECT role FROM users WHERE id = ?");
+          $stmtTargetRole->execute([$targetId]);
+          $currentTargetRole = $stmtTargetRole->fetchColumn();
+
+          // Prevent Editor from editing or hijacking Admin accounts
+          if (App::user()['role'] !== 'admin') {
+            if ($currentTargetRole === 'admin') {
+              throw new Exception(function_exists('_t') ? _t('err_access_denied') : 'Permission denied to edit Administrator account.');
+            }
             $role = 'editor';
+          } elseif (!in_array($role, ['admin', 'editor'])) {
+            $role = 'editor';
+          }
 
           $useCustomPerms = isset($_POST['use_custom_perms']);
           $userPerms = $useCustomPerms ? json_encode($_POST['user_perms'] ?? [], JSON_UNESCAPED_UNICODE) : null;
@@ -801,9 +817,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           // Prevent role change
           if ($targetId == App::user()['id']) {
             // Keep role
-            $stmtRole = $pdo->prepare("SELECT role FROM users WHERE id = ?");
-            $stmtRole->execute([$targetId]);
-            $role = $stmtRole->fetchColumn();
+            $role = $currentTargetRole;
           }
 
           if (!empty($email)) {

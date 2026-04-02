@@ -236,6 +236,7 @@ $basePath = rtrim($parsedBase['path'] ?? '/', '/') . '/';
         seoTitle: <?= json_encode($post['title'] ?? "", JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>,
         seoDesc: <?= json_encode($post['description'] ?? "", JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>,
         seoImage: <?= json_encode(get_media_url($post['thumbnail'] ?? ''), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>,
+        postStatus: <?= json_encode(($post['status'] ?? '') === 'published' ? 'published' : 'draft', JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>,
         siteDomain: <?= json_encode(parse_url(BASE_URL, PHP_URL_HOST) ?? "localhost", JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>
     }),
     draggingIndex: null,
@@ -300,8 +301,17 @@ $basePath = rtrim($parsedBase['path'] ?? '/', '/') . '/';
             </svg>
             <?= $action === 'new' ? _t('post_title_new') : _t('post_title_edit') ?>
         </h2>
+
+        <!-- Mobile-only top save button -->
+        <button type="button"
+            @click="postStatus = 'published'; document.getElementById('post-form').requestSubmit();"
+            :disabled="isSubmitting || isUploading"
+            class="lg:hidden bg-theme-primary hover:opacity-90 shadow-sm px-4 py-2 rounded-theme font-bold text-white text-xs transition transform hover:-translate-y-0.5 disabled:opacity-50">
+            <?= $isFuture ? _t('action_schedule') : ($action === 'new' ? _t('action_publish') : _t('update')) ?>
+        </button>
+
         <!-- Auto-save Indicator -->
-        <div class="flex items-center opacity-50 font-mono text-theme-text text-xs transition-opacity duration-500" x-show="lastAutoSaved" x-transition.opacity.duration.500ms x-cloak>
+        <div class="hidden sm:flex items-center opacity-50 font-mono text-theme-text text-xs transition-opacity duration-500" x-show="lastAutoSaved" x-transition.opacity.duration.500ms x-cloak>
             <svg class="mr-1.5 w-3 h-3 text-theme-success" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-check"></use>
             </svg>
@@ -547,12 +557,15 @@ $basePath = rtrim($parsedBase['path'] ?? '/', '/') . '/';
                             :style="`background-color: ${currentBg}; border-color: ${currentBorder}; border-style: ${aiBorderStyle};`"
                             @mouseover="if (isSecureContext) { currentBorder = aiBorderHover; currentBg = aiBgEnd; }"
                             @mouseout="if (isSecureContext) { currentBorder = aiBorder; currentBg = aiBgStart; }"
-                            @click="if (!navigator.clipboard || !navigator.clipboard.readText) {
-                                alert(window.grindsTranslations.ai_paste_error || 'Clipboard API is not supported in this environment (HTTPS required).');
+                            @click="if (!isSecureContext) {
+                                alert('<?= _t('err_https_required') ?>');
+                                return;
+                            }
+                            if (!navigator.clipboard || !navigator.clipboard.readText) {
+                                alert(window.grindsTranslations.ai_paste_error || 'Clipboard API is not supported in this environment.');
                                 return;
                             }
                             navigator.clipboard.readText().then(text => {
-                                if (!isSecureContext) { alert('<?= _t('err_https_required') ?>'); return; } // Safeguard, though button should be disabled
                                 if (!text) {
                                     alert(window.grindsTranslations.ai_paste_empty);
                                     return;
@@ -650,7 +663,7 @@ $basePath = rtrim($parsedBase['path'] ?? '/', '/') . '/';
 
                 <div class="space-y-6 p-5">
                     <!-- Status hidden field: Updated by buttons via JS -->
-                    <input type="hidden" name="status" id="hidden_post_status" value="<?= ($post['status'] ?? '') === 'published' ? 'published' : 'draft' ?>">
+                    <input type="hidden" name="status" x-model="postStatus">
 
                     <!-- Date Picker -->
                     <div>
@@ -680,7 +693,7 @@ $basePath = rtrim($parsedBase['path'] ?? '/', '/') . '/';
                     <div class="gap-3 grid grid-cols-2">
                         <!-- Draft Button -->
                         <button type="submit"
-                            @click="document.getElementById('hidden_post_status').value = 'draft'"
+                            @click="postStatus = 'draft'"
                             class="group flex-row justify-center items-center gap-2 hover:bg-theme-text/5 px-4 py-2.5 hover:border-theme-text/20 transition-all btn-secondary"
                             :disabled="isSubmitting || isUploading"
                             title="<?= h(_t('st_draft')) ?>">
@@ -713,7 +726,7 @@ $basePath = rtrim($parsedBase['path'] ?? '/', '/') . '/';
 
                     <!-- Main Action (Publish/Update) -->
                     <button type="submit"
-                        @click="document.getElementById('hidden_post_status').value = 'published'"
+                        @click="postStatus = 'published'"
                         class="group relative shadow-theme py-2.5 w-full overflow-hidden transition-all btn-primary"
                         :disabled="isSubmitting || isUploading">
 
@@ -801,8 +814,10 @@ $basePath = rtrim($parsedBase['path'] ?? '/', '/') . '/';
                             </span>
                         </template>
                         <input type="text" x-ref="tagInput" x-model="tagInput"
-                            @input="if(tagInput.includes(',') || tagInput.includes('、')) addTag()" @keydown.enter.prevent="if(!$event.isComposing) addTag()" @keydown.backspace="if(tagInput === '' && tags.length > 0) removeTag(tags.length - 1)"
-                            @blur="if(tagInput.trim() !== '') addTag()" class="flex-1 bg-transparent p-0 border-none outline-none focus:ring-0 min-w-[60px] text-theme-text text-sm placeholder-theme-text/40" placeholder="<?= _t('ph_tags') ?>">
+                            @keydown.enter.prevent="if(!$event.isComposing) addTag()"
+                            @keydown.backspace="if(!$event.isComposing && tagInput === '' && tags.length > 0) removeTag(tags.length - 1)"
+                            @blur="if(tagInput.trim() !== '') addTag()"
+                            class="flex-1 bg-transparent p-0 border-none outline-none focus:ring-0 min-w-[60px] text-theme-text text-sm placeholder-theme-text/40" placeholder="<?= _t('ph_tags') ?>">
                     </div>
                     <input type="hidden" name="tags" :value="tags.join(',')">
                     <p class="opacity-50 mt-1 text-[10px] text-theme-text">
@@ -1126,14 +1141,14 @@ $basePath = rtrim($parsedBase['path'] ?? '/', '/') . '/';
             <?= _t('preview') ?>
         </button>
 
-        <button type="button" @click="document.getElementById('hidden_post_status').value = 'draft'; document.getElementById('post-form').requestSubmit();" :disabled="isSubmitting || isUploading" class="flex-1 py-3 bg-theme-bg border border-theme-border text-theme-text rounded-theme font-bold text-sm flex items-center justify-center gap-1 shadow-sm transition-colors hover:bg-theme-surface disabled:opacity-50 disabled:cursor-not-allowed">
+        <button type="button" @click="postStatus = 'draft'; document.getElementById('post-form').requestSubmit();" :disabled="isSubmitting || isUploading" class="flex-1 py-3 bg-theme-bg border border-theme-border text-theme-text rounded-theme font-bold text-sm flex items-center justify-center gap-1 shadow-sm transition-colors hover:bg-theme-surface disabled:opacity-50 disabled:cursor-not-allowed">
             <svg class="w-4 h-4 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-arrow-down-on-square"></use>
             </svg>
             <?= _t('st_draft') ?>
         </button>
 
-        <button type="button" @click="document.getElementById('hidden_post_status').value = 'published'; document.getElementById('post-form').requestSubmit();" :disabled="isSubmitting || isUploading" class="flex-1 py-3 bg-theme-primary text-theme-on-primary rounded-theme font-bold text-sm flex items-center justify-center gap-1 shadow-theme transition-all hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed">
+        <button type="button" @click="postStatus = 'published'; document.getElementById('post-form').requestSubmit();" :disabled="isSubmitting || isUploading" class="flex-1 py-3 bg-theme-primary text-theme-on-primary rounded-theme font-bold text-sm flex items-center justify-center gap-1 shadow-theme transition-all hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed">
             <?php if (($post['status'] ?? '') === 'published'): ?>
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-arrow-path"></use>
@@ -1232,7 +1247,7 @@ $basePath = rtrim($parsedBase['path'] ?? '/', '/') . '/';
                         <div x-show="!mediaLoading && mediaFiles.length === 0" class="flex flex-col justify-center items-center py-12 px-4 bg-theme-bg/30 border-2 border-theme-border border-dashed rounded-theme text-center">
                             <div class="flex justify-center items-center w-12 h-12 mb-3 rounded-full bg-theme-surface shadow-sm text-theme-text opacity-50">
                                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-photo"></use>
+                                    <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-folder"></use>
                                 </svg>
                             </div>
                             <h3 class="mb-1 font-bold text-theme-text text-base opacity-80"><?= _t('msg_no_media') ?></h3>

@@ -19,7 +19,7 @@ extract($headerData);
 
     <!-- Load theme CSS -->
     <?php $themeName = grinds_get_active_theme(); ?>
-    <link rel="stylesheet" href="<?= grinds_asset_url('theme/' . $themeName . '/css/style.css') ?>">
+    <link rel="stylesheet" href="<?= grinds_theme_asset_url('css/style.css') ?>">
 </head>
 
 <body <?php body_class("flex flex-col min-h-screen bg-theme-bg text-theme-text font-sans"); ?>>

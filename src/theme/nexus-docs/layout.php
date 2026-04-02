@@ -32,7 +32,7 @@ $searchIndexJson = json_encode($searchIndex, JSON_UNESCAPED_UNICODE);
         <link rel="canonical" href="<?= h($canonicalUrl) ?>"><?php endif; ?>
     <link rel="icon" href="<?= h(get_favicon_url()) ?>">
 
-    <link rel="stylesheet" href="<?= grinds_asset_url('theme/nexus-docs/css/style.css') ?>">
+    <link rel="stylesheet" href="<?= grinds_theme_asset_url('css/style.css') ?>">
     <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/collapse@3.x.x/dist/cdn.min.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <style>
@@ -141,7 +141,7 @@ $searchIndexJson = json_encode($searchIndex, JSON_UNESCAPED_UNICODE);
         <div class="fixed inset-0 bg-zinc-900/50 backdrop-blur-sm transition-opacity" aria-hidden="true"></div>
         <div class="fixed inset-0 z-10 overflow-y-auto p-4 sm:p-6 md:p-20" @click.self="searchOpen = false; searchQuery = ''">
             <div class="mx-auto max-w-2xl transform divide-y divide-zinc-100 overflow-hidden rounded-xl bg-white shadow-2xl ring-1 ring-black ring-opacity-5 transition-all">
-                <form action="<?= h(resolve_url('/search')) ?>" method="get" class="relative border-b border-zinc-100">
+                <form action="<?= h(resolve_url('/')) ?>" method="get" class="relative border-b border-zinc-100">
                     <svg class="pointer-events-none absolute top-3.5 left-4 h-5 w-5 text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-magnifying-glass"></use>
                     </svg>

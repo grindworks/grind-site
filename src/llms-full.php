@@ -265,8 +265,23 @@ if (!class_exists('LlmsFullGenerator')) {
                         }
                         fwrite($fp, "\n## Content\n\n");
 
-                        // Render content.
+                        // Render content (Filter out password protected blocks for AI).
                         $rawContent = (string)($row['content'] ?? '');
+
+                        // Try to decode JSON and snip off anything after a password_protect block
+                        $decodedForAi = json_decode($rawContent, true);
+                        if (is_array($decodedForAi) && isset($decodedForAi['blocks'])) {
+                            $visibleBlocks = [];
+                            foreach ($decodedForAi['blocks'] as $block) {
+                                if (($block['type'] ?? '') === 'password_protect') {
+                                    break;
+                                }
+                                $visibleBlocks[] = $block;
+                            }
+                            $decodedForAi['blocks'] = $visibleBlocks;
+                            $rawContent = json_encode($decodedForAi, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+                        }
+
                         $content = function_exists('render_content') ? render_content($rawContent) : $rawContent;
 
                         fwrite($fp, $this->cleanHtml((string)$content));

@@ -1,6 +1,6 @@
 {
   "name": "Neon City",
-  "description": "Wake up, Samurai. We have a city to burn in sharp glass highlights.",
+  "description": "Wake up, Hacker. We have a city to burn in sharp glass highlights.",
   "font_url": "https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700&family=Rajdhani:wght@400;600;700&display=swap",
   "font": "\"Rajdhani\", \"Orbitron\", sans-serif",
   "font_heading": "\"Orbitron\", sans-serif",
@@ -63,10 +63,8 @@
   "border_width": "1px",
   "shadow": "0 0 20px rgba(217, 70, 239, 0.2)",
   "input_padding": "0.75rem 1rem",
-  "cursor": "auto",
   "sidebar_mode": "dark",
   "nav_style": "cyber",
-  "texture": "",
   "media_bg_css": "background-color: #05050a; background-image: linear-gradient(rgba(217, 70, 239, 0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(217, 70, 239, 0.1) 1px, transparent 1px); background-size: 20px 20px;",
   "effects": [
     "card_glass_cyber",
@@ -92,7 +90,6 @@
     "text_gradient_end": "#22d3ee",
     "icon": "outline-sparkles"
   },
-  "sidebar_custom_css": "",
   "css": ".card, .panel, .surface { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(45, 55, 72, 0.5) !important; } .header { backdrop-filter: blur(16px); border-bottom: 1px solid rgba(45, 55, 72, 0.6) !important; } .sidebar { backdrop-filter: blur(20px); border-right: 1px solid rgba(45, 55, 72, 0.4) !important; }",
   "is_dark": true,
   "is_sidebar_dark": true

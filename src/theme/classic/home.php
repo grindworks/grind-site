@@ -7,7 +7,7 @@ if (!defined('GRINDS_APP')) exit;
  * Display post list.
  */
 if (isset($pageType) && $pageType === 'search') {
-    include __DIR__ . '/search.php';
+    get_template_part('search');
     return;
 }
 ?>
@@ -39,26 +39,11 @@ if (isset($pageType) && $pageType === 'search') {
 
                 <div class="post-excerpt">
                     <?php
-                    $excerpt = (!empty($post['description'])) ? h($post['description']) : get_excerpt($post['content']);
-                    if (isset($_GET['q']) && $_GET['q'] !== '') {
-                        $q = trim($_GET['q']);
-                        $plain = strip_tags($post['content']);
-                        $pos = mb_stripos($plain, $q, 0, 'UTF-8');
-                        if ($pos !== false) {
-                            $start = max(0, $pos - 50);
-                            $sub = mb_substr($plain, $start, 100, 'UTF-8');
-
-                            // Mark search term.
-                            $marker = '[[MARK]]';
-                            $endMarker = '[[/MARK]]';
-                            $subWithPlaceholders = preg_replace('/(' . preg_quote($q, '/') . ')/iu', $marker . '$1' . $endMarker, $sub);
-                            $escaped = h($subWithPlaceholders);
-                            $final = str_replace([$marker, $endMarker], ['<mark>', '</mark>'], $escaped);
-
-                            $excerpt = '...' . $final . '...';
-                        }
+                    if (function_exists('classic_get_highlighted_excerpt')) {
+                        echo classic_get_highlighted_excerpt($post, 100);
+                    } else {
+                        echo (!empty($post['description'])) ? h($post['description']) : get_excerpt($post['content']);
                     }
-                    echo $excerpt;
                     ?>
                 </div>
 

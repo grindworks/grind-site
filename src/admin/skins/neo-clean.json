@@ -53,10 +53,7 @@
     "modal_overlay": "#0f172a",
     "media_checker_1": "#e2e8f0",
     "media_checker_2": "#ffffff",
-    "media_ring": "#635bff",
-    "sidebar_crt": "#33ff33",
-    "sidebar_crt_shadow": "#000000",
-    "sidebar_crt_border": "#33ff33"
+    "media_ring": "#635bff"
   },
   "rounded": "0.75rem",
   "btn_radius": "9999px",
@@ -68,8 +65,6 @@
   "modal_overlay_opacity": "0.4",
   "sidebar_mode": "light",
   "nav_style": "pill",
-  "cursor": "auto",
-  "texture": "none",
   "media_bg_css": "dots_light",
   "effects": ["btn_lift", "input_glow_modern", "card_lift"],
   "ai_paste": {

@@ -6,12 +6,12 @@
  */
 if (!defined('GRINDS_APP')) exit; ?>
 <div class="top-2 right-2 z-10 absolute flex gap-1 bg-theme-surface opacity-100 md:opacity-0 group-hover:opacity-100 shadow-theme p-1 border border-theme-border rounded-theme transition-opacity">
-    <button type="button" @click="moveBlock(index, -1)" class="hover:bg-theme-bg p-1.5 rounded-theme text-theme-text hover:text-theme-primary transition-colors" title="<?= h(_t('btn_move_up')) ?>">
+    <button type="button" x-show="index > 0" @click="moveBlock(index, -1)" class="hover:bg-theme-bg p-1.5 rounded-theme text-theme-text hover:text-theme-primary transition-colors" title="<?= h(_t('btn_move_up')) ?>">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-chevron-up"></use>
         </svg>
     </button>
-    <button type="button" @click="moveBlock(index, 1)" class="hover:bg-theme-bg p-1.5 rounded-theme text-theme-text hover:text-theme-primary transition-colors" title="<?= h(_t('btn_move_down')) ?>">
+    <button type="button" x-show="index < blocks.length - 1" @click="moveBlock(index, 1)" class="hover:bg-theme-bg p-1.5 rounded-theme text-theme-text hover:text-theme-primary transition-colors" title="<?= h(_t('btn_move_down')) ?>">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-chevron-down"></use>
         </svg>

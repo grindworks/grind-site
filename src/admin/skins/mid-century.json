@@ -66,12 +66,14 @@
   "border_width": "1px",
   "shadow": "0 10px 15px -3px rgba(74, 59, 42, 0.1), 0 4px 6px -2px rgba(74, 59, 42, 0.05)",
   "input_padding": "0.75rem 1.25rem",
-  "cursor": "auto",
   "sidebar_mode": "dark",
   "nav_style": "pill",
   "texture": "paper",
   "media_bg_css": "checker_light",
-  "effects": ["card_lift", "btn_lift"],
+  "effects": [
+    "card_lift",
+    "btn_lift"
+  ],
   "ai_paste": {
     "title": "Inspire Me",
     "description": "Drop your ideas here",
@@ -85,7 +87,6 @@
     "text_gradient_end": "#eebd46",
     "icon": "outline-sparkles"
   },
-  "sidebar_custom_css": "",
   "css": ".card, .panel, .surface { border: 1px solid #e6e0d4; } h1, h2, h3, h4 { font-weight: 400; letter-spacing: 0.5px; } .btn { font-weight: 500; letter-spacing: 0.5px; text-transform: uppercase; font-size: 0.9em; }",
   "is_dark": false,
   "is_sidebar_dark": true

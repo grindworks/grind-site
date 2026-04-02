@@ -87,25 +87,8 @@ extract($headerData);
   <?php
   endif; ?>
 
-  <?php
-  $robots = [];
-  if (get_option('site_noindex')) {
-    $robots[] = 'noindex';
-    $robots[] = 'nofollow';
-  }
-  if (isset($pageData['post'])) {
-    if (!empty($pageData['post']['is_noindex']))
-      $robots[] = 'noindex';
-    if (!empty($pageData['post']['is_nofollow']))
-      $robots[] = 'nofollow';
-    if (!empty($pageData['post']['is_noarchive']))
-      $robots[] = 'noarchive';
-  }
-  if ($pageType === 'search') {
-    $robots[] = 'noindex';
-  }
-  if (!empty($robots)): ?>
-    <meta name="robots" content="<?= implode(', ', $robots) ?>">
+  <?php if (!empty($robots)): ?>
+    <meta name="robots" content="<?= h($robots) ?>">
   <?php
   endif; ?>
 
@@ -120,7 +103,7 @@ extract($headerData);
   endif; ?>
 
   <!-- Load CSS. -->
-  <link rel="stylesheet" href="<?= grinds_asset_url('theme/photographer/css/style.css') ?>">
+  <link rel="stylesheet" href="<?= grinds_theme_asset_url('css/style.css') ?>">
   <?php if (get_option('disable_external_assets')): ?>
     <script defer src="<?= grinds_asset_url('assets/js/vendor/alpine.min.js') ?>"></script>
   <?php
@@ -150,7 +133,7 @@ extract($headerData);
     </div>
   <?php
   endif; ?>
-  <?php include __DIR__ . '/parts/header.php'; ?>
+  <?php get_template_part('parts/header'); ?>
 
   <!-- Render content. -->
   <main class="flex flex-col lg:ml-80 pt-16 lg:pt-0 min-h-screen transition-all duration-300">
@@ -159,7 +142,7 @@ extract($headerData);
     <div class="flex-1 mx-auto p-6 md:p-12 lg:p-16 w-full max-w-[1600px]">
       <?= $content ?>
     </div>
-    <?php include __DIR__ . '/parts/footer.php'; ?>
+    <?php get_template_part('parts/footer'); ?>
   </main>
 
   <?php grinds_footer(); ?>

@@ -63,10 +63,8 @@
   "border_width": "1px",
   "shadow": "0 0 15px rgba(255, 174, 0, 0.15)",
   "input_padding": "0.6rem 1rem",
-  "cursor": "auto",
   "sidebar_mode": "dark",
   "nav_style": "cyber",
-  "texture": "",
   "media_bg_css": "background-color: #020203; background-image: linear-gradient(rgba(255, 174, 0, 0.15) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 174, 0, 0.15) 1px, transparent 1px); background-size: 20px 20px;",
   "effects": [
     "card_glass_cyber",
@@ -91,7 +89,6 @@
     "text_gradient_end": "#00f0ff",
     "icon": "outline-sparkles"
   },
-  "sidebar_custom_css": "",
   "css": ".card, .panel, .surface { backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid rgba(28, 37, 46, 0.5) !important; } .header { backdrop-filter: blur(20px); border-bottom: 1px solid rgba(28, 37, 46, 0.6) !important; } .sidebar { backdrop-filter: blur(24px); border-right: 1px solid rgba(28, 37, 46, 0.4) !important; }",
   "is_dark": true,
   "is_sidebar_dark": true
