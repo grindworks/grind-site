@@ -6,12 +6,11 @@
  */
 document.addEventListener('DOMContentLoaded', () => {
   const formsToWatch = document.querySelectorAll('form.warn-on-unsaved');
-  if (formsToWatch.length === 0) {
-    return;
-  }
+  if (formsToWatch.length === 0) return;
 
   let isDirty = false;
   let skipUnloadWarning = false;
+  const originalTitle = document.title;
 
   // Global bypass flag for specific JS actions (e.g., moving post to trash)
   window.grindsBypassUnload = false;
@@ -31,7 +30,10 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   const setDirty = () => {
-    isDirty = true;
+    if (!isDirty) {
+      isDirty = true;
+      document.title = '* ' + originalTitle;
+    }
   };
 
   formsToWatch.forEach((form) => {
@@ -42,6 +44,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // When the form is submitted, we no longer need the warning.
     form.addEventListener('submit', () => {
       skipUnloadWarning = true;
+      document.title = originalTitle;
     });
   });
 

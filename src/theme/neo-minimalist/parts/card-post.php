@@ -45,7 +45,7 @@ if (!defined('GRINDS_APP'))
             <?php if (!empty($post['category_name'])): ?>
                 <span class="mx-2 text-slate-300">•</span>
                 <a href="<?= h(resolve_url('category/' . $post['category_slug'])) ?>"
-                    class="text-brand-600 hover:text-slate-900 transition-colors">
+                    class="relative z-10 text-brand-600 hover:text-slate-900 transition-colors">
                     <?= h($post['category_name']) ?>
                 </a>
             <?php
@@ -64,7 +64,7 @@ if (!defined('GRINDS_APP'))
 
         <div class="mt-auto pt-6 border-slate-900 border-t-2">
             <a href="<?= h(resolve_url($post['slug'])) ?>"
-                class="inline-flex items-center justify-center font-heading font-bold text-slate-900 hover:text-brand-600 text-sm uppercase tracking-widest transition-colors group/link"
+                class="relative z-10 inline-flex items-center justify-center font-heading font-bold text-slate-900 hover:text-brand-600 text-sm uppercase tracking-widest transition-colors group/link"
                 aria-label="<?= h(sprintf(theme_t('read_more_aria'), $post['title'])) ?>">
                 <?= theme_t('read_more') ?>
                 <span class="ml-2 transform group-hover/link:translate-x-1 transition-transform">→</span>

@@ -21,6 +21,7 @@ require_once __DIR__ . '/Enums.php';
 require_once __DIR__ . '/App.php';
 require_once __DIR__ . '/BlockRenderer.php';
 require_once __DIR__ . '/file_manager.php';
+require_once __DIR__ . '/GeneratorCacheTrait.php';
 require_once __DIR__ . '/Routing.php';
 
 // Define constants

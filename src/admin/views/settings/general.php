@@ -311,11 +311,15 @@ if (!defined('GRINDS_APP')) exit; ?>
     </div>
 
     <div class="flex justify-end mt-8 pt-6 border-theme-border border-t">
-      <button type="submit" :disabled="isSubmitting" class="flex justify-center items-center gap-2 shadow-theme px-6 py-2.5 rounded-theme w-full sm:w-auto font-bold text-sm transition-all disabled:opacity-70 disabled:cursor-not-allowed btn-primary">
-        <svg x-show="isSubmitting" class="w-4 h-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="display: none;">
-          <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-arrow-path"></use>
-        </svg>
-        <span x-text="isSubmitting ? '...' : '<?= _t('btn_save_settings') ?>'"><?= _t('btn_save_settings') ?></span>
+      <button type="submit" :disabled="isSubmitting" class="relative flex justify-center items-center shadow-theme px-6 py-2.5 rounded-theme w-full sm:w-auto font-bold text-sm transition-all disabled:opacity-70 disabled:cursor-not-allowed btn-primary overflow-hidden">
+        <div class="flex items-center gap-2 transition-opacity duration-200" :class="isSubmitting ? 'opacity-0' : 'opacity-100'">
+          <span><?= _t('btn_save_settings') ?></span>
+        </div>
+        <div class="absolute inset-0 flex items-center justify-center transition-opacity duration-200" :class="isSubmitting ? 'opacity-100' : 'opacity-0 pointer-events-none'">
+          <svg class="w-5 h-5 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-arrow-path"></use>
+          </svg>
+        </div>
       </button>
     </div>
   </form>

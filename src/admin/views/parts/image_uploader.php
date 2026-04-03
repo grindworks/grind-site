@@ -45,10 +45,10 @@ $previewUrl = get_media_url($value);
     openPicker() {
         window.dispatchEvent(new CustomEvent('open-media-picker', {
             detail: {
-                callback: (url) => {
-                    this.previewUrl = url;
+                callback: (file) => {
+                    this.previewUrl = file.url;
                     this.isDeleted = false;
-                    if($refs.urlInput) $refs.urlInput.value = url;
+                    if($refs.urlInput) $refs.urlInput.value = file.url;
                     // Clear file input
                     if($refs.fileInput) $refs.fileInput.value = '';
                 }

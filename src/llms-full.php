@@ -18,6 +18,8 @@ if (!require __DIR__ . '/lib/bootstrap_public.php') {
 if (!class_exists('LlmsFullGenerator')) {
     class LlmsFullGenerator
     {
+        use GeneratorCacheTrait;
+
         private const CACHE_TTL = 3600;
 
         private ?PDO $pdo;
@@ -81,37 +83,6 @@ if (!class_exists('LlmsFullGenerator')) {
             $isNoIndex = function_exists('get_option') ? (bool)get_option('site_noindex') : false;
             $isBlockAi = function_exists('get_option') ? (bool)get_option('site_block_ai') : false;
             return $isNoIndex || $isBlockAi;
-        }
-
-        private function serveFromCache(): bool
-        {
-            if (!file_exists($this->cacheFile) || !$this->pdo) {
-                return false;
-            }
-
-            try {
-                if (!class_exists('PostRepository')) {
-                    require_once __DIR__ . '/lib/functions/posts.php';
-                }
-                $repo = new PostRepository($this->pdo);
-                $lastUpdate = $repo->getLatestPostTimestamp([
-                    'status' => 'published',
-                    'type' => ['post', 'page'],
-                    'is_noindex' => 0
-                ]);
-
-                if ($lastUpdate && filemtime($this->cacheFile) >= strtotime($lastUpdate)) {
-                    $this->sendHeaders();
-                    readfile($this->cacheFile);
-                    return true;
-                }
-            } catch (Exception $e) {
-                if (class_exists('GrindsLogger')) {
-                    GrindsLogger::log('LlmsFullGenerator Cache Error: ' . $e->getMessage(), 'WARNING');
-                }
-            }
-
-            return false;
         }
 
         private function generateAndCache(): void
@@ -213,16 +184,9 @@ if (!class_exists('LlmsFullGenerator')) {
 
                         $heroSettings = json_decode($row['hero_settings'] ?? '{}', true);
 
-                        $extractedAuthorName = '';
                         $contentData = json_decode($row['content'] ?? '{}', true);
-                        if (is_array($contentData) && !empty($contentData['blocks'])) {
-                            foreach ($contentData['blocks'] as $block) {
-                                if (($block['type'] ?? '') === 'author' && !empty($block['data']['name'])) {
-                                    $extractedAuthorName = html_entity_decode(strip_tags($block['data']['name']), ENT_QUOTES | ENT_HTML5, 'UTF-8');
-                                    break;
-                                }
-                            }
-                        }
+                        $extractedAuthor = is_array($contentData) && function_exists('grinds_extract_author_from_content') ? grinds_extract_author_from_content($contentData) : null;
+                        $extractedAuthorName = $extractedAuthor['name'] ?? '';
 
                         $author = $extractedAuthorName ?: (!empty($heroSettings['seo_author']) ? $heroSettings['seo_author'] : $this->siteName);
                         $category = $row['category_name'] ?? 'Uncategorized';
@@ -311,7 +275,7 @@ if (!class_exists('LlmsFullGenerator')) {
 
         private function cleanString(string $text): string
         {
-            return str_replace(["\r", "\n"], ' ', html_entity_decode(strip_tags($text), ENT_QUOTES | ENT_HTML5, 'UTF-8'));
+            return str_replace(["\r", "\n", "[", "]"], [' ', ' ', '\[', '\]'], html_entity_decode(strip_tags($text), ENT_QUOTES | ENT_HTML5, 'UTF-8'));
         }
 
         /**
@@ -357,7 +321,13 @@ if (!class_exists('LlmsFullGenerator')) {
                             if (in_array($tagName, ['iframe', 'audio', 'video'])) {
                                 $src = $node->getAttribute('src');
                                 if ($src) {
-                                    $textNode = $dom->createTextNode("[Embedded Media: {$src}]");
+                                    $mediaType = 'Media';
+                                    if (str_contains($src, 'youtube.com') || str_contains($src, 'youtu.be')) $mediaType = 'YouTube Video';
+                                    elseif (str_contains($src, 'twitter.com') || str_contains($src, 'x.com')) $mediaType = 'X (Twitter) Post';
+                                    elseif (str_contains($src, 'instagram.com')) $mediaType = 'Instagram Post';
+                                    elseif ($tagName === 'audio') $mediaType = 'Audio Player';
+
+                                    $textNode = $dom->createTextNode("[Embedded {$mediaType}: {$src}]");
                                     $node->parentNode->replaceChild($textNode, $node);
                                     continue;
                                 }
@@ -414,6 +384,16 @@ if (!class_exists('LlmsFullGenerator')) {
                             }
                         }
 
+                        if ($tagName === 'img') {
+                            $src = $node->getAttribute('src');
+                            $alt = trim($node->getAttribute('alt'));
+                            $safeAlt = str_replace(['[', ']'], ['\(', '\)'], $alt);
+                            $replacementText = $alt ? "![{$safeAlt}]({$src})" : "![Image]({$src})";
+                            $textNode = $dom->createTextNode($replacementText);
+                            $node->parentNode->replaceChild($textNode, $node);
+                            continue;
+                        }
+
                         // Clean attributes.
                         $attrsToRemove = [];
                         foreach ($node->attributes as $attr) {
@@ -443,7 +423,7 @@ if (!class_exists('LlmsFullGenerator')) {
             }
 
             // Strip non-semantic layout tags.
-            $allowedTags = '<p><br><h1><h2><h3><h4><h5><h6><ul><ol><li><dl><dt><dd><table><thead><tbody><tfoot><tr><th><td><blockquote><a><img><strong><b><i><em><time><address><figure><figcaption><details><summary><code>';
+            $allowedTags = '<p><br><h1><h2><h3><h4><h5><h6><ul><ol><li><dl><dt><dd><table><thead><tbody><tfoot><tr><th><td><blockquote><a><strong><b><i><em><time><address><figure><figcaption><details><summary><code>';
             $html = strip_tags($html, $allowedTags);
 
             // Remove nested empty tags.
@@ -472,7 +452,7 @@ if (!class_exists('LlmsFullGenerator')) {
             return trim($html);
         }
 
-        private function sendHeaders(): void
+        protected function sendHeaders(): void
         {
             if ($this->isSsgMode || headers_sent()) {
                 return;
@@ -482,14 +462,6 @@ if (!class_exists('LlmsFullGenerator')) {
             header("X-Robots-Tag: noindex");
             header("X-Content-Type-Options: nosniff");
             header("X-Frame-Options: DENY");
-        }
-
-        private function sendError(int $code): void
-        {
-            if (!$this->isSsgMode) {
-                http_response_code($code);
-                exit;
-            }
         }
     }
 }

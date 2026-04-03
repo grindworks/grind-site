@@ -94,15 +94,19 @@ if (!isset($backups)) {
 
       <div class="w-full md:w-auto">
         <button type="button" @click="startExport()" :disabled="processing"
-          class="flex justify-center items-center gap-2 disabled:opacity-50 shadow-theme px-6 py-2.5 rounded-theme w-full md:w-auto font-bold transition-all disabled:cursor-not-allowed btn-primary">
-          <svg x-show="!processing" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-arrow-down-tray"></use>
-          </svg>
-          <svg x-show="processing" class="w-5 h-5 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-arrow-path"></use>
-          </svg>
-          <span
-            x-text="processing ? <?= htmlspecialchars(json_encode(_t('ssg_btn_generating')), ENT_QUOTES) ?> : <?= htmlspecialchars(json_encode(_t('btn_download_full')), ENT_QUOTES) ?>"></span>
+          class="relative flex justify-center items-center shadow-theme px-6 py-2.5 rounded-theme w-full md:w-auto font-bold transition-all disabled:opacity-70 disabled:cursor-not-allowed btn-primary overflow-hidden">
+          <div class="flex items-center gap-2 transition-opacity duration-200" :class="processing ? 'opacity-0' : 'opacity-100'">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-arrow-down-tray"></use>
+            </svg>
+            <span><?= h(_t('btn_download_full')) ?></span>
+          </div>
+          <div class="absolute inset-0 flex items-center justify-center gap-2 transition-opacity duration-200" :class="processing ? 'opacity-100' : 'opacity-0 pointer-events-none'">
+            <svg class="w-5 h-5 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-arrow-path"></use>
+            </svg>
+            <span><?= h(_t('ssg_btn_generating')) ?></span>
+          </div>
         </button>
       </div>
     </div>

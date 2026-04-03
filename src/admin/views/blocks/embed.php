@@ -18,15 +18,14 @@ if (!defined('GRINDS_APP')) exit; ?>
     <?= _t('help_embed_url') ?>
   </div>
   <!-- Preview -->
-  <template x-if="block.data.url">
-    <div class="mt-3 bg-theme-surface border border-theme-border rounded-theme overflow-hidden aspect-video relative flex items-center justify-center"
-      x-html="
-            let u = block.data.url;
-            let safeU = typeof escapeHtml === 'function' ? escapeHtml(u) : u.replace(/[&<>'&quot;]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','\'':'&#39;','&quot;':'&quot;'}[c] || c));
-            let yt = u.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^&?\/ ]{11})/i);
-            if (yt) return '<iframe class=\'absolute inset-0 w-full h-full\' src=\'https://www.youtube-nocookie.com/embed/' + yt[1] + '\' frameborder=\'0\' allowfullscreen></iframe>';
-            return '<div class=\'text-xs text-theme-text opacity-50\'>External Content: <a href=\'' + safeU + '\' target=\'_blank\' class=\'underline text-theme-primary\'>' + safeU + '</a></div>';
-         ">
-    </div>
-  </template>
+  <div x-show="block.data.url" class="mt-3 bg-theme-surface border border-theme-border rounded-theme overflow-hidden aspect-video relative flex items-center justify-center">
+    <template x-if="block.data.url && block.data.url.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^&?\/ ]{11})/i)">
+      <iframe :src="'https://www.youtube-nocookie.com/embed/' + block.data.url.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^&?\/ ]{11})/i)[1]" class="absolute inset-0 w-full h-full" frameborder="0" allowfullscreen loading="lazy"></iframe>
+    </template>
+    <template x-if="block.data.url && !block.data.url.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^&?\/ ]{11})/i)">
+      <div class="text-xs text-theme-text opacity-50">
+        External Content: <a :href="block.data.url" target="_blank" class="underline text-theme-primary" x-text="block.data.url"></a>
+      </div>
+    </template>
+  </div>
 </div>

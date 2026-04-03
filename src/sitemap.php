@@ -17,6 +17,8 @@ if (!require __DIR__ . '/lib/bootstrap_public.php') {
 if (!class_exists('SitemapGenerator')) {
   class SitemapGenerator
   {
+    use GeneratorCacheTrait;
+
     private const SITEMAP_LIMIT = 50000;
     private const CACHE_TTL = 3600;
     private const XML_NS = 'http://www.sitemaps.org/schemas/sitemap/0.9';
@@ -74,50 +76,6 @@ if (!class_exists('SitemapGenerator')) {
       return function_exists('get_option') && (bool)get_option('site_noindex');
     }
 
-    private function serveFromCache(): bool
-    {
-      if (!file_exists($this->cacheFile)) {
-        return false;
-      }
-
-      try {
-        $mtime = filemtime($this->cacheFile);
-        if ($mtime === false) {
-          return false;
-        }
-
-        $lastUpdate = $this->getLastContentUpdateTime();
-        if ($lastUpdate !== null && $mtime >= $lastUpdate) {
-          $this->sendHeaders();
-          readfile($this->cacheFile);
-          return true;
-        }
-      } catch (\Throwable $e) {
-        if (class_exists('GrindsLogger')) {
-          GrindsLogger::log('SitemapGenerator Cache Error: ' . $e->getMessage(), 'WARNING');
-        }
-      }
-
-      return false;
-    }
-
-    /**
-     * @throws \Exception
-     */
-    private function getLastContentUpdateTime(): ?int
-    {
-      if (!class_exists('PostRepository')) {
-        require_once __DIR__ . '/lib/functions/posts.php';
-      }
-      $repo = new PostRepository($this->pdo);
-      $latest = $repo->getLatestPostTimestamp([
-        'status' => 'published',
-        'type' => ['post', 'page'],
-        'is_noindex' => 0
-      ]);
-      return $latest ? strtotime($latest) : null;
-    }
-
     private function generateAndCache(): void
     {
       $dir = dirname($this->cacheFile);
@@ -141,6 +99,10 @@ if (!class_exists('SitemapGenerator')) {
 
       // Add post URLs.
       $this->generatePostUrls($writer);
+
+      // Add category and tag URLs.
+      $this->generateCategoryUrls($writer);
+      $this->generateTagUrls($writer);
 
       $writer->endElement();
       $writer->endDocument();
@@ -170,16 +132,11 @@ if (!class_exists('SitemapGenerator')) {
     private function generatePostUrls(XMLWriter $writer): void
     {
       $now = date('Y-m-d H:i:s');
-      $sql = "SELECT slug, updated_at, published_at, type, thumbnail, content
-            FROM posts
-            WHERE status = 'published'
-            AND (is_noindex = 0 OR is_noindex IS NULL)
-            AND deleted_at IS NULL
-            AND (published_at <= ? OR published_at IS NULL)
-            ORDER BY published_at DESC LIMIT " . self::SITEMAP_LIMIT;
-
-      $stmt = $this->pdo->prepare($sql);
-      $stmt->execute([$now]);
+      if (!class_exists('PostRepository')) {
+        require_once __DIR__ . '/lib/functions/posts.php';
+      }
+      $repo = new PostRepository($this->pdo);
+      $stmt = $repo->findForSitemap(self::SITEMAP_LIMIT);
 
       while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
         $slug = (string)$row['slug'];
@@ -215,15 +172,41 @@ if (!class_exists('SitemapGenerator')) {
               $visibleBlocks[] = $block;
             }
 
-            if (class_exists('BlockRenderer')) {
-              $extracted = BlockRenderer::extractImages($visibleBlocks);
-              $images = array_merge($images, $extracted);
-            }
+            $extracted = BlockRenderer::extractImages($visibleBlocks);
+            $images = array_merge($images, $extracted);
           }
         }
 
         $images = array_unique($images);
         $this->renderUrl($writer, $url, $lastMod, $priority, $changefreq, array_slice($images, 0, 50));
+      }
+    }
+
+    private function generateCategoryUrls(XMLWriter $writer): void
+    {
+      if (!class_exists('PostRepository')) {
+        require_once __DIR__ . '/lib/functions/posts.php';
+      }
+      $repo = new PostRepository($this->pdo);
+      $stmt = $repo->findCategoriesForSitemap();
+      while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+        $url = $this->generateUrl('category/' . ltrim($row['slug'], '/'));
+        $lastMod = strtotime($row['last_updated']) ?: time();
+        $this->renderUrl($writer, $url, $lastMod, '0.5', 'weekly');
+      }
+    }
+
+    private function generateTagUrls(XMLWriter $writer): void
+    {
+      if (!class_exists('PostRepository')) {
+        require_once __DIR__ . '/lib/functions/posts.php';
+      }
+      $repo = new PostRepository($this->pdo);
+      $stmt = $repo->findTagsForSitemap();
+      while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+        $url = $this->generateUrl('tag/' . ltrim($row['slug'], '/'));
+        $lastMod = strtotime($row['last_updated']) ?: time();
+        $this->renderUrl($writer, $url, $lastMod, '0.5', 'weekly');
       }
     }
 
@@ -289,7 +272,7 @@ if (!class_exists('SitemapGenerator')) {
 
     private function writeCache(string $content): void {}
 
-    private function sendHeaders(): void
+    protected function sendHeaders(): void
     {
       if ($this->isSsgMode || headers_sent()) {
         return;
@@ -297,14 +280,6 @@ if (!class_exists('SitemapGenerator')) {
       header('Content-Type: application/xml; charset=utf-8');
       header(sprintf("Cache-Control: public, max-age=%d", self::CACHE_TTL));
       header("X-Content-Type-Options: nosniff");
-    }
-
-    private function sendError(int $code): void
-    {
-      if (!$this->isSsgMode) {
-        http_response_code($code);
-        exit;
-      }
     }
   }
 }

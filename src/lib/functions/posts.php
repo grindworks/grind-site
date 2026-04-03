@@ -1429,6 +1429,31 @@ if (!class_exists('PostRepository')) {
             return (int)$stmt->fetchColumn();
         }
 
+        /**
+         * Fetch post counts grouped by status in a single query.
+         *
+         * @param string $type Current post type (e.g., 'post', 'page')
+         * @return array<string, int>
+         */
+        public function getCountsByStatus(string $type = 'post'): array
+        {
+            $sql = "SELECT
+                        SUM(CASE WHEN deleted_at IS NOT NULL AND type = ? THEN 1 ELSE 0 END) as trash_count,
+                        SUM(CASE WHEN deleted_at IS NULL AND type = ? AND status = 'published' THEN 1 ELSE 0 END) as published_count,
+                        SUM(CASE WHEN deleted_at IS NULL AND type = ? AND status = 'draft' THEN 1 ELSE 0 END) as draft_count
+                    FROM posts";
+
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute([$type, $type, $type]);
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            return [
+                'trash'     => (int)($result['trash_count'] ?? 0),
+                'published' => (int)($result['published_count'] ?? 0),
+                'draft'     => (int)($result['draft_count'] ?? 0),
+            ];
+        }
+
         public function paginate(array $filters = [], $page = 1, $limit = 10, $orderBy = 'p.published_at DESC', $select = 'p.*', $includeCategory = true)
         {
             $total = $this->count($filters);
@@ -1515,18 +1540,18 @@ if (!class_exists('PostRepository')) {
             return ($updated > $published) ? $updated : $published;
         }
 
-        public function findForSitemap()
+        public function findForSitemap(int $limit = 50000)
         {
             $filters = [
                 'status' => 'published',
                 'is_noindex' => 0,
             ];
             $q = $this->buildQuery($filters);
-            $sql = "SELECT p.slug, p.updated_at, p.type, p.thumbnail
+            $sql = "SELECT p.slug, p.updated_at, p.published_at, p.type, p.thumbnail, p.content
                     FROM posts p
                     {$q['joins']}
                     WHERE {$q['where']}
-                    ORDER BY p.updated_at DESC";
+                    ORDER BY p.published_at DESC LIMIT " . $limit;
 
             $stmt = $this->pdo->prepare($sql);
             $stmt->execute($q['params']);

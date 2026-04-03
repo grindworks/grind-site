@@ -402,12 +402,13 @@ function handleBackupCreate(string $srcPath): void
     }
 
     $timestamp = date('Ymd_His');
-    $backupFile = $backupDir . '/cli_backup_' . $timestamp . '.db';
+    $filename = 'cli_backup_' . $timestamp . '.db';
+    $fullPath = $backupDir . '/' . $filename;
 
-    if (function_exists('grinds_db_snapshot')) {
+    if (function_exists('grinds_create_backup')) {
         try {
-            grinds_db_snapshot($backupFile);
-            echo ConsoleColor::green("✓ Backup created successfully: \n  ") . ConsoleColor::gray($backupFile) . "\n";
+            grinds_create_backup($filename);
+            echo ConsoleColor::green("✓ Backup created successfully: \n  ") . ConsoleColor::gray($fullPath) . "\n";
 
             if (function_exists('get_option') && function_exists('grinds_rotate_backups')) {
                 $limit = (int)get_option('backup_retention_limit', 10);
@@ -428,8 +429,8 @@ function handleBackupCreate(string $srcPath): void
         if (function_exists('gc_collect_cycles')) gc_collect_cycles();
 
         // Fallback
-        if (copy($dbFile, $backupFile)) {
-            echo ConsoleColor::green("✓ Backup created successfully (Fallback copy): \n  ") . ConsoleColor::gray($backupFile) . "\n";
+        if (copy($dbFile, $fullPath)) {
+            echo ConsoleColor::green("✓ Backup created successfully (Fallback copy): \n  ") . ConsoleColor::gray($fullPath) . "\n";
         } else {
             echo ConsoleColor::red("✗ Failed to copy database file.\n");
             exit(1);
@@ -830,18 +831,15 @@ function handleMigrationCreate(string $srcPath): void
 
     $configPath = $srcPath . '/config.php';
     if (file_exists($configPath)) {
-        $safeDbName = addcslashes($dbName, "'\\");
         $origConfig = file_get_contents($configPath);
-        $pattern = '/^.*define\s*\(\s*[\'"]DB_FILE[\'"]\s*,.*?\)\s*;/m';
-        $replacement = "if (!defined('DB_FILE')) define('DB_FILE', __DIR__ . '/data/{$safeDbName}');";
-        $configContent = preg_replace($pattern, addcslashes($replacement, '\\$'), $origConfig);
+        $configContent = grinds_prepare_migration_config($origConfig, $dbName);
         $zip->addFromString('config.php', $configContent);
     }
 
     echo "  " . ConsoleColor::gray("3/4") . " Archiving uploaded files...\n";
     $files = [];
     if (is_dir($uploadDir)) {
-        $files = FileManager::scanDirectory($uploadDir);
+        $files = iterator_to_array(FileManager::scanDirectory($uploadDir));
     }
 
     $totalFiles = count($files);

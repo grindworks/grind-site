@@ -256,6 +256,23 @@ $js_labels = json_encode($chart_labels);
 $js_activity = json_encode($data_activity);
 $js_growth = json_encode($data_growth);
 
+// Fetch Post Time Distribution (00 ~ 23 hours) for Heatmap
+$time_dist = array_fill(0, 24, 0);
+$max_time_count = 0;
+try {
+    // Collect the count of published posts grouped by hour (00-23)
+    $stmtHour = $pdo->query("SELECT strftime('%H', COALESCE(published_at, created_at)) as hour, COUNT(id) as count FROM posts WHERE type='post' AND status='published' GROUP BY hour");
+    while ($row = $stmtHour->fetch(PDO::FETCH_ASSOC)) {
+        $h = (int)$row['hour'];
+        $c = (int)$row['count'];
+        $time_dist[$h] = $c;
+        if ($c > $max_time_count) {
+            $max_time_count = $c;
+        }
+    }
+} catch (Exception $e) {
+}
+
 // Render view
 $page_title = _t('menu_dashboard');
 $current_page = 'dashboard';
@@ -269,6 +286,8 @@ $jsRewriteWarningMsg = $isJa
     ? '現在、記事ページが 404 エラーで表示できない状態になっている可能性があります。<br><code>src/.htaccess</code> を開き、<code># RewriteBase</code> の先頭の <code>#</code> を削除（コメントアウトを解除）して保存してください。'
     : 'Articles might currently be returning 404 errors.<br>Please open <code>src/.htaccess</code> and remove the <code>#</code> at the beginning of the <code># RewriteBase</code> line to uncomment it.';
 $jsDismissText = _t('btn_dismiss');
+
+$lblHourUnit = $isJa ? '時' : 'h';
 
 ob_start();
 ?>
@@ -527,9 +546,10 @@ ob_start();
     </a>
 </div>
 
-<!-- Hybrid Chart (Site Growth) -->
-<div class="mb-8">
-    <div class="bg-theme-surface shadow-theme border border-theme-border rounded-theme overflow-hidden">
+<!-- Charts Grid -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+    <!-- Hybrid Chart (Site Growth) -->
+    <div class="lg:col-span-2 bg-theme-surface shadow-theme border border-theme-border rounded-theme overflow-hidden flex flex-col">
         <div class="flex justify-between items-center bg-theme-bg/30 p-5 border-theme-border border-b">
             <h2 class="flex items-center gap-2 font-bold text-theme-text text-lg">
                 <svg class="w-5 h-5 text-theme-primary" fill="currentColor" viewBox="0 0 24 24">
@@ -541,18 +561,55 @@ ob_start();
                 <?= _t('dash_last_30_days') ?>
             </div>
         </div>
-        <div class="relative p-4">
-            <div class="relative w-full h-72">
+        <div class="relative p-4 flex-1">
+            <div class="relative w-full h-64">
                 <canvas id="growthChart"></canvas>
             </div>
         </div>
-        <div class="bg-theme-bg/10 p-3 border-theme-border border-t text-center">
+        <div class="bg-theme-bg/10 p-3 border-theme-border border-t text-center mt-auto">
             <span class="opacity-60 font-bold text-theme-text text-xs">
                 <?= _t('dash_new_posts') ?>:
             </span>
             <span class="ml-2 font-bold text-theme-primary text-lg">+
                 <?= $period_new_posts ?>
             </span>
+        </div>
+    </div>
+
+    <!-- Time Distribution Heatmap (No external JS) -->
+    <div class="lg:col-span-1 bg-theme-surface shadow-theme border border-theme-border rounded-theme overflow-hidden flex flex-col">
+        <div class="flex justify-between items-center bg-theme-bg/30 p-5 border-theme-border border-b">
+            <h2 class="flex items-center gap-2 font-bold text-theme-text text-lg">
+                <svg class="w-5 h-5 text-theme-success" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-clock"></use>
+                </svg>
+                <?= _t('dash_time_dist') ?>
+            </h2>
+        </div>
+        <div class="relative p-4 flex-1 flex flex-col justify-center">
+            <div class="grid grid-cols-4 sm:grid-cols-6 gap-2 sm:gap-3 w-full">
+                <?php for ($h = 0; $h < 24; $h++):
+                    $count = $time_dist[$h] ?? 0;
+                    $ratio = $max_time_count > 0 ? ($count / $max_time_count) : 0;
+
+                    if ($count === 0) {
+                        $bgClass = 'bg-theme-bg/30 border border-theme-border shadow-sm';
+                        $textClass = 'text-theme-text opacity-40';
+                        $inlineStyle = '';
+                    } else {
+                        // Calculate opacity from 0.15 to 1.0 based on ratio
+                        $opacity = 0.15 + ($ratio * 0.85);
+                        $bgClass = 'shadow-sm';
+                        $inlineStyle = "background-color: rgb(var(--color-primary) / {$opacity});";
+                        // Use on-primary color for darker backgrounds, primary color for lighter
+                        $textClass = $ratio > 0.4 ? 'text-theme-on-primary font-bold' : 'text-theme-primary font-bold';
+                    }
+                ?>
+                    <div class="flex flex-col items-center justify-center rounded-theme p-1.5 h-14 sm:h-16 transition-transform hover:scale-105 <?= $bgClass ?>" style="<?= $inlineStyle ?>" title="<?= $count ?> posts">
+                        <span class="text-base sm:text-sm font-bold <?= $textClass ?>"><?= sprintf('%02d', $h) ?></span>
+                    </div>
+                <?php endfor; ?>
+            </div>
         </div>
     </div>
 </div>
@@ -789,7 +846,7 @@ ob_start();
                             label: <?= json_encode(_t('stat_total_pages')) ?>,
                             data: <?= $js_growth ?>,
                             borderColor: successColor,
-                            backgroundColor: bgSuccess,
+                            backgroundColor: getRgba('--color-success', 0.1),
                             borderWidth: 2,
                             pointRadius: 0,
                             pointHoverRadius: 4,

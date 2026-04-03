@@ -41,7 +41,7 @@ if (($init_tab ?? '') === 'update') {
         </div>
         <h3 class="mb-1 font-bold text-theme-text text-lg opacity-80"><?= _t('st_update_check_needed') ?></h3>
         <div class="mt-6">
-          <button @click="isChecking = true; setTimeout(() => window.location.href = 'settings.php?tab=update', 2000)"
+          <button @click="isChecking = true; setTimeout(() => window.location.href = 'settings.php?tab=update', 1600)"
             class="inline-block shadow-theme px-6 py-2.5 rounded-theme font-bold text-sm transition-all btn-primary no-underline">
             <?= _t('st_check_updates') ?>
           </button>
@@ -54,7 +54,7 @@ if (($init_tab ?? '') === 'update') {
             <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-arrow-path"></use>
           </svg>
         </div>
-        <h3 class="mb-1 font-bold text-theme-text text-lg opacity-80"><?= _t('st_checking_updates') ?: 'サーバーに確認中...' ?></h3>
+        <h3 class="mb-1 font-bold text-theme-text text-lg opacity-80"><?= _t('st_checking_updates') ?></h3>
       </div>
     </div>
 
@@ -125,18 +125,29 @@ if (($init_tab ?? '') === 'update') {
         </ul>
       </div>
 
-      <div class="flex flex-col sm:flex-row justify-end gap-4 items-center pt-6 border-t border-theme-border">
-        <button type="button" @click="activeTab = 'backup'"
-          class="shadow-theme px-6 py-2.5 rounded-theme w-full sm:w-auto text-sm btn-secondary flex items-center justify-center gap-2">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-server"></use>
-          </svg>
-          <?= _t('st_goto_backup') ?>
-        </button>
+      <form method="post" class="w-full">
+        <input type="hidden" name="csrf_token" value="<?= h(generate_csrf_token()) ?>">
+        <input type="hidden" name="action" value="perform_update">
 
-        <form method="post" class="w-full sm:w-auto">
-          <input type="hidden" name="csrf_token" value="<?= h(generate_csrf_token()) ?>">
-          <input type="hidden" name="action" value="perform_update">
+        <div class="mb-6 bg-theme-bg/30 p-4 sm:p-5 border border-theme-border rounded-theme">
+          <label class="flex items-start cursor-pointer group">
+            <input type="checkbox" name="skip_theme_skin" value="1" checked class="mt-0.5 bg-theme-surface border-theme-border rounded focus:ring-theme-primary/20 w-5 h-5 text-theme-primary form-checkbox shrink-0 transition-shadow">
+            <div class="ml-3">
+              <span class="block text-theme-text text-sm font-bold group-hover:text-theme-primary transition-colors"><?= _t('st_update_skip_theme_skin') ?></span>
+              <span class="block mt-1.5 text-theme-text opacity-70 text-xs leading-relaxed"><?= _t('st_update_skip_theme_skin_desc') ?></span>
+            </div>
+          </label>
+        </div>
+
+        <div class="flex flex-col sm:flex-row justify-end gap-4 items-center pt-6 border-t border-theme-border">
+          <button type="button" @click="activeTab = 'backup'"
+            class="shadow-theme px-6 py-2.5 rounded-theme w-full sm:w-auto text-sm btn-secondary flex items-center justify-center gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-server"></use>
+            </svg>
+            <?= _t('st_goto_backup') ?>
+          </button>
+
           <button type="submit"
             onclick="return confirm(<?= htmlspecialchars(json_encode(_t('st_confirm_update')), ENT_QUOTES) ?>);"
             class="shadow-theme px-8 py-2.5 rounded-theme w-full sm:w-auto font-bold text-sm transition-all btn-primary flex items-center justify-center gap-2">
@@ -145,8 +156,8 @@ if (($init_tab ?? '') === 'update') {
             </svg>
             <?= _t('st_btn_update_now') ?>
           </button>
-        </form>
-      </div>
+        </div>
+      </form>
 
     <?php
     else: ?>
@@ -166,7 +177,7 @@ if (($init_tab ?? '') === 'update') {
           </div>
 
           <div class="mt-8">
-            <button @click="isChecking = true; setTimeout(() => window.location.href = 'settings.php?tab=update', 2000)" class="inline-flex items-center gap-2 px-5 py-2 font-bold text-theme-text opacity-70 hover:opacity-100 bg-theme-surface border border-theme-border hover:border-theme-primary rounded-theme text-xs transition-colors shadow-sm no-underline hover:text-theme-primary cursor-pointer">
+            <button @click="isChecking = true; setTimeout(() => window.location.href = 'settings.php?tab=update', 1600)" class="inline-flex items-center gap-2 px-5 py-2 font-bold text-theme-text opacity-70 hover:opacity-100 bg-theme-surface border border-theme-border hover:border-theme-primary rounded-theme text-xs transition-colors shadow-sm no-underline hover:text-theme-primary cursor-pointer">
               <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-arrow-path"></use>
               </svg>
@@ -182,7 +193,7 @@ if (($init_tab ?? '') === 'update') {
             </svg>
           </div>
 
-          <h3 class="mb-3 font-bold text-theme-text text-xl"><?= _t('st_checking_updates') ?: 'サーバーに確認中...' ?></h3>
+          <h3 class="mb-3 font-bold text-theme-text text-xl"><?= _t('st_checking_updates') ?></h3>
 
           <div class="flex items-center gap-2 mt-2 px-4 py-2 opacity-0 text-sm">
             <span class="opacity-60 text-theme-text font-bold"><?= _t('st_current_ver') ?></span>

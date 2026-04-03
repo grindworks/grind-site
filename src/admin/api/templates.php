@@ -46,46 +46,21 @@ try {
   // Handle POST request
   elseif ($method === 'POST') {
     $title = $input['title'] ?? _t('tpl_untitled');
-    // Encode content
     $rawContent = $input['content'] ?? ['blocks' => []];
-    if (!empty($input['content_is_base64']) && is_string($rawContent)) {
-      $json = base64_decode(str_replace(' ', '+', $rawContent));
-      if ($json === false) {
-        throw new Exception('Invalid Base64 content.');
-      }
-    } else {
-      $json = is_array($rawContent) ? json_encode($rawContent, JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_IGNORE) : $rawContent;
-    }
+    $contentString = is_array($rawContent) ? json_encode($rawContent, JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_IGNORE) : (string)$rawContent;
 
-    // Sanitize content for users without unfiltered_html capability to prevent Stored XSS
-    if (!current_user_can('unfiltered_html')) {
-      $decodedArray = json_decode($json, true);
-      if (is_array($decodedArray) && isset($decodedArray['blocks'])) {
-        if (function_exists('grinds_sanitize_post_content_array')) {
-          $decodedArray = grinds_sanitize_post_content_array($decodedArray);
-        }
-        $json = json_encode($decodedArray, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_INVALID_UTF8_IGNORE);
-      } else {
-        if (function_exists('grinds_sanitize_post_content')) {
-          $json = grinds_sanitize_post_content($json);
-        }
-      }
-    }
+    $postData = [
+      'title' => $title,
+      'content' => $contentString,
+      'content_is_base64' => !empty($input['content_is_base64']) ? '1' : '0',
+      'type' => 'template',
+      'status' => 'private',
+      'slug' => 'tpl-' . bin2hex(random_bytes(8))
+    ];
 
-    $content = Routing::convertToDbUrl($json);
+    $result = grinds_save_post($pdo, $postData, [], 'new');
 
-    // Generate slug
-    $baseSlug = 'tpl-' . bin2hex(random_bytes(8));
-    $slug = function_exists('grinds_get_unique_slug')
-      ? grinds_get_unique_slug($pdo, 'posts', $baseSlug)
-      : $baseSlug;
-
-    // Insert template
-    $now = date('Y-m-d H:i:s');
-    $stmt = $pdo->prepare("INSERT INTO posts (title, slug, content, type, status, created_at, updated_at) VALUES (?, ?, ?, 'template', 'private', ?, ?)");
-    $stmt->execute([$title, $slug, $content, $now, $now]);
-
-    json_response(['success' => true, 'id' => $pdo->lastInsertId()]);
+    json_response(['success' => true, 'id' => $result['id']]);
   }
   // Reject unsupported methods
   else {

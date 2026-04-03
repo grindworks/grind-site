@@ -493,10 +493,7 @@ if (!function_exists('get_client_ip')) {
                 $trustedIps = array_filter(array_map('trim', $trustedIps));
             }
 
-            // Disable trust if proxy trust is enabled but no trusted IPs are defined
-            if (empty($trustedIps)) {
-                $trust = false;
-            } else {
+            if (!empty($trustedIps)) {
                 $isTrusted = false;
                 foreach ($trustedIps as $range) {
                     if (grinds_ip_in_range($ip, trim($range))) {
@@ -1200,6 +1197,8 @@ if (!function_exists('grinds_sanitize_html')) {
             return '';
         if (!str_contains($text, '<'))
             return htmlspecialchars($text, ENT_QUOTES, 'UTF-8');
+
+        $text = preg_replace('/<(?![a-zA-Z\/!?])/', '&lt;', $text);
 
         $allowedTags = [
             'b',
@@ -2004,5 +2003,30 @@ if (!function_exists('grinds_clean_directory_files')) {
         }
 
         return $count;
+    }
+}
+
+/**
+ * Extract author information from content blocks
+ *
+ * @param array $contentData
+ * @return array|null
+ */
+if (!function_exists('grinds_extract_author_from_content')) {
+    function grinds_extract_author_from_content(array $contentData): ?array
+    {
+        if (!empty($contentData['blocks'])) {
+            foreach ($contentData['blocks'] as $block) {
+                if (($block['type'] ?? '') === 'author' && !empty($block['data']['name'])) {
+                    return [
+                        'name' => html_entity_decode(strip_tags($block['data']['name']), ENT_QUOTES | ENT_HTML5, 'UTF-8'),
+                        'jobTitle' => !empty($block['data']['role']) ? html_entity_decode(strip_tags($block['data']['role']), ENT_QUOTES | ENT_HTML5, 'UTF-8') : '',
+                        'description' => !empty($block['data']['bio']) ? html_entity_decode(strip_tags($block['data']['bio']), ENT_QUOTES | ENT_HTML5, 'UTF-8') : '',
+                        'url' => !empty($block['data']['link']) ? filter_var($block['data']['link'], FILTER_VALIDATE_URL) : false
+                    ];
+                }
+            }
+        }
+        return null;
     }
 }

@@ -49,7 +49,7 @@ try {
 
   $pdo->beginTransaction();
   try {
-    $jsonUpdateStr = json_encode($metadata, JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_IGNORE);
+    $jsonUpdateStr = json_encode(empty($metadata) ? new stdClass() : $metadata, JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_IGNORE);
     if ($jsonUpdateStr === false) {
       throw new Exception(_t('err_failed_encode_metadata'));
     }
@@ -69,7 +69,7 @@ try {
       }
 
       $mergedMeta = array_merge($existingMeta, $metadata);
-      $jsonMeta = json_encode($mergedMeta, JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_IGNORE);
+      $jsonMeta = json_encode(empty($mergedMeta) ? new stdClass() : $mergedMeta, JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_IGNORE);
 
       $stmt = $pdo->prepare("UPDATE media SET metadata = ? WHERE id = ?");
       $stmt->execute([$jsonMeta, $id]);

@@ -650,7 +650,7 @@ HTML;
 
                         $html .= "<div class='p-5 flex flex-col flex-grow'>";
                         if (!$thumb && $catName) {
-                            $html .= "<div class='mb-2 text-[10px] font-bold text-theme-primary uppercase tracking-wider'>{$catName}</div>";
+                            $html .= "<div class='relative z-10 mb-2 text-[10px] font-bold text-theme-primary uppercase tracking-wider'>{$catName}</div>";
                         }
 
                         $html .= "<h3 class='font-bold text-gray-900 text-lg mb-3 line-clamp-2 leading-snug'><a href='{$url}' class='hover:text-theme-primary transition-colors no-underline after:absolute after:inset-0'>{$title}</a></h3>";
@@ -1448,7 +1448,7 @@ HTML;
 
         $iv = random_bytes(12);
         $tag = '';
-        $ciphertext = openssl_encrypt($protectedHtml, 'aes-256-gcm', $key, OPENSSL_RAW_DATA, $iv, $tag);
+        $ciphertext = openssl_encrypt($protectedHtml, 'aes-256-gcm', $key, OPENSSL_RAW_DATA, $iv, $tag, "", 16);
 
         if ($ciphertext === false) {
             return $protectedHtml;
@@ -1535,7 +1535,7 @@ if (typeof window.grindsDecrypt !== 'function') {
 
             const dataToDecrypt = new Uint8Array(ciphertext.length + tag.length);
             dataToDecrypt.set(ciphertext, 0); dataToDecrypt.set(tag, ciphertext.length);
-            const decrypted = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: iv }, key, dataToDecrypt);
+            const decrypted = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: iv, tagLength: 128 }, key, dataToDecrypt);
             const html = new TextDecoder().decode(decrypted);
             document.getElementById(id + '-content').innerHTML = html;
             document.getElementById(id + '-content').style.display = 'block';

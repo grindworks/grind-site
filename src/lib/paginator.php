@@ -7,21 +7,21 @@ if (!defined('GRINDS_APP')) exit;
 
 class Paginator
 {
-    private $total;
-    private $limit;
-    private $page;
-    private $num_pages;
-    private $base_path;
-    private $url_params;
+    private readonly int $total;
+    private readonly int $limit;
+    private readonly int $page;
+    private readonly int $num_pages;
+    private readonly string $base_path;
+    private readonly array $url_params;
 
     /** Initializes paginator. */
-    public function __construct($total, $limit, $page)
+    public function __construct(int $total, int $limit, int $page)
     {
-        $this->total = (int)$total;
-        $this->limit = max(1, (int)$limit);
+        $this->total = max(0, $total);
+        $this->limit = max(1, $limit);
         $this->num_pages = (int)ceil($this->total / $this->limit);
 
-        $requested_page = max(1, (int)$page);
+        $requested_page = max(1, $page);
         if ($this->num_pages > 0) {
             $this->page = min($requested_page, $this->num_pages);
         } else {
@@ -48,23 +48,23 @@ class Paginator
         }
     }
 
-    public function getOffset()
+    public function getOffset(): int
     {
         return ($this->page - 1) * $this->limit;
     }
 
-    public function getNumPages()
+    public function getNumPages(): int
     {
         return $this->num_pages;
     }
 
-    public function getPage()
+    public function getPage(): int
     {
         return $this->page;
     }
 
     /** Generates page URL. */
-    public function createUrl($page)
+    public function createUrl(int $page): string
     {
         // Handle SSG mode
         global $pageType;
@@ -107,7 +107,7 @@ class Paginator
         return $this->base_path . ($query ? '?' . $query : '');
     }
 
-    private function getPagesArray()
+    private function getPagesArray(): array
     {
         $range = 2;
         $start = max(1, $this->page - $range);
@@ -122,7 +122,7 @@ class Paginator
     }
 
     // Render admin pagination
-    public function render()
+    public function render(): string
     {
         if ($this->num_pages <= 1) return '';
 
@@ -191,7 +191,7 @@ class Paginator
     }
 
     // Render frontend pagination
-    public function renderFrontend()
+    public function renderFrontend(): string
     {
         if ($this->num_pages <= 1) return '';
 

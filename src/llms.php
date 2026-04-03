@@ -17,6 +17,8 @@ if (!require __DIR__ . '/lib/bootstrap_public.php') {
 if (!class_exists('LlmsTxtGenerator')) {
     class LlmsTxtGenerator
     {
+        use GeneratorCacheTrait;
+
         private const CACHE_TTL = 3600;
         private const MAX_ARTICLES = 50;
 
@@ -72,37 +74,6 @@ if (!class_exists('LlmsTxtGenerator')) {
             $isNoIndex = function_exists('get_option') ? (bool)get_option('site_noindex') : false;
             $isBlockAi = function_exists('get_option') ? (bool)get_option('site_block_ai') : false;
             return $isNoIndex || $isBlockAi;
-        }
-
-        private function serveFromCache(): bool
-        {
-            if (!file_exists($this->cacheFile) || !$this->pdo) {
-                return false;
-            }
-
-            try {
-                if (!class_exists('PostRepository')) {
-                    require_once __DIR__ . '/lib/functions/posts.php';
-                }
-                $repo = new PostRepository($this->pdo);
-                $lastUpdate = $repo->getLatestPostTimestamp([
-                    'status' => 'published',
-                    'type' => ['post', 'page'],
-                    'is_noindex' => 0
-                ]);
-
-                if ($lastUpdate && filemtime($this->cacheFile) >= strtotime($lastUpdate)) {
-                    $this->sendHeaders();
-                    readfile($this->cacheFile);
-                    return true;
-                }
-            } catch (Exception $e) {
-                if (class_exists('GrindsLogger')) {
-                    GrindsLogger::log('LlmsTxtGenerator Cache Error: ' . $e->getMessage(), 'WARNING');
-                }
-            }
-
-            return false;
         }
 
         private function generateAndCache(): void
@@ -266,11 +237,11 @@ if (!class_exists('LlmsTxtGenerator')) {
         private function cleanText(string $text): string
         {
             $text = html_entity_decode(strip_tags($text), ENT_QUOTES | ENT_HTML5, 'UTF-8');
-            $text = str_replace(["\r", "\n"], ' ', $text);
+            $text = str_replace(["\r", "\n", "[", "]"], [' ', ' ', '\[', '\]'], $text);
             return preg_replace('/[\x00-\x08\x0B\x0C\x0E-\x1F]/u', '', $text);
         }
 
-        private function sendHeaders(): void
+        protected function sendHeaders(): void
         {
             if ($this->isSsgMode || headers_sent()) {
                 return;
@@ -281,14 +252,6 @@ if (!class_exists('LlmsTxtGenerator')) {
             header("X-Robots-Tag: noindex");
             header("X-Content-Type-Options: nosniff");
             header("X-Frame-Options: DENY");
-        }
-
-        private function sendError(int $code): void
-        {
-            if (!$this->isSsgMode) {
-                http_response_code($code);
-                exit;
-            }
         }
     }
 }

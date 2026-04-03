@@ -14,6 +14,11 @@ if (!defined('GRINDS_APP')) exit; ?>
   <textarea x-model="block.data.code" :id="'block-' + block.id + '-code'" rows="4" class="w-full font-mono text-xs form-control-sm" placeholder='<iframe src="https://www.google.com/maps/embed?..."></iframe>'></textarea>
   <!-- Map preview -->
   <div x-show="block.data.code" class="bg-theme-bg mt-2 border border-theme-border rounded-theme aspect-video overflow-hidden">
-    <div x-html="block.data.code" class="w-full [&_iframe]:w-full h-full [&_iframe]:h-full"></div>
+    <template x-if="block.data.code && block.data.code.match(/<iframe\s+[^>]*src=[\x22\x27]([^\x22\x27]+)[\x22\x27]/i)">
+      <iframe :src="block.data.code.match(/<iframe\s+[^>]*src=[\x22\x27]([^\x22\x27]+)[\x22\x27]/i)[1]" width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy" class="w-full h-full"></iframe>
+    </template>
+    <template x-if="!(block.data.code && block.data.code.match(/<iframe\s+[^>]*src=[\x22\x27]([^\x22\x27]+)[\x22\x27]/i))">
+      <div class='flex items-center justify-center w-full h-full text-theme-text opacity-50 text-xs'>Invalid or unsupported embed code.</div>
+    </template>
   </div>
 </div>

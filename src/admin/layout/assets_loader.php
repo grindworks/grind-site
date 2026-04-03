@@ -145,7 +145,10 @@ $media_bg_css = $skinAssets['media_backgrounds'][$media_bg_key] ?? $media_bg_key
 <?php if (!empty($skin['font_url']) && !$disable_external_assets): ?>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="<?= h(resolve_url($skin['font_url'])) ?>" rel="stylesheet">
+    <link href="<?= h(resolve_url($skin['font_url'])) ?>" rel="stylesheet" media="print" onload="this.media='all'">
+    <noscript>
+        <link href="<?= h(resolve_url($skin['font_url'])) ?>" rel="stylesheet">
+    </noscript>
 <?php
 endif; ?>
 
@@ -246,6 +249,10 @@ endif; ?>
 
     .animate-ping-slow {
         animation: ping-slow 3s cubic-bezier(0, 0, 0.2, 1) infinite;
+    }
+
+    body.preload-transitions * {
+        transition: none !important;
     }
 
     /* Apply custom skin CSS */

@@ -397,6 +397,7 @@ class FrontController
     }
 
     header('X-Grinds-Cache: HIT');
+    header("Content-Length: " . $size);
     readfile($file);
     exit;
   }

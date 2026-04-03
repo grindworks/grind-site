@@ -18,12 +18,12 @@ if (!defined('GRINDS_APP')) exit; ?>
         <template x-for="(row, rowIndex) in block.data.content" :key="rowIndex">
           <tr :class="{'border-t-2 border-theme-primary': dropIdx === rowIndex && dragIdx !== null && dragIdx > rowIndex, 'border-b-2 border-theme-primary': dropIdx === rowIndex && dragIdx !== null && dragIdx < rowIndex}"
             @dragover.prevent="dropIdx = rowIndex"
-            @drop.prevent="if(dragIdx !== null && dragIdx !== rowIndex) { let newArr = [...block.data.content]; let temp = newArr[dragIdx]; newArr.splice(dragIdx, 1); newArr.splice(rowIndex, 0, temp); block.data.content = newArr; } dragIdx = null; dropIdx = null;">
+            @drop.prevent="if(dragIdx !== null && dragIdx !== rowIndex) block.data.content.splice(rowIndex, 0, block.data.content.splice(dragIdx, 1)[0]); dragIdx = null; dropIdx = null;">
             <!-- Controls (Drag handle & Move buttons) -->
             <td class="w-8 p-1 border border-theme-border text-center align-middle" :class="{'bg-theme-surface': block.data.withHeadings && rowIndex === 0}">
               <div class="flex flex-col items-center justify-center w-full h-full gap-1 opacity-50 hover:opacity-100 transition-opacity">
                 <!-- Move up -->
-                <button type="button" @click.prevent="if(rowIndex > 0) { let newArr = [...block.data.content]; let temp = newArr[rowIndex]; newArr[rowIndex] = newArr[rowIndex - 1]; newArr[rowIndex - 1] = temp; block.data.content = newArr; }" x-show="rowIndex > 0" class="p-1 text-theme-text hover:text-theme-primary transition-colors" title="<?= h(_t('btn_move_up') ?? 'Move Up') ?>">
+                <button type="button" @click.prevent="if(rowIndex > 0) [block.data.content[rowIndex - 1], block.data.content[rowIndex]] = [block.data.content[rowIndex], block.data.content[rowIndex - 1]]" x-show="rowIndex > 0" class="p-1 text-theme-text hover:text-theme-primary transition-colors" title="<?= h(_t('btn_move_up') ?? 'Move Up') ?>">
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-chevron-up"></use>
                   </svg>
@@ -38,7 +38,7 @@ if (!defined('GRINDS_APP')) exit; ?>
                   </svg>
                 </button>
                 <!-- Move down -->
-                <button type="button" @click.prevent="if(rowIndex < block.data.content.length - 1) { let newArr = [...block.data.content]; let temp = newArr[rowIndex]; newArr[rowIndex] = newArr[rowIndex + 1]; newArr[rowIndex + 1] = temp; block.data.content = newArr; }" x-show="rowIndex < block.data.content.length - 1" class="p-1 text-theme-text hover:text-theme-primary transition-colors" title="<?= h(_t('btn_move_down') ?? 'Move Down') ?>">
+                <button type="button" @click.prevent="if(rowIndex < block.data.content.length - 1) [block.data.content[rowIndex], block.data.content[rowIndex + 1]] = [block.data.content[rowIndex + 1], block.data.content[rowIndex]]" x-show="rowIndex < block.data.content.length - 1" class="p-1 text-theme-text hover:text-theme-primary transition-colors" title="<?= h(_t('btn_move_down') ?? 'Move Down') ?>">
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-chevron-down"></use>
                   </svg>
@@ -55,12 +55,27 @@ if (!defined('GRINDS_APP')) exit; ?>
             <!-- Loop cells -->
             <template x-for="(cell, colIndex) in row" :key="colIndex">
               <td class="relative p-1 border border-theme-border group/cell" :class="{'bg-theme-surface font-bold': block.data.withHeadings && rowIndex === 0}">
-                <!-- Delete col (visible on hover for the first row) -->
-                <button type="button" x-show="rowIndex === 0 && block.data.content[0].length > 1" @click.prevent="if(confirm(window.grindsTranslations?.confirm_delete || 'Are you sure?')) { block.data.content.forEach(r => r.splice(colIndex, 1)); }" class="absolute -top-2.5 -right-2.5 z-10 p-1 bg-theme-surface border border-theme-border rounded-full text-theme-text hover:text-theme-danger transition-opacity opacity-0 group-hover/cell:opacity-100 shadow-theme" title="<?= h(_t('btn_del_col') ?? 'Delete Column') ?>">
-                  <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-x-mark"></use>
-                  </svg>
-                </button>
+                <!-- Column Controls (visible on hover for the first row) -->
+                <div x-show="rowIndex === 0" class="absolute -top-3 left-1/2 -translate-x-1/2 z-10 flex items-center bg-theme-surface border border-theme-border rounded shadow-theme opacity-0 group-hover/cell:opacity-100 transition-opacity">
+                  <!-- Move Left -->
+                  <button type="button" @click.prevent="if(colIndex > 0) block.data.content.forEach(r => [r[colIndex - 1], r[colIndex]] = [r[colIndex], r[colIndex - 1]])" x-show="colIndex > 0" class="p-1 text-theme-text hover:text-theme-primary transition-colors" title="<?= h(_t('btn_move_left') ?? 'Move Left') ?>">
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-chevron-left"></use>
+                    </svg>
+                  </button>
+                  <!-- Move Right -->
+                  <button type="button" @click.prevent="if(colIndex < block.data.content[0].length - 1) block.data.content.forEach(r => [r[colIndex], r[colIndex + 1]] = [r[colIndex + 1], r[colIndex]])" x-show="colIndex < block.data.content[0].length - 1" class="p-1 text-theme-text hover:text-theme-primary transition-colors" title="<?= h(_t('btn_move_right') ?? 'Move Right') ?>">
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-chevron-right"></use>
+                    </svg>
+                  </button>
+                  <!-- Delete col -->
+                  <button type="button" x-show="block.data.content[0].length > 1" @click.prevent="if(confirm(window.grindsTranslations?.confirm_delete || 'Are you sure?')) { let newArr = [...block.data.content]; newArr.forEach(r => r.splice(colIndex, 1)); block.data.content = newArr; }" class="p-1 text-theme-text hover:text-theme-danger transition-colors" title="<?= h(_t('btn_del_col') ?? 'Delete Column') ?>">
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-x-mark"></use>
+                    </svg>
+                  </button>
+                </div>
                 <textarea rows="1" x-model="block.data.content[rowIndex][colIndex]" :id="'block-' + block.id + '-cell-' + rowIndex + '-' + colIndex"
                   class="bg-transparent px-2 py-1 border-none rounded-theme focus:ring-1 focus:ring-theme-primary w-full text-theme-text text-xs placeholder-theme-text/20 resize-none overflow-hidden"
                   x-init="$nextTick(() => { $el.style.height = 'auto'; $el.style.height = $el.scrollHeight + 'px' })"

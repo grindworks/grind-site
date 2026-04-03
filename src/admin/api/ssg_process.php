@@ -302,21 +302,41 @@ class GrindsSSG
             $pages[] = ['url' => '404', 'slug' => '404', 'depth' => 0, 'page' => 1];
         }
 
-        // Add standalone physical pages (like contact.php) from theme
+        // Add standalone physical pages (like contact.php) from theme dynamically
         $activeTheme = function_exists('get_option') ? get_option('site_theme', 'default') : 'default';
         $themePath = $this->rootDir . '/theme/' . $activeTheme;
 
-        $standalonePages = ['contact'];
-        foreach ($standalonePages as $pSlug) {
-            $alreadyAdded = false;
-            foreach ($pages as $p) {
-                if ($p['slug'] === $pSlug) {
-                    $alreadyAdded = true;
-                    break;
+        // Scan for standalone PHP pages in the theme root, excluding reserved template files.
+        $reservedFiles = [
+            'functions.php',
+            'layout.php',
+            '404.php',
+            'home.php',
+            'single.php',
+            'page.php',
+            'archive.php',
+            'category.php',
+            'tag.php'
+        ];
+
+        if (is_dir($themePath)) {
+            foreach (glob($themePath . '/*.php') as $phpFile) {
+                $basename = basename($phpFile);
+                if (!in_array($basename, $reservedFiles, true)) {
+                    $pSlug = basename($basename, '.php');
+
+                    // Avoid adding if a post/page with the same slug already exists
+                    $alreadyAdded = false;
+                    foreach ($pages as $p) {
+                        if ($p['slug'] === $pSlug) {
+                            $alreadyAdded = true;
+                            break;
+                        }
+                    }
+                    if (!$alreadyAdded) {
+                        $pages[] = ['url' => $pSlug, 'slug' => $pSlug, 'depth' => 0, 'page' => 1];
+                    }
                 }
-            }
-            if (!$alreadyAdded && file_exists($themePath . '/' . $pSlug . '.php')) {
-                $pages[] = ['url' => $pSlug, 'slug' => $pSlug, 'depth' => 0, 'page' => 1];
             }
         }
 
@@ -485,6 +505,19 @@ class GrindsSSG
         $stmtCatThemes = $this->pdo->query("SELECT DISTINCT category_theme FROM categories WHERE category_theme IS NOT NULL AND category_theme != ''");
         while ($row = $stmtCatThemes->fetch())
             $activeThemes[] = $row['category_theme'];
+
+        $stmtWidgetThemes = $this->pdo->query("SELECT DISTINCT target_theme FROM widgets WHERE target_theme IS NOT NULL AND target_theme != 'all'");
+        while ($row = $stmtWidgetThemes->fetch())
+            $activeThemes[] = $row['target_theme'];
+
+        $stmtMenuThemes = $this->pdo->query("SELECT DISTINCT target_theme FROM nav_menus WHERE target_theme IS NOT NULL AND target_theme != 'all'");
+        while ($row = $stmtMenuThemes->fetch())
+            $activeThemes[] = $row['target_theme'];
+
+        $stmtBannerThemes = $this->pdo->query("SELECT DISTINCT target_theme FROM banners WHERE target_theme IS NOT NULL AND target_theme != 'all'");
+        while ($row = $stmtBannerThemes->fetch())
+            $activeThemes[] = $row['target_theme'];
+
         $activeThemes = array_unique($activeThemes);
 
         // Scan themes

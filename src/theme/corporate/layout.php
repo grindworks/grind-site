@@ -101,7 +101,10 @@ extract($headerData);
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap"
-      rel="stylesheet">
+      rel="stylesheet" media="print" onload="this.media='all'">
+    <noscript>
+      <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+    </noscript>
     <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/collapse@3.x.x/dist/cdn.min.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
   <?php
@@ -121,10 +124,14 @@ extract($headerData);
     [x-cloak] {
       display: none !important;
     }
+
+    body.preload-transitions * {
+      transition: none !important;
+    }
   </style>
 </head>
 
-<body <?php body_class("flex flex-col bg-slate-50 selection:bg-sky-200 min-h-screen text-slate-700
+<body <?php body_class("preload-transitions flex flex-col bg-slate-50 selection:bg-sky-200 min-h-screen text-slate-700
   selection:text-sky-900"); ?>>
   <?php if (isset($isPreview) && $isPreview): ?>
     <div class="bg-yellow-100 py-2 border-yellow-200 border-b font-bold text-yellow-800 text-center">
@@ -181,6 +188,13 @@ extract($headerData);
 
   <?php get_template_part('parts/footer'); ?>
   <?php grinds_footer(); ?>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      requestAnimationFrame(() => {
+        document.body.classList.remove('preload-transitions');
+      });
+    });
+  </script>
 </body>
 
 </html>

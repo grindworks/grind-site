@@ -128,10 +128,20 @@ if (!function_exists('check_internal_link')) {
         // Validate root
         if ($path === '' || $path === 'index.php') return ['isValid' => true];
 
-        // Validate special routes
-        if ($path === 'search' || strpos($path, 'search/') === 0 || $path === '404' || $path === 'contact') return ['isValid' => true];
+        // Exclude system-generated static root files
+        $systemFiles = ['sitemap.xml', 'rss.xml', 'robots.txt', 'llms.txt', 'llms-full.txt'];
+        if (in_array($path, $systemFiles, true)) return ['isValid' => true];
 
-        // Check known routes
+        // Validate special routes
+        if ($path === 'search' || strpos($path, 'search/') === 0 || $path === '404') return ['isValid' => true];
+
+        // Dynamically check for physical PHP pages in the theme (e.g., contact.php)
+        $activeTheme = function_exists('get_option') ? get_option('site_theme', 'default') : 'default';
+        $themePath = ROOT_PATH . '/theme/' . $activeTheme;
+        if (file_exists($themePath . '/' . $path . '.php')) {
+            return ['isValid' => true];
+        }
+
         // Check category
         if (preg_match('/^category\/([^\/]+)/', $path, $m)) {
             $stmt = $pdo->prepare("SELECT 1 FROM categories WHERE slug = ?");

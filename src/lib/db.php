@@ -139,6 +139,9 @@ function grinds_db_connect()
   // Optimize performance.
   $enableWal = defined('ENABLE_WAL_MODE') ? ENABLE_WAL_MODE : true;
   $pdo->exec("PRAGMA busy_timeout = 30000;");
+  $pdo->exec("PRAGMA cache_size = -20000;");
+  $pdo->exec("PRAGMA mmap_size = 268435456;");
+  $pdo->exec("PRAGMA temp_store = MEMORY;");
 
   try {
     if ($enableWal) {
@@ -165,8 +168,15 @@ function grinds_db_connect()
               @fastcgi_finish_request();
             }
             try {
-              $shutdownPdo = new PDO("sqlite:" . $db_path);
-              $shutdownPdo->exec("PRAGMA wal_checkpoint(PASSIVE);");
+              $existingPdo = class_exists('App') ? App::db() : null;
+              if ($existingPdo && !$existingPdo->inTransaction()) {
+                $existingPdo->exec("PRAGMA wal_checkpoint(PASSIVE);");
+                $existingPdo->exec("PRAGMA optimize;");
+              } else {
+                $shutdownPdo = new PDO("sqlite:" . $db_path);
+                $shutdownPdo->exec("PRAGMA wal_checkpoint(PASSIVE);");
+                $shutdownPdo->exec("PRAGMA optimize;");
+              }
             } catch (Exception $e) { /* Ignore */
             }
           }
@@ -225,7 +235,17 @@ function grinds_is_fts5_enabled()
     if (!$pdo) {
       return $is_enabled = true; // Assume enabled if DB is not available, to avoid false positives
     }
-    // Try to create a temporary FTS5 table
+
+    // Fast check: Use PRAGMA compile_options (Modern, no I/O)
+    $stmt = $pdo->query("PRAGMA compile_options");
+    if ($stmt) {
+      $options = $stmt->fetchAll(PDO::FETCH_COLUMN);
+      if (in_array('ENABLE_FTS5', $options, true) || in_array('ENABLE_FTS5=1', $options, true)) {
+        return $is_enabled = true;
+      }
+    }
+
+    // Fallback: Try to create a temporary FTS5 table for edge cases where PRAGMA fails or returns empty
     $pdo->exec("CREATE VIRTUAL TABLE temp.fts5_test_temp USING fts5(content)");
     $pdo->exec("DROP TABLE temp.fts5_test_temp");
     $is_enabled = true;

@@ -153,12 +153,16 @@ extract($headerData);
     [x-cloak] {
       display: none !important;
     }
+
+    body.preload-transitions * {
+      transition: none !important;
+    }
   </style>
 
   <?php grinds_head(); ?>
 </head>
 
-<body <?php body_class("flex flex-col bg-theme-bg min-h-screen text-theme-text"); ?>>
+<body <?php body_class("preload-transitions flex flex-col bg-theme-bg min-h-screen text-theme-text"); ?>>
 
   <?php if (isset($isPreview) && $isPreview): ?>
     <div class="bg-yellow-400 py-2 text-yellow-900 text-center font-bold">
@@ -196,6 +200,13 @@ extract($headerData);
   <?php get_template_part('parts/footer'); ?>
 
   <?php grinds_footer(); ?>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      requestAnimationFrame(() => {
+        document.body.classList.remove('preload-transitions');
+      });
+    });
+  </script>
 </body>
 
 </html>

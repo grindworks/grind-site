@@ -17,6 +17,8 @@ if (!require __DIR__ . '/lib/bootstrap_public.php') {
 if (!class_exists('RssGenerator')) {
   class RssGenerator
   {
+    use GeneratorCacheTrait;
+
     private const CACHE_TTL = 3600;
     private const MAX_ITEMS = 50;
 
@@ -28,6 +30,9 @@ if (!class_exists('RssGenerator')) {
     private string $siteName;
     private string $siteDesc;
     private string $siteLang;
+
+    // キャッシュ判定の対象を RSS 用に 'post' のみに限定する
+    protected array $cachePostTypes = ['post'];
 
     public function __construct(?PDO $pdo, string $baseUrl, bool $isSsgMode = false)
     {
@@ -61,12 +66,12 @@ if (!class_exists('RssGenerator')) {
     public function run(): void
     {
       if (!$this->pdo) {
-        $this->sendResponse(500);
+        $this->sendError(500);
         return;
       }
 
       if (function_exists('get_option') && get_option('site_noindex')) {
-        $this->sendResponse(404);
+        $this->sendError(404);
         return;
       }
 
@@ -75,50 +80,6 @@ if (!class_exists('RssGenerator')) {
       }
 
       $this->generateAndCacheFeed();
-    }
-
-    private function serveFromCache(): bool
-    {
-      if (!file_exists($this->cacheFile)) {
-        return false;
-      }
-
-      try {
-        $cacheMtime = filemtime($this->cacheFile);
-        if ($cacheMtime === false) {
-          return false;
-        }
-
-        $lastContentUpdate = $this->getLastContentUpdateTime();
-        if ($lastContentUpdate !== null && $cacheMtime >= $lastContentUpdate) {
-          $this->sendHeaders();
-          readfile($this->cacheFile);
-          return true;
-        }
-      } catch (\Throwable $e) {
-        if (class_exists('GrindsLogger')) {
-          GrindsLogger::log('RssGenerator Cache Error: ' . $e->getMessage(), 'WARNING');
-        }
-      }
-
-      return false;
-    }
-
-    /**
-     * @throws \Exception
-     */
-    private function getLastContentUpdateTime(): ?int
-    {
-      if (!class_exists('PostRepository')) {
-        require_once __DIR__ . '/lib/functions/posts.php';
-      }
-      $repo = new PostRepository($this->pdo);
-      $latest = $repo->getLatestPostTimestamp([
-        'status' => 'published',
-        'type' => 'post',
-        'is_noindex' => 0
-      ]);
-      return $latest ? strtotime($latest) : null;
     }
 
     private function generateAndCacheFeed(): void
@@ -193,11 +154,8 @@ if (!class_exists('RssGenerator')) {
             }
             $blocks = json_decode($r['content'] ?? '', true);
             if (is_array($blocks) && isset($blocks['blocks'])) {
-              foreach ($blocks['blocks'] as $block) {
-                if (($block['type'] ?? '') === 'image' && !empty($block['data']['url'])) {
-                  $imageUrls[] = $block['data']['url'];
-                }
-              }
+              $extracted = BlockRenderer::extractImages($blocks['blocks']);
+              $imageUrls = array_merge($imageUrls, $extracted);
             }
           }
           if (!empty($imageUrls)) {
@@ -229,16 +187,9 @@ if (!class_exists('RssGenerator')) {
       // Process author.
       $heroSettings = json_decode($row['hero_settings'] ?? '{}', true);
 
-      $extractedAuthorName = '';
       $contentData = json_decode($row['content'] ?? '{}', true);
-      if (is_array($contentData) && !empty($contentData['blocks'])) {
-        foreach ($contentData['blocks'] as $block) {
-          if (($block['type'] ?? '') === 'author' && !empty($block['data']['name'])) {
-            $extractedAuthorName = html_entity_decode(strip_tags($block['data']['name']), ENT_QUOTES | ENT_HTML5, 'UTF-8');
-            break;
-          }
-        }
-      }
+      $extractedAuthor = is_array($contentData) && function_exists('grinds_extract_author_from_content') ? grinds_extract_author_from_content($contentData) : null;
+      $extractedAuthorName = $extractedAuthor['name'] ?? '';
 
       $authorRaw = $extractedAuthorName ?: (!empty($heroSettings['seo_author']) ? $heroSettings['seo_author'] : $this->siteName);
       $author = htmlspecialchars($this->sanitizeString($authorRaw), ENT_XML1, 'UTF-8');
@@ -447,22 +398,13 @@ if (!class_exists('RssGenerator')) {
       return trim($html);
     }
 
-    private function sendHeaders(): void
+    protected function sendHeaders(): void
     {
       if ($this->isSsgMode || headers_sent()) {
         return;
       }
       header("Content-Type: application/rss+xml; charset=utf-8");
       header(sprintf("Cache-Control: public, max-age=%d", self::CACHE_TTL));
-    }
-
-    private function sendResponse(int $code): void
-    {
-      if ($this->isSsgMode) {
-        return;
-      }
-      http_response_code($code);
-      exit;
     }
   }
 }

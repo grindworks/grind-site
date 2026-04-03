@@ -92,9 +92,14 @@ extract($headerData);
   </script>
 
   <?php grinds_head(); ?>
+  <style>
+    body.preload-transitions * {
+      transition: none !important;
+    }
+  </style>
 </head>
 
-<body <?php body_class("d-flex flex-column bg-light min-vh-100"); ?>>
+<body <?php body_class("preload-transitions d-flex flex-column bg-light min-vh-100"); ?>>
   <?php if (isset($isPreview) && $isPreview): ?>
     <div class="bg-warning py-2 border-bottom border-warning-subtle text-dark text-center fw-bold">
       <?= theme_t('Preview Mode (Draft)') ?>
@@ -134,6 +139,13 @@ extract($headerData);
   endif; ?>
 
   <?php grinds_footer(); ?>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      requestAnimationFrame(() => {
+        document.body.classList.remove('preload-transitions');
+      });
+    });
+  </script>
 </body>
 
 </html>

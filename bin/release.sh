@@ -1,11 +1,11 @@
 #!/bin/bash
 
 # GrindSite Release Automation Script
-# Usage: ./bin/release.sh v1.3.0 "Added powerful CLI tool and new admin skins"
+# Usage: ./bin/release.sh v1.4.0 "Added powerful CLI tool and new admin skins"
 
 if [ -z "$1" ]; then
   echo "❌ Error: Version tag is required."
-  echo "Usage: ./bin/release.sh v1.3.0 \"Release message\""
+  echo "Usage: ./bin/release.sh v1.4.0 \"Release message\""
   exit 1
 fi
 
@@ -41,9 +41,14 @@ sed -i '' 's/"message": "[^"]*"/"message": "'"$MESSAGE"'"/' update.json
 sed -i '' 's|"download_url": "[^"]*"|"download_url": "https://github.com/grindworks/grind-site/releases/download/'"$VERSION"'/grindsite-'"$VERSION"'\.zip"|' update.json
 sed -i '' 's/"sha256": "[^"]*"/"sha256": "'"$HASH"'"/' update.json
 
-# 5. Amend commit with update.json changes (keeping history clean)
+# Update package.json version
+echo "📝 Updating package.json..."
+sed -i '' 's/"version": "[^"]*"/"version": "'"$RAW_VERSION"'"/' package.json
+
+# 5. Amend commit with update.json and package.json changes (keeping history clean)
 echo "🔗 Amending commit..."
 git add update.json
+git add package.json
 git commit --amend --no-edit
 
 # 6. Tag and Push

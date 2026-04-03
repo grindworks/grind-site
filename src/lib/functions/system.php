@@ -712,13 +712,11 @@ if (!function_exists('grinds_scan_dangerous_files')) {
             }
         }
 
-        $cache = $detected_files;
-
         if (function_exists('update_option')) {
             update_option($cache_key, json_encode(['time' => time(), 'data' => $detected_files]), false);
         }
 
-        return $detected_files;
+        return $cache = $detected_files;
     }
 }
 
@@ -1177,6 +1175,9 @@ if (!function_exists('grinds_clear_specific_cache')) {
 
         foreach ($slugs as $slug) {
             $safeSlug = preg_replace('/[^a-zA-Z0-9_-]/', '_', $slug);
+
+            grinds_force_unlink($cacheDir . $safeSlug . '.html');
+
             $files = glob($cacheDir . $safeSlug . '_*.html');
             if ($files) {
                 foreach ($files as $file) {
@@ -1188,7 +1189,46 @@ if (!function_exists('grinds_clear_specific_cache')) {
         grinds_force_unlink($cacheDir . 'rss.xml');
         grinds_force_unlink($cacheDir . 'sitemap.xml');
         grinds_force_unlink($cacheDir . 'llms.txt');
+        grinds_force_unlink($cacheDir . 'llms-full.txt');
     }
+}
+
+/**
+ * Replace database file path in config.php content for migration.
+ *
+ * @param string $configContent Original content of config.php
+ * @param string $newDbName New database filename
+ * @return string Modified config content
+ */
+function grinds_prepare_migration_config(string $configContent, string $newDbName): string
+{
+    $safeDbName = addcslashes($newDbName, "'\\");
+    $patternFile = '/^.*define\s*\(\s*[\'"]DB_FILE[\'"]\s*,.*?\)\s*;/m';
+    $patternFilename = '/^.*define\s*\(\s*[\'"]DB_FILENAME[\'"]\s*,.*?\)\s*;/m';
+    $replacementFilename = "if (!defined('DB_FILENAME')) define('DB_FILENAME', '" . $safeDbName . "');";
+    $replacementFile = "if (!defined('DB_FILE')) define('DB_FILE', __DIR__ . '/data/' . DB_FILENAME);";
+
+    // 1. Ensure DB_FILENAME is present (defined before DB_FILE)
+    if (!preg_match($patternFilename, $configContent)) {
+        if (preg_match($patternFile, $configContent)) {
+            // If DB_FILE exists but DB_FILENAME does not, insert DB_FILENAME before DB_FILE
+            $configContent = preg_replace($patternFile, addcslashes($replacementFilename . "\n", '\\$') . '$0', $configContent);
+        } else {
+            // If neither exists, append to the end
+            $configContent = rtrim($configContent) . "\n\n" . $replacementFilename;
+        }
+    } else {
+        $configContent = preg_replace($patternFilename, addcslashes($replacementFilename, '\\$'), $configContent);
+    }
+
+    // 2. Ensure DB_FILE is present/updated
+    if (preg_match($patternFile, $configContent)) {
+        $configContent = preg_replace($patternFile, addcslashes($replacementFile, '\\$'), $configContent);
+    } else {
+        $configContent = rtrim($configContent) . "\n" . $replacementFile . "\n";
+    }
+
+    return $configContent;
 }
 
 /**

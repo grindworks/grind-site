@@ -6,6 +6,8 @@
  */
 if (!defined('GRINDS_APP'))
     exit;
+
+$searchPlaceholder = (function_exists('get_option') && get_option('site_lang') === 'ja') ? '検索 (ファイル名, タイトル, Alt, タグ...)' : 'Search (Filename, Title, Alt, Tags...)';
 ?>
 <div x-data="{
     open: false,
@@ -55,11 +57,11 @@ if (!defined('GRINDS_APP'))
 
     select(file) {
         if (this.callback) {
-            this.callback(file.url);
+            this.callback(file);
         }
         this.open = false;
     }
-}" @keydown.escape.window="open = false" x-show="open" class="z-60 fixed inset-0 flex justify-center items-center p-4"
+}" x-effect="if (typeof window.toggleScrollLock === 'function') window.toggleScrollLock(open)" @keydown.escape.window="open = false" x-show="open" class="z-60 fixed inset-0 flex justify-center items-center p-4"
     style="display: none;" x-cloak>
 
     <div class="fixed inset-0 skin-modal-overlay backdrop-blur-sm" @click="open = false"></div>
@@ -73,8 +75,8 @@ if (!defined('GRINDS_APP'))
             </h3>
             <div class="flex items-center gap-2">
                 <input type="text" x-model="keyword" @input.debounce.500ms="loadMedia(1)"
-                    class="bg-theme-bg px-2 py-1 border border-theme-border rounded-theme text-xs text-theme-text"
-                    placeholder="<?= _t('search') ?>">
+                    class="bg-theme-bg px-2 py-1 border border-theme-border rounded-theme text-xs text-theme-text w-full sm:w-64"
+                    placeholder="<?= $searchPlaceholder ?>">
                 <button @click="open = false"
                     class="text-theme-text hover:text-theme-primary text-2xl leading-none">&times;</button>
             </div>

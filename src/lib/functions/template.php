@@ -12,16 +12,8 @@ if (!function_exists('render_content')) {
     function render_content($content)
     {
         $html = '';
-        if (class_exists('BlockRenderer')) {
-            $renderer = new BlockRenderer(true);
-            $html = $renderer->render($content);
-        } else {
-            if (is_array($content)) {
-                $html = '';
-            } else {
-                $html = nl2br($content);
-            }
-        }
+        $renderer = new BlockRenderer(true);
+        $html = $renderer->render($content);
         return apply_filters('grinds_the_content', $html);
     }
 }
@@ -588,7 +580,7 @@ if (!function_exists('the_content')) {
             $decoded = $p['content_decoded'] ?? null;
         }
 
-        if ($decoded && class_exists('BlockRenderer')) {
+        if ($decoded) {
             echo render_content($decoded);
         } elseif ($content) {
             echo render_content($content);
@@ -1407,7 +1399,24 @@ if (!function_exists('get_template_part')) {
     {
         global $post, $pageData, $pageType, $pageTitle;
 
+        static $resolvedPaths = [];
+
         $theme = $GLOBALS['activeTheme'] ?? get_option('site_theme', 'default');
+        $cacheKey = $theme . '-' . $slug . ($name ? '-' . $name : '');
+
+        if (array_key_exists($cacheKey, $resolvedPaths)) {
+            $_grinds_sys_target_file = $resolvedPaths[$cacheKey];
+            if ($_grinds_sys_target_file) {
+                if (!empty($args) && is_array($args)) {
+                    unset($args['_grinds_sys_target_file']);
+                    extract($args, EXTR_OVERWRITE);
+                }
+                include $_grinds_sys_target_file;
+                return true;
+            }
+            return false;
+        }
+
         $themeDir = ROOT_PATH . '/theme/' . $theme;
         $defaultThemeDir = ROOT_PATH . '/theme/default';
 
@@ -1421,6 +1430,7 @@ if (!function_exists('get_template_part')) {
         foreach ($templates as $template) {
             $_grinds_sys_target_file = $themeDir . '/' . $template;
             if (file_exists($_grinds_sys_target_file)) {
+                $resolvedPaths[$cacheKey] = $_grinds_sys_target_file;
                 if (!empty($args) && is_array($args)) {
                     // Prevent overwriting the include path
                     unset($args['_grinds_sys_target_file']);
@@ -1437,6 +1447,7 @@ if (!function_exists('get_template_part')) {
             foreach ($templates as $template) {
                 $_grinds_sys_target_file = $defaultThemeDir . '/' . $template;
                 if (file_exists($_grinds_sys_target_file)) {
+                    $resolvedPaths[$cacheKey] = $_grinds_sys_target_file;
                     if (!empty($args) && is_array($args)) {
                         unset($args['_grinds_sys_target_file']);
                         extract($args, EXTR_OVERWRITE);
@@ -1447,6 +1458,7 @@ if (!function_exists('get_template_part')) {
             }
         }
 
+        $resolvedPaths[$cacheKey] = false;
         return false;
     }
 }

@@ -176,7 +176,7 @@ if ($action === 'list') {
 
   // Set sorting
   $sortable_cols = ['id', 'title', 'status', 'published_at', 'updated_at', 'deleted_at', 'type'];
-  $default_sort = ($status_filter === 'trash') ? 'deleted_at' : (($current_type === 'template') ? 'updated_at' : 'published_at');
+  $default_sort = ($status_filter === 'trash') ? 'deleted_at' : 'updated_at';
   $sorter = new Sorter($sortable_cols, $default_sort, 'DESC');
   $orderClause = $sorter->getOrderClause();
   $orderBy = str_replace('ORDER BY ', 'p.', $orderClause);
@@ -217,11 +217,12 @@ if ($action === 'list') {
   $count_published = $count_draft = $count_trash = '-';
   $filter_cats = [];
   try {
-    $count_trash = $repo->count(['status' => 'trash', 'ignore_type' => true]);
+    $counts = $repo->getCountsByStatus($current_type);
+    $count_trash = $counts['trash'];
+    $count_published = $counts['published'];
+    $count_draft = $counts['draft'];
 
     if ($status_filter !== 'trash') {
-      $count_published = $repo->count(['type' => $current_type, 'status' => 'published']);
-      $count_draft = $repo->count(['type' => $current_type, 'status' => 'draft']);
       $filter_cats = $pdo->query("SELECT * FROM categories ORDER BY sort_order ASC")->fetchAll();
     }
   } catch (Exception $e) {

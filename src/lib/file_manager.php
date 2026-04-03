@@ -569,6 +569,13 @@ class FileManager
         }
 
         if ($mime === 'image/svg+xml') {
+            // Memory exhaustion defense for SVG parsing.
+            // A large, complex SVG can cause DOMDocument to consume excessive memory.
+            $svgMaxBytes = 2 * 1024 * 1024; // 2MB hard limit for SVGs
+            if ($file['size'] > $svgMaxBytes) {
+                throw new Exception('SVG file is too large (max 2MB).');
+            }
+
             // Use capability check instead of hardcoded role
             if (!function_exists('current_user_can') || !current_user_can('manage_settings')) {
                 throw new Exception(_t('err_svg_admin_only'));
@@ -1637,6 +1644,16 @@ class FileManager
             $urls = grinds_extract_urls($content);
             foreach ($urls as $url) {
                 $used_files[] = self::normalizeDbPath($url);
+            }
+        }
+
+        // Fallback: Extract plain text paths (e.g., inside PHP function arguments or JSON strings)
+        // to prevent false positives in unused file checker.
+        if (is_string($content)) {
+            if (preg_match_all('/(assets\/uploads\/[a-zA-Z0-9_\-\.\/]+)/i', $content, $matches)) {
+                foreach ($matches[1] as $path) {
+                    $used_files[] = self::normalizeDbPath($path);
+                }
             }
         }
     }

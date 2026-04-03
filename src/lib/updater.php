@@ -200,6 +200,12 @@ class GrindsUpdater
         '*.log',
         '.php-cs-fixer.cache'
       ];
+
+      if (!empty($_POST['skip_theme_skin'])) {
+        $exclude[] = 'theme';
+        $exclude[] = 'admin/skins';
+      }
+
       $copySuccess = true;
       try {
         grinds_recursive_copy($sourceDir, ROOT_PATH, $exclude);

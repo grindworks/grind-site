@@ -161,40 +161,8 @@ try {
     $zip->addFile($safeDbFile, 'data/' . $dbName);
 
     if (file_exists(ROOT_PATH . '/config.php')) {
-      $safeDbName = addcslashes($dbName, "'\\");
       $origConfig = file_get_contents(ROOT_PATH . '/config.php');
-
-      // Keep existing APP_KEY etc., and only replace the DB_FILE definition line with the new file name.
-      $pattern = '/^.*define\s*\(\s*[\'"]DB_FILE[\'"]\s*,.*?\)\s*;/m';
-      $patternFilename = '/^.*define\s*\(\s*[\'"]DB_FILENAME[\'"]\s*,.*?\)\s*;/m';
-      $replacementFilename = "if (!defined('DB_FILENAME')) define('DB_FILENAME', '" . $safeDbName . "');";
-      $replacementFile = "if (!defined('DB_FILE')) define('DB_FILE', __DIR__ . '/data/' . DB_FILENAME);";
-
-      $configContent = $origConfig;
-
-      // 1. Ensure DB_FILENAME is present (defined before DB_FILE)
-      if (!preg_match($patternFilename, $configContent)) {
-        if (preg_match($pattern, $configContent)) {
-          // If DB_FILE exists but DB_FILENAME does not, insert DB_FILENAME before DB_FILE
-          $configContent = preg_replace($pattern, addcslashes($replacementFilename . "\n", '\\$') . '$0', $configContent);
-        } else {
-          // If neither exists, append to the end
-          $configContent = rtrim($configContent) . "\n\n" . $replacementFilename;
-        }
-      } else {
-        // If DB_FILENAME exists, replace it in place
-        $configContent = preg_replace($patternFilename, addcslashes($replacementFilename, '\\$'), $configContent);
-      }
-
-      // 2. Ensure DB_FILE is present/updated
-      if (preg_match($pattern, $configContent)) {
-        // If DB_FILE exists (it might have been original or shifted by the step above), replace it in place
-        $configContent = preg_replace($pattern, addcslashes($replacementFile, '\\$'), $configContent);
-      } else {
-        // If it doesn't exist, append after DB_FILENAME
-        $configContent = rtrim($configContent) . "\n" . $replacementFile . "\n";
-      }
-
+      $configContent = grinds_prepare_migration_config($origConfig, $dbName);
       $zip->addFromString('config.php', $configContent);
     }
     $zip->close();

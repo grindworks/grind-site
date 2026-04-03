@@ -39,11 +39,15 @@ $searchIndexJson = json_encode($searchIndex, JSON_UNESCAPED_UNICODE);
         [x-cloak] {
             display: none !important;
         }
+
+        body.preload-transitions * {
+            transition: none !important;
+        }
     </style>
     <?php grinds_head(); ?>
 </head>
 
-<body class="bg-zinc-50 text-zinc-900 flex flex-col min-h-screen" x-data="{
+<body class="preload-transitions bg-zinc-50 text-zinc-900 flex flex-col min-h-screen" x-data="{
     mobileMenuOpen: false,
     searchOpen: false,
     searchQuery: '',
@@ -170,6 +174,13 @@ $searchIndexJson = json_encode($searchIndex, JSON_UNESCAPED_UNICODE);
     </div>
 
     <?php grinds_footer(); ?>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            requestAnimationFrame(() => {
+                document.body.classList.remove('preload-transitions');
+            });
+        });
+    </script>
 </body>
 
 </html>

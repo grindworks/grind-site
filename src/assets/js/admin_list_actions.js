@@ -23,7 +23,7 @@ window.ToastManager = {
     if (!container) {
       container = document.createElement('div');
       container.id = 'grinds-toast-container';
-      container.className = `fixed right-4 ${opts.position} z-[100] flex flex-col gap-2 pointer-events-none`;
+      container.className = `fixed right-4 ${opts.position} z-[100] flex flex-col sm:flex-col-reverse gap-2 pointer-events-none`;
       document.body.appendChild(container);
     }
 

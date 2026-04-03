@@ -25,13 +25,13 @@ if (!defined('GRINDS_APP')) exit; ?>
         <!-- Action Buttons -->
         <div class="top-1 left-1 absolute flex items-center gap-1 md:opacity-0 opacity-100 group-hover:opacity-100 transition-opacity z-10">
           <!-- Move Left -->
-          <button type="button" @click.prevent="if(i > 0) { let temp = block.data.images[i]; block.data.images.splice(i, 1); block.data.images.splice(i - 1, 0, temp); }" x-show="i > 0" class="bg-theme-surface/90 shadow-theme p-1.5 min-w-[28px] min-h-[28px] flex items-center justify-center border border-theme-border rounded-full text-theme-text hover:text-theme-primary transition-colors">
+          <button type="button" @click.prevent="if(i > 0) [block.data.images[i - 1], block.data.images[i]] = [block.data.images[i], block.data.images[i - 1]]" x-show="i > 0" class="bg-theme-surface/90 shadow-theme p-1.5 min-w-[28px] min-h-[28px] flex items-center justify-center border border-theme-border rounded-full text-theme-text hover:text-theme-primary transition-colors">
             <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-chevron-left"></use>
             </svg>
           </button>
           <!-- Move Right -->
-          <button type="button" @click.prevent="if(i < block.data.images.length - 1) { let temp = block.data.images[i]; block.data.images.splice(i, 1); block.data.images.splice(i + 1, 0, temp); }" x-show="i < block.data.images.length - 1" class="bg-theme-surface/90 shadow-theme p-1.5 min-w-[28px] min-h-[28px] flex items-center justify-center border border-theme-border rounded-full text-theme-text hover:text-theme-primary transition-colors">
+          <button type="button" @click.prevent="if(i < block.data.images.length - 1) [block.data.images[i], block.data.images[i + 1]] = [block.data.images[i + 1], block.data.images[i]]" x-show="i < block.data.images.length - 1" class="bg-theme-surface/90 shadow-theme p-1.5 min-w-[28px] min-h-[28px] flex items-center justify-center border border-theme-border rounded-full text-theme-text hover:text-theme-primary transition-colors">
             <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-chevron-right"></use>
             </svg>

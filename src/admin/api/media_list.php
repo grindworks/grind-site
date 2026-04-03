@@ -77,10 +77,12 @@ try {
     $params[] = $endDate;
   }
 
-  // Add tag filter
+  // Add tag filter (Modified to use LIKE for partial match and case-insensitivity)
   if ($tag !== '') {
-    $whereConditions[] = "EXISTS (SELECT 1 FROM media_tags mt JOIN tags t ON mt.tag_id = t.id WHERE mt.media_id = media.id AND t.name = ?)";
-    $params[] = $tag;
+    $escapedTag = grinds_escape_like($tag);
+    $whereConditions[] = "EXISTS (SELECT 1 FROM media_tags mt JOIN tags t ON mt.tag_id = t.id WHERE mt.media_id = media.id AND (t.name LIKE ? ESCAPE '\\' OR t.slug LIKE ? ESCAPE '\\'))";
+    $params[] = "%{$escapedTag}%";
+    $params[] = "%{$escapedTag}%";
   }
 
 

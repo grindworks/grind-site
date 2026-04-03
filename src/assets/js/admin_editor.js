@@ -10,24 +10,12 @@ document.addEventListener('alpine:init', () => {
     seoImage: options.seoImage || '',
     postStatus: options.postStatus || 'draft',
     siteDomain: options.siteDomain || window.location.hostname,
-    mediaTargetContext: null,
 
     blocks: [],
-    mediaModalOpen: false,
     draftRecoveryOpen: false,
-    mediaFiles: [],
-    mediaPage: 1,
-    mediaLoading: false,
-    mediaHasMore: false,
     activeMediaBlockIndex: null,
     activeMediaItemIndex: null,
     activeMediaKey: 'url',
-    mediaKeyword: '',
-    mediaSort: 'newest',
-    recentImages: [],
-
-    // Filter media modal state.
-    mediaTypeFilter: 'all',
 
     templateModalOpen: false,
     tplTab: 'load',
@@ -648,6 +636,17 @@ document.addEventListener('alpine:init', () => {
         });
       });
 
+      // Watch dirty state to update document title
+      this.$watch('isDirty', (value) => {
+        if (value) {
+          if (!document.title.startsWith('* ')) {
+            document.title = '* ' + document.title;
+          }
+        } else {
+          document.title = document.title.replace(/^\*\s/, '');
+        }
+      });
+
       // Watch blocks for changes
       this.$watch('blocks', (value) => {
         // Skip dirty flag during submission
@@ -833,6 +832,18 @@ document.addEventListener('alpine:init', () => {
           },
           { passive: true }
         );
+      });
+
+      // Handle offline/online status
+      window.addEventListener('offline', () => {
+        this.isSubmitting = true;
+        const msg = window.grindsTranslations?.js_offline || 'You are offline. Changes are saved locally.';
+        if (typeof window.showToast === 'function') window.showToast(msg, 'warning');
+      });
+      window.addEventListener('online', () => {
+        this.isSubmitting = false;
+        const msg = window.grindsTranslations?.js_online || 'Back online. You can now save your post.';
+        if (typeof window.showToast === 'function') window.showToast(msg, 'success');
       });
     },
 
@@ -1215,7 +1226,6 @@ document.addEventListener('alpine:init', () => {
     openInserter() {
       this.inserterOpen = true;
       this.blockSearchTerm = '';
-      this.fetchRecentImages();
       this.$nextTick(() => {
         const input = this.$refs.blockSearch;
         if (input && window.innerWidth >= 768) {
@@ -1596,25 +1606,6 @@ document.addEventListener('alpine:init', () => {
     },
 
     /**
-     * Add image block.
-     * @param {object} img
-     */
-    addImageBlock(img) {
-      this.addBlock('image');
-      const newBlock = this.blocks[this.blocks.length - 1];
-      if (newBlock) {
-        if (!newBlock.data) newBlock.data = {};
-        newBlock.data.url = img.url;
-        const meta = img.metadata || {};
-        newBlock.data.alt = meta.alt || '';
-        newBlock.data.caption = meta.caption || '';
-        newBlock.data.id = img.id;
-      }
-      this.inserterOpen = false;
-      this.blockSearchTerm = '';
-    },
-
-    /**
      * Duplicate block.
      * @param {number} index
      */
@@ -1659,6 +1650,10 @@ document.addEventListener('alpine:init', () => {
             d.items.length === 0 ||
             (d.items.length === 1 &&
               (!d.items[0] || (typeof d.items[0] === 'string' ? d.items[0].trim() === '' : !d.items[0].title)));
+          break;
+        case 'gallery':
+        case 'carousel':
+          isEmpty = !d.images || d.images.length === 0;
           break;
         case 'code':
         case 'math':
@@ -1862,12 +1857,76 @@ document.addEventListener('alpine:init', () => {
         title.className = 'font-bold text-theme-text mb-4 text-lg';
         title.textContent = message;
 
+        // Container for input and suggest list
+        const inputContainer = document.createElement('div');
+        inputContainer.className = 'relative mb-6';
+
         const input = document.createElement('input');
         input.type = 'text';
         input.className =
           'w-full form-control mb-6 text-sm bg-theme-bg text-theme-text border-theme-border focus:border-theme-primary focus:ring-theme-primary';
         input.value = defaultValue;
         input.placeholder = 'https://...';
+        input.placeholder = window.grindsTranslations?.ph_type_to_search || 'URL, or Type to search...';
+
+        // Dropdown for suggest results
+        const suggestBox = document.createElement('div');
+        suggestBox.className =
+          'absolute left-0 right-0 top-full mt-1 bg-theme-surface border border-theme-border shadow-theme rounded-theme max-h-48 overflow-y-auto z-50 hidden';
+
+        inputContainer.appendChild(input);
+        inputContainer.appendChild(suggestBox);
+
+        // Search logic (debounced API call)
+        let searchTimeout;
+        input.addEventListener('input', (e) => {
+          const keyword = e.target.value.trim();
+          suggestBox.innerHTML = '';
+
+          // Skip search for URL-like input
+          if (!keyword || keyword.startsWith('http://') || keyword.startsWith('https://') || keyword.startsWith('/')) {
+            suggestBox.classList.add('hidden');
+            return;
+          }
+
+          clearTimeout(searchTimeout);
+          searchTimeout = setTimeout(async () => {
+            try {
+              const baseUrl = (window.grindsBaseUrl || '').replace(/\/$/, '');
+              const res = await fetch(`${baseUrl}/admin/api/post_search.php?q=${encodeURIComponent(keyword)}`);
+              if (res.ok) {
+                const results = await res.json();
+                suggestBox.innerHTML = '';
+                if (results.length > 0) {
+                  results.forEach((p) => {
+                    const btn = document.createElement('button');
+                    btn.type = 'button';
+                    btn.className =
+                      'w-full text-left px-3 py-2 text-xs hover:bg-theme-bg transition-colors flex justify-between items-center border-b border-theme-border/30 last:border-0';
+                    btn.innerHTML = `<span class="truncate font-medium">${p.title.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</span><span class="text-[9px] opacity-50 shrink-0 ml-2 uppercase">${p.type}</span>`;
+                    btn.addEventListener('click', () => {
+                      input.value = p.url;
+                      suggestBox.classList.add('hidden');
+                      input.focus();
+                    });
+                    suggestBox.appendChild(btn);
+                  });
+                  suggestBox.classList.remove('hidden');
+                } else {
+                  suggestBox.classList.add('hidden');
+                }
+              }
+            } catch (err) {
+              console.error('Search failed', err);
+            }
+          }, 300);
+        });
+
+        // Close suggest box on click outside
+        const hideSuggestBox = (e) => {
+          if (!inputContainer.contains(e.target)) suggestBox.classList.add('hidden');
+        };
+        document.addEventListener('click', hideSuggestBox);
 
         const btnContainer = document.createElement('div');
         btnContainer.className = 'flex justify-end gap-3';
@@ -1888,6 +1947,7 @@ document.addEventListener('alpine:init', () => {
 
         dialog.appendChild(title);
         dialog.appendChild(input);
+        dialog.appendChild(inputContainer);
         dialog.appendChild(btnContainer);
         overlay.appendChild(dialog);
         document.body.appendChild(overlay);
@@ -1904,6 +1964,7 @@ document.addEventListener('alpine:init', () => {
         }, 100);
 
         const cleanup = () => {
+          document.removeEventListener('click', hideSuggestBox);
           dialog.classList.remove('scale-100', 'opacity-100');
           dialog.classList.add('scale-95', 'opacity-0');
           overlay.classList.add('opacity-0');
@@ -2030,84 +2091,33 @@ document.addEventListener('alpine:init', () => {
      * @param {string} key
      */
     openMediaLibrary(index, itemIndex = null, key = 'url') {
-      this.activeMediaBlockIndex = index;
-      this.activeMediaItemIndex = itemIndex;
-      this.activeMediaKey = key;
-
-      // Switch filter based on context
       const blockType = this.blocks[index].type;
+      let mediaType = 'document';
       if (key === 'url') {
-        if (blockType === 'image') {
-          this.mediaTypeFilter = 'image';
+        if (['image', 'gallery', 'carousel'].includes(blockType)) {
+          mediaType = 'image';
         } else if (blockType === 'audio') {
-          this.mediaTypeFilter = 'audio';
-        } else {
-          this.mediaTypeFilter = 'document';
+          mediaType = 'audio';
+        } else if (blockType === 'video') {
+          mediaType = 'video';
         }
       } else {
-        this.mediaTypeFilter = 'all';
+        mediaType = 'all';
       }
 
-      this.mediaModalOpen = true;
-      this.mediaKeyword = '';
-      this.loadMedia(1);
-    },
-
-    /**
-     * Search media files.
-     */
-    searchMedia() {
-      this.loadMedia(1);
-    },
-
-    /**
-     * Load media files from API.
-     * @param {number} page
-     */
-    async loadMedia(page = 1) {
-      this.mediaLoading = true;
-      this.mediaPage = page;
-
-      try {
-        const params = {
-          keyword: this.mediaKeyword,
-          sort: this.mediaSort,
-          type: this.mediaTypeFilter,
-        };
-
-        const data = await GrindsMediaApi.list(page, params);
-        if (data && data.success) {
-          if (page === 1) {
-            this.mediaFiles = data.files;
-            this.$nextTick(() => {
-              const container = this.$el.querySelector('.media-picker-body .overflow-y-auto');
-              if (container) container.scrollTop = 0;
-            });
-          } else {
-            this.mediaFiles = [...this.mediaFiles, ...data.files];
-          }
-          this.mediaHasMore = data.has_more;
-        }
-      } catch (e) {
-        if (e.message === 'SESSION_EXPIRED') this.handleSessionExpiry();
-        if (window.grindsDebug) console.error(e);
-      } finally {
-        this.mediaLoading = false;
-      }
-    },
-
-    /**
-     * Fetch recent images.
-     */
-    async fetchRecentImages() {
-      try {
-        const data = await GrindsMediaApi.list(1, { sort: 'newest', type: 'image' });
-        if (data.success) {
-          this.recentImages = data.files.slice(0, 8);
-        }
-      } catch (e) {
-        if (window.grindsDebug) console.error(e);
-      }
+      window.dispatchEvent(
+        new CustomEvent('open-media-picker', {
+          detail: {
+            type: mediaType,
+            callback: (file) => {
+              this.activeMediaBlockIndex = index;
+              this.activeMediaItemIndex = itemIndex;
+              this.activeMediaKey = key;
+              this.selectMedia(file);
+            },
+          },
+        })
+      );
     },
 
     /**
@@ -2115,9 +2125,20 @@ document.addEventListener('alpine:init', () => {
      * @param {string} context
      */
     openLibrary(context) {
-      this.mediaModalOpen = true;
-      this.mediaTargetContext = context;
-      this.loadMedia(1);
+      window.dispatchEvent(
+        new CustomEvent('open-media-picker', {
+          detail: {
+            type: 'image', // Hero image is always an image
+            callback: (file) => {
+              if (context === 'hero_image') {
+                window.dispatchEvent(new CustomEvent('set-hero-image', { detail: { url: file.url, mobile: false } }));
+              } else if (context === 'hero_image_mobile') {
+                window.dispatchEvent(new CustomEvent('set-hero-image', { detail: { url: file.url, mobile: true } }));
+              }
+            },
+          },
+        })
+      );
     },
 
     /**
@@ -2125,15 +2146,7 @@ document.addEventListener('alpine:init', () => {
      * @param {object} file
      */
     selectMedia(file) {
-      if (this.mediaTargetContext === 'hero_image') {
-        window.dispatchEvent(new CustomEvent('set-hero-image', { detail: { url: file.url, mobile: false } }));
-        this.mediaModalOpen = false;
-        this.mediaTargetContext = null;
-      } else if (this.mediaTargetContext === 'hero_image_mobile') {
-        window.dispatchEvent(new CustomEvent('set-hero-image', { detail: { url: file.url, mobile: true } }));
-        this.mediaModalOpen = false;
-        this.mediaTargetContext = null;
-      } else if (this.activeMediaBlockIndex !== null) {
+      if (this.activeMediaBlockIndex !== null) {
         const block = this.blocks[this.activeMediaBlockIndex];
         const targetArray = block.data.images || block.data.items;
 
@@ -2175,72 +2188,6 @@ document.addEventListener('alpine:init', () => {
             if (meta.caption) block.data.caption = meta.caption;
           }
         }
-      }
-      this.mediaModalOpen = false;
-    },
-
-    /**
-     * Delete media file.
-     * @param {object} file
-     * @param {number} index
-     * @param {boolean} force
-     */
-    async deleteMedia(file, index, force = false) {
-      try {
-        const data = await GrindsMediaHelpers.deleteWithConfirmation(
-          file.id,
-          window.grindsCsrfToken,
-          window.grindsTranslations
-        );
-        if (data && data.success) {
-          this.mediaFiles.splice(index, 1);
-          if (this.mediaFiles.length === 0 && this.mediaPage > 1) {
-            this.mediaPage--;
-            this.loadMedia(this.mediaPage);
-          }
-        }
-      } catch (e) {
-        if (e.message === 'SESSION_EXPIRED') {
-          this.handleSessionExpiry();
-          return;
-        }
-        if (!this._sessionExpiryAlertShown) window.showToast('Delete error occurred.', 'error');
-      }
-    },
-
-    /**
-     * Upload files to library.
-     * @param {Event} event
-     */
-    async uploadToLibrary(event) {
-      const files = event.target.files;
-      if (!files || files.length === 0) return;
-
-      this.isUploading = true;
-
-      try {
-        let successCount = 0;
-
-        for (let i = 0; i < files.length; i++) {
-          try {
-            const result = await GrindsMediaHelpers.uploadFile(files[i], window.grindsCsrfToken);
-            if (result) successCount++;
-          } catch (e) {
-            if (e.message === 'SESSION_EXPIRED') {
-              this.handleSessionExpiry();
-              break;
-            }
-            if (window.grindsDebug) console.error(e);
-          }
-        }
-
-        if (successCount > 0) {
-          this.mediaPage = 1;
-          this.loadMedia(1);
-        }
-      } finally {
-        this.isUploading = false;
-        event.target.value = '';
       }
     },
 
@@ -2595,6 +2542,26 @@ document.addEventListener('DOMContentLoaded', function () {
           }
         }
       },
+    });
+  }
+});
+
+// BFCache (Back/Forward Cache) recovery
+window.addEventListener('pageshow', (event) => {
+  if (event.persisted) {
+    // Reset Alpine.js local component states
+    document.querySelectorAll('[x-data]').forEach((el) => {
+      if (el._x_dataStack && el._x_dataStack[0]) {
+        const data = el._x_dataStack[0];
+        if (data.isSubmitting !== undefined) data.isSubmitting = false;
+        if (data.isSaving !== undefined) data.isSaving = false;
+        if (data.isUploading !== undefined) data.isUploading = false;
+      }
+    });
+
+    // Fallback for native buttons
+    document.querySelectorAll('button[type="submit"], button:disabled').forEach((btn) => {
+      btn.disabled = false;
     });
   }
 });

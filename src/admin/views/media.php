@@ -52,33 +52,6 @@ if (!isset($skin) || !is_array($skin)) {
     </h2>
 
     <div class="flex flex-wrap items-center gap-3 w-full sm:w-auto">
-      <!-- Search form (desktop) -->
-      <div class="hidden sm:block relative">
-        <div
-          class="flex flex-wrap items-center gap-1 pl-8 p-1 focus-within:ring-1 focus-within:ring-theme-primary w-auto h-[34px] cursor-text form-control-sm"
-          @click="$refs.searchInput.focus()">
-          <svg class="top-1/2 left-2.5 absolute opacity-50 w-3.5 h-3.5 text-theme-text -translate-y-1/2" fill="none"
-            stroke="currentColor" viewBox="0 0 24 24">
-            <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-magnifying-glass"></use>
-          </svg>
-          <template x-for="(word, index) in searchKeywords" :key="index">
-            <span
-              class="flex items-center gap-1 bg-theme-primary/10 px-1.5 py-0.5 border border-theme-primary/20 rounded-theme text-[10px] text-theme-primary">
-              <span x-text="word"></span>
-              <button type="button" @click.stop="removeSearchKeyword(index)"
-                class="focus:outline-none hover:text-theme-danger p-1 -m-1"
-                aria-label="<?= h(_t('remove')) ?>">&times;</button>
-            </span>
-          </template>
-          <input type="text" x-ref="searchInput" x-model="searchInput"
-            @keydown.enter.prevent="if(!$event.isComposing) addSearchKeyword()"
-            @keydown.backspace="if(searchInput === '' && searchKeywords.length > 0) removeSearchKeyword(searchKeywords.length - 1)"
-            @input.debounce.500ms="search()"
-            class="flex-1 bg-transparent p-1 border-none outline-none min-w-[120px] h-6 text-theme-text text-xs placeholder-theme-text/40"
-            placeholder="<?= _t('ph_search_media') ?>">
-        </div>
-      </div>
-
       <!-- Upload button -->
       <label
         class="hidden sm:flex items-center gap-2 shadow-theme px-6 py-2.5 rounded-theme font-bold text-sm cursor-pointer transition-all btn-primary shrink-0"
@@ -92,33 +65,6 @@ if (!isset($skin) || !is_array($skin)) {
     </div>
   </div>
 
-  <!-- Mobile search -->
-  <div class="sm:hidden">
-    <div
-      class="flex flex-wrap items-center gap-1 p-1 focus-within:ring-1 focus-within:ring-theme-primary w-full h-auto min-h-[34px] cursor-text form-control-sm"
-      @click="$refs.searchInputMobile.focus()">
-      <svg class="opacity-50 mr-1 ml-1 w-3.5 h-3.5 text-theme-text shrink-0" fill="none" stroke="currentColor"
-        viewBox="0 0 24 24">
-        <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-magnifying-glass"></use>
-      </svg>
-      <template x-for="(word, index) in searchKeywords" :key="index">
-        <span
-          class="flex items-center gap-1 bg-theme-primary/10 px-1.5 py-0.5 border border-theme-primary/20 rounded-theme text-[10px] text-theme-primary">
-          <span x-text="word"></span>
-          <button type="button" @click.stop="removeSearchKeyword(index)"
-            class="focus:outline-none hover:text-theme-danger p-1 -m-1"
-            aria-label="<?= h(_t('remove')) ?>">&times;</button>
-        </span>
-      </template>
-      <input type="text" x-ref="searchInputMobile" x-model="searchInput"
-        @keydown.enter.prevent="if(!$event.isComposing) addSearchKeyword()"
-        @keydown.backspace="if(searchInput === '' && searchKeywords.length > 0) removeSearchKeyword(searchKeywords.length - 1)"
-        @input.debounce.500ms="search()"
-        class="flex-1 bg-transparent p-1 border-none outline-none min-w-[60px] h-6 text-theme-text text-xs placeholder-theme-text/40"
-        placeholder="<?= _t('ph_search_media') ?>">
-    </div>
-  </div>
-
   <!-- Toolbar Area -->
   <div class="top-0 z-20 sticky flex flex-col gap-3 bg-theme-surface shadow-theme p-4 border border-theme-border rounded-theme">
 
@@ -126,6 +72,33 @@ if (!isset($skin) || !is_array($skin)) {
     <div class="flex flex-wrap items-center justify-between gap-2">
 
       <div class="flex items-center gap-2 flex-wrap">
+        <!-- Search form -->
+        <div class="relative w-full sm:w-auto order-first sm:order-none mb-2 sm:mb-0">
+          <div
+            class="flex flex-wrap items-center gap-1 pl-8 p-1 focus-within:ring-1 focus-within:ring-theme-primary w-full sm:w-auto h-auto min-h-[34px] cursor-text form-control-sm"
+            @click="$refs.searchInput.focus()">
+            <svg class="top-1/2 left-2.5 absolute opacity-50 w-3.5 h-3.5 text-theme-text -translate-y-1/2" fill="none"
+              stroke="currentColor" viewBox="0 0 24 24">
+              <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-magnifying-glass"></use>
+            </svg>
+            <template x-for="(word, index) in searchKeywords" :key="index">
+              <span
+                class="flex items-center gap-1 bg-theme-primary/10 px-1.5 py-0.5 border border-theme-primary/20 rounded-theme text-[10px] text-theme-primary">
+                <span x-text="word"></span>
+                <button type="button" @click.stop="removeSearchKeyword(index)"
+                  class="focus:outline-none hover:text-theme-danger p-1 -m-1"
+                  aria-label="<?= h(_t('remove')) ?>">&times;</button>
+              </span>
+            </template>
+            <input type="text" x-ref="searchInput" x-model="searchInput"
+              @keydown.enter.prevent="if(!$event.isComposing) addSearchKeyword()"
+              @keydown.backspace="if(searchInput === '' && searchKeywords.length > 0) removeSearchKeyword(searchKeywords.length - 1)"
+              @input.debounce.500ms="search()"
+              class="flex-1 bg-transparent p-1 border-none outline-none min-w-[200px] h-6 text-theme-text text-xs placeholder-theme-text/40"
+              placeholder="<?= _t('ph_search_media_extended') ?? '検索 (ファイル名, タイトル, Alt, タグ...)' ?>">
+          </div>
+        </div>
+
         <!-- Sort Order -->
         <select x-model="sort" @change="search()" class="w-auto h-[34px] cursor-pointer form-control-sm">
           <option value="newest">
@@ -272,17 +245,6 @@ if (!isset($skin) || !is_array($skin)) {
         <?php
         endforeach; ?>
       </select>
-
-      <!-- Tag Filter -->
-      <div class="relative">
-        <input type="text" x-model="tagFilter" @keydown.enter.prevent="if(!$event.isComposing) search()"
-          class="w-full text-xs form-control-sm pr-8" placeholder="<?= _t('ph_tags') ?? 'Filter by tag...' ?>">
-        <button type="button" @click="search()" class="absolute right-0 top-0 bottom-0 px-2 text-theme-text opacity-50 hover:opacity-100 hover:text-theme-primary">
-          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-magnifying-glass"></use>
-          </svg>
-        </button>
-      </div>
     </div>
 
     <!-- Active Filters Display (Chips) -->

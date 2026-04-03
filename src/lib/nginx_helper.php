@@ -16,7 +16,7 @@ if (!function_exists('grinds_get_nginx_uploads_rules')) {
         return <<<EOT
     # Prevent PHP execution in uploads
     location ^~ {$prefix}/assets/uploads/ {
-        location ~ \.php$ {
+        location ~* \.(php[0-9]?|phtml|phar|pl|py|jsp|asp|htm|html|shtml|sh|cgi|exe|bat|cmd|vbs)$ {
             deny all; return 404;
         }
         location ~ \.(svg|html|xml)$ {

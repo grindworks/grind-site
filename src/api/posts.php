@@ -80,16 +80,8 @@ try {
       }
       $blocks = is_string($p['content']) ? json_decode($p['content'], true) : $p['content'];
       if (is_array($blocks) && isset($blocks['blocks'])) {
-        if (class_exists('BlockRenderer')) {
-          $extracted = BlockRenderer::extractImages($blocks['blocks']);
-          $imageUrls = array_merge($imageUrls, $extracted);
-        } else {
-          foreach ($blocks['blocks'] as $block) {
-            if (($block['type'] ?? '') === 'image' && !empty($block['data']['url'])) {
-              $imageUrls[] = $block['data']['url'];
-            }
-          }
-        }
+        $extracted = BlockRenderer::extractImages($blocks['blocks']);
+        $imageUrls = array_merge($imageUrls, $extracted);
       }
     }
     if (!empty($imageUrls)) {

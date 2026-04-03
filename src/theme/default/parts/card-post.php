@@ -32,7 +32,7 @@ if (!defined('GRINDS_APP')) exit;
             <time datetime="<?= date('c', strtotime($postDate)) ?>"><?= the_date($postDate) ?></time>
             <?php if (!empty($post['category_name'])): ?>
                 <span class="mx-2 text-gray-400">/</span>
-                <a href="<?= h(resolve_url('category/' . $post['category_slug'])) ?>" class="text-grinds-red hover:underline"><?= h($post['category_name']) ?></a>
+                <a href="<?= h(resolve_url('category/' . $post['category_slug'])) ?>" class="relative z-10 text-grinds-red hover:underline"><?= h($post['category_name']) ?></a>
             <?php endif; ?>
         </div>
 
@@ -45,7 +45,7 @@ if (!defined('GRINDS_APP')) exit;
         <p class="flex-grow mb-4 text-gray-700 text-sm line-clamp-3 leading-relaxed"><?= function_exists('default_get_highlighted_excerpt') ? default_get_highlighted_excerpt($post) : h(get_excerpt($post['content'], 80)) ?></p>
 
         <div class="mt-auto pt-4 border-gray-100 border-t">
-            <a href="<?= h(resolve_url($post['slug'])) ?>" class="inline-block font-bold text-grinds-red hover:text-grinds-dark text-sm transition" aria-label="<?= h(sprintf(theme_t('read_more_aria'), $post['title'])) ?>">
+            <a href="<?= h(resolve_url($post['slug'])) ?>" class="relative z-10 inline-block font-bold text-grinds-red hover:text-grinds-dark text-sm transition" aria-label="<?= h(sprintf(theme_t('read_more_aria'), $post['title'])) ?>">
                 <?= theme_t('read_more') ?>
             </a>
         </div>

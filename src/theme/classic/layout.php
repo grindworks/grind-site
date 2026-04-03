@@ -99,9 +99,14 @@ if (function_exists('apply_filters')) {
         <?= json_encode($jsonLd, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>
     </script>
     <?php grinds_head(); ?>
+    <style>
+        body.preload-transitions * {
+            transition: none !important;
+        }
+    </style>
 </head>
 
-<body <?php body_class(); ?>>
+<body <?php body_class('preload-transitions'); ?>>
 
     <?php if (isset($isPreview) && $isPreview): ?>
         <div style="background:#ffc107; color:#000; text-align:center; padding:10px; font-weight:bold;">
@@ -172,6 +177,13 @@ if (function_exists('apply_filters')) {
     </footer>
 
     <?php grinds_footer(); ?>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            requestAnimationFrame(() => {
+                document.body.classList.remove('preload-transitions');
+            });
+        });
+    </script>
 </body>
 
 </html>

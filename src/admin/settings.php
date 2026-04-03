@@ -524,10 +524,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             foreach ($custom_keys as $ck) {
               $val = is_scalar($_POST[$ck]) ? (string)$_POST[$ck] : '';
-              if ($ck === 'custom_skin_media_bg_css') {
-                $val = Routing::convertToDbUrl((string)$val);
+
+              if ($ck === 'custom_skin_font_url') {
+                $val = filter_var($val, FILTER_SANITIZE_URL);
+              } elseif ($ck === 'custom_skin_media_bg_css') {
+                $val = Routing::convertToDbUrl(strip_tags($val));
+              } else {
+                $val = strip_tags($val);
               }
-              update_option($ck, trim((string)$val));
+
+              update_option($ck, trim($val));
             }
           }
           $pdo->commit();

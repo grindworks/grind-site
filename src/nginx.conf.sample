@@ -84,7 +84,7 @@ server {
 
     # [SECURITY] Prevent PHP execution and XSS in uploads directory
     # Converted to regex to support subdirectories. Must be placed before the main PHP block.
-    location ~ (?:^|/)assets/uploads/.*\.php$ {
+    location ~* (?:^|/)assets/uploads/.*\.(php[0-9]?|phtml|phar|pl|py|jsp|asp|htm|html|shtml|sh|cgi|exe|bat|cmd|vbs)$ {
         deny all; return 404;
     }
     location ~ (?:^|/)assets/uploads/.*\.(svg|html)$ {

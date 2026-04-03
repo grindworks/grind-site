@@ -197,139 +197,102 @@ class Routing
         $port = isset($parsed['port']) ? ':' . $parsed['port'] : '';
         $path = isset($parsed['path']) ? rtrim($parsed['path'], '/') : '';
 
-        // Define patterns
-        $patterns = [];
-        $replacements = [];
-
         // Match absolute URLs
         if ($host) {
             $scheme = 'https?:';
-            // Escape base URL
             $safeBase = preg_quote($host . $port . $path, '/');
             $flexibleBase = str_replace('\/', '(?:\\\\\/|[\/\\\\])', $safeBase);
-
-            // Define boundary
             $boundary = '(?=[\\\\\/?"\')\s<>;,\]}&`]|\.(?!\w)|$)';
+            $pattern = '/(' . $scheme . ')?(?:\\\\*\/){2}' . $flexibleBase . $boundary . '/i';
 
-            $patterns[] = '/(' . $scheme . ')?(?:\\\\*\/){2}' . $flexibleBase . $boundary . '/i';
-            $replacements[] = '{{CMS_URL}}';
+            $content = preg_replace($pattern, '{{CMS_URL}}', $content) ?? $content;
         }
 
         // Match root-relative paths
         $cleanPath = trim($path, '/');
         $flexiblePath = '';
-        $captureGroup = '((?:\\\\*[\/\\\\])[^"\']*)';
 
         if ($cleanPath !== '') {
-            // Escape path
             $safePath = preg_quote($cleanPath, '/');
             $flexiblePath = '(?:\\\\\/|[\/\\\\])' . str_replace('\/', '(?:\\\\\/|[\/\\\\])', $safePath);
-        } else {
-            // Handle root installation
-            $captureGroup = '((?:\\\\\/|[\/\\\\])(?!\\\\\/|[\/\\\\])[^"\']*)';
         }
 
-        // Replace attributes
-        $newContent = preg_replace_callback(
-            '/(href|src|action|data-[a-z-]+)\s*=\s*(["\'])' . $flexiblePath . $captureGroup . '\2/i',
-            function ($matches) {
-                // $matches[1] = attribute (href)
-                // $matches[2] = quote
-                // $matches[3] = path after base (e.g. /assets/img.jpg)
-                return $matches[1] . '=' . $matches[2] . '{{CMS_URL}}' . $matches[3] . $matches[2];
-            },
-            $content
-        );
-        if ($newContent === null) {
-            error_log("GrindSite Regex Error: Backtrack limit exceeded during attribute URL conversion.");
-        }
-        $content = $newContent ?? $content;
-
-        // Match style attributes
-        $newContent = preg_replace_callback(
-            '/(style)\s*=\s*(?:(")((?:\\\\.|[^"\\\\])*+)"|(\')((?:\\\\.|[^\'\\\\])*+)\')/i',
+        // 1. HTML attributes (href, src, action, data-*)
+        $content = preg_replace_callback(
+            '/(href|src|action|data-[a-z-]+)\s*=\s*(["\'])([^"\']+)\2/i',
             function ($matches) use ($flexiblePath) {
                 $attr = $matches[1];
-                $quote = !empty($matches[2]) ? $matches[2] : $matches[4];
-                $styleContent = !empty($matches[2]) ? $matches[3] : $matches[5];
-
-                // Replace URL in style
-                $newStyleContent = preg_replace_callback(
-                    '/url\(\s*(["\']?)(.*?)\1\s*\)/i',
-                    function ($urlMatches) use ($flexiblePath) {
-                        $urlQuote = $urlMatches[1];
-                        $urlValue = $urlMatches[2];
-
-                        if ($flexiblePath !== '') {
-                            // Handle subdirectory
-                            $newUrlValue = preg_replace(
-                                '/^(' . $flexiblePath . ')/',
-                                '{{CMS_URL}}',
-                                $urlValue
-                            );
-                        } else {
-                            // Handle root
-                            $newUrlValue = preg_replace(
-                                '/^((?:\\\\\/|[\/\\\\])(?!\\\\\/|[\/\\\\]))/',
-                                '{{CMS_URL}}$1',
-                                $urlValue
-                            );
-                        }
-
-                        return 'url(' . $urlQuote . ($newUrlValue ?? $urlValue) . $urlQuote . ')';
-                    },
-                    $styleContent
-                );
-
-                return $attr . '=' . $quote . ($newStyleContent ?? $styleContent) . $quote;
-            },
-            $content
-        );
-        if ($newContent === null) {
-            error_log("GrindSite Regex Error: Backtrack limit exceeded during style attributes conversion.");
-        }
-        $content = $newContent ?? $content;
-
-        // Match srcset attributes
-        $newContent = preg_replace_callback(
-            '/(srcset)\s*=\s*(?:(")((?:\\\\.|[^"\\\\])*+)"|(\')((?:\\\\.|[^\'\\\\])*+)\')/i',
-            function ($matches) use ($flexiblePath) {
-                $attr = $matches[1];
-                $quote = !empty($matches[2]) ? $matches[2] : $matches[4];
-                $value = !empty($matches[2]) ? $matches[3] : $matches[5];
+                $quote = $matches[2];
+                $val = $matches[3];
 
                 if ($flexiblePath !== '') {
-                    // Handle subdirectory
-                    $newValue = preg_replace(
-                        '/(^|,\s*)(' . $flexiblePath . ')/',
-                        '$1{{CMS_URL}}',
-                        $value
-                    );
+                    $val = preg_replace('/^(' . $flexiblePath . '(?:\\\\*[\/\\\\]))/', '{{CMS_URL}}/', $val);
                 } else {
-                    // Handle root
-                    $newValue = preg_replace(
-                        '/(^|,\s*)((?:\\\\\/|[\/\\\\])(?!\\\\\/|[\/\\\\]))/',
-                        '$1{{CMS_URL}}$2',
-                        $value
-                    );
+                    $val = preg_replace('/^((?:\\\\\/|[\/\\\\])(?!\\\\\/|[\/\\\\]))/', '{{CMS_URL}}$1', $val);
                 }
 
-                return $attr . '=' . $quote . ($newValue ?? $value) . $quote;
+                return $attr . '=' . $quote . $val . $quote;
             },
             $content
-        );
-        if ($newContent === null) {
-            error_log("GrindSite Regex Error: Backtrack limit exceeded during srcset URL conversion.");
-        }
-        $content = $newContent ?? $content;
+        ) ?? $content;
 
-        // Apply replacements
-        if (!empty($patterns)) {
-            $newContent = preg_replace($patterns, $replacements, $content);
-            if ($newContent === null) {
-                error_log("GrindSite Regex Error: Backtrack limit exceeded during absolute URLs conversion.");
-            }
-            $content = $newContent ?? $content;
+        // 2. Style attributes
+        if (stripos($content, 'style') !== false) {
+            $content = preg_replace_callback(
+                '/(style)\s*=\s*(?:(")([^"]*)"|(\')([^\']*)\')/i',
+                function ($matches) use ($flexiblePath) {
+                    $attr = $matches[1];
+                    $quote = !empty($matches[2]) ? $matches[2] : $matches[4];
+                    $styleContent = !empty($matches[2]) ? $matches[3] : $matches[5];
+
+                    if (empty(trim($styleContent))) return $matches[0];
+
+                    $newStyleContent = function_exists('grinds_replace_css_urls')
+                        ? grinds_replace_css_urls($styleContent, function ($urlValue) use ($flexiblePath) {
+                            if ($flexiblePath !== '') {
+                                $newUrlValue = preg_replace('/^(' . $flexiblePath . ')/', '{{CMS_URL}}', $urlValue);
+                            } else {
+                                $newUrlValue = preg_replace('/^((?:\\\\\/|[\/\\\\])(?!\\\\\/|[\/\\\\]))/', '{{CMS_URL}}$1', $urlValue);
+                            }
+                            return $newUrlValue ?? $urlValue;
+                        })
+                        : $styleContent;
+
+                    return $attr . '=' . $quote . ($newStyleContent ?? $styleContent) . $quote;
+                },
+                $content
+            ) ?? $content;
+        }
+
+        // 3. Srcset attributes
+        if (stripos($content, 'srcset') !== false) {
+            $content = preg_replace_callback(
+                '/(srcset)\s*=\s*(?:(")([^"]*)"|(\')([^\']*)\')/i',
+                function ($matches) use ($flexiblePath) {
+                    $attr = $matches[1];
+                    $quote = !empty($matches[2]) ? $matches[2] : $matches[4];
+                    $value = !empty($matches[2]) ? $matches[3] : $matches[5];
+
+                    if (empty(trim($value))) return $matches[0];
+
+                    if ($flexiblePath !== '') {
+                        $newValue = preg_replace(
+                            '/(^|,\s*)(' . $flexiblePath . ')/',
+                            '$1{{CMS_URL}}',
+                            $value
+                        );
+                    } else {
+                        $newValue = preg_replace(
+                            '/(^|,\s*)((?:\\\\\/|[\/\\\\])(?!\\\\\/|[\/\\\\]))/',
+                            '$1{{CMS_URL}}$2',
+                            $value
+                        );
+                    }
+
+                    return $attr . '=' . $quote . ($newValue ?? $value) . $quote;
+                },
+                $content
+            ) ?? $content;
         }
 
         return $content;

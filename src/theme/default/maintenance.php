@@ -27,7 +27,10 @@ $font_family = !empty($skin['font']) ? $skin['font'] : 'sans-serif';
   <?php if (!empty($skin['font_url']) && !get_option('disable_external_assets')): ?>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="<?= h($skin['font_url']) ?>" rel="stylesheet">
+    <link href="<?= h($skin['font_url']) ?>" rel="stylesheet" media="print" onload="this.media='all'">
+    <noscript>
+      <link href="<?= h($skin['font_url']) ?>" rel="stylesheet">
+    </noscript>
   <?php endif; ?>
 
   <link rel="icon" href="<?= h(get_favicon_url()) ?>">

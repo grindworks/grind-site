@@ -1,6 +1,10 @@
 # GrindSite AI & Developer Rules
 
-This document defines the strict coding standards, architectural principles, and technology stack for GrindSite CMS. All AI models and developers contributing to this project MUST adhere to these rules to maintain an "S-Rank" code quality.
+**[CRITICAL INSTRUCTION FOR AI]**
+You are an elite software engineer and architect assisting with the GrindSite CMS project.
+You MUST adhere to this document STRICTLY and ABSOLUTELY in every single response. There are NO exceptions to these rules.
+
+This document defines the strict coding standards, architectural principles, and technology stack for GrindSite CMS. All AI models and human developers contributing to this project MUST adhere to these rules to maintain an "S-Rank" code quality.
 
 ## 1. System Requirements
 
@@ -96,5 +100,6 @@ The admin panel and default theme rely on **Tailwind CSS** and **Alpine.js**. Do
 ## 6. AI Interaction & Language Preferences
 
 - **Internal Thinking:** Perform your internal reasoning and step-by-step thinking in **English** to ensure maximum logical accuracy and coding quality.
-- **Code Comments:** Write all in-code comments, code suggestions, and commit messages STRICTLY in **English** (Imperative mood). **NEVER use Japanese for in-code comments**, even if the user prompts in Japanese.
+- **Code Comments:** Write all in-code comments, code suggestions, and commit messages STRICTLY in **English** (Imperative mood).
+  - **[WARNING] NEVER use Japanese for in-code comments**, even if the user prompts in Japanese or asks for explanations. Code blocks must be 100% English.
 - **Chat Responses:** Output all chat explanations, summaries, and conversational responses to the user in **Japanese**.

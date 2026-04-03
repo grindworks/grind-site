@@ -262,9 +262,9 @@ $basePath = rtrim($parsedBase['path'] ?? '/', '/') . '/';
         this.dropTargetIndex = null;
     }
 }'
-    x-effect="window.toggleScrollLock(inserterOpen || mediaModalOpen || templateModalOpen)"
+    x-effect="window.toggleScrollLock(inserterOpen || templateModalOpen)"
     @announce.window="document.getElementById('a11y-live-region').textContent = $event.detail"
-    :class="inserterOpen || mediaModalOpen || templateModalOpen ? 'pointer-events-none' : ''">
+    :class="inserterOpen || templateModalOpen ? 'pointer-events-none' : ''">
 
     <!-- Accessibility Live Region for Screen Readers -->
     <div id="a11y-live-region" class="sr-only" aria-live="polite" aria-atomic="true"></div>
@@ -335,7 +335,7 @@ $basePath = rtrim($parsedBase['path'] ?? '/', '/') . '/';
                 <div>
                     <div class="flex justify-between items-center mb-2">
                         <label class="font-bold text-theme-text text-sm"><?= _t('lbl_title') ?></label>
-                        <span class="text-xs opacity-60" :class="seoTitle.length > 60 ? 'text-theme-danger font-bold' : ''"><span x-text="seoTitle.length"></span> / 60</span>
+                        <span class="text-xs opacity-60" :class="seoTitle.length > (window.grindsLang === 'ja' ? 35 : 60) ? 'text-theme-danger font-bold' : ''"><span x-text="seoTitle.length"></span> / <span x-text="window.grindsLang === 'ja' ? '35' : '60'"></span></span>
                     </div>
                     <input type="text" name="title" x-model="seoTitle" required class="text-lg form-control" placeholder="<?= _t('lbl_title') ?>">
                 </div>
@@ -353,7 +353,7 @@ $basePath = rtrim($parsedBase['path'] ?? '/', '/') . '/';
                 <div>
                     <div class="flex justify-between items-center mb-2">
                         <label class="font-bold text-theme-text text-sm"><?= _t('lbl_desc') ?></label>
-                        <span class="text-xs opacity-60" :class="seoDesc.length > 160 ? 'text-theme-danger font-bold' : ''"><span x-text="seoDesc.length"></span> / 160</span>
+                        <span class="text-xs opacity-60" :class="seoDesc.length > (window.grindsLang === 'ja' ? 120 : 160) ? 'text-theme-danger font-bold' : ''"><span x-text="seoDesc.length"></span> / <span x-text="window.grindsLang === 'ja' ? '120' : '160'"></span></span>
                     </div>
                     <textarea name="description" x-model="seoDesc" rows="2" class="text-sm form-control"></textarea>
                 </div>
@@ -651,9 +651,9 @@ $basePath = rtrim($parsedBase['path'] ?? '/', '/') . '/';
                         </div>
                     </div>
                     <?php if (($post['status'] ?? '') === 'published'): ?>
-                        <a href="<?= h(site_url($post['slug'])) ?>" target="_blank" class="group flex items-center gap-2 bg-theme-surface hover:bg-theme-primary shadow-theme hover:shadow-theme px-3 py-1.5 border border-theme-primary/20 rounded-full font-bold text-theme-primary hover:text-theme-on-primary text-xs transition-all">
+                        <a href="<?= h(site_url($post['slug'])) ?>" target="_blank" class="group flex items-center gap-2 hover:bg-theme-primary shadow-theme hover:shadow-theme px-3 py-1.5 border border-theme-primary/20 rounded-full font-bold text-theme-primary hover:text-theme-on-primary text-xs transition-all">
                             <span><?= _t('view_page') ?></span>
-                            <svg class="w-3 h-3 transition-transform group-hover:translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-arrow-top-right-on-square"></use>
                             </svg>
                         </a>
@@ -1132,7 +1132,7 @@ $basePath = rtrim($parsedBase['path'] ?? '/', '/') . '/';
     <div x-data="{ keyboardOpen: false }"
         @focusin.window="if(['INPUT', 'TEXTAREA', 'SELECT', 'CONTENTEDITABLE'].includes($event.target.tagName) || $event.target.isContentEditable) keyboardOpen = true"
         @focusout.window="keyboardOpen = false"
-        :class="keyboardOpen ? 'translate-y-full opacity-0 pointer-events-none' : 'translate-y-0 opacity-100'"
+        :class="(keyboardOpen || inserterOpen || templateModalOpen || (typeof mediaModalOpen !== 'undefined' && mediaModalOpen)) ? 'translate-y-full opacity-0 pointer-events-none' : 'translate-y-0 opacity-100'"
         class="transition-all duration-200 lg:hidden fixed bottom-0 left-0 right-0 bg-theme-surface/95 backdrop-blur-md border-t border-theme-border p-3 z-[60] flex justify-between gap-2 shadow-[0_-4px_10px_rgba(0,0,0,0.05)] pb-[calc(0.75rem+env(safe-area-inset-bottom))]">
         <button type="button" @click="if(document.getElementById('post-form').reportValidity()) saveDraftAndPreview()" :disabled="isSaving || isSubmitting || isUploading" class="flex-1 py-3 bg-theme-bg border border-theme-border text-theme-text rounded-theme font-bold text-sm flex items-center justify-center gap-1 shadow-sm transition-colors hover:bg-theme-surface disabled:opacity-50 disabled:cursor-not-allowed">
             <svg class="w-4 h-4 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1178,22 +1178,12 @@ $basePath = rtrim($parsedBase['path'] ?? '/', '/') . '/';
                     </div>
                 </div>
                 <div class="flex-1 p-4 overflow-y-auto custom-scrollbar">
-                    <div class="mb-6" x-show="!blockSearchTerm && recentImages.length > 0">
-                        <h4 class="opacity-50 mb-3 ml-1 font-bold text-theme-text text-xs uppercase tracking-wider"><?= _t('lbl_recent_images') ?></h4>
-                        <div class="gap-2 grid grid-cols-4">
-                            <template x-for="img in recentImages" :key="img.id">
-                                <button type="button" @click="addImageBlock(img)" class="group relative bg-theme-bg/30 border border-theme-border hover:border-theme-primary rounded-theme hover:ring-2 hover:ring-theme-primary/50 aspect-square overflow-hidden transition-all">
-                                    <img :src="img.url" class="w-full h-full object-cover group-hover:scale-110 transition-transform">
-                                </button>
-                            </template>
-                        </div>
-                    </div>
                     <template x-for="(cat, catKey) in blockLibrary" :key="catKey">
                         <div class="mb-6" x-show="!blockSearchTerm || JSON.stringify(cat).toLowerCase().includes(blockSearchTerm.toLowerCase())">
                             <h4 class="opacity-50 mb-3 ml-1 font-bold text-theme-text text-xs uppercase tracking-wider" x-text="cat.label"></h4>
                             <div class="gap-3 grid grid-cols-2 sm:grid-cols-3">
                                 <template x-for="(item, key) in cat.items" :key="key">
-                                    <button type="button" x-show="!blockSearchTerm || item.label.toLowerCase().includes(blockSearchTerm.toLowerCase()) || key.includes(blockSearchTerm.toLowerCase())" @click="addBlock(key); $dispatch('announce', 'Block added: ' + item.label); inserterOpen = false; blockSearchTerm = ''" class="group flex flex-col items-center bg-theme-bg/30 hover:bg-theme-surface hover:shadow-theme p-4 border border-theme-border hover:border-theme-primary rounded-theme h-full text-center transition-all">
+                                    <button type="button" x-show="(!blockSearchTerm || item.label.toLowerCase().includes(blockSearchTerm.toLowerCase()) || key.includes(blockSearchTerm.toLowerCase())) && (key !== 'password_protect' || !blocks.some(b => b.type === 'password_protect'))" @click="addBlock(key); $dispatch('announce', 'Block added: ' + item.label); inserterOpen = false; blockSearchTerm = ''" class="group flex flex-col items-center bg-theme-bg/30 hover:bg-theme-surface hover:shadow-theme p-4 border border-theme-border hover:border-theme-primary rounded-theme h-full text-center transition-all">
                                         <div class="flex justify-center items-center bg-theme-surface mb-2 border border-theme-border rounded-full w-10 h-10 group-hover:text-theme-primary group-hover:scale-110 transition-transform">
                                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <use :href='<?= json_encode(grinds_asset_url('assets/img/sprite.svg') . '#', JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?> + item.icon'></use>
@@ -1207,121 +1197,6 @@ $basePath = rtrim($parsedBase['path'] ?? '/', '/') . '/';
                         </div>
                     </template>
                 </div>
-            </div>
-        </div>
-    </template>
-
-    <!-- Media Modal -->
-    <template x-teleport="body">
-        <div x-show="mediaModalOpen" class="z-60 fixed inset-0 flex justify-center items-center p-4" style="display: none;" x-cloak>
-            <div class="fixed inset-0 skin-modal-overlay backdrop-blur-sm" @click="mediaModalOpen = false"></div>
-            <div class="z-10 relative flex flex-col bg-theme-surface shadow-theme border border-theme-border rounded-theme w-full max-w-3xl h-auto max-h-[85vh]" x-data="{ detailOpen: false, activeFile: null }">
-
-                <!-- List View -->
-                <div class="flex flex-col h-full overflow-hidden" x-show="!detailOpen">
-                    <div class="flex sm:flex-row flex-col justify-between items-center gap-4 bg-theme-bg/50 p-4 border-theme-border border-b rounded-t-theme shrink-0">
-                        <div class="flex items-center gap-4 w-full sm:w-auto">
-                            <h3 class="font-bold text-theme-text whitespace-nowrap"><?= _t('title_media_library') ?></h3>
-                            <select x-model="mediaSort" @change="searchMedia()" class="bg-theme-bg py-1 pr-6 pl-2 border-theme-border focus:ring-theme-primary text-theme-text text-xs cursor-pointer form-control-sm">
-                                <option value="newest"><?= _t('sort_newest') ?></option>
-                                <option value="oldest"><?= _t('sort_oldest') ?></option>
-                                <option value="name_asc"><?= _t('sort_name_asc') ?></option>
-                                <option value="name_desc"><?= _t('sort_name_desc') ?></option>
-                            </select>
-                        </div>
-                        <div class="flex items-center gap-2 w-full sm:w-auto">
-                            <div class="relative w-full sm:w-48">
-                                <input type="text" x-model="mediaKeyword" @input.debounce.500ms="searchMedia()" class="bg-theme-bg pl-8 border-theme-border w-full text-theme-text text-xs form-control-sm placeholder-theme-text/50" placeholder="<?= _t('ph_search_media') ?>"><svg class="top-1/2 left-2.5 absolute opacity-50 w-3 h-3 text-theme-text -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-magnifying-glass"></use>
-                                </svg>
-                            </div>
-                            <button type="button" @click="mediaModalOpen = false" class="opacity-50 hover:opacity-100 ml-2 p-2 flex items-center justify-center text-theme-text text-2xl leading-none">&times;</button>
-                        </div>
-                    </div>
-                    <div class="flex-1 bg-theme-bg/30 p-4 overflow-y-auto">
-                        <div x-show="mediaLoading && mediaFiles.length === 0" class="flex justify-center py-10">
-                            <svg class="w-8 h-8 text-theme-primary animate-spin" viewBox="0 0 24 24">
-                                <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-arrow-path"></use>
-                            </svg>
-                        </div>
-                        <div x-show="!mediaLoading && mediaFiles.length === 0" class="flex flex-col justify-center items-center py-12 px-4 bg-theme-bg/30 border-2 border-theme-border border-dashed rounded-theme text-center">
-                            <div class="flex justify-center items-center w-12 h-12 mb-3 rounded-full bg-theme-surface shadow-sm text-theme-text opacity-50">
-                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-folder"></use>
-                                </svg>
-                            </div>
-                            <h3 class="mb-1 font-bold text-theme-text text-base opacity-80"><?= _t('msg_no_media') ?></h3>
-                        </div>
-                        <div class="gap-4 grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5">
-                            <template x-for="(file, index) in mediaFiles" :key="file.id">
-                                <div class="group relative bg-theme-bg border border-theme-border hover:border-theme-primary rounded-theme hover:ring-2 hover:ring-theme-primary/50 aspect-square overflow-hidden cursor-pointer">
-                                    <button type="button" @click.stop="deleteFile(file)"
-                                        class="top-1 right-1 z-10 absolute flex items-center justify-center bg-theme-danger opacity-0 group-hover:opacity-100 shadow-theme p-2 rounded-full text-white transition-opacity"
-                                        title="<?= h(_t('delete')) ?>">
-                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-trash"></use>
-                                        </svg>
-                                    </button>
-                                    <div @click="activeFile = file; detailOpen = true" class="w-full h-full">
-                                        <template x-if="file.is_image">
-                                            <img :src="file.url" class="w-full h-full object-cover group-hover:scale-110 transition-transform">
-                                        </template>
-                                        <template x-if="!file.is_image">
-                                            <div class="flex flex-col justify-center items-center bg-theme-bg w-full h-full text-theme-text/50">
-                                                <svg class="mb-1 w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-document-text"></use>
-                                                </svg>
-                                                <span class="px-1 w-full text-[9px] text-center truncate uppercase" x-text="file.filename.split('.').pop()"></span>
-                                            </div>
-                                        </template>
-                                    </div>
-                                </div>
-                            </template>
-                        </div>
-                        <div x-show="!mediaLoading && mediaFiles.length > 0" class="flex justify-between items-center mt-6 pt-4 border-theme-border border-t">
-                            <button type="button" @click="loadMedia(mediaPage - 1)" :disabled="mediaPage <= 1" class="disabled:opacity-50 shadow-theme px-3 py-1.5 text-xs btn-secondary">&larr; <?= _t('prev') ?></button>
-                            <span class="opacity-70 font-bold text-theme-text text-xs"><?= _t('lbl_page') ?> <span x-text="mediaPage"></span></span>
-                            <button type="button" @click="loadMedia(mediaPage + 1)" :disabled="!mediaHasMore" class="disabled:opacity-50 shadow-theme px-3 py-1.5 text-xs btn-secondary"><?= _t('next') ?> &rarr;</button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Detail View (Selection Confirmation) -->
-                <div class="flex flex-col bg-theme-surface rounded-theme h-full overflow-hidden" x-show="detailOpen" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 transform scale-95" x-transition:enter-end="opacity-100 transform scale-100" x-cloak>
-                    <div class="flex flex-col flex-1 justify-center items-center bg-theme-bg/30 p-6 overflow-y-auto">
-                        <template x-if="activeFile">
-                            <div class="space-y-4 w-full max-w-md text-center">
-                                <div class="relative flex justify-center items-center bg-checker bg-theme-bg shadow-theme border border-theme-border rounded-theme aspect-video overflow-hidden">
-                                    <template x-if="activeFile.is_image">
-                                        <img :src="activeFile.url" class="max-w-full max-h-64 object-contain">
-                                    </template>
-                                    <template x-if="!activeFile.is_image">
-                                        <div class="flex flex-col items-center opacity-50 text-theme-text">
-                                            <svg class="mb-2 w-16 h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-document-text"></use>
-                                            </svg>
-                                            <span class="font-bold" x-text="activeFile.file_type"></span>
-                                        </div>
-                                    </template>
-                                </div>
-                                <div>
-                                    <h4 class="font-bold text-theme-text text-lg break-all" x-text="activeFile.filename"></h4>
-                                    <p class="opacity-60 mt-1 font-mono text-theme-text text-xs" x-text="activeFile.url"></p>
-                                </div>
-                            </div>
-                        </template>
-                    </div>
-                    <div class="flex justify-between items-center gap-4 bg-theme-surface p-4 border-theme-border border-t shrink-0">
-                        <button @click="detailOpen = false" class="px-6 py-2.5 rounded-theme font-bold text-sm btn-secondary"><?= _t('cancel') ?></button>
-                        <button @click="selectMedia(activeFile); detailOpen = false; activeFile = null" class="flex items-center gap-2 shadow-theme px-8 py-2 rounded-theme font-bold text-sm btn-primary">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-check"></use>
-                            </svg>
-                            <?= _t('select') ?>
-                        </button>
-                    </div>
-                </div>
-
             </div>
         </div>
     </template>

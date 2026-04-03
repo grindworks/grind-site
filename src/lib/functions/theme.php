@@ -203,11 +203,9 @@ function _theme_generate_ogp_image(array $pageData, bool &$isFallback = false): 
         $contentData = $pageData['post']['content_decoded'] ?? json_decode($rawContent, true);
 
         if (is_array($contentData) && !empty($contentData['blocks'])) {
-            if (class_exists('BlockRenderer')) {
-                $images = BlockRenderer::extractImages($contentData['blocks']);
-                if (!empty($images)) {
-                    $ogImage = resolve_url($images[0]);
-                }
+            $images = BlockRenderer::extractImages($contentData['blocks']);
+            if (!empty($images)) {
+                $ogImage = resolve_url($images[0]);
             }
         }
     }
@@ -281,23 +279,10 @@ function _theme_generate_json_ld(string $siteName, string $pageType, string $pag
     }
     $graph[] = $orgNode;
 
-    $extractedAuthor = null;
     $rawContent = $pageData['post']['content'] ?? '{}';
     $contentData = $pageData['post']['content_decoded'] ?? json_decode($rawContent, true);
 
-    if (is_array($contentData) && !empty($contentData['blocks'])) {
-        foreach ($contentData['blocks'] as $block) {
-            if (($block['type'] ?? '') === 'author' && !empty($block['data']['name'])) {
-                $extractedAuthor = [
-                    'name' => html_entity_decode(strip_tags($block['data']['name']), ENT_QUOTES | ENT_HTML5, 'UTF-8'),
-                    'jobTitle' => !empty($block['data']['role']) ? html_entity_decode(strip_tags($block['data']['role']), ENT_QUOTES | ENT_HTML5, 'UTF-8') : '',
-                    'description' => !empty($block['data']['bio']) ? html_entity_decode(strip_tags($block['data']['bio']), ENT_QUOTES | ENT_HTML5, 'UTF-8') : '',
-                    'url' => !empty($block['data']['link']) ? filter_var($block['data']['link'], FILTER_VALIDATE_URL) : false
-                ];
-                break;
-            }
-        }
-    }
+    $extractedAuthor = is_array($contentData) && function_exists('grinds_extract_author_from_content') ? grinds_extract_author_from_content($contentData) : null;
 
     $heroSettings = isset($pageData['post']['hero_settings_decoded'])
         ? $pageData['post']['hero_settings_decoded']
@@ -492,6 +477,20 @@ function _theme_generate_json_ld(string $siteName, string $pageType, string $pag
             if (!empty($pageData['tags'])) {
                 $tagNames = array_column($pageData['tags'], 'name');
                 $articleNode['keywords'] = implode(', ', $tagNames);
+
+                $aboutEntities = [];
+                foreach ($pageData['tags'] as $tag) {
+                    $tagUrl = resolve_url('/tag/' . rawurlencode($tag['slug']));
+                    if (defined('GRINDS_IS_SSG') && GRINDS_IS_SSG) {
+                        $tagUrl .= '.html';
+                    }
+                    $aboutEntities[] = [
+                        "@type" => "Thing",
+                        "name" => $tag['name'],
+                        "url" => $tagUrl
+                    ];
+                }
+                $articleNode['about'] = $aboutEntities;
             }
 
             if ($ogImage && !$isFallbackImage) {

@@ -35,19 +35,8 @@ function grinds_delete_user(PDO $pdo, int $userId, int $currentUserId)
     $stmt = $pdo->prepare("DELETE FROM users WHERE id = ?");
     $stmt->execute([$userId]);
 
-    // Invalidate active sessions for the deleted user
-    $sessionDir = session_save_path() ?: ROOT_PATH . '/data/sessions';
-    if (is_dir($sessionDir)) {
-        $currentSessionId = session_id();
-        foreach (glob($sessionDir . '/sess_*') as $file) {
-            if (basename($file) !== 'sess_' . $currentSessionId) {
-                $content = @file_get_contents($file);
-                if ($content !== false && preg_match('/user_id\|(?:i:' . $userId . ';|s:\d+:"' . $userId . '";)/', $content)) {
-                    @unlink($file);
-                }
-            }
-        }
-    }
+    // Invalidate active sessions for the deleted user.
+    grinds_invalidate_user_sessions($userId);
 }
 
 /**
