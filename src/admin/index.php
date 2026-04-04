@@ -289,6 +289,47 @@ $jsDismissText = _t('btn_dismiss');
 
 $lblHourUnit = $isJa ? '時' : 'h';
 
+// Calculate insights from existing data (zero additional queries)
+$peak_hour = 0;
+$total_time_posts = 0;
+$morning_count = 0;   // 5-11
+$afternoon_count = 0; // 12-17
+$night_count = 0;     // 18-4
+for ($h = 0; $h < 24; $h++) {
+    $c = $time_dist[$h] ?? 0;
+    $total_time_posts += $c;
+    if ($c > ($time_dist[$peak_hour] ?? 0)) {
+        $peak_hour = $h;
+    }
+    if ($h >= 5 && $h <= 11) $morning_count += $c;
+    elseif ($h >= 12 && $h <= 17) $afternoon_count += $c;
+    else $night_count += $c;
+}
+$morning_pct = $total_time_posts > 0 ? round($morning_count / $total_time_posts * 100) : 0;
+$afternoon_pct = $total_time_posts > 0 ? round($afternoon_count / $total_time_posts * 100) : 0;
+$night_pct = $total_time_posts > 0 ? (100 - $morning_pct - $afternoon_pct) : 0;
+
+// Find active hour range (hours with > 20% of peak)
+$threshold = $max_time_count > 0 ? (int)ceil($max_time_count * 0.2) : 1;
+$active_start = null;
+$active_end = null;
+for ($h = 0; $h < 24; $h++) {
+    if (($time_dist[$h] ?? 0) >= $threshold) {
+        if ($active_start === null) $active_start = $h;
+        $active_end = $h;
+    }
+}
+$active_range_str = ($active_start !== null)
+    ? sprintf('%02d:00 – %02d:00', $active_start, $active_end + 1)
+    : '—';
+
+// Current total (last value in growth array)
+$current_total_pages = !empty($data_growth) ? end($data_growth) : 0;
+
+// Prepare JSON for time distribution CSS bar chart
+$js_time_dist = json_encode($time_dist);
+$js_max_time = json_encode($max_time_count);
+
 ob_start();
 ?>
 <?php if (file_exists(ROOT_PATH . '/assets/js/vendor/chart.min.js')): ?>
@@ -411,7 +452,7 @@ ob_start();
                     <?php endif; ?>
 
                     <p class="mb-1 font-bold text-sm">
-                        <?= $alert['title'] ?>
+                        <?= h($alert['title']) ?>
                     </p>
                     <p class="opacity-90 text-sm">
                         <?= strip_tags($alert['msg'], '<a><br><strong><code><span>') ?>
@@ -546,70 +587,134 @@ ob_start();
     </a>
 </div>
 
-<!-- Charts Grid -->
-<div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-    <!-- Hybrid Chart (Site Growth) -->
-    <div class="lg:col-span-2 bg-theme-surface shadow-theme border border-theme-border rounded-theme overflow-hidden flex flex-col">
-        <div class="flex justify-between items-center bg-theme-bg/30 p-5 border-theme-border border-b">
-            <h2 class="flex items-center gap-2 font-bold text-theme-text text-lg">
-                <svg class="w-5 h-5 text-theme-primary" fill="currentColor" viewBox="0 0 24 24">
-                    <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-arrow-trending-up"></use>
-                </svg>
-                <?= _t('dash_growth_title') ?>
-            </h2>
-            <div class="opacity-60 font-mono text-theme-text text-xs">
-                <?= _t('dash_last_30_days') ?>
+<!-- Unified Content Analytics Panel -->
+<div class="bg-theme-surface shadow-theme mb-8 border border-theme-border rounded-theme overflow-hidden" x-data="{ analyticsTab: 'growth' }">
+    <!-- Panel Header with Tabs -->
+    <div class="flex flex-col sm:flex-row justify-between sm:items-center bg-theme-bg/30 p-4 sm:p-5 border-theme-border border-b gap-3">
+        <h2 class="flex items-center gap-2 font-bold text-theme-text text-lg">
+            <svg class="w-5 h-5 text-theme-primary" fill="currentColor" viewBox="0 0 24 24">
+                <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-arrow-trending-up"></use>
+            </svg>
+            <?= _t('dash_analytics_title') ?>
+        </h2>
+        <div class="flex items-center gap-2">
+            <!-- Tab Buttons -->
+            <div class="flex bg-theme-bg/60 p-0.5 border border-theme-border rounded-theme">
+                <button @click="analyticsTab = 'growth'" :class="analyticsTab === 'growth' ? 'bg-theme-surface shadow-sm text-theme-primary font-bold' : 'text-theme-text opacity-60 hover:opacity-100'" class="flex items-center gap-1.5 px-3 py-1.5 rounded-theme text-xs transition-all">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-arrow-trending-up"></use>
+                    </svg>
+                    <?= _t('dash_tab_growth') ?>
+                </button>
+                <button @click="analyticsTab = 'timing'; $nextTick(() => { window.dispatchEvent(new Event('resize')) })" :class="analyticsTab === 'timing' ? 'bg-theme-surface shadow-sm text-theme-primary font-bold' : 'text-theme-text opacity-60 hover:opacity-100'" class="flex items-center gap-1.5 px-3 py-1.5 rounded-theme text-xs transition-all">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-clock"></use>
+                    </svg>
+                    <?= _t('dash_tab_timing') ?>
+                </button>
             </div>
-        </div>
-        <div class="relative p-4 flex-1">
-            <div class="relative w-full h-64">
-                <canvas id="growthChart"></canvas>
-            </div>
-        </div>
-        <div class="bg-theme-bg/10 p-3 border-theme-border border-t text-center mt-auto">
-            <span class="opacity-60 font-bold text-theme-text text-xs">
-                <?= _t('dash_new_posts') ?>:
-            </span>
-            <span class="ml-2 font-bold text-theme-primary text-lg">+
-                <?= $period_new_posts ?>
-            </span>
+            <span class="opacity-40 font-mono text-theme-text text-[10px] hidden sm:inline"><?= _t('dash_last_30_days') ?></span>
         </div>
     </div>
 
-    <!-- Time Distribution Heatmap (No external JS) -->
-    <div class="lg:col-span-1 bg-theme-surface shadow-theme border border-theme-border rounded-theme overflow-hidden flex flex-col">
-        <div class="flex justify-between items-center bg-theme-bg/30 p-5 border-theme-border border-b">
-            <h2 class="flex items-center gap-2 font-bold text-theme-text text-lg">
-                <svg class="w-5 h-5 text-theme-success" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-clock"></use>
-                </svg>
-                <?= _t('dash_time_dist') ?>
-            </h2>
-        </div>
-        <div class="relative p-4 flex-1 flex flex-col justify-center">
-            <div class="grid grid-cols-4 sm:grid-cols-6 gap-2 sm:gap-3 w-full">
-                <?php for ($h = 0; $h < 24; $h++):
-                    $count = $time_dist[$h] ?? 0;
-                    $ratio = $max_time_count > 0 ? ($count / $max_time_count) : 0;
-
-                    if ($count === 0) {
-                        $bgClass = 'bg-theme-bg/30 border border-theme-border shadow-sm';
-                        $textClass = 'text-theme-text opacity-40';
-                        $inlineStyle = '';
-                    } else {
-                        // Calculate opacity from 0.15 to 1.0 based on ratio
-                        $opacity = 0.15 + ($ratio * 0.85);
-                        $bgClass = 'shadow-sm';
-                        $inlineStyle = "background-color: rgb(var(--color-primary) / {$opacity});";
-                        // Use on-primary color for darker backgrounds, primary color for lighter
-                        $textClass = $ratio > 0.4 ? 'text-theme-on-primary font-bold' : 'text-theme-primary font-bold';
-                    }
-                ?>
-                    <div class="flex flex-col items-center justify-center rounded-theme p-1.5 h-14 sm:h-16 transition-transform hover:scale-105 <?= $bgClass ?>" style="<?= $inlineStyle ?>" title="<?= $count ?> posts">
-                        <span class="text-base sm:text-sm font-bold <?= $textClass ?>"><?= sprintf('%02d', $h) ?></span>
-                    </div>
-                <?php endfor; ?>
+    <!-- Panel Body: Chart + Insights -->
+    <div class="flex flex-col lg:flex-row">
+        <!-- Left: Chart Area -->
+        <div class="flex-1 p-4 sm:p-5 min-w-0">
+            <!-- Growth Tab: Chart.js -->
+            <div x-show="analyticsTab === 'growth'" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100">
+                <div class="relative w-full h-56 sm:h-64">
+                    <canvas id="growthChart"></canvas>
+                </div>
             </div>
+
+            <!-- Timing Tab: CSS Bar Chart -->
+            <div x-show="analyticsTab === 'timing'" x-cloak x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100">
+                <div class="flex items-end gap-[3px] sm:gap-1 w-full h-56 sm:h-64 pt-6 pb-1">
+                    <?php for ($h = 0; $h < 24; $h++):
+                        $count = $time_dist[$h] ?? 0;
+                        $pct = $max_time_count > 0 ? ($count / $max_time_count * 100) : 0;
+                        $barHeight = max($pct, 2);
+                        $isPeak = ($h === $peak_hour && $count > 0);
+                    ?>
+                        <div class="flex-1 flex flex-col items-center justify-end h-full group relative">
+                            <!-- Tooltip -->
+                            <div class="absolute -top-1 left-1/2 -translate-x-1/2 -translate-y-full opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
+                                <div class="bg-theme-surface border border-theme-border shadow-theme rounded-theme px-2 py-1 text-[10px] font-mono text-theme-text whitespace-nowrap">
+                                    <?= sprintf('%02d', $h) ?>:00 · <?= $count ?> <?= _t('dash_posts_unit') ?>
+                                </div>
+                            </div>
+                            <!-- Bar -->
+                            <div class="w-full rounded-t-sm transition-all duration-300 group-hover:opacity-80 <?= $isPeak ? 'ring-1 ring-theme-primary/50' : '' ?>"
+                                style="height: <?= $barHeight ?>%; background-color: rgb(var(--color-primary) / <?= $count === 0 ? '0.08' : (0.2 + ($pct / 100 * 0.8)) ?>);<?= $isPeak ? ' box-shadow: 0 0 8px rgb(var(--color-primary) / 0.3);' : '' ?>">
+                            </div>
+                            <!-- Hour Label -->
+                            <span class="text-[8px] sm:text-[10px] mt-1 text-theme-text <?= ($h % 3 === 0) ? 'opacity-60 font-medium' : 'opacity-0 sm:opacity-30' ?>"><?= $h ?></span>
+                        </div>
+                    <?php endfor; ?>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right: Insight Summary -->
+        <div class="lg:w-56 xl:w-64 border-t lg:border-t-0 lg:border-l border-theme-border bg-theme-bg/20 p-4 sm:p-5 flex flex-col gap-4">
+            <!-- Insights change based on tab -->
+            <div x-show="analyticsTab === 'growth'">
+                <div class="space-y-4">
+                    <div>
+                        <p class="text-[10px] uppercase tracking-wider text-theme-text opacity-50 mb-1"><?= _t('dash_insight_new_posts') ?></p>
+                        <p class="text-2xl font-bold text-theme-primary">+<?= $period_new_posts ?></p>
+                    </div>
+                    <div>
+                        <p class="text-[10px] uppercase tracking-wider text-theme-text opacity-50 mb-1"><?= _t('dash_insight_total') ?></p>
+                        <p class="text-2xl font-bold text-theme-text"><?= number_format($current_total_pages) ?></p>
+                    </div>
+                </div>
+            </div>
+            <div x-show="analyticsTab === 'timing'" x-cloak>
+                <div class="space-y-4">
+                    <div>
+                        <p class="text-[10px] uppercase tracking-wider text-theme-text opacity-50 mb-1"><?= _t('dash_insight_peak') ?></p>
+                        <p class="text-2xl font-bold text-theme-primary"><?= sprintf('%02d', $peak_hour) ?>:00</p>
+                        <p class="text-xs text-theme-text opacity-50"><?= $time_dist[$peak_hour] ?? 0 ?> <?= _t('dash_posts_unit') ?></p>
+                    </div>
+                    <div>
+                        <p class="text-[10px] uppercase tracking-wider text-theme-text opacity-50 mb-1"><?= _t('dash_insight_active_range') ?></p>
+                        <p class="text-sm font-bold text-theme-text"><?= h($active_range_str) ?></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer: Period Breakdown Bar -->
+    <div class="bg-theme-bg/30 px-4 sm:px-5 py-3 border-t border-theme-border">
+        <div x-show="analyticsTab === 'growth'">
+            <div class="flex items-center justify-center gap-4 text-xs text-theme-text">
+                <span class="opacity-60 font-bold"><?= _t('dash_new_posts') ?>:</span>
+                <span class="font-bold text-theme-primary text-lg">+<?= $period_new_posts ?></span>
+            </div>
+        </div>
+        <div x-show="analyticsTab === 'timing'" x-cloak>
+            <?php if ($total_time_posts > 0): ?>
+                <!-- Morning / Afternoon / Night breakdown bar -->
+                <div class="flex items-center gap-3 text-[10px] sm:text-xs text-theme-text">
+                    <div class="flex-1">
+                        <div class="flex h-2 rounded-full overflow-hidden bg-theme-bg/50">
+                            <div class="transition-all duration-500" style="width: <?= $morning_pct ?>%; background-color: rgb(var(--color-warning) / 0.7);"></div>
+                            <div class="transition-all duration-500" style="width: <?= $afternoon_pct ?>%; background-color: rgb(var(--color-primary) / 0.7);"></div>
+                            <div class="transition-all duration-500" style="width: <?= $night_pct ?>%; background-color: rgb(var(--color-info) / 0.5);"></div>
+                        </div>
+                    </div>
+                    <div class="flex gap-3 flex-shrink-0 opacity-70">
+                        <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full inline-block" style="background-color: rgb(var(--color-warning) / 0.7);"></span> <?= _t('dash_period_morning') ?> <?= $morning_pct ?>%</span>
+                        <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full inline-block" style="background-color: rgb(var(--color-primary) / 0.7);"></span> <?= _t('dash_period_afternoon') ?> <?= $afternoon_pct ?>%</span>
+                        <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full inline-block" style="background-color: rgb(var(--color-info) / 0.5);"></span> <?= _t('dash_period_night') ?> <?= $night_pct ?>%</span>
+                    </div>
+                </div>
+            <?php else: ?>
+                <p class="text-center text-xs text-theme-text opacity-40"><?= _t('dash_no_activity') ?></p>
+            <?php endif; ?>
         </div>
     </div>
 </div>
@@ -630,7 +735,7 @@ ob_start();
                             <div class="flex items-center gap-2">
                                 <span
                                     class="bg-theme-bg opacity-70 px-1.5 py-0.5 border border-theme-border rounded-theme text-[10px] uppercase">
-                                    <?= $post['type'] ?>
+                                    <?= h($post['type']) ?>
                                 </span>
                                 <a href="posts.php?action=edit&id=<?= $post['id'] ?>"
                                     class="hover:text-theme-primary transition-colors">

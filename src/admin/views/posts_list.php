@@ -85,6 +85,7 @@ $csrf_token = generate_csrf_token();
           <form method="post" onsubmit='return confirm(<?= json_encode(_t('confirm_empty_trash'), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS) ?>);'>
             <input type="hidden" name="csrf_token" value="<?= h(generate_csrf_token()) ?>">
             <input type="hidden" name="action" value="empty_trash">
+            <input type="hidden" name="type" value="<?= h($type) ?>">
             <button type="submit" class="flex items-center gap-2 bg-theme-danger hover:opacity-90 disabled:hover:opacity-50 shadow-theme px-6 py-2.5 rounded-theme font-bold text-white text-xs sm:text-sm transition-all disabled:cursor-not-allowed" <?= $count_trash == 0 ? 'disabled' : '' ?>>
               <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-trash"></use>
@@ -115,7 +116,7 @@ $csrf_token = generate_csrf_token();
       <?php endforeach; ?>
 
       <!-- Trash tab. -->
-      <a href="?status=trash"
+      <a href="?type=<?= $type ?>&status=trash"
         class="whitespace-nowrap py-3 px-4 border-b-2 font-bold text-sm transition-colors <?= $is_trash_view ? 'border-theme-danger text-theme-danger' : 'border-transparent text-theme-text opacity-40 hover:text-theme-danger hover:border-theme-danger/30' ?>">
         <svg class="inline-block mr-1 mb-0.5 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-trash"></use>

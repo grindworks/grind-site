@@ -1,7 +1,7 @@
 {
-  "version": "1.4.0",
-  "release_date": "2026-04-03",
-  "message": "Added powerful CLI tool and new admin skins",
-  "download_url": "https://github.com/grindworks/grind-site/releases/download/v1.4.0/grindsite-v1.4.0.zip",
-  "sha256": "4a495b19a7c947f81a70e7f727e75d0b7a6d273ebf27a1f9285d5c4f2b35e8d5"
+  "version": "1.4.1",
+  "release_date": "2026-04-04",
+  "message": "Fix minor XSS vulnerabilities, update translations and improve admin UI",
+  "download_url": "https://github.com/grindworks/grind-site/releases/download/v1.4.1/grindsite-v1.4.1.zip",
+  "sha256": "e597ddcb87a671080a4ad6920f771edf26a2f250f8ed30da4b66927bebf5e0e4"
 }

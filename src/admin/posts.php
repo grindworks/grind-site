@@ -33,7 +33,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   // Empty trash
   if (isset($_POST['action']) && $_POST['action'] === 'empty_trash') {
     try {
-      $count = grinds_empty_trash($pdo);
+      $trashType = $_POST['type'] ?? null;
+      if ($trashType !== null && !in_array($trashType, $allowed_types, true)) {
+        $trashType = null;
+      }
+
+      $count = grinds_empty_trash($pdo, $trashType);
 
       if ($count > 0) {
         set_flash(_t('msg_trash_emptied', $count));
@@ -45,7 +50,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         set_flash(_t('msg_trash_empty'), 'info');
       }
 
-      redirect('admin/posts.php?status=trash');
+      $redirectUrl = 'admin/posts.php?status=trash';
+      if ($trashType) {
+        $redirectUrl .= '&type=' . urlencode($trashType);
+      }
+      redirect($redirectUrl);
     } catch (Exception $e) {
       $error = $e->getMessage();
     }

@@ -920,7 +920,7 @@ $basePath = rtrim($parsedBase['path'] ?? '/', '/') . '/';
                                 </button>
                                 <label class="px-3 py-1 rounded-theme w-full text-xs text-center cursor-pointer btn-secondary">
                                     <?= h(_t('select_file')) ?>
-                                    <input type="file" name="hero_image" accept="image/*" class="sr-only" @change="const file = $event.target.files[0]; if(file){ const r = new FileReader(); r.onload = (e) => previewUrl = e.target.result; r.readAsDataURL(file); isDeleted = false; }">
+                                    <input type="file" name="hero_image" accept="image/*" class="sr-only" @change="const file = $event.target.files[0]; if(file){ if(previewUrl && previewUrl.startsWith('blob:')) URL.revokeObjectURL(previewUrl); previewUrl = URL.createObjectURL(file); isDeleted = false; }">
                                 </label>
                                 <?php if (!empty($post['hero_image'])): ?>
                                     <label class="flex justify-center items-center bg-theme-danger/10 px-2 border border-theme-danger/30 rounded-theme text-theme-danger transition-colors cursor-pointer"
@@ -959,7 +959,7 @@ $basePath = rtrim($parsedBase['path'] ?? '/', '/') . '/';
                                 </button>
                                 <label class="px-3 py-1 rounded-theme w-full text-xs text-center cursor-pointer btn-secondary">
                                     <?= h(_t('select_file')) ?>
-                                    <input type="file" name="hero_image_mobile" accept="image/*" class="sr-only" @change="const file = $event.target.files[0]; if(file){ const r = new FileReader(); r.onload = (e) => previewUrl = e.target.result; r.readAsDataURL(file); isDeleted = false; }">
+                                    <input type="file" name="hero_image_mobile" accept="image/*" class="sr-only" @change="const file = $event.target.files[0]; if(file){ if(previewUrl && previewUrl.startsWith('blob:')) URL.revokeObjectURL(previewUrl); previewUrl = URL.createObjectURL(file); isDeleted = false; }">
                                 </label>
                                 <?php if (!empty($heroConfig['mobile_image'])): ?>
                                     <label class="flex justify-center items-center bg-theme-danger/10 px-2 border border-theme-danger/30 rounded-theme text-theme-danger transition-colors cursor-pointer"

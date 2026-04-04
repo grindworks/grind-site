@@ -517,9 +517,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           }
 
           if (isset($_POST['admin_skin']) && $_POST['admin_skin'] === 'custom') {
+            // Define allowed keys to prevent DB bloat
+            $defaults = require ROOT_PATH . '/admin/config/skin_defaults.php';
+            $colorDefKeys = array_merge(...array_values($colorDefGroups));
+            $validKeys = ['custom_skin_font_family'];
+            foreach ($defaults as $k => $v) {
+              if ($k !== 'colors') $validKeys[] = 'custom_skin_' . $k;
+            }
+            foreach ($colorDefKeys as $ck) {
+              $validKeys[] = 'custom_skin_' . $ck;
+            }
+
             // Get custom keys
-            $custom_keys = array_filter(array_keys($_POST), function ($k) {
-              return strpos((string)$k, 'custom_skin_') === 0;
+            $custom_keys = array_filter(array_keys($_POST), function ($k) use ($validKeys) {
+              return in_array($k, $validKeys, true);
             });
 
             foreach ($custom_keys as $ck) {

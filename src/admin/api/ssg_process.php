@@ -39,7 +39,7 @@ $action = $_POST['action'] ?? $_GET['action'] ?? '';
 if ($action === 'download') {
     $csrf_token = $_POST['csrf_token'] ?? $_GET['csrf_token'] ?? '';
     if (!validate_csrf_token($csrf_token)) {
-        ob_clean();
+        grinds_clean_output_buffer();
         http_response_code(403);
         exit('Invalid CSRF Token');
     }
@@ -52,9 +52,7 @@ if ($action === 'download') {
     }
 
     if (file_exists($zipFile)) {
-
-        while (ob_get_level())
-            ob_end_clean();
+        grinds_clean_output_buffer();
         header('Content-Type: application/zip');
         header('Content-Disposition: attachment; filename="static_site_' . date('Ymd_His') . '.zip"');
         header('Content-Length: ' . filesize($zipFile));
@@ -67,7 +65,7 @@ if ($action === 'download') {
         grinds_force_unlink($zipFile);
         exit;
     } else {
-        ob_clean();
+        grinds_clean_output_buffer();
         http_response_code(404);
         exit(_t('err_file_not_found'));
     }
@@ -393,7 +391,9 @@ class GrindsSSG
             if (!is_dir($saveDir))
                 @mkdir($saveDir, 0775, true);
 
-            file_put_contents($savePath, $html);
+            if (file_put_contents($savePath, $html) === false) {
+                throw new Exception("Failed to write HTML file: " . $fileName);
+            }
         }
 
         return ['success' => true];
@@ -442,6 +442,11 @@ class GrindsSSG
 
             foreach ($exportIterator as $htmlFile) {
                 if ($htmlFile->isFile() && in_array(strtolower($htmlFile->getExtension()), ['html', 'css', 'js'])) {
+                    // 巨大なファイルは正規表現スキャンをスキップし、PCRE制限やメモリ枯渇を防ぐ（2MB上限）
+                    if ($htmlFile->getSize() > 2 * 1024 * 1024) {
+                        continue;
+                    }
+
                     $content = file_get_contents($htmlFile->getRealPath());
                     if (preg_match_all($uploadPattern, $content, $matches)) {
                         foreach ($matches[1] as $match) {

@@ -310,6 +310,11 @@ if (!defined('GRINDS_APP'))
               $skinDefaults = require ROOT_PATH . '/admin/config/skin_defaults.php';
               $colorDefaults = $skinDefaults['colors'] ?? [];
 
+              $getColorVal = function ($k) use ($opt, $colorDefaults) {
+                $aK = str_replace('_', '-', $k);
+                return $opt['c_' . $k] ?? ($colorDefaults[$k] ?? ($colorDefaults[$aK] ?? '#000000'));
+              };
+
               $groupIndex = 0;
               foreach ($allColors as $group => $keys):
                 $groupId = 'cg_' . $groupIndex;
@@ -318,8 +323,7 @@ if (!defined('GRINDS_APP'))
                   groupColors: {
                     <?php
                     foreach ($keys as $k):
-                      $aK = str_replace('_', '-', $k);
-                      $v = $opt['c_' . $k] ?? ($colorDefaults[$k] ?? ($colorDefaults[$aK] ?? '#000000'));
+                      $v = $getColorVal($k);
                       echo "'" . h($k) . "': '" . h($v) . "', ";
                     endforeach;
                     ?>
@@ -334,8 +338,7 @@ if (!defined('GRINDS_APP'))
                     <div class="flex items-center gap-2">
                       <div class="flex -space-x-1">
                         <?php foreach (array_slice($keys, 0, 5) as $previewKey):
-                          $altKey = str_replace('_', '-', $previewKey);
-                          $previewVal = $opt['c_' . $previewKey] ?? ($colorDefaults[$previewKey] ?? ($colorDefaults[$altKey] ?? '#000000'));
+                          $previewVal = $getColorVal($previewKey);
                         ?>
                           <span class="inline-block border border-white rounded-full w-4 h-4"
                             :style="`background: ${groupColors['<?= h($previewKey) ?>']}`" style="background:<?= h($previewVal) ?>"></span>
@@ -352,8 +355,7 @@ if (!defined('GRINDS_APP'))
                   <div x-show="openColorGroup === '<?= $groupId ?>'" x-collapse class="mt-2 px-1">
                     <div class="gap-3 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
                       <?php foreach ($keys as $key):
-                        $altKey = str_replace('_', '-', $key);
-                        $val = $opt['c_' . $key] ?? ($colorDefaults[$key] ?? ($colorDefaults[$altKey] ?? '#000000')); ?>
+                        $val = $getColorVal($key); ?>
                         <div x-data="colorPicker('<?= h($val) ?>')" x-effect="groupColors['<?= h($key) ?>'] = val"
                           class="flex flex-col gap-1.5 bg-theme-surface/30 p-2 border border-theme-border/30 rounded-theme">
                           <div class="flex items-center gap-2">

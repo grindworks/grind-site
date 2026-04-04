@@ -287,16 +287,16 @@ if (!function_exists('grinds_extract_text_from_content')) {
 if (!function_exists('grinds_extract_urls')) {
     function grinds_extract_urls($content)
     {
-        $urls = [];
+        $urlsMap = [];
         if (empty($content))
-            return $urls;
+            return [];
 
         $cleanContent = is_string($content) ? preg_replace('/^\xEF\xBB\xBF/', '', $content) : $content;
         $data = is_array($cleanContent) ? $cleanContent : (is_string($cleanContent) && json_validate($cleanContent) ? json_decode($cleanContent, true) : null);
 
         if (is_array($data) && isset($data['blocks'])) {
             // Search URLs recursively in blocks
-            $finder = function ($item, $depth = 0) use (&$finder, &$urls) {
+            $finder = function ($item, $depth = 0) use (&$finder, &$urlsMap) {
                 if ($depth > 50) {
                     return;
                 }
@@ -305,18 +305,18 @@ if (!function_exists('grinds_extract_urls')) {
                     foreach ($item as $key => $value) {
                         if (is_string($key) && preg_match('/(url|link|href|src|image)/i', $key) && is_string($value)) {
                             if (!preg_match('/^data:/i', $value)) {
-                                $urls[] = $value;
+                                $urlsMap[$value] = true;
                             }
                         }
                         if (is_string($value) && ($key === 'text' || $key === 'content' || $key === 'code' || $key === 'caption')) {
                             if (preg_match_all('/(href|src)\s*=\s*["\']([^"\']+)["\']/i', $value, $matches)) {
                                 foreach ($matches[2] as $u) {
-                                    if (!preg_match('/^data:/i', $u)) $urls[] = $u;
+                                    if (!preg_match('/^data:/i', $u)) $urlsMap[$u] = true;
                                 }
                             }
                             if (preg_match_all('/url\(\s*[\'"]?([^)\'"]+)[\'"]?\s*\)/i', $value, $cssMatches)) {
                                 foreach ($cssMatches[1] as $u) {
-                                    if (!preg_match('/^data:/i', $u)) $urls[] = $u;
+                                    if (!preg_match('/^data:/i', $u)) $urlsMap[$u] = true;
                                 }
                             }
                         }
@@ -331,17 +331,17 @@ if (!function_exists('grinds_extract_urls')) {
             // Check raw HTML and exclude data URIs to prevent memory bloat
             if (preg_match_all('/(?:href|src)\s*=\s*["\']([^"\']+)["\']/i', $content, $matches)) {
                 foreach ($matches[1] as $u) {
-                    if (!preg_match('/^data:/i', $u)) $urls[] = $u;
+                    if (!preg_match('/^data:/i', $u)) $urlsMap[$u] = true;
                 }
             }
             if (preg_match_all('/url\(\s*[\'"]?([^)\'"]+)[\'"]?\s*\)/i', $content, $matches)) {
                 foreach ($matches[1] as $u) {
-                    if (!preg_match('/^data:/i', $u)) $urls[] = $u;
+                    if (!preg_match('/^data:/i', $u)) $urlsMap[$u] = true;
                 }
             }
         }
 
-        return array_unique($urls);
+        return array_keys($urlsMap);
     }
 }
 
@@ -650,6 +650,18 @@ if (!function_exists('is_dark')) {
 }
 
 /**
+ * Clean all active output buffers safely.
+ */
+if (!function_exists('grinds_clean_output_buffer')) {
+    function grinds_clean_output_buffer(): void
+    {
+        while (ob_get_level() > 0) {
+            ob_end_clean();
+        }
+    }
+}
+
+/**
  * Send JSON response and exit
  *
  * @param mixed $data
@@ -659,8 +671,7 @@ if (!function_exists('json_response')) {
     function json_response($data, $status = 200)
     {
         // Clear output buffers to ensure clean JSON
-        while (ob_get_level())
-            ob_end_clean();
+        grinds_clean_output_buffer();
 
         http_response_code($status);
         header('Content-Type: application/json; charset=utf-8');

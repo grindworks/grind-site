@@ -79,9 +79,10 @@ if (!isset($myUser)) {
                 const file = $event.target.files[0];
                 if (file) {
                   fileName = file.name;
-                  const reader = new FileReader();
-                  reader.onload = (e) => avatarPreview = e.target.result;
-                  reader.readAsDataURL(file);
+                  if (avatarPreview && avatarPreview.startsWith('blob:')) {
+                      URL.revokeObjectURL(avatarPreview);
+                  }
+                  avatarPreview = URL.createObjectURL(file);
                   $refs.deleteInput.checked = false;
                 }
               ">

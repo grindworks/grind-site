@@ -13,9 +13,10 @@ if (!defined('GRINDS_APP'))
  * @param PDO $pdo
  * @param array|null $postIds If null, collects from all trashed posts.
  * @param bool $collectIds If true and $postIds is null, also returns post IDs.
+ * @param string|null $type If set, limit to this post type (post, page, template).
  * @return array|array{media: string[], ids: int[]} List of media URLs, or a hashmap containing media and IDs.
  */
-function _grinds_collect_media_from_posts(PDO $pdo, ?array $postIds = null, bool $collectIds = false): array
+function _grinds_collect_media_from_posts(PDO $pdo, ?array $postIds = null, bool $collectIds = false, ?string $type = null): array
 {
     $candidates = [];
     $ids = [];
@@ -60,7 +61,14 @@ function _grinds_collect_media_from_posts(PDO $pdo, ?array $postIds = null, bool
             if ($collectIds) {
                 $selectCols = "id, " . $selectCols;
             }
-            $stmt = $pdo->query("SELECT {$selectCols} FROM posts WHERE deleted_at IS NOT NULL");
+            $sql = "SELECT {$selectCols} FROM posts WHERE deleted_at IS NOT NULL";
+            $params = [];
+            if ($type !== null) {
+                $sql .= " AND type = ?";
+                $params[] = $type;
+            }
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute($params);
             while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
                 $processRow($row);
             }
@@ -79,13 +87,19 @@ function _grinds_collect_media_from_posts(PDO $pdo, ?array $postIds = null, bool
  * Empty trash.
  *
  * @param PDO $pdo
+ * @param string|null $type If set, only empty trash for this post type.
  * @return int Number of items deleted.
  * @throws Exception
  */
-function grinds_empty_trash(PDO $pdo): int
+function grinds_empty_trash(PDO $pdo, ?string $type = null): int
 {
+    // Validate type parameter
+    if ($type !== null && !in_array($type, ['post', 'page', 'template'], true)) {
+        $type = null;
+    }
+
     // Collect file candidates and IDs in a single query.
-    $collected = _grinds_collect_media_from_posts($pdo, null, true);
+    $collected = _grinds_collect_media_from_posts($pdo, null, true, $type);
     $candidates = $collected['media'];
     $ids = $collected['ids'];
 
@@ -103,7 +117,12 @@ function grinds_empty_trash(PDO $pdo): int
     $pdo->beginTransaction();
     try {
         // Delete posts permanently.
-        $pdo->exec("DELETE FROM posts WHERE deleted_at IS NOT NULL");
+        if ($type !== null) {
+            $stmtDel = $pdo->prepare("DELETE FROM posts WHERE deleted_at IS NOT NULL AND type = ?");
+            $stmtDel->execute([$type]);
+        } else {
+            $pdo->exec("DELETE FROM posts WHERE deleted_at IS NOT NULL");
+        }
         $pdo->commit();
     } catch (Exception $e) {
         if ($pdo->inTransaction())
@@ -1438,13 +1457,14 @@ if (!class_exists('PostRepository')) {
         public function getCountsByStatus(string $type = 'post'): array
         {
             $sql = "SELECT
-                        SUM(CASE WHEN deleted_at IS NOT NULL AND type = ? THEN 1 ELSE 0 END) as trash_count,
-                        SUM(CASE WHEN deleted_at IS NULL AND type = ? AND status = 'published' THEN 1 ELSE 0 END) as published_count,
-                        SUM(CASE WHEN deleted_at IS NULL AND type = ? AND status = 'draft' THEN 1 ELSE 0 END) as draft_count
-                    FROM posts";
+                        SUM(CASE WHEN deleted_at IS NOT NULL THEN 1 ELSE 0 END) as trash_count,
+                        SUM(CASE WHEN deleted_at IS NULL AND status = 'published' THEN 1 ELSE 0 END) as published_count,
+                        SUM(CASE WHEN deleted_at IS NULL AND status = 'draft' THEN 1 ELSE 0 END) as draft_count
+                    FROM posts
+                    WHERE type = ?";
 
             $stmt = $this->pdo->prepare($sql);
-            $stmt->execute([$type, $type, $type]);
+            $stmt->execute([$type]);
             $result = $stmt->fetch(PDO::FETCH_ASSOC);
 
             return [

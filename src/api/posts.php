@@ -22,6 +22,7 @@ header("Access-Control-Allow-Methods: GET, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With");
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+  header("Access-Control-Max-Age: 86400");
   http_response_code(200);
   exit;
 }
@@ -74,16 +75,24 @@ try {
   // Preload image metadata to avoid N+1 during render_content
   if (function_exists('grinds_preload_image_meta')) {
     $imageUrls = [];
-    foreach ($posts as $p) {
+    foreach ($posts as &$p) {
+      // Resolve URLs and decode once to avoid redundant parsing
+      $contentResolved = function_exists('grinds_url_to_view') ? grinds_url_to_view($p['content']) : $p['content'];
+      $p['content_resolved'] = $contentResolved;
+
+      $blocks = is_string($contentResolved) ? json_decode($contentResolved, true) : $contentResolved;
+      $p['content_decoded'] = (json_last_error() === JSON_ERROR_NONE && is_array($blocks)) ? $blocks : $contentResolved;
+
       if (!empty($p['thumbnail'])) {
         $imageUrls[] = $p['thumbnail'];
       }
-      $blocks = is_string($p['content']) ? json_decode($p['content'], true) : $p['content'];
-      if (is_array($blocks) && isset($blocks['blocks'])) {
-        $extracted = BlockRenderer::extractImages($blocks['blocks']);
+      if (is_array($p['content_decoded']) && isset($p['content_decoded']['blocks'])) {
+        $extracted = BlockRenderer::extractImages($p['content_decoded']['blocks']);
         $imageUrls = array_merge($imageUrls, $extracted);
       }
     }
+    unset($p); // Break reference
+
     if (!empty($imageUrls)) {
       grinds_preload_image_meta($imageUrls);
     }
@@ -98,12 +107,12 @@ try {
   $result = [];
   foreach ($posts as $post) {
     // Resolve URLs
-    $contentResolved = function_exists('grinds_url_to_view') ? grinds_url_to_view($post['content']) : $post['content'];
+    $contentResolved = $post['content_resolved'] ?? (function_exists('grinds_url_to_view') ? grinds_url_to_view($post['content']) : $post['content']);
 
-    $blocks = json_decode($contentResolved, true);
-    if (json_last_error() !== JSON_ERROR_NONE) {
+    $blocks = $post['content_decoded'] ?? json_decode($contentResolved, true);
+    if (!is_array($blocks)) {
       $blocks = $contentResolved;
-    } elseif (is_array($blocks) && isset($blocks['blocks'])) {
+    } elseif (isset($blocks['blocks'])) {
       $visibleBlocks = [];
       foreach ($blocks['blocks'] as $block) {
         if (($block['type'] ?? '') === 'password_protect') {
@@ -152,8 +161,7 @@ try {
   ];
 
   // Clear buffer
-  while (ob_get_level())
-    ob_end_clean();
+  grinds_clean_output_buffer();
 
   echo json_encode([
     'success' => true,

@@ -1,11 +1,11 @@
 #!/bin/bash
 
 # GrindSite Release Automation Script
-# Usage: ./bin/release.sh v1.4.0 "Added powerful CLI tool and new admin skins"
+# Usage: ./bin/release.sh v1.4.1 "Added powerful CLI tool and new admin skins"
 
 if [ -z "$1" ]; then
   echo "❌ Error: Version tag is required."
-  echo "Usage: ./bin/release.sh v1.4.0 \"Release message\""
+  echo "Usage: ./bin/release.sh v1.4.1 \"Release message\""
   exit 1
 fi
 

@@ -308,8 +308,6 @@ $csrf_token = generate_csrf_token();
               <form method="post" enctype="multipart/form-data" class="warn-on-unsaved" x-data='{
         type: <?= json_encode($edit_data['type'] ?? 'image', JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS) ?>,
         imageWidth: <?= (int)($edit_data['image_width'] ?? 100) ?>,
-        fileName: "",
-        previewUrl: <?= json_encode(($edit_id && !empty($edit_data['image_url'])) ? get_media_url($edit_data['image_url']) : '', JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS) ?>,
         isSubmitting: false
       }' @submit.prevent="
         setTimeout(() => isSubmitting = true, 10);

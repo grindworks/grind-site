@@ -125,6 +125,11 @@ if (!function_exists('check_internal_link')) {
 
         $path = trim($path, '/');
 
+        // Prevent directory traversal attacks early
+        if (str_contains($path, '..')) {
+            return ['isValid' => false, 'reason' => _t('link_err_slug_not_found')];
+        }
+
         // Validate root
         if ($path === '' || $path === 'index.php') return ['isValid' => true];
 
@@ -210,7 +215,7 @@ if (!function_exists('check_internal_link')) {
                     }
                 } else {
                     // Prevent traversal
-                    if (strpos($path, '..') === false && file_exists(ROOT_PATH . '/' . $path)) {
+                    if (file_exists(ROOT_PATH . '/' . $path)) {
                         return ['isValid' => true];
                     }
 

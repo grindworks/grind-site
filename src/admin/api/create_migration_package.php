@@ -16,7 +16,7 @@ if (function_exists('grinds_set_high_load_mode')) {
 if (!current_user_can('manage_tools')) {
   $action = $_POST['action'] ?? $_GET['action'] ?? '';
   if ($action === 'download') {
-    while (ob_get_level()) ob_end_clean();
+    grinds_clean_output_buffer();
     http_response_code(403);
     exit('Permission denied');
   }
@@ -34,13 +34,13 @@ $action = $_POST['action'] ?? $_GET['action'] ?? '';
 if ($action === 'download') {
   $csrf_token = $_POST['csrf_token'] ?? $_GET['csrf_token'] ?? '';
   if (!validate_csrf_token($csrf_token)) {
-    while (ob_get_level()) ob_end_clean();
+    grinds_clean_output_buffer();
     http_response_code(403);
     exit(_t('err_invalid_csrf_token'));
   }
 
   if (file_exists($zipFile)) {
-    while (ob_get_level()) ob_end_clean();
+    grinds_clean_output_buffer();
     header('Content-Type: application/zip');
     header('Content-disposition: attachment; filename=grinds_migration_' . date('Ymd_His') . '.zip');
     header('Content-Length: ' . filesize($zipFile));
@@ -53,7 +53,7 @@ if ($action === 'download') {
     grinds_force_unlink($zipFile);
     exit;
   } else {
-    while (ob_get_level()) ob_end_clean();
+    grinds_clean_output_buffer();
     http_response_code(404);
     exit('File not found');
   }

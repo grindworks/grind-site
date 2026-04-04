@@ -32,14 +32,14 @@ $previewUrl = get_media_url($value);
     handleFile(e) {
         const file = e.target.files[0];
         if (file) {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                this.previewUrl = e.target.result;
-                this.isDeleted = false;
-                // Clear URL input when file is selected
-                if($refs.urlInput) $refs.urlInput.value = '';
-            };
-            reader.readAsDataURL(file);
+            // Revoke old URL to prevent memory leaks
+            if (this.previewUrl && this.previewUrl.startsWith('blob:')) {
+                URL.revokeObjectURL(this.previewUrl);
+            }
+            this.previewUrl = URL.createObjectURL(file);
+            this.isDeleted = false;
+            // Clear URL input when file is selected
+            if($refs.urlInput) $refs.urlInput.value = '';
         }
     },
     openPicker() {
