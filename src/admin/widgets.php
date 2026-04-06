@@ -168,8 +168,9 @@ $search_q = Routing::getString($params, 'q');
 $whereSql = '';
 $whereParams = [];
 if ($search_q !== '') {
-  $whereSql = 'WHERE title LIKE ? OR type LIKE ?';
-  $whereParams = ["%$search_q%", "%$search_q%"];
+  $escaped_q = grinds_escape_like($search_q);
+  $whereSql = "WHERE title LIKE ? ESCAPE '\\' OR type LIKE ? ESCAPE '\\'";
+  $whereParams = ["%{$escaped_q}%", "%{$escaped_q}%"];
 }
 
 // Fetch widgets

@@ -1,0 +1,35 @@
+Release title
+{{VERSION}} - Amazon Affiliate, Enterprise Security Plugins & Media Management
+
+Release notes
+This major release introduces the highly anticipated Amazon Affiliate plugin, a suite of enterprise-grade security plugins, advanced media usage tracking, and significant UI/UX enhancements across the system.
+
+### ✨ New Features & Enhancements
+- **Amazon Affiliate Plugin:** Added `amazon_affiliate.php`. Easily create beautiful, responsive product cards using `[amazon id="ASIN" title="Product Name"]` shortcodes, integrated directly into the admin toolbar.
+- **Enterprise Security Suite:** Added institutional-grade plugins including 2FA via Email OTP (`_mail_otp_2fa.php`), Audit Logger (`_audit_logger.php`), Rate Limiter (`_rate_limiter.php`), and Strict Session Management (`_strict_session.php`).
+- **Media Usage Tracking:** The Media Library now accurately tracks where files are used across posts, settings, menus, and widgets, preventing the accidental deletion of in-use assets.
+- **Theme Pagination Refinement:** Improved pagination styling and responsiveness across all built-in themes (Default, Classic, Bootstrap, Neo-Minimalist, Photographer).
+
+### 🛡️ Security & Stability
+- **God-Rank Security:** Comprehensive XSS and CSRF protections enforced across all new plugins. Implemented Log Forging prevention to ensure immutable audit trails.
+- **Generator Optimization:** Refactored SSG, RSS, and Sitemap generators using a new `GeneratorCacheTrait` for improved caching performance and memory efficiency.
+
+### 🌐 Documentation & DX
+- **Automated Release Workflow:** Enhanced the CLI tool (`release.sh`) to automatically copy release notes to the clipboard for frictionless GitHub publishing.
+- **Bilingual Plugins:** All core plugins now feature bilingual (English & Japanese) comments, drastically improving Developer Experience (DX).
+
+---
+
+## 🇯🇵 日本語 (Japanese)
+
+今回のメジャーリリースでは、待望のAmazonアフィリエイトプラグイン、エンタープライズ対応の強固なセキュリティプラグイン群、メディアの使用状況トラッキング、およびシステム全体のUI/UXの大幅な改善が含まれています。
+
+### ✨ 新機能・改善
+- **Amazonアフィリエイトプラグイン:** `[amazon id="ASIN" title="商品名"]` のショートコードで美しい商品カードを生成できるプラグインを追加。管理画面のツールバーからIDを直感的に設定可能です。
+- **エンタープライズ・セキュリティスイート:** 2要素認証（メールOTP）、監査ログ、レート制限、厳格なセッションハイジャック防止機能など、金融機関レベルのセキュリティプラグインを標準同梱しました。
+- **メディア使用状況トラッキング:** 記事、設定、メニュー、ウィジェットなど、ファイルがどこで使用されているかを正確に追跡し、使用中の画像が誤って削除されるのを防ぐ機能をメディアライブラリに追加しました。
+- **ページネーションの刷新:** 全ての組み込みテーマ（Default, Classic, Bootstrap, Neo-Minimalist, Photographer）のページネーションデザインとレスポンシブ対応を改善しました。
+
+### 🛡️ セキュリティ
+- **最高レベルのセキュリティ:** 新規追加されたすべてのプラグインに対し、万全のXSS/CSRF対策を実施。また、監査ログにおける改行文字を利用したログ改ざん（Log Forging）を防止しました。
+- **ジェネレーターの最適化:** SSG、RSS、Sitemapジェネレーターに共通のキャッシュトレイト（`GeneratorCacheTrait`）を導入し、パフォーマンスとメモリ効率を向上させました。

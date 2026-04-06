@@ -212,6 +212,10 @@ if (!class_exists('LlmsTxtGenerator')) {
                 $thumb = '';
                 if (!empty($row['thumbnail']) && is_string($row['thumbnail']) && function_exists('resolve_url')) {
                     $resolved = resolve_url($row['thumbnail']);
+
+                    if ($this->isSsgMode && function_exists('grinds_ssg_replace_base_url')) {
+                        $resolved = grinds_ssg_replace_base_url($resolved, $this->baseUrl);
+                    }
                     // Normalize thumbnail URL.
                     if (str_starts_with($resolved, '//')) {
                         $parsedBase = parse_url($this->baseUrl);

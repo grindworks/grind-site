@@ -2041,3 +2041,21 @@ if (!function_exists('grinds_extract_author_from_content')) {
         return null;
     }
 }
+
+/**
+ * Replace original BASE_URL with SSG target base URL for external resources.
+ *
+ * @param string $url The resolved URL.
+ * @param string $ssgBaseUrl The target base URL for SSG.
+ * @return string
+ */
+if (!function_exists('grinds_ssg_replace_base_url')) {
+    function grinds_ssg_replace_base_url(string $url, string $ssgBaseUrl): string
+    {
+        $originalBaseUrl = defined('BASE_URL') ? rtrim((string)BASE_URL, '/') : '';
+        if ($originalBaseUrl !== '' && str_starts_with($url, $originalBaseUrl)) {
+            return rtrim($ssgBaseUrl, '/') . substr($url, strlen($originalBaseUrl));
+        }
+        return $url;
+    }
+}

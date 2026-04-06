@@ -163,6 +163,8 @@ $statusLabel = strtoupper($sysStatus['status']);
 
               <div class="mx-2 bg-theme-border w-px h-6"></div>
 
+              <?php if (function_exists('do_action')) do_action('grinds_admin_toolbar'); ?>
+
               <!-- Cache clear button -->
               <?php
               $show_label = true;

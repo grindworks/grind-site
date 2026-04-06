@@ -181,6 +181,7 @@ $activeClass = 'bg-theme-primary border-theme-primary text-theme-on-primary font
         </div>
 
         <div class="flex items-center space-x-3">
+          <?php if (function_exists('do_action')) do_action('grinds_admin_toolbar'); ?>
           <!-- Cache clear button -->
           <?php
           $wrapper_class = 'hidden sm:block';

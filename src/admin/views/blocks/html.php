@@ -11,10 +11,8 @@ if (!defined('GRINDS_APP')) exit; ?>
     <span><?= _t('help_html_block') ?></span>
   </div>
   <!-- HTML code -->
-  <textarea x-model="block.data.code" :id="'block-' + block.id + '-code'" rows="4"
+  <textarea x-model="block.data.code" :id="'block-' + block.id + '-code'" rows="6"
     class="w-full font-mono text-xs form-control-sm resize-y overflow-y-auto min-h-[5rem] max-h-[500px]"
-    placeholder="<?= _t('ph_html_code') ?>"
-    x-init="$nextTick(() => { $el.style.height = 'auto'; $el.style.height = $el.scrollHeight + 'px' })"
-    @input="$el.style.height = 'auto'; $el.style.height = $el.scrollHeight + 'px'"></textarea>
+    placeholder="<?= _t('ph_html_code') ?>"></textarea>
   <p class="mt-1 font-bold text-[10px] text-theme-warning"><?= _t('html_absolute_path_warn') ?></p>
 </div>

@@ -30,6 +30,8 @@ Any ".php" files placed here will be automatically loaded at system startup.
   - `grinds_init`: System startup (before output).
   - `grinds_head`: Inside the <head> tag.
   - `grinds_footer`: Before the closing </body> tag.
+  - `grinds_admin_toolbar`: Inside the admin header toolbar (useful for settings buttons).
+  - `grinds_post_login`: After a user successfully logs in.
   - `grinds_post_saved`: After a post is saved.
   - `grinds_post_trashed`: After a post is moved to the trash.
   - `grinds_post_restored`: After a post is restored from the trash.
@@ -42,8 +44,15 @@ Any ".php" files placed here will be automatically loaded at system startup.
       echo '<meta name="custom" content="hello">';
   });
 
+- Filter System (Filter Hooks):
+  Unlike Action Hooks, Filter Hooks allow you to modify data before it is rendered or saved.
+  Available filters include:
+  - `grinds_the_title`: Modifies the post title before rendering.
+  - `grinds_the_content`: Modifies the post content before rendering.
+  - `grinds_frontend_content`: Modifies the final HTML content before output on the frontend.
+
 - Samples:
-  Seven sample files are included (disabled by default):
+  Eleven sample files are included (disabled by default):
 
   1. `_custom_helpers.php`
      Useful functions for theme development (e.g., debug `dd()`, reading time).
@@ -72,6 +81,27 @@ Any ".php" files placed here will be automatically loaded at system startup.
   7. `_sample_filters.php`
      Demonstrates how to use Filter Hooks (e.g., auto-linking keywords, custom shortcodes).
      Rename to "sample_filters.php" to enable.
+
+  8. `_mail_otp_2fa.php`
+     Two-Factor Authentication (2FA) via Email OTP (One-Time Password).
+     Requires valid SMTP settings in GrindSite to function.
+     Rename to "mail_otp_2fa.php" to enable.
+
+  9. `_strict_session.php`
+     Strict Session Management (Institutional Grade).
+     Enforces IP and User-Agent binding to prevent hijacking and disallows concurrent logins.
+     Rename to "strict_session.php" to enable.
+
+  10. `_audit_logger.php`
+     Audit Trail Logger (Institutional Grade).
+     Records all critical administrative actions to `data/logs/audit.log`.
+     Rename to "audit_logger.php" to enable.
+
+  11. `_rate_limiter.php`
+     Lightweight Rate Limiting Plugin.
+     Protects API and Contact Forms from DoS attacks and spam by limiting
+     requests per IP address using file-based storage.
+     Rename to "rate_limiter.php" to enable.
 
 -------------------------------------------------------------------------
 
@@ -103,6 +133,8 @@ Any ".php" files placed here will be automatically loaded at system startup.
   - `grinds_init`: システム起動直後（出力前）。
   - `grinds_head`: <head>タグ内。
   - `grinds_footer`: </body>タグの直前。
+  - `grinds_admin_toolbar`: 管理画面ヘッダーのツールバー内（設定ボタンなどの追加に便利）。
+  - `grinds_post_login`: ユーザーがログインに成功した直後。
   - `grinds_post_saved`: 記事保存時。
   - `grinds_post_trashed`: 記事をゴミ箱へ移動した時。
   - `grinds_post_restored`: 記事をゴミ箱から復元した時。
@@ -115,8 +147,15 @@ Any ".php" files placed here will be automatically loaded at system startup.
       echo '<meta name="custom" content="hello">';
   });
 
+- フィルターシステム (Filter Hooks):
+  アクションフックとは異なり、データが表示または保存される前にその内容を変更することができます。
+  利用可能なフィルター一覧:
+  - `grinds_the_title`: 記事のタイトルが表示される直前に内容を変更します。
+  - `grinds_the_content`: 記事の本文が表示される直前に内容を変更します。
+  - `grinds_frontend_content`: フロントエンドで最終的なHTMLとして出力される直前に内容を変更します。
+
 - サンプル:
-  7つのサンプルファイルが同梱されています（デフォルトでは無効です）。
+  11のサンプルファイルが同梱されています（デフォルトでは無効です）。
 
   1. `_custom_helpers.php`
      テーマ開発に便利な関数集（デバッグ用 `dd()` や読了時間表示など）。
@@ -145,3 +184,23 @@ Any ".php" files placed here will be automatically loaded at system startup.
   7. `_sample_filters.php`
      フィルターフックを利用して、表示直前の文字列を操作（キーワードの自動リンク化など）します。
      リネームして "sample_filters.php" にすると有効になります。
+
+  8. `_mail_otp_2fa.php`
+     メールによるワンタイムパスワード(OTP)を利用した2要素認証プラグインです。
+     GrindSiteのSMTP設定が正しく完了している場合のみ動作します。
+     リネームして "mail_otp_2fa.php" にすると有効になります。
+
+  9. `_strict_session.php`
+     厳格なセッション管理プラグイン（金融・公的機関レベル）。
+     IPアドレスとブラウザ情報をセッションに紐づけ、ハイジャック防止や同時ログインの排除を行います。
+     リネームして "strict_session.php" にすると有効になります。
+
+  10. `_audit_logger.php`
+     監査ログ記録プラグイン（金融・公的機関レベル）。
+     すべての重要な管理者操作を `data/logs/audit.log` に記録します。
+     リネームして "audit_logger.php" にすると有効になります。
+
+  11. `_rate_limiter.php`
+     APIやお問い合わせフォーム向けの軽量レートリミット（スロットリング）プラグインです。
+     IPアドレスベースでリクエスト回数を制限し、簡易的なDoS攻撃やスパム送信を防御します。
+     リネームして "rate_limiter.php" にすると有効になります。

@@ -21,7 +21,8 @@ if (!isset($myUser)) {
   <form method="post" enctype="multipart/form-data" class="warn-on-unsaved" x-data="{
     isSubmitting: false,
     avatarPreview: <?= htmlspecialchars(json_encode(get_media_url($myUser['avatar'] ?? '')), ENT_QUOTES) ?>,
-    fileName: ''
+    fileName: '',
+    isDeleted: false
   }" @submit="setTimeout(() => isSubmitting = true, 10)">
     <input type="hidden" name="csrf_token" value="<?= h(generate_csrf_token()) ?>">
     <input type="hidden" name="action" value="update_profile">
@@ -55,7 +56,8 @@ if (!isset($myUser)) {
       <div class="flex flex-col items-center w-full md:w-1/3">
         <div class="relative group">
           <div
-            class="relative w-32 h-32 rounded-full border-4 border-theme-surface shadow-theme overflow-hidden bg-theme-bg">
+            class="relative w-32 h-32 rounded-full border-4 border-theme-surface shadow-theme overflow-hidden bg-theme-bg transition-opacity"
+            :class="isDeleted ? 'opacity-30' : ''">
             <template x-if="avatarPreview">
               <img :src="avatarPreview" class="w-full h-full object-cover">
             </template>
@@ -66,9 +68,16 @@ if (!isset($myUser)) {
                 </svg>
               </div>
             </template>
+            <!-- Red X indicator on deleted state -->
+            <div x-show="isDeleted" class="absolute inset-0 flex items-center justify-center text-theme-danger" x-cloak>
+              <svg class="w-16 h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-x-mark"></use>
+              </svg>
+            </div>
 
             <label
-              class="absolute inset-0 flex flex-col items-center justify-center skin-modal-overlay opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer text-white">
+              class="absolute inset-0 flex flex-col items-center justify-center skin-modal-overlay opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer text-white"
+              x-show="!isDeleted">
               <svg class="w-8 h-8 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-camera"></use>
               </svg>
@@ -84,21 +93,23 @@ if (!isset($myUser)) {
                   }
                   avatarPreview = URL.createObjectURL(file);
                   $refs.deleteInput.checked = false;
+                  isDeleted = false;
                 }
               ">
             </label>
           </div>
 
-          <div x-show="avatarPreview" class="absolute top-0 right-0 -mr-1 -mt-1"
-            x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 scale-75"
-            x-transition:enter-end="opacity-100 scale-100">
+          <div x-show="avatarPreview" class="absolute top-0 right-0 -mr-1 -mt-1">
             <label
               class="flex items-center justify-center w-8 h-8 bg-theme-surface text-theme-danger border border-theme-border rounded-full shadow-theme cursor-pointer hover:bg-theme-danger hover:text-white transition-colors"
-              title="<?= _t('delete') ?>">
-              <input type="checkbox" name="delete_avatar" value="1" class="hidden" x-ref="deleteInput"
-                @change="if($event.target.checked) { avatarPreview = ''; fileName = ''; }">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              :class="isDeleted ? 'bg-theme-danger text-white border-theme-danger' : ''"
+              :title="isDeleted ? '<?= h(_t('btn_restore')) ?>' : '<?= h(_t('delete')) ?>'">
+              <input type="checkbox" name="delete_avatar" value="1" class="hidden" x-ref="deleteInput" x-model="isDeleted">
+              <svg x-show="!isDeleted" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-trash"></use>
+              </svg>
+              <svg x-show="isDeleted" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" x-cloak>
+                <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-arrow-uturn-left"></use>
               </svg>
             </label>
           </div>

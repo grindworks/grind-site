@@ -199,6 +199,36 @@ function grinds_db_connect()
     }
   }
 
+  // Register shutdown handler to auto-rollback transaction on fatal error
+  if (!defined('GRINDS_FATAL_ERROR_ROLLBACK_REGISTERED')) {
+    define('GRINDS_FATAL_ERROR_ROLLBACK_REGISTERED', true);
+    register_shutdown_function(function () {
+      $error = error_get_last();
+      // Check for fatal errors (E_ERROR, E_PARSE, E_COMPILE_ERROR, E_RECOVERABLE_ERROR)
+      if ($error && in_array($error['type'], [E_ERROR, E_PARSE, E_COMPILE_ERROR, E_RECOVERABLE_ERROR], true)) {
+        try {
+          // Rollback if DB connection exists and transaction is active
+          $pdo = class_exists('App') ? App::db() : null;
+          if ($pdo && $pdo->inTransaction()) {
+            $pdo->rollBack();
+            if (class_exists('GrindsLogger')) {
+              GrindsLogger::log("System Recovery: Transaction auto-rolled back due to fatal error: " . $error['message'], 'CRITICAL');
+            } else {
+              error_log("System Recovery: Transaction auto-rolled back due to fatal error: " . $error['message']);
+            }
+          }
+        } catch (\Throwable $e) {
+          // Log failure if auto-rollback itself fails
+          if (class_exists('GrindsLogger')) {
+            GrindsLogger::log("System Recovery Error: Failed to auto-rollback transaction: " . $e->getMessage(), 'EMERGENCY');
+          } else {
+            error_log("System Recovery Error: Failed to auto-rollback transaction: " . $e->getMessage());
+          }
+        }
+      }
+    });
+  }
+
   return $pdo;
 }
 

@@ -424,25 +424,13 @@ class FrontController
       if ($fp && flock($fp, LOCK_EX | LOCK_NB)) {
         $lockAcquired = true;
       } else {
-        // Serve existing cache if lock is not acquired.
-        if (file_exists($this->cacheFile)) {
-          if ($fp) {
-            fclose($fp);
-            $fp = null;
-          }
-          $this->serveCacheFile($this->cacheFile, filemtime($this->cacheFile));
-          return;
-        }
-
         if ($fp) {
-          flock($fp, LOCK_SH);
-          flock($fp, LOCK_UN);
           fclose($fp);
           $fp = null;
-          if (file_exists($this->cacheFile)) {
-            $this->serveCacheFile($this->cacheFile, filemtime($this->cacheFile));
-            return;
-          }
+        }
+        if (file_exists($this->cacheFile)) {
+          $this->serveCacheFile($this->cacheFile, filemtime($this->cacheFile));
+          return;
         }
       }
     }

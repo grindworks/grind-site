@@ -176,7 +176,7 @@ return [
     'alert_warning_files_title' => 'Fichiers OS inutiles détectés',
     'alert_warning_files_msg' => 'Des métadonnées de l\'OS (fichiers cachés) qui ne sont pas essentielles au système ont été trouvées.<br>Fichiers détectés : <code>%s</code><br>Bien qu\'elles ne posent pas de menace immédiate, elles peuvent divulguer des informations sur les répertoires. Il est recommandé de les supprimer via FTP si elles ne sont pas nécessaires.<br><br><span class="opacity-80 text-xs">* Remarque : Pour actualiser cet avertissement après la suppression, veuillez vider les caches ou vous reconnecter.</span>',
     'alert_mail_title' => 'Paramètres de messagerie incomplets',
-    'alert_mail_msg' => 'Pour utiliser la réinitialisation de mot de passe et les notifications, veuillez configurer le SMTP dans les paramètres d\'<a href="settings.php?tab=mail" class="font-bold underline">E-mail</a>.',
+    'alert_mail_msg' => 'Pour utiliser la réinitialisation de mot de passe, les notifications et activer <strong>l\'Authentification à deux facteurs (plugin Email OTP)</strong> pour plus de sécurité, veuillez configurer le SMTP dans les paramètres d\'<a href="settings.php?tab=mail" class="font-bold underline">E-mail</a>.',
     'alert_ga_title' => 'Google Analytics non configuré',
     'alert_ga_msg' => 'Pour activer les analyses, définissez votre ID de mesure dans les paramètres d\'<a href="settings.php?tab=integration" class="font-bold underline">Intégration</a>.',
     'alert_log_title' => 'Journal système volumineux',
@@ -779,7 +779,7 @@ return [
 
     // Define mail settings.
     'st_smtp_title' => 'Paramètres de messagerie (SMTP)',
-    'st_mail_desc' => 'Utilisé pour les soumissions de formulaires de contact et les notifications système. Si vous utilisez Gmail, un <a href="https://support.google.com/accounts/answer/185833" target="_blank" class="text-theme-primary hover:underline">Mot de passe d\'application</a> est recommandé.',
+    'st_mail_desc' => 'Utilisé pour les soumissions de formulaires de contact, les notifications système et l\'<strong>Authentification à deux facteurs (2FA)</strong>. Si vous utilisez Gmail, un <a href="https://support.google.com/accounts/answer/185833" target="_blank" class="text-theme-primary hover:underline">Mot de passe d\'application</a> est recommandé.',
     'st_smtp_from' => 'Adresse de l\'expéditeur',
     'st_smtp_from_h' => 'Adresse e-mail affichée aux destinataires (ex. noreply@votresite.com).',
     'st_smtp_admin' => 'E-mail de l\'administrateur',
@@ -795,6 +795,8 @@ return [
     'st_smtp_enc' => 'Chiffrement',
     'st_test_mail_h' => 'Envoyer un e-mail de test',
     'mail_test_sent' => 'E-mail de test envoyé ! Veuillez vérifier votre boîte de réception.',
+    'st_2fa_guide_title' => '🔒 Comment activer l\'Authentification à deux facteurs (2FA)',
+    'st_2fa_guide_desc' => 'Après avoir configuré le SMTP et confirmé que les e-mails de test fonctionnent, renommez <code>src/plugins/_mail_otp_2fa.php</code> en <code>mail_otp_2fa.php</code> (supprimez le trait de soulignement) pour l\'activer. Consultez le <code>README.md</code> pour plus de détails.',
     'st_sess_timeout' => 'Délai d\'expiration de session (sec)',
     'st_max_attempts' => 'Tentatives de connexion max.',
     'st_lockout_time' => 'Temps de verrouillage (min)',
@@ -872,6 +874,8 @@ return [
     'st_trust_proxies_desc' => 'Activez ceci si votre site est derrière un proxy inverse (ex. Cloudflare, AWS ELB) pour détecter correctement les IP des clients.',
     'st_trusted_ips' => 'IP de proxy de confiance',
     'st_trusted_ips_desc' => 'Liste d\'adresses IP ou plages CIDR séparées par des virgules (ex. 10.0.0.0/8, 172.16.0.1). Laissez vide pour faire confiance à tous (Non recommandé).',
+    'st_proxy_warning_title' => '⚠️ Avertissement de sécurité : Risque d\'usurpation d\'IP',
+    'st_proxy_warning_desc' => 'Laisser ce champ vide permet à N\'IMPORTE QUEL serveur de falsifier les IP des clients via les en-têtes. Vous DEVEZ saisir les plages d\'IP de votre fournisseur de proxy (ex. IP Cloudflare) pour sécuriser votre site contre les attaques d\'usurpation d\'IP.',
     'st_debug_mode' => 'Mode de débogage',
     'st_debug_mode_desc' => 'Afficher les erreurs détaillées (Pour le développement).',
     'st_check_uploads' => 'Vérifier les fichiers téléversés inutilisés',
@@ -1656,6 +1660,9 @@ return [
     'err_encode_preview_data' => 'Échec de l\'encodage des données d\'aperçu en JSON.',
     'st_backup_important_title' => 'Avis Important pour une Récupération Complète',
     'st_backup_important_desc' => 'Ces sauvegardes ne contiennent que la base de données (articles et paramètres). Pour une récupération complète ou une migration de serveur, veuillez vous assurer de télécharger manuellement votre fichier <strong>config.php</strong> et le répertoire <strong>assets/uploads/</strong> via FTP.',
+    'st_backup_zip_password' => 'Mot de passe de chiffrement ZIP (AES-256)',
+    'help_backup_zip_password' => '⚠️ S\'il est défini, les fichiers ZIP de sauvegarde complète (migration) seront chiffrés. Ne perdez pas ce mot de passe !',
+    'ph_backup_zip_password' => 'Laissez vide pour aucun chiffrement',
 
     'msg_post_saved' => 'Article enregistré avec succès.',
     'drag_to_reorder' => 'Faites glisser pour réorganiser',
@@ -1671,4 +1678,7 @@ return [
     'msg_password_protect_below' => 'Le contenu ci-dessous sera verrouillé',
     'msg_esc_to_blur' => 'Appuyez sur Échap pour quitter le focus',
     'Test Password Screen' => 'Écran de test de mot de passe',
+    'lbl_media_usage' => 'Utilisé dans',
+    'msg_media_not_used' => 'Actuellement non utilisé.',
+    'msg_delete_skipped' => '%s supprimé(s). %s ignoré(s) (en cours d\'utilisation).',
 ];

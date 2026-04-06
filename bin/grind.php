@@ -826,14 +826,21 @@ function handleMigrationCreate(string $srcPath): void
         exit(1);
     }
 
+    $zipPassword = function_exists('get_option') ? get_option('backup_zip_password', '') : '';
+    if ($zipPassword !== '') {
+        $zip->setPassword($zipPassword);
+    }
+
     $dbName = basename(DB_FILE);
     $zip->addFile($safeDbFile, 'data/' . $dbName);
+    if ($zipPassword !== '') $zip->setEncryptionName('data/' . $dbName, ZipArchive::EM_AES_256);
 
     $configPath = $srcPath . '/config.php';
     if (file_exists($configPath)) {
         $origConfig = file_get_contents($configPath);
         $configContent = grinds_prepare_migration_config($origConfig, $dbName);
         $zip->addFromString('config.php', $configContent);
+        if ($zipPassword !== '') $zip->setEncryptionName('config.php', ZipArchive::EM_AES_256);
     }
 
     echo "  " . ConsoleColor::gray("3/4") . " Archiving uploaded files...\n";
@@ -854,6 +861,9 @@ function handleMigrationCreate(string $srcPath): void
                 $relativePath = 'assets/uploads/' . ltrim(substr($normRealFilePath, strlen($normRealUploadDir)), '/');
                 if (is_readable($realFilePath)) {
                     $zip->addFile($realFilePath, $relativePath);
+                    if ($zipPassword !== '') {
+                        $zip->setEncryptionName($relativePath, ZipArchive::EM_AES_256);
+                    }
                 }
             }
         }

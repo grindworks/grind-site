@@ -117,6 +117,18 @@ $js_translations = [
     'err_conflict_confirm' => _t('err_conflict_confirm'),
     'system_error' => _t('js_system_error'),
     'error' => _t('error') . ': %s',
+    'msg_delete_skipped' => _t('msg_delete_skipped'),
+    'copied' => _t('copied'),
+    'saved' => _t('msg_saved'),
+    'confirm_delete' => _t('confirm_delete'),
+    'confirm_bulk_delete' => _t('msg_confirm_delete_n'),
+    'confirm_delete_media' => _t('confirm_delete_media'),
+    'confirm_force_delete' => _t('confirm_force_delete'),
+    'js_delete_error' => _t('js_delete_error'),
+    'filter_images' => _t('filter_images'),
+    'Video' => _t('Video'),
+    'Audio' => _t('Audio'),
+    'filter_docs' => _t('filter_docs'),
 ];
 
 // Ensure required variables exist to prevent warnings
@@ -730,31 +742,28 @@ $basePath = rtrim($parsedBase['path'] ?? '/', '/') . '/';
                         class="group relative shadow-theme py-2.5 w-full overflow-hidden transition-all btn-primary"
                         :disabled="isSubmitting || isUploading">
 
-                        <div class="z-10 relative flex justify-center items-center gap-2 font-bold text-sm">
-                            <span x-show="!isSubmitting" class="flex items-center gap-2">
-                                <?php if (($post['status'] ?? '') === 'published'): ?>
-                                    <input type="hidden" id="main-action-is-update" value="1">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-arrow-path"></use>
-                                    </svg>
-                                    <span id="main-action-label"><?= $isFuture ? _t('action_schedule') : _t('update') ?></span>
-                                <?php
-                                else: ?>
-                                    <input type="hidden" id="main-action-is-update" value="0">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-globe-alt"></use>
-                                    </svg>
-                                    <span id="main-action-label"><?= $isFuture ? _t('action_schedule') : _t('action_publish') ?></span>
-                                <?php
-                                endif; ?>
-                            </span>
-
-                            <span x-show="isSubmitting" class="flex items-center gap-2" style="display: none;">
-                                <svg class="w-5 h-5 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div class="z-10 relative flex justify-center items-center gap-2 font-bold text-sm transition-opacity duration-200" :class="isSubmitting ? 'text-transparent' : ''">
+                            <?php if (($post['status'] ?? '') === 'published'): ?>
+                                <input type="hidden" id="main-action-is-update" value="1">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-arrow-path"></use>
                                 </svg>
-                                <?= _t('js_loading') ?>
-                            </span>
+                                <span id="main-action-label"><?= $isFuture ? _t('action_schedule') : _t('update') ?></span>
+                            <?php
+                            else: ?>
+                                <input type="hidden" id="main-action-is-update" value="0">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-globe-alt"></use>
+                                </svg>
+                                <span id="main-action-label"><?= $isFuture ? _t('action_schedule') : _t('action_publish') ?></span>
+                            <?php
+                            endif; ?>
+                        </div>
+
+                        <div class="absolute inset-0 flex items-center justify-center transition-opacity duration-200" :class="isSubmitting ? 'opacity-100' : 'opacity-0 pointer-events-none'">
+                            <svg class="w-5 h-5 animate-spin text-theme-on-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-arrow-path"></use>
+                            </svg>
                         </div>
                     </button>
 
@@ -903,177 +912,179 @@ $basePath = rtrim($parsedBase['path'] ?? '/', '/') . '/';
                         </svg>
                     </button>
 
-                    <div x-show="open" x-collapse class="space-y-4 mt-4">
-                        <!-- Hero image. -->
-                        <div x-data='{ previewUrl: <?= json_encode(get_media_url($post['hero_image'] ?? ''), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>, isDeleted: false }'
-                            @set-hero-image.window="if(!$event.detail.mobile) { previewUrl = $event.detail.url; isDeleted = false; document.getElementById('hero_image_url_input').value = $event.detail.url; }">
-                            <label class="block opacity-60 mb-1 font-bold text-theme-text text-xs"><?= _t('hero_img') ?></label>
-                            <div class="mb-2 bg-checker border border-theme-border rounded-theme w-full h-32 overflow-hidden" x-show="previewUrl && !isDeleted">
-                                <img :src="previewUrl" class="w-full h-full object-cover">
-                            </div>
-                            <div class="flex flex-col gap-2">
-                                <button type="button" @click="openLibrary('hero_image')" class="flex justify-center items-center hover:bg-theme-bg px-4 py-2 border border-theme-border rounded-theme w-full text-xs text-center transition-colors btn-secondary">
-                                    <svg class="mr-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-photo"></use>
-                                    </svg>
-                                    <span><?= h(_t('btn_select_library')) ?></span>
-                                </button>
-                                <label class="px-3 py-1 rounded-theme w-full text-xs text-center cursor-pointer btn-secondary">
-                                    <?= h(_t('select_file')) ?>
-                                    <input type="file" name="hero_image" accept="image/*" class="sr-only" @change="const file = $event.target.files[0]; if(file){ if(previewUrl && previewUrl.startsWith('blob:')) URL.revokeObjectURL(previewUrl); previewUrl = URL.createObjectURL(file); isDeleted = false; }">
-                                </label>
-                                <?php if (!empty($post['hero_image'])): ?>
-                                    <label class="flex justify-center items-center bg-theme-danger/10 px-2 border border-theme-danger/30 rounded-theme text-theme-danger transition-colors cursor-pointer"
-                                        :class="{'bg-theme-danger text-white border-theme-danger': isDeleted}"
-                                        title="<?= h(_t('delete')) ?>">
-                                        <input type="checkbox" name="delete_hero_image" value="1" class="hidden" x-model="isDeleted">
-                                        <span x-show="!isDeleted">&times;</span>
-                                        <span x-show="isDeleted" class="font-bold text-[10px]"><?= h(_t('btn_restore')) ?></span>
+                    <div x-show="open" x-collapse>
+                        <div class="space-y-4 mt-4">
+                            <!-- Hero image. -->
+                            <div x-data='{ previewUrl: <?= json_encode(get_media_url($post['hero_image'] ?? ''), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>, isDeleted: false }'
+                                @set-hero-image.window="if(!$event.detail.mobile) { previewUrl = $event.detail.url; isDeleted = false; document.getElementById('hero_image_url_input').value = $event.detail.url; }">
+                                <label class="block opacity-60 mb-1 font-bold text-theme-text text-xs"><?= _t('hero_img') ?></label>
+                                <div class="mb-2 bg-checker border border-theme-border rounded-theme w-full h-32 overflow-hidden" x-show="previewUrl && !isDeleted">
+                                    <img :src="previewUrl" class="w-full h-full object-cover">
+                                </div>
+                                <div class="flex flex-col gap-2">
+                                    <button type="button" @click="openLibrary('hero_image')" class="flex justify-center items-center hover:bg-theme-bg px-4 py-2 border border-theme-border rounded-theme w-full text-xs text-center transition-colors btn-secondary">
+                                        <svg class="mr-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-photo"></use>
+                                        </svg>
+                                        <span><?= h(_t('btn_select_library')) ?></span>
+                                    </button>
+                                    <label class="px-3 py-1 rounded-theme w-full text-xs text-center cursor-pointer btn-secondary">
+                                        <?= h(_t('select_file')) ?>
+                                        <input type="file" name="hero_image" accept="image/*" class="sr-only" @change="const file = $event.target.files[0]; if(file){ if(previewUrl && previewUrl.startsWith('blob:')) URL.revokeObjectURL(previewUrl); previewUrl = URL.createObjectURL(file); isDeleted = false; }">
                                     </label>
-                                    <input type="hidden" name="current_hero_image" value="<?= h($post['hero_image']) ?>">
-                                <?php
-                                endif; ?>
-                                <input type="hidden" name="hero_image_url" id="hero_image_url_input">
+                                    <?php if (!empty($post['hero_image'])): ?>
+                                        <label class="flex justify-center items-center bg-theme-danger/10 px-2 border border-theme-danger/30 rounded-theme text-theme-danger transition-colors cursor-pointer"
+                                            :class="{'bg-theme-danger text-white border-theme-danger': isDeleted}"
+                                            title="<?= h(_t('delete')) ?>">
+                                            <input type="checkbox" name="delete_hero_image" value="1" class="hidden" x-model="isDeleted">
+                                            <span x-show="!isDeleted">&times;</span>
+                                            <span x-show="isDeleted" class="font-bold text-[10px]"><?= h(_t('btn_restore')) ?></span>
+                                        </label>
+                                        <input type="hidden" name="current_hero_image" value="<?= h($post['hero_image']) ?>">
+                                    <?php
+                                    endif; ?>
+                                    <input type="hidden" name="hero_image_url" id="hero_image_url_input">
+                                </div>
+                                <p x-show="isDeleted" class="mt-2 font-bold text-theme-danger text-xs"><?= _t('msg_deleted') ?></p>
                             </div>
-                            <p x-show="isDeleted" class="mt-2 font-bold text-theme-danger text-xs"><?= _t('msg_deleted') ?></p>
-                        </div>
 
-                        <div x-data='{ previewUrl: <?= json_encode(get_media_url($heroConfig['mobile_image'] ?? ''), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>, isDeleted: false }'
-                            class="pt-4 border-theme-border border-t"
-                            @set-hero-image.window="if($event.detail.mobile) { previewUrl = $event.detail.url; isDeleted = false; document.getElementById('hero_image_mobile_url_input').value = $event.detail.url; }">
-                            <label class="block opacity-60 mb-1 font-bold text-theme-text text-xs">
-                                <svg class="inline mr-1 w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-device-phone-mobile"></use>
-                                </svg>
-                                <?= _t('hero_img_mobile') ?>
+                            <div x-data='{ previewUrl: <?= json_encode(get_media_url($heroConfig['mobile_image'] ?? ''), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>, isDeleted: false }'
+                                class="pt-4 border-theme-border border-t"
+                                @set-hero-image.window="if($event.detail.mobile) { previewUrl = $event.detail.url; isDeleted = false; document.getElementById('hero_image_mobile_url_input').value = $event.detail.url; }">
+                                <label class="block opacity-60 mb-1 font-bold text-theme-text text-xs">
+                                    <svg class="inline mr-1 w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-device-phone-mobile"></use>
+                                    </svg>
+                                    <?= _t('hero_img_mobile') ?>
+                                </label>
+                                <div class="mb-2 mx-auto bg-checker border border-theme-border rounded-theme w-24 h-32 overflow-hidden" x-show="previewUrl && !isDeleted">
+                                    <img :src="previewUrl" class="w-full h-full object-cover">
+                                </div>
+                                <div class="flex flex-col gap-2">
+                                    <button type="button" @click="openLibrary('hero_image_mobile')" class="flex justify-center items-center hover:bg-theme-bg px-4 py-2 border border-theme-border rounded-theme w-full text-xs text-center transition-colors btn-secondary">
+                                        <svg class="mr-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-photo"></use>
+                                        </svg>
+                                        <span><?= h(_t('btn_select_library')) ?></span>
+                                    </button>
+                                    <label class="px-3 py-1 rounded-theme w-full text-xs text-center cursor-pointer btn-secondary">
+                                        <?= h(_t('select_file')) ?>
+                                        <input type="file" name="hero_image_mobile" accept="image/*" class="sr-only" @change="const file = $event.target.files[0]; if(file){ if(previewUrl && previewUrl.startsWith('blob:')) URL.revokeObjectURL(previewUrl); previewUrl = URL.createObjectURL(file); isDeleted = false; }">
+                                    </label>
+                                    <?php if (!empty($heroConfig['mobile_image'])): ?>
+                                        <label class="flex justify-center items-center bg-theme-danger/10 px-2 border border-theme-danger/30 rounded-theme text-theme-danger transition-colors cursor-pointer"
+                                            :class="{'bg-theme-danger text-white border-theme-danger': isDeleted}"
+                                            title="<?= h(_t('delete')) ?>">
+                                            <input type="checkbox" name="delete_hero_image_mobile" value="1" class="hidden" x-model="isDeleted">
+                                            <span x-show="!isDeleted">&times;</span>
+                                            <span x-show="isDeleted" class="font-bold text-[10px]"><?= h(_t('btn_restore')) ?></span>
+                                        </label>
+                                        <input type="hidden" name="current_hero_image_mobile" value="<?= h($heroConfig['mobile_image']) ?>">
+                                    <?php
+                                    endif; ?>
+                                    <input type="hidden" name="hero_image_mobile_url" id="hero_image_mobile_url_input">
+                                </div>
+                            </div>
+
+                            <!-- Hero layout. -->
+                            <div>
+                                <label class="block opacity-60 mb-1 font-bold text-theme-text text-xs"><?= _t('hero_layout') ?></label>
+                                <select name="hero_layout" class="py-1 text-xs form-control">
+                                    <option value="standard" <?= ($heroConfig['layout'] ?? '') === 'standard' ? 'selected' : '' ?>><?= _t('hero_layout_std') ?></option>
+                                    <option value="wide" <?= ($heroConfig['layout'] ?? '') === 'wide' ? 'selected' : '' ?>><?= _t('hero_layout_wide') ?></option>
+                                    <option value="fullscreen" <?= ($heroConfig['layout'] ?? '') === 'fullscreen' ? 'selected' : '' ?>><?= _t('hero_layout_full') ?></option>
+                                </select>
+                            </div>
+
+                            <!-- Hero text fields. -->
+                            <div>
+                                <label class="block opacity-60 mb-1 font-bold text-theme-text text-xs"><?= _t('hero_title') ?></label>
+                                <input type="text" name="hero_title" value="<?= h($heroConfig['title'] ?? '') ?>" class="text-xs form-control">
+                            </div>
+                            <div>
+                                <label class="block opacity-60 mb-1 font-bold text-theme-text text-xs"><?= _t('hero_sub') ?></label>
+                                <textarea name="hero_subtext" rows="2" class="text-xs form-control"><?= h($heroConfig['subtext'] ?? '') ?></textarea>
+                            </div>
+
+                            <!-- Hero overlay. -->
+                            <label class="flex items-center cursor-pointer">
+                                <input type="checkbox" name="hero_overlay" value="1" class="bg-theme-bg border-theme-border w-5 h-5 text-theme-primary form-checkbox" <?= !empty($heroConfig['overlay']) ? 'checked' : '' ?>>
+                                <span class="ml-2 text-theme-text text-xs"><?= _t('hero_overlay') ?></span>
                             </label>
-                            <div class="mb-2 mx-auto bg-checker border border-theme-border rounded-theme w-24 h-32 overflow-hidden" x-show="previewUrl && !isDeleted">
-                                <img :src="previewUrl" class="w-full h-full object-cover">
-                            </div>
-                            <div class="flex flex-col gap-2">
-                                <button type="button" @click="openLibrary('hero_image_mobile')" class="flex justify-center items-center hover:bg-theme-bg px-4 py-2 border border-theme-border rounded-theme w-full text-xs text-center transition-colors btn-secondary">
-                                    <svg class="mr-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-photo"></use>
-                                    </svg>
-                                    <span><?= h(_t('btn_select_library')) ?></span>
-                                </button>
-                                <label class="px-3 py-1 rounded-theme w-full text-xs text-center cursor-pointer btn-secondary">
-                                    <?= h(_t('select_file')) ?>
-                                    <input type="file" name="hero_image_mobile" accept="image/*" class="sr-only" @change="const file = $event.target.files[0]; if(file){ if(previewUrl && previewUrl.startsWith('blob:')) URL.revokeObjectURL(previewUrl); previewUrl = URL.createObjectURL(file); isDeleted = false; }">
-                                </label>
-                                <?php if (!empty($heroConfig['mobile_image'])): ?>
-                                    <label class="flex justify-center items-center bg-theme-danger/10 px-2 border border-theme-danger/30 rounded-theme text-theme-danger transition-colors cursor-pointer"
-                                        :class="{'bg-theme-danger text-white border-theme-danger': isDeleted}"
-                                        title="<?= h(_t('delete')) ?>">
-                                        <input type="checkbox" name="delete_hero_image_mobile" value="1" class="hidden" x-model="isDeleted">
-                                        <span x-show="!isDeleted">&times;</span>
-                                        <span x-show="isDeleted" class="font-bold text-[10px]"><?= h(_t('btn_restore')) ?></span>
-                                    </label>
-                                    <input type="hidden" name="current_hero_image_mobile" value="<?= h($heroConfig['mobile_image']) ?>">
-                                <?php
-                                endif; ?>
-                                <input type="hidden" name="hero_image_mobile_url" id="hero_image_mobile_url_input">
-                            </div>
-                        </div>
 
-                        <!-- Hero layout. -->
-                        <div>
-                            <label class="block opacity-60 mb-1 font-bold text-theme-text text-xs"><?= _t('hero_layout') ?></label>
-                            <select name="hero_layout" class="py-1 text-xs form-control">
-                                <option value="standard" <?= ($heroConfig['layout'] ?? '') === 'standard' ? 'selected' : '' ?>><?= _t('hero_layout_std') ?></option>
-                                <option value="wide" <?= ($heroConfig['layout'] ?? '') === 'wide' ? 'selected' : '' ?>><?= _t('hero_layout_wide') ?></option>
-                                <option value="fullscreen" <?= ($heroConfig['layout'] ?? '') === 'fullscreen' ? 'selected' : '' ?>><?= _t('hero_layout_full') ?></option>
-                            </select>
-                        </div>
+                            <label class="flex items-center mt-2 cursor-pointer">
+                                <input type="checkbox" name="hero_fixed_bg" value="1" class="bg-theme-bg border-theme-border w-5 h-5 text-theme-primary form-checkbox" <?= !empty($heroConfig['fixed_bg']) ? 'checked' : '' ?>>
+                                <span class="ml-2 text-theme-text text-xs"><?= _t('hero_fixed_bg') ?></span>
+                            </label>
 
-                        <!-- Hero text fields. -->
-                        <div>
-                            <label class="block opacity-60 mb-1 font-bold text-theme-text text-xs"><?= _t('hero_title') ?></label>
-                            <input type="text" name="hero_title" value="<?= h($heroConfig['title'] ?? '') ?>" class="text-xs form-control">
-                        </div>
-                        <div>
-                            <label class="block opacity-60 mb-1 font-bold text-theme-text text-xs"><?= _t('hero_sub') ?></label>
-                            <textarea name="hero_subtext" rows="2" class="text-xs form-control"><?= h($heroConfig['subtext'] ?? '') ?></textarea>
-                        </div>
+                            <!-- Hero button settings. -->
+                            <div class="mt-2 pt-4 border-theme-border border-t"
+                                x-data="heroSettings">
 
-                        <!-- Hero overlay. -->
-                        <label class="flex items-center cursor-pointer">
-                            <input type="checkbox" name="hero_overlay" value="1" class="bg-theme-bg border-theme-border w-5 h-5 text-theme-primary form-checkbox" <?= !empty($heroConfig['overlay']) ? 'checked' : '' ?>>
-                            <span class="ml-2 text-theme-text text-xs"><?= _t('hero_overlay') ?></span>
-                        </label>
+                                <div class="flex justify-between items-center opacity-70 mb-2 font-bold text-theme-text text-xs">
+                                    <span><?= _t('hero_cta') ?></span>
+                                    <button type="button" @click="addBtn()" class="flex items-center bg-transparent border-none text-[10px] text-theme-primary hover:underline cursor-pointer">
+                                        <svg class="mr-1 w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-plus"></use>
+                                        </svg>
+                                        <?= _t('hero_btn_add') ?>
+                                    </button>
+                                </div>
 
-                        <label class="flex items-center mt-2 cursor-pointer">
-                            <input type="checkbox" name="hero_fixed_bg" value="1" class="bg-theme-bg border-theme-border w-5 h-5 text-theme-primary form-checkbox" <?= !empty($heroConfig['fixed_bg']) ? 'checked' : '' ?>>
-                            <span class="ml-2 text-theme-text text-xs"><?= _t('hero_fixed_bg') ?></span>
-                        </label>
+                                <!-- Hidden input for buttons. -->
+                                <input type="hidden" name="hero_buttons_json" :value="JSON.stringify(buttons)">
 
-                        <!-- Hero button settings. -->
-                        <div class="mt-2 pt-4 border-theme-border border-t"
-                            x-data="heroSettings">
+                                <div class="space-y-4">
+                                    <template x-for="(btn, index) in buttons" :key="index">
+                                        <div class="group relative bg-theme-bg/50 p-3 border border-theme-border rounded-theme">
+                                            <!-- Delete button. -->
+                                            <button type="button" @click="removeBtn(index)" class="top-1 right-1 p-2 flex items-center justify-center absolute opacity-30 hover:opacity-100 text-theme-text hover:text-theme-danger" title="<?= h(_t('hero_btn_remove')) ?>" aria-label="<?= h(_t('hero_btn_remove')) ?>">
+                                                &times;
+                                            </button>
 
-                            <div class="flex justify-between items-center opacity-70 mb-2 font-bold text-theme-text text-xs">
-                                <span><?= _t('hero_cta') ?></span>
-                                <button type="button" @click="addBtn()" class="flex items-center bg-transparent border-none text-[10px] text-theme-primary hover:underline cursor-pointer">
-                                    <svg class="mr-1 w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-plus"></use>
-                                    </svg>
-                                    <?= _t('hero_btn_add') ?>
-                                </button>
-                            </div>
+                                            <div class="space-y-2 pr-4">
+                                                <!-- Button text and style. -->
+                                                <div class="flex gap-2">
+                                                    <input type="text" x-model="btn.text" class="flex-1 text-xs form-control" placeholder="<?= _t('hero_btn_text') ?>">
+                                                    <select x-model="btn.style" class="px-1 w-24 text-xs cursor-pointer form-control shrink-0">
+                                                        <option value="primary"><?= _t('btn_style_primary') ?></option>
+                                                        <option value="secondary"><?= _t('btn_style_secondary') ?></option>
+                                                        <option value="white"><?= _t('btn_style_white') ?></option>
+                                                        <option value="outline"><?= _t('btn_style_outline') ?></option>
+                                                    </select>
+                                                </div>
 
-                            <!-- Hidden input for buttons. -->
-                            <input type="hidden" name="hero_buttons_json" :value="JSON.stringify(buttons)">
+                                                <!-- Button URL and page selector. -->
+                                                <div class="flex flex-col gap-1">
+                                                    <input type="text" x-model="btn.url" class="font-mono text-xs form-control" placeholder="<?= _t('ph_https_path') ?>">
 
-                            <div class="space-y-4">
-                                <template x-for="(btn, index) in buttons" :key="index">
-                                    <div class="group relative bg-theme-bg/50 p-3 border border-theme-border rounded-theme">
-                                        <!-- Delete button. -->
-                                        <button type="button" @click="removeBtn(index)" class="top-1 right-1 p-2 flex items-center justify-center absolute opacity-30 hover:opacity-100 text-theme-text hover:text-theme-danger" title="<?= h(_t('hero_btn_remove')) ?>" aria-label="<?= h(_t('hero_btn_remove')) ?>">
-                                            &times;
-                                        </button>
+                                                    <div class="relative" @click.outside="searchingIndex = null">
+                                                        <input type="text"
+                                                            class="opacity-70 py-1 text-[10px] text-theme-text form-control"
+                                                            placeholder="<?= _t('hero_btn_select') ?> (<?= _t('ph_type_to_search') ?>)"
+                                                            @focus="searchingIndex = index"
+                                                            @input.debounce.300ms="searchContent($event.target.value)">
 
-                                        <div class="space-y-2 pr-4">
-                                            <!-- Button text and style. -->
-                                            <div class="flex gap-2">
-                                                <input type="text" x-model="btn.text" class="flex-1 text-xs form-control" placeholder="<?= _t('hero_btn_text') ?>">
-                                                <select x-model="btn.style" class="px-1 w-24 text-xs cursor-pointer form-control shrink-0">
-                                                    <option value="primary"><?= _t('btn_style_primary') ?></option>
-                                                    <option value="secondary"><?= _t('btn_style_secondary') ?></option>
-                                                    <option value="white"><?= _t('btn_style_white') ?></option>
-                                                    <option value="outline"><?= _t('btn_style_outline') ?></option>
-                                                </select>
-                                            </div>
-
-                                            <!-- Button URL and page selector. -->
-                                            <div class="flex flex-col gap-1">
-                                                <input type="text" x-model="btn.url" class="font-mono text-xs form-control" placeholder="<?= _t('ph_https_path') ?>">
-
-                                                <div class="relative" @click.outside="searchingIndex = null">
-                                                    <input type="text"
-                                                        class="opacity-70 py-1 text-[10px] text-theme-text form-control"
-                                                        placeholder="<?= _t('hero_btn_select') ?> (<?= _t('ph_type_to_search') ?>)"
-                                                        @focus="searchingIndex = index"
-                                                        @input.debounce.300ms="searchContent($event.target.value)">
-
-                                                    <div x-show="searchingIndex === index && searchResults.length > 0"
-                                                        class="right-0 left-0 z-10 absolute bg-theme-surface shadow-theme mt-1 border border-theme-border rounded-theme max-h-40 overflow-y-auto">
-                                                        <template x-for="result in searchResults">
-                                                            <button type="button"
-                                                                class="flex justify-between items-center hover:bg-theme-bg px-2 py-1 w-full text-[10px] text-left truncate"
-                                                                @click="selectPage(index, result.url)">
-                                                                <span x-text="result.title"></span>
-                                                                <span x-text="window.grindsTranslations['type_' + result.type] || result.type" class="opacity-50 ml-2 px-1 border border-theme-border rounded-theme text-[9px] uppercase"></span>
-                                                            </button>
-                                                        </template>
+                                                        <div x-show="searchingIndex === index && searchResults.length > 0"
+                                                            class="right-0 left-0 z-10 absolute bg-theme-surface shadow-theme mt-1 border border-theme-border rounded-theme max-h-40 overflow-y-auto">
+                                                            <template x-for="result in searchResults">
+                                                                <button type="button"
+                                                                    class="flex justify-between items-center hover:bg-theme-bg px-2 py-1 w-full text-[10px] text-left truncate"
+                                                                    @click="selectPage(index, result.url)">
+                                                                    <span x-text="result.title"></span>
+                                                                    <span x-text="window.grindsTranslations['type_' + result.type] || result.type" class="opacity-50 ml-2 px-1 border border-theme-border rounded-theme text-[9px] uppercase"></span>
+                                                                </button>
+                                                            </template>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>
-                                </template>
+                                    </template>
 
-                                <div x-show="buttons.length === 0" class="opacity-40 py-2 border border-theme-border border-dashed rounded-theme text-theme-text text-xs text-center">
-                                    <?= h(_t('hero_no_buttons')) ?>
+                                    <div x-show="buttons.length === 0" class="opacity-40 py-2 border border-theme-border border-dashed rounded-theme text-theme-text text-xs text-center">
+                                        <?= h(_t('hero_no_buttons')) ?>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -1132,7 +1143,7 @@ $basePath = rtrim($parsedBase['path'] ?? '/', '/') . '/';
     <div x-data="{ keyboardOpen: false }"
         @focusin.window="if(['INPUT', 'TEXTAREA', 'SELECT', 'CONTENTEDITABLE'].includes($event.target.tagName) || $event.target.isContentEditable) keyboardOpen = true"
         @focusout.window="keyboardOpen = false"
-        :class="(keyboardOpen || inserterOpen || templateModalOpen || (typeof mediaModalOpen !== 'undefined' && mediaModalOpen)) ? 'translate-y-full opacity-0 pointer-events-none' : 'translate-y-0 opacity-100'"
+        :class="(keyboardOpen || inserterOpen || templateModalOpen || (typeof mediaModalOpen !== 'undefined' && mediaModalOpen) || mobileOpen || searchOpen) ? 'translate-y-full opacity-0 pointer-events-none' : 'translate-y-0 opacity-100'"
         class="transition-all duration-200 lg:hidden fixed bottom-0 left-0 right-0 bg-theme-surface/95 backdrop-blur-md border-t border-theme-border p-3 z-[60] flex justify-between gap-2 shadow-[0_-4px_10px_rgba(0,0,0,0.05)] pb-[calc(0.75rem+env(safe-area-inset-bottom))]">
         <button type="button" @click="if(document.getElementById('post-form').reportValidity()) saveDraftAndPreview()" :disabled="isSaving || isSubmitting || isUploading" class="flex-1 py-3 bg-theme-bg border border-theme-border text-theme-text rounded-theme font-bold text-sm flex items-center justify-center gap-1 shadow-sm transition-colors hover:bg-theme-surface disabled:opacity-50 disabled:cursor-not-allowed">
             <svg class="w-4 h-4 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24">

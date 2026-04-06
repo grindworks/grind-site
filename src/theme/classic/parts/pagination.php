@@ -21,8 +21,8 @@ if ($totalPages <= 1) return;
 
 $range = 2;
 ?>
-<div class="pagination-container">
-    <ul class="pagination">
+<div class="pagination-container" style="max-width: 100%; overflow-x: auto;">
+    <ul class="pagination" style="white-space: nowrap;">
         <!-- Render previous link -->
         <?php if ($currentPage > 1): ?>
             <li class="prev"><a href="<?= h($paginator->createUrl($currentPage - 1)) ?>">&laquo; <?= $txtPrev ?></a></li>

@@ -143,94 +143,96 @@ if (!defined('GRINDS_APP'))
                 <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-chevron-down"></use>
               </svg>
             </button>
-            <div x-show="openSection === 'typography'" x-collapse class="px-4 py-4 border-theme-border border-t">
-              <div class="gap-4 grid grid-cols-1 md:grid-cols-2">
-                <label class="block">
-                  <span class="block opacity-70 mb-1 font-bold text-[11px] text-theme-text">
-                    <?= _t('st_font_url') ?>
-                  </span>
-                  <input type="text" name="custom_skin_font_url" value="<?= h($opt['c_font_url']) ?>"
-                    placeholder="https://fonts.googleapis.com/css2?..." class="text-xs form-control">
-                </label>
-                <label class="block">
-                  <span class="block opacity-70 mb-1 font-bold text-[11px] text-theme-text">
-                    <?= _t('st_font_family') ?>
-                  </span>
-                  <input type="text" name="custom_skin_font_family" value="<?= h($opt['c_font_family']) ?>"
-                    placeholder="'Noto Sans JP', sans-serif" class="text-xs form-control">
-                </label>
-                <label class="block">
-                  <span class="block opacity-70 mb-1 font-bold text-[11px] text-theme-text">
-                    <?= _t('st_font_heading') ?>
-                  </span>
-                  <input type="text" name="custom_skin_font_heading"
-                    value="<?= h($opt['c_font_heading'] ?? 'inherit') ?>" class="text-xs form-control">
-                </label>
-                <label class="block">
-                  <span class="block opacity-70 mb-1 font-bold text-[11px] text-theme-text">
-                    <?= _t('st_font_size_base') ?>
-                  </span>
-                  <input type="text" name="custom_skin_font_size_base"
-                    value="<?= h($opt['c_font_size_base'] ?? '0.875rem') ?>" class="text-xs form-control">
-                </label>
-              </div>
-              <div class="gap-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 mt-4">
-                <label class="block">
-                  <span class="block opacity-70 mb-1 font-bold text-[11px] text-theme-text">
-                    <?= _t('st_nav_style') ?>
-                  </span>
-                  <select name="custom_skin_nav_style" class="text-xs form-control">
-                    <option value="pill" <?= ($opt['c_nav_style'] ?? 'pill') === 'pill' ? 'selected' : '' ?>>
-                      <?= _t('st_nav_pill') ?>
-                    </option>
-                    <option value="underline" <?= ($opt['c_nav_style'] ?? '') === 'underline' ? 'selected' : '' ?>>
-                      <?= _t('st_nav_underline') ?>
-                    </option>
-                    <option value="block" <?= ($opt['c_nav_style'] ?? '') === 'block' ? 'selected' : '' ?>>
-                      <?= _t('st_nav_block') ?>
-                    </option>
-                    <option value="cyber" <?= ($opt['c_nav_style'] ?? '') === 'cyber' ? 'selected' : '' ?>>
-                      <?= _t('st_nav_cyber') ?>
-                    </option>
-                    <option value="terminal" <?= ($opt['c_nav_style'] ?? '') === 'terminal' ? 'selected' : '' ?>>
-                      <?= _t('st_nav_terminal') ?>
-                    </option>
-                  </select>
-                </label>
-                <label class="block">
-                  <span class="block opacity-70 mb-1 font-bold text-[11px] text-theme-text">
-                    <?= _t('st_custom_skin_texture') ?>
-                  </span>
-                  <select name="custom_skin_texture" class="text-xs form-control">
-                    <option value="" <?= empty($opt['c_texture']) ? 'selected' : '' ?>>
-                      <?= _t('none') ?>
-                    </option>
-                    <?php if (!empty($available_textures)): ?>
-                      <?php foreach ($available_textures as $key => $data): ?>
-                        <option value="<?= h($key) ?>" <?= ($opt['c_texture'] ?? '') === $key ? 'selected' : '' ?>>
-                          <?= h(ucfirst(str_replace('_', ' ', $key))) ?>
-                        </option>
+            <div x-show="openSection === 'typography'" x-collapse>
+              <div class="px-4 py-4 border-theme-border border-t">
+                <div class="gap-4 grid grid-cols-1 md:grid-cols-2">
+                  <label class="block">
+                    <span class="block opacity-70 mb-1 font-bold text-[11px] text-theme-text">
+                      <?= _t('st_font_url') ?>
+                    </span>
+                    <input type="text" name="custom_skin_font_url" value="<?= h($opt['c_font_url']) ?>"
+                      placeholder="https://fonts.googleapis.com/css2?..." class="text-xs form-control">
+                  </label>
+                  <label class="block">
+                    <span class="block opacity-70 mb-1 font-bold text-[11px] text-theme-text">
+                      <?= _t('st_font_family') ?>
+                    </span>
+                    <input type="text" name="custom_skin_font_family" value="<?= h($opt['c_font_family']) ?>"
+                      placeholder="'Noto Sans JP', sans-serif" class="text-xs form-control">
+                  </label>
+                  <label class="block">
+                    <span class="block opacity-70 mb-1 font-bold text-[11px] text-theme-text">
+                      <?= _t('st_font_heading') ?>
+                    </span>
+                    <input type="text" name="custom_skin_font_heading"
+                      value="<?= h($opt['c_font_heading'] ?? 'inherit') ?>" class="text-xs form-control">
+                  </label>
+                  <label class="block">
+                    <span class="block opacity-70 mb-1 font-bold text-[11px] text-theme-text">
+                      <?= _t('st_font_size_base') ?>
+                    </span>
+                    <input type="text" name="custom_skin_font_size_base"
+                      value="<?= h($opt['c_font_size_base'] ?? '0.875rem') ?>" class="text-xs form-control">
+                  </label>
+                </div>
+                <div class="gap-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 mt-4">
+                  <label class="block">
+                    <span class="block opacity-70 mb-1 font-bold text-[11px] text-theme-text">
+                      <?= _t('st_nav_style') ?>
+                    </span>
+                    <select name="custom_skin_nav_style" class="text-xs form-control">
+                      <option value="pill" <?= ($opt['c_nav_style'] ?? 'pill') === 'pill' ? 'selected' : '' ?>>
+                        <?= _t('st_nav_pill') ?>
+                      </option>
+                      <option value="underline" <?= ($opt['c_nav_style'] ?? '') === 'underline' ? 'selected' : '' ?>>
+                        <?= _t('st_nav_underline') ?>
+                      </option>
+                      <option value="block" <?= ($opt['c_nav_style'] ?? '') === 'block' ? 'selected' : '' ?>>
+                        <?= _t('st_nav_block') ?>
+                      </option>
+                      <option value="cyber" <?= ($opt['c_nav_style'] ?? '') === 'cyber' ? 'selected' : '' ?>>
+                        <?= _t('st_nav_cyber') ?>
+                      </option>
+                      <option value="terminal" <?= ($opt['c_nav_style'] ?? '') === 'terminal' ? 'selected' : '' ?>>
+                        <?= _t('st_nav_terminal') ?>
+                      </option>
+                    </select>
+                  </label>
+                  <label class="block">
+                    <span class="block opacity-70 mb-1 font-bold text-[11px] text-theme-text">
+                      <?= _t('st_custom_skin_texture') ?>
+                    </span>
+                    <select name="custom_skin_texture" class="text-xs form-control">
+                      <option value="" <?= empty($opt['c_texture']) ? 'selected' : '' ?>>
+                        <?= _t('none') ?>
+                      </option>
+                      <?php if (!empty($available_textures)): ?>
+                        <?php foreach ($available_textures as $key => $data): ?>
+                          <option value="<?= h($key) ?>" <?= ($opt['c_texture'] ?? '') === $key ? 'selected' : '' ?>>
+                            <?= h(ucfirst(str_replace('_', ' ', $key))) ?>
+                          </option>
+                        <?php
+                        endforeach; ?>
                       <?php
-                      endforeach; ?>
-                    <?php
-                    endif; ?>
-                  </select>
-                </label>
-                <label class="block">
-                  <span class="block opacity-70 mb-1 font-bold text-[11px] text-theme-text">
-                    <?= _t('st_media_bg_css') ?>
-                  </span>
-                  <select name="custom_skin_media_bg_css" class="text-xs form-control">
-                    <option value="" <?= empty($opt['c_media_bg_css']) ? 'selected' : '' ?>><?= _t('default') ?: 'Default' ?></option>
-                    <?php if (!empty($available_media_bgs)): ?>
-                      <?php foreach ($available_media_bgs as $key => $val): if ($key === 'default') continue; ?>
-                        <option value="<?= h($key) ?>" <?= ($opt['c_media_bg_css'] ?? '') === $key ? 'selected' : '' ?>>
-                          <?= h(ucfirst(str_replace('_', ' ', $key))) ?>
-                        </option>
-                      <?php endforeach; ?>
-                    <?php endif; ?>
-                  </select>
-                </label>
+                      endif; ?>
+                    </select>
+                  </label>
+                  <label class="block">
+                    <span class="block opacity-70 mb-1 font-bold text-[11px] text-theme-text">
+                      <?= _t('st_media_bg_css') ?>
+                    </span>
+                    <select name="custom_skin_media_bg_css" class="text-xs form-control">
+                      <option value="" <?= empty($opt['c_media_bg_css']) ? 'selected' : '' ?>><?= _t('default') ?: 'Default' ?></option>
+                      <?php if (!empty($available_media_bgs)): ?>
+                        <?php foreach ($available_media_bgs as $key => $val): if ($key === 'default') continue; ?>
+                          <option value="<?= h($key) ?>" <?= ($opt['c_media_bg_css'] ?? '') === $key ? 'selected' : '' ?>>
+                            <?= h(ucfirst(str_replace('_', ' ', $key))) ?>
+                          </option>
+                        <?php endforeach; ?>
+                      <?php endif; ?>
+                    </select>
+                  </label>
+                </div>
               </div>
             </div>
           </div>
@@ -252,36 +254,38 @@ if (!defined('GRINDS_APP'))
                 <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-chevron-down"></use>
               </svg>
             </button>
-            <div x-show="openSection === 'dimensions'" x-collapse class="px-4 py-4 border-theme-border border-t">
-              <div class="gap-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4">
-                <?php
-                $dims = [
-                  'rounded' => _t('st_dim_rounded'),
-                  'btn_radius' => _t('st_dim_btn_radius'),
-                  'add_block_radius' => _t('st_dim_block_radius'),
-                  'border_width' => _t('st_dim_border_width'),
-                  'scrollbar_width' => _t('st_dim_scrollbar_width'),
-                  'input_padding' => _t('st_dim_input_padding'),
-                  'modal_overlay_opacity' => _t('st_dim_overlay_opacity'),
-                ];
-                foreach ($dims as $k => $l):
-                ?>
+            <div x-show="openSection === 'dimensions'" x-collapse>
+              <div class="px-4 py-4 border-theme-border border-t">
+                <div class="gap-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4">
+                  <?php
+                  $dims = [
+                    'rounded' => _t('st_dim_rounded'),
+                    'btn_radius' => _t('st_dim_btn_radius'),
+                    'add_block_radius' => _t('st_dim_block_radius'),
+                    'border_width' => _t('st_dim_border_width'),
+                    'scrollbar_width' => _t('st_dim_scrollbar_width'),
+                    'input_padding' => _t('st_dim_input_padding'),
+                    'modal_overlay_opacity' => _t('st_dim_overlay_opacity'),
+                  ];
+                  foreach ($dims as $k => $l):
+                  ?>
+                    <label class="block">
+                      <span class="block opacity-70 mb-1 font-bold text-[11px] text-theme-text">
+                        <?= $l ?>
+                      </span>
+                      <input type="text" name="custom_skin_<?= $k ?>" value="<?= h($opt['c_' . $k] ?? '') ?>"
+                        class="text-xs form-control">
+                    </label>
+                  <?php
+                  endforeach; ?>
                   <label class="block">
                     <span class="block opacity-70 mb-1 font-bold text-[11px] text-theme-text">
-                      <?= $l ?>
+                      <?= _t('st_shadow') ?>
                     </span>
-                    <input type="text" name="custom_skin_<?= $k ?>" value="<?= h($opt['c_' . $k] ?? '') ?>"
+                    <input type="text" name="custom_skin_shadow" value="<?= h($opt['c_shadow'] ?? '') ?>"
                       class="text-xs form-control">
                   </label>
-                <?php
-                endforeach; ?>
-                <label class="block">
-                  <span class="block opacity-70 mb-1 font-bold text-[11px] text-theme-text">
-                    <?= _t('st_shadow') ?>
-                  </span>
-                  <input type="text" name="custom_skin_shadow" value="<?= h($opt['c_shadow'] ?? '') ?>"
-                    class="text-xs form-control">
-                </label>
+                </div>
               </div>
             </div>
           </div>
@@ -303,23 +307,24 @@ if (!defined('GRINDS_APP'))
                 <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-chevron-down"></use>
               </svg>
             </button>
-            <div x-show="openSection === 'colors'" x-collapse class="px-4 py-4 border-theme-border border-t">
-              <?php
-              $allColors = $colorDefGroups;
+            <div x-show="openSection === 'colors'" x-collapse>
+              <div class="px-4 py-4 border-theme-border border-t">
+                <?php
+                $allColors = $colorDefGroups;
 
-              $skinDefaults = require ROOT_PATH . '/admin/config/skin_defaults.php';
-              $colorDefaults = $skinDefaults['colors'] ?? [];
+                $skinDefaults = require ROOT_PATH . '/admin/config/skin_defaults.php';
+                $colorDefaults = $skinDefaults['colors'] ?? [];
 
-              $getColorVal = function ($k) use ($opt, $colorDefaults) {
-                $aK = str_replace('_', '-', $k);
-                return $opt['c_' . $k] ?? ($colorDefaults[$k] ?? ($colorDefaults[$aK] ?? '#000000'));
-              };
+                $getColorVal = function ($k) use ($opt, $colorDefaults) {
+                  $aK = str_replace('_', '-', $k);
+                  return $opt['c_' . $k] ?? ($colorDefaults[$k] ?? ($colorDefaults[$aK] ?? '#000000'));
+                };
 
-              $groupIndex = 0;
-              foreach ($allColors as $group => $keys):
-                $groupId = 'cg_' . $groupIndex;
-              ?>
-                <div class="<?= $groupIndex > 0 ? 'mt-2' : '' ?>" x-data="{
+                $groupIndex = 0;
+                foreach ($allColors as $group => $keys):
+                  $groupId = 'cg_' . $groupIndex;
+                ?>
+                  <div class="<?= $groupIndex > 0 ? 'mt-2' : '' ?>" x-data="{
                   groupColors: {
                     <?php
                     foreach ($keys as $k):
@@ -329,64 +334,65 @@ if (!defined('GRINDS_APP'))
                     ?>
                   }
                 }">
-                  <button type="button"
-                    @click="openColorGroup = openColorGroup === '<?= $groupId ?>' ? '' : '<?= $groupId ?>'"
-                    class="flex justify-between items-center bg-theme-surface/50 hover:bg-theme-surface px-3 py-2 border border-theme-border/50 rounded-theme w-full text-left transition-colors">
-                    <span class="font-bold text-[11px] text-theme-text uppercase tracking-wider">
-                      <?= $group ?>
-                    </span>
-                    <div class="flex items-center gap-2">
-                      <div class="flex -space-x-1">
-                        <?php foreach (array_slice($keys, 0, 5) as $previewKey):
-                          $previewVal = $getColorVal($previewKey);
-                        ?>
-                          <span class="inline-block border border-white rounded-full w-4 h-4"
-                            :style="`background: ${groupColors['<?= h($previewKey) ?>']}`" style="background:<?= h($previewVal) ?>"></span>
+                    <button type="button"
+                      @click="openColorGroup = openColorGroup === '<?= $groupId ?>' ? '' : '<?= $groupId ?>'"
+                      class="flex justify-between items-center bg-theme-surface/50 hover:bg-theme-surface px-3 py-2 border border-theme-border/50 rounded-theme w-full text-left transition-colors">
+                      <span class="font-bold text-[11px] text-theme-text uppercase tracking-wider">
+                        <?= $group ?>
+                      </span>
+                      <div class="flex items-center gap-2">
+                        <div class="flex -space-x-1">
+                          <?php foreach (array_slice($keys, 0, 5) as $previewKey):
+                            $previewVal = $getColorVal($previewKey);
+                          ?>
+                            <span class="inline-block border border-white rounded-full w-4 h-4"
+                              :style="`background: ${groupColors['<?= h($previewKey) ?>']}`" style="background:<?= h($previewVal) ?>"></span>
+                          <?php
+                          endforeach; ?>
+                        </div>
+                        <svg class="w-3 h-3 opacity-40 text-theme-text transition-transform"
+                          :class="openColorGroup === '<?= $groupId ?>' ? 'rotate-180' : ''" fill="none" stroke="currentColor"
+                          viewBox="0 0 24 24">
+                          <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-chevron-down"></use>
+                        </svg>
+                      </div>
+                    </button>
+                    <div x-show="openColorGroup === '<?= $groupId ?>'" x-collapse class="mt-2 px-1">
+                      <div class="gap-3 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+                        <?php foreach ($keys as $key):
+                          $val = $getColorVal($key); ?>
+                          <div x-data="colorPicker('<?= h($val) ?>')" x-effect="groupColors['<?= h($key) ?>'] = val"
+                            class="flex flex-col gap-1.5 bg-theme-surface/30 p-2 border border-theme-border/30 rounded-theme">
+                            <div class="flex items-center gap-2">
+                              <input type="color" x-model="hex" @input="updateVal"
+                                class="p-0 border border-theme-border rounded-full w-7 h-7 overflow-hidden cursor-pointer shrink-0">
+                              <div class="min-w-0 flex-1">
+                                <label class="block opacity-70 mb-0.5 font-bold text-[10px] text-theme-text truncate"
+                                  title="<?= h($key) ?>">
+                                  <?= h(str_replace('_', ' ', $key)) ?>
+                                </label>
+                                <input type="text" name="custom_skin_<?= $key ?>" x-model="val" @change="parseVal"
+                                  class="w-full text-[10px] form-control-sm px-1.5 py-0.5 h-6">
+                              </div>
+                            </div>
+                            <div class="flex items-center gap-2 px-1">
+                              <span class="opacity-50 text-[9px] font-bold text-theme-text" title="Opacity">OP</span>
+                              <input type="range" x-model="alpha" @input="updateVal" min="0" max="1" step="0.01"
+                                class="flex-1 h-1 bg-theme-border rounded-theme appearance-none cursor-pointer accent-theme-primary">
+                              <span class="opacity-50 text-[9px] font-mono text-theme-text w-6 text-right"
+                                x-text="Math.round(alpha * 100) + '%'"></span>
+                            </div>
+                          </div>
                         <?php
                         endforeach; ?>
                       </div>
-                      <svg class="w-3 h-3 opacity-40 text-theme-text transition-transform"
-                        :class="openColorGroup === '<?= $groupId ?>' ? 'rotate-180' : ''" fill="none" stroke="currentColor"
-                        viewBox="0 0 24 24">
-                        <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-chevron-down"></use>
-                      </svg>
-                    </div>
-                  </button>
-                  <div x-show="openColorGroup === '<?= $groupId ?>'" x-collapse class="mt-2 px-1">
-                    <div class="gap-3 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
-                      <?php foreach ($keys as $key):
-                        $val = $getColorVal($key); ?>
-                        <div x-data="colorPicker('<?= h($val) ?>')" x-effect="groupColors['<?= h($key) ?>'] = val"
-                          class="flex flex-col gap-1.5 bg-theme-surface/30 p-2 border border-theme-border/30 rounded-theme">
-                          <div class="flex items-center gap-2">
-                            <input type="color" x-model="hex" @input="updateVal"
-                              class="p-0 border border-theme-border rounded-full w-7 h-7 overflow-hidden cursor-pointer shrink-0">
-                            <div class="min-w-0 flex-1">
-                              <label class="block opacity-70 mb-0.5 font-bold text-[10px] text-theme-text truncate"
-                                title="<?= $key ?>">
-                                <?= str_replace('_', ' ', $key) ?>
-                              </label>
-                              <input type="text" name="custom_skin_<?= $key ?>" x-model="val" @change="parseVal"
-                                class="w-full text-[10px] form-control-sm px-1.5 py-0.5 h-6">
-                            </div>
-                          </div>
-                          <div class="flex items-center gap-2 px-1">
-                            <span class="opacity-50 text-[9px] font-bold text-theme-text" title="Opacity">OP</span>
-                            <input type="range" x-model="alpha" @input="updateVal" min="0" max="1" step="0.01"
-                              class="flex-1 h-1 bg-theme-border rounded-theme appearance-none cursor-pointer accent-theme-primary">
-                            <span class="opacity-50 text-[9px] font-mono text-theme-text w-6 text-right"
-                              x-text="Math.round(alpha * 100) + '%'"></span>
-                          </div>
-                        </div>
-                      <?php
-                      endforeach; ?>
                     </div>
                   </div>
-                </div>
-              <?php
-                $groupIndex++;
-              endforeach;
-              ?>
+                <?php
+                  $groupIndex++;
+                endforeach;
+                ?>
+              </div>
             </div>
           </div>
 
@@ -407,30 +413,32 @@ if (!defined('GRINDS_APP'))
                 <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-chevron-down"></use>
               </svg>
             </button>
-            <div x-show="openSection === 'crt'" x-collapse class="px-4 py-4 border-theme-border border-t">
-              <div class="gap-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6">
-                <?php
-                $crtDetails = [
-                  'sidebar_crt_opacity',
-                  'sidebar_crt_shadow_opacity',
-                  'sidebar_crt_border_opacity',
-                  'sidebar_crt_border_width',
-                  'sidebar_crt_shadow_x',
-                  'sidebar_crt_shadow_blur'
-                ];
-                foreach ($crtDetails as $key):
-                  $val = $opt['c_' . $key] ?? '';
-                  $labelKey = 'st_crt_' . str_replace('sidebar_crt_', '', $key);
-                ?>
-                  <label class="block">
-                    <span class="block opacity-70 mb-1 font-bold text-[11px] text-theme-text truncate"
-                      title="<?= $key ?>">
-                      <?= _t($labelKey, str_replace('sidebar_crt_', '', $key)) ?>
-                    </span>
-                    <input type="text" name="custom_skin_<?= $key ?>" value="<?= h($val) ?>" class="text-xs form-control">
-                  </label>
-                <?php
-                endforeach; ?>
+            <div x-show="openSection === 'crt'" x-collapse>
+              <div class="px-4 py-4 border-theme-border border-t">
+                <div class="gap-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6">
+                  <?php
+                  $crtDetails = [
+                    'sidebar_crt_opacity',
+                    'sidebar_crt_shadow_opacity',
+                    'sidebar_crt_border_opacity',
+                    'sidebar_crt_border_width',
+                    'sidebar_crt_shadow_x',
+                    'sidebar_crt_shadow_blur'
+                  ];
+                  foreach ($crtDetails as $key):
+                    $val = $opt['c_' . $key] ?? '';
+                    $labelKey = 'st_crt_' . str_replace('sidebar_crt_', '', $key);
+                  ?>
+                    <label class="block">
+                      <span class="block opacity-70 mb-1 font-bold text-[11px] text-theme-text truncate"
+                        title="<?= $key ?>">
+                        <?= _t($labelKey, str_replace('sidebar_crt_', '', $key)) ?>
+                      </span>
+                      <input type="text" name="custom_skin_<?= $key ?>" value="<?= h($val) ?>" class="text-xs form-control">
+                    </label>
+                  <?php
+                  endforeach; ?>
+                </div>
               </div>
             </div>
           </div>

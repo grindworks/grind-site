@@ -107,7 +107,9 @@ try {
   if (!empty($idsToDelete)) {
     $pdo->beginTransaction();
     try {
+      $stmtDelTags = $pdo->prepare("DELETE FROM media_tags WHERE media_id = ?");
       foreach ($idsToDelete as $id) {
+        $stmtDelTags->execute([$id]);
         $stmtDel->execute([$id]);
       }
       $pdo->commit();

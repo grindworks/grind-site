@@ -176,7 +176,7 @@ return [
     'alert_warning_files_title' => 'Unnecessary OS Files Detected',
     'alert_warning_files_msg' => 'OS metadata (hidden files) that are not essential to the system have been found.<br>Detected files: <code>%s</code><br>While they do not pose an immediate threat, they may leak directory information. It is recommended to delete them via FTP if they are not needed.<br><br><span class="opacity-80 text-xs">* Note: To refresh this warning after deletion, please clear caches or re-login.</span>',
     'alert_mail_title' => 'Mail Settings Incomplete',
-    'alert_mail_msg' => 'To use password reset and notifications, please configure SMTP in the <a href="settings.php?tab=mail" class="font-bold underline">Mail</a> settings.',
+    'alert_mail_msg' => 'To use password resets, notifications, and enable <strong>Two-Factor Authentication (Email OTP plugin)</strong> for enhanced security, please configure SMTP in the <a href="settings.php?tab=mail" class="font-bold underline">Mail</a> settings.',
     'alert_ga_title' => 'Google Analytics Not Configured',
     'alert_ga_msg' => 'To enable analytics, set your Measurement ID in the <a href="settings.php?tab=integration" class="font-bold underline">Integration</a> settings.',
     'alert_log_title' => 'System Log Bloated',
@@ -779,7 +779,7 @@ return [
 
     // Define mail settings.
     'st_smtp_title' => 'Mail Settings (SMTP)',
-    'st_mail_desc' => 'Used for contact form submissions and system notifications. If using Gmail, an <a href="https://support.google.com/accounts/answer/185833" target="_blank" class="text-theme-primary hover:underline">App Password</a> is recommended.',
+    'st_mail_desc' => 'Used for contact form submissions, system notifications, and <strong>Two-Factor Authentication (2FA)</strong>. If using Gmail, an <a href="https://support.google.com/accounts/answer/185833" target="_blank" class="text-theme-primary hover:underline">App Password</a> is recommended.',
     'st_smtp_from' => 'From Address',
     'st_smtp_from_h' => 'Email address displayed to recipients (e.g., noreply@yoursite.com).',
     'st_smtp_admin' => 'Admin Email',
@@ -795,6 +795,8 @@ return [
     'st_smtp_enc' => 'Encryption',
     'st_test_mail_h' => 'Send Test Mail',
     'mail_test_sent' => 'Test mail sent! Please check your inbox.',
+    'st_2fa_guide_title' => '🔒 How to enable Two-Factor Authentication (2FA)',
+    'st_2fa_guide_desc' => 'After configuring SMTP and confirming that test emails work, rename <code>src/plugins/_mail_otp_2fa.php</code> to <code>mail_otp_2fa.php</code> (remove the underscore) to enable it. See <code>README.md</code> for details.',
     'st_sess_timeout' => 'Session Timeout (sec)',
     'st_max_attempts' => 'Max Login Attempts',
     'st_lockout_time' => 'Lockout Time (min)',
@@ -864,6 +866,8 @@ return [
     'st_trust_proxies_desc' => 'Enable this if your site is behind a reverse proxy (e.g. Cloudflare, AWS ELB) to correctly detect client IPs.',
     'st_trusted_ips' => 'Trusted Proxy IPs',
     'st_trusted_ips_desc' => 'Comma-separated list of IP addresses or CIDR ranges (e.g. 10.0.0.0/8, 172.16.0.1). Leave empty to trust all (Not recommended).',
+    'st_proxy_warning_title' => '⚠️ Security Warning: IP Spoofing Risk',
+    'st_proxy_warning_desc' => 'Leaving this empty allows ANY server to forge client IPs via headers. You MUST enter your proxy provider\'s IP ranges (e.g., Cloudflare IPs) to secure your site against IP spoofing attacks.',
     'st_debug_mode' => 'Debug Mode',
     'st_debug_mode_desc' => 'Show detailed errors (For development).',
     'st_check_uploads' => 'Check Unused Upload Files',
@@ -1648,6 +1652,9 @@ return [
     'err_encode_preview_data' => 'Failed to encode preview data to JSON.',
     'st_backup_important_title' => 'Important Notice for Complete Recovery',
     'st_backup_important_desc' => 'These backups only contain the database (posts and settings). For a complete recovery or server migration, please ensure you manually download your <strong>config.php</strong> file and the <strong>assets/uploads/</strong> directory via FTP.',
+    'st_backup_zip_password' => 'ZIP Encryption Password (AES-256)',
+    'help_backup_zip_password' => '⚠️ If set, Full Backup (Migration) ZIP files will be encrypted. Do not lose this password!',
+    'ph_backup_zip_password' => 'Leave empty for no encryption',
 
     'msg_post_saved' => 'Post saved successfully.',
     'drag_to_reorder' => 'Drag to reorder',
@@ -1663,4 +1670,7 @@ return [
     'msg_password_protect_below' => 'Content below will be locked',
     'msg_esc_to_blur' => 'Press ESC to blur',
     'Test Password Screen' => 'Test Password Screen',
+    'lbl_media_usage' => 'Used In',
+    'msg_media_not_used' => 'Not currently in use.',
+    'msg_delete_skipped' => '%s deleted. %s skipped (in use).',
 ];

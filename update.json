@@ -1,7 +1,7 @@
 {
-  "version": "1.4.1",
-  "release_date": "2026-04-04",
-  "message": "Fix minor XSS vulnerabilities, update translations and improve admin UI",
-  "download_url": "https://github.com/grindworks/grind-site/releases/download/v1.4.1/grindsite-v1.4.1.zip",
-  "sha256": "e597ddcb87a671080a4ad6920f771edf26a2f250f8ed30da4b66927bebf5e0e4"
+  "version": "1.5.0",
+  "release_date": "2026-04-06",
+  "message": "Add Amazon Affiliate, Enterprise Security suite, Media Usage tracking, and Pagination improvements",
+  "download_url": "https://github.com/grindworks/grind-site/releases/download/v1.5.0/grindsite-v1.5.0.zip",
+  "sha256": "914873883d19a79c62cb54228bf8d9f4e1121992d5b268584ef5617d21021a74"
 }

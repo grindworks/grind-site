@@ -19,7 +19,7 @@ $range = 2;
 if ($num_pages <= 1) return;
 ?>
 <div class="flex justify-center items-center mt-12">
-  <nav class="inline-flex isolate -space-x-px bg-white shadow-sm rounded-md" aria-label="Pagination">
+  <nav class="inline-flex isolate -space-x-px bg-white shadow-sm rounded-md max-w-full overflow-x-auto no-scrollbar" aria-label="Pagination">
 
     <!-- Render previous link -->
     <?php

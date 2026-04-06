@@ -17,18 +17,20 @@ $range = 2;
 if ($num_pages <= 1) return;
 ?>
 
-<?php if ($page > 1): ?>
-    <a href="<?= h($paginator->createUrl($page - 1)) ?>">&larr; <?= $txtPrev ?></a>
-<?php endif; ?>
-
-<?php for ($i = 1; $i <= $num_pages; $i++): ?>
-    <?php if ($i == 1 || $i == $num_pages || ($i >= $page - $range && $i <= $page + $range)): ?>
-        <a href="<?= h($paginator->createUrl($i)) ?>" class="<?= ($i == $page) ? 'active' : '' ?>"><?= $i ?></a>
-    <?php elseif ($i == $page - $range - 1 || $i == $page + $range + 1): ?>
-        <span>...</span>
+<nav class="flex justify-center items-center gap-4 max-w-full overflow-x-auto no-scrollbar whitespace-nowrap" aria-label="Pagination">
+    <?php if ($page > 1): ?>
+        <a href="<?= h($paginator->createUrl($page - 1)) ?>">&larr; <?= $txtPrev ?></a>
     <?php endif; ?>
-<?php endfor; ?>
 
-<?php if ($page < $num_pages): ?>
-    <a href="<?= h($paginator->createUrl($page + 1)) ?>"><?= $txtNext ?> &rarr;</a>
-<?php endif; ?>
+    <?php for ($i = 1; $i <= $num_pages; $i++): ?>
+        <?php if ($i == 1 || $i == $num_pages || ($i >= $page - $range && $i <= $page + $range)): ?>
+            <a href="<?= h($paginator->createUrl($i)) ?>" class="<?= ($i == $page) ? 'active' : '' ?>"><?= $i ?></a>
+        <?php elseif ($i == $page - $range - 1 || $i == $page + $range + 1): ?>
+            <span>...</span>
+        <?php endif; ?>
+    <?php endfor; ?>
+
+    <?php if ($page < $num_pages): ?>
+        <a href="<?= h($paginator->createUrl($page + 1)) ?>"><?= $txtNext ?> &rarr;</a>
+    <?php endif; ?>
+</nav>

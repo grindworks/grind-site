@@ -233,7 +233,7 @@ function _theme_generate_json_ld(string $siteName, string $pageType, string $pag
     $orgId = $homeUrl . '#organization';
     $authorId = $homeUrl . '#author';
 
-    $searchTarget = '/search?q={search_term_string}';
+    $searchTarget = (defined('GRINDS_IS_SSG') && GRINDS_IS_SSG) ? '/search.html?q={search_term_string}' : '/search?q={search_term_string}';
 
     $pubLogo = get_option('admin_logo') ?: get_option('site_ogp_image');
     $pubLogoUrl = $pubLogo ? resolve_url($pubLogo) : (function_exists('get_favicon_url') ? get_favicon_url() : resolve_url('/favicon.ico'));

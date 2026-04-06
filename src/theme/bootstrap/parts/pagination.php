@@ -18,8 +18,8 @@ $range = 2;
 
 if ($num_pages <= 1) return;
 ?>
-<nav aria-label="Page navigation">
-  <ul class="justify-content-center pagination">
+<nav aria-label="Page navigation" class="overflow-x-auto">
+  <ul class="justify-content-center pagination flex-nowrap mb-0">
     <li class="page-item <?= ($page <= 1) ? 'disabled' : '' ?>">
       <a class="page-link" href="<?= ($page > 1) ? h($paginator->createUrl($page - 1)) : '#' ?>" aria-label="Previous">
         <span aria-hidden="true">&laquo; <?= $txtPrev ?></span>

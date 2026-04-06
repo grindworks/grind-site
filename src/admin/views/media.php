@@ -28,7 +28,15 @@ if (!isset($skin) || !is_array($skin)) {
     confirm_force_delete: <?= json_encode(_t('confirm_force_delete'), JSON_HEX_TAG | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE) ?>,
     delete_error: <?= json_encode(_t('js_delete_error'), JSON_HEX_TAG | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE) ?>,
     uploading: <?= json_encode(_t('uploading'), JSON_HEX_TAG | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE) ?>,
-    uploading_wait: <?= json_encode(_t('msg_uploading_wait'), JSON_HEX_TAG | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE) ?>
+    uploading_wait: <?= json_encode(_t('msg_uploading_wait'), JSON_HEX_TAG | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE) ?>,
+    msg_delete_skipped: <?= json_encode(_t('msg_delete_skipped'), JSON_HEX_TAG | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE) ?>,
+    copied: <?= json_encode(_t('copied'), JSON_HEX_TAG | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE) ?>,
+    saved: <?= json_encode(_t('msg_saved'), JSON_HEX_TAG | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE) ?>,
+    error: <?= json_encode(_t('error'), JSON_HEX_TAG | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE) ?>,
+    filter_images: <?= json_encode(_t('filter_images'), JSON_HEX_TAG | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE) ?>,
+    Video: <?= json_encode(_t('Video'), JSON_HEX_TAG | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE) ?>,
+    Audio: <?= json_encode(_t('Audio'), JSON_HEX_TAG | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE) ?>,
+    filter_docs: <?= json_encode(_t('filter_docs'), JSON_HEX_TAG | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE) ?>
   };
 </script>
 <script src="<?= grinds_asset_url('assets/js/media_manager.js') ?>"></script>
@@ -43,8 +51,8 @@ if (!isset($skin) || !is_array($skin)) {
   @keydown.window.arrow-right="if(detailModalOpen) nextFile()">
 
   <!-- Page Header -->
-  <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-    <h2 class="flex items-center gap-2 font-bold text-theme-text text-xl shrink-0 whitespace-nowrap">
+  <div class="flex sm:flex-row flex-col justify-between items-start sm:items-center gap-4">
+    <h2 class="flex items-center gap-2 font-bold text-theme-text text-xl whitespace-nowrap shrink-0">
       <svg class="w-6 h-6 text-theme-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-photo"></use>
       </svg>
@@ -54,7 +62,7 @@ if (!isset($skin) || !is_array($skin)) {
     <div class="flex flex-wrap items-center gap-3 w-full sm:w-auto">
       <!-- Upload button -->
       <label
-        class="hidden sm:flex items-center gap-2 shadow-theme px-6 py-2.5 rounded-theme font-bold text-sm cursor-pointer transition-all btn-primary shrink-0"
+        class="hidden sm:flex items-center gap-2 shadow-theme px-6 py-2.5 rounded-theme font-bold text-sm transition-all cursor-pointer btn-primary shrink-0"
         :class="isUploading ? 'opacity-50 cursor-not-allowed' : ''">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-arrow-up-tray"></use>
@@ -69,13 +77,13 @@ if (!isset($skin) || !is_array($skin)) {
   <div class="top-0 z-20 sticky flex flex-col gap-3 bg-theme-surface shadow-theme p-4 border border-theme-border rounded-theme">
 
     <!-- Controls Row: Sort, Filter, View -->
-    <div class="flex flex-wrap items-center justify-between gap-2">
+    <div class="flex flex-wrap justify-between items-center gap-2">
 
-      <div class="flex items-center gap-2 flex-wrap">
+      <div class="flex flex-wrap items-center gap-2">
         <!-- Search form -->
-        <div class="relative w-full sm:w-auto order-first sm:order-none mb-2 sm:mb-0">
+        <div class="relative order-first sm:order-none mb-2 sm:mb-0 w-full sm:w-auto">
           <div
-            class="flex flex-wrap items-center gap-1 pl-8 p-1 focus-within:ring-1 focus-within:ring-theme-primary w-full sm:w-auto h-auto min-h-[34px] cursor-text form-control-sm"
+            class="flex flex-wrap items-center gap-1 p-1 pl-8 focus-within:ring-1 focus-within:ring-theme-primary w-full sm:w-auto h-auto min-h-[34px] cursor-text form-control-sm"
             @click="$refs.searchInput.focus()">
             <svg class="top-1/2 left-2.5 absolute opacity-50 w-3.5 h-3.5 text-theme-text -translate-y-1/2" fill="none"
               stroke="currentColor" viewBox="0 0 24 24">
@@ -86,7 +94,7 @@ if (!isset($skin) || !is_array($skin)) {
                 class="flex items-center gap-1 bg-theme-primary/10 px-1.5 py-0.5 border border-theme-primary/20 rounded-theme text-[10px] text-theme-primary">
                 <span x-text="word"></span>
                 <button type="button" @click.stop="removeSearchKeyword(index)"
-                  class="focus:outline-none hover:text-theme-danger p-1 -m-1"
+                  class="-m-1 p-1 focus:outline-none hover:text-theme-danger"
                   aria-label="<?= h(_t('remove')) ?>">&times;</button>
               </span>
             </template>
@@ -130,7 +138,7 @@ if (!isset($skin) || !is_array($skin)) {
 
         <!-- Mobile Upload button (visible below sm) -->
         <label
-          class="sm:hidden flex items-center gap-1.5 px-3 py-2 rounded-theme h-[34px] font-bold text-xs cursor-pointer transition-all btn-primary shrink-0"
+          class="sm:hidden flex items-center gap-1.5 px-3 py-2 rounded-theme h-[34px] font-bold text-xs transition-all cursor-pointer btn-primary shrink-0"
           :class="isUploading ? 'opacity-50 cursor-not-allowed' : ''">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-arrow-up-tray"></use>
@@ -249,16 +257,16 @@ if (!isset($skin) || !is_array($skin)) {
 
     <!-- Active Filters Display (Chips) -->
     <div x-show="activeFilters.length > 0" class="flex flex-wrap items-center gap-2 pt-3 border-theme-border border-t" style="display: none;" x-transition x-cloak>
-      <span class="text-xs text-theme-text opacity-70 font-bold">
+      <span class="opacity-70 font-bold text-theme-text text-xs">
         <?= _t('active_filters') ?? 'Filter:' ?>
       </span>
       <template x-for="filter in activeFilters" :key="filter.type">
-        <span class="flex items-center gap-1 bg-theme-primary/10 px-2 py-0.5 border border-theme-primary/20 rounded-theme text-xs text-theme-primary font-bold">
+        <span class="flex items-center gap-1 bg-theme-primary/10 px-2 py-0.5 border border-theme-primary/20 rounded-theme font-bold text-theme-primary text-xs">
           <span x-text="filter.label"></span>
-          <button type="button" @click="clearFilter(filter.type)" class="focus:outline-none hover:text-theme-danger p-0.5 -mr-1" aria-label="<?= h(_t('remove') ?? 'Remove') ?>">&times;</button>
+          <button type="button" @click="clearFilter(filter.type)" class="-mr-1 p-0.5 focus:outline-none hover:text-theme-danger" aria-label="<?= h(_t('remove') ?? 'Remove') ?>">&times;</button>
         </span>
       </template>
-      <button type="button" @click="clearFilter('all')" class="text-xs text-theme-text opacity-60 hover:opacity-100 hover:underline ml-1">
+      <button type="button" @click="clearFilter('all')" class="opacity-60 hover:opacity-100 ml-1 text-theme-text text-xs hover:underline">
         <?= _t('clear_all') ?? 'Clear all' ?>
       </button>
     </div>
@@ -277,7 +285,7 @@ if (!isset($skin) || !is_array($skin)) {
       <!-- Bulk Delete (visible only when items selected) -->
       <div x-show="selectedIds.length > 0" class="flex items-center gap-2" x-transition>
         <button @click="bulkDelete()"
-          class="flex items-center gap-1.5 hover:bg-theme-danger px-3 py-1.5 border-theme-danger rounded-theme font-bold text-theme-danger hover:text-white text-xs btn-secondary transition-colors">
+          class="flex items-center gap-1.5 hover:bg-theme-danger px-3 py-1.5 border-theme-danger rounded-theme font-bold text-theme-danger hover:text-white text-xs transition-colors btn-secondary">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-trash"></use>
           </svg>
@@ -296,12 +304,12 @@ if (!isset($skin) || !is_array($skin)) {
 
     <!-- Drag & Drop Overlay -->
     <div x-show="isDragging"
-      class="z-50 absolute inset-0 pointer-events-none flex flex-col justify-center items-center bg-theme-primary/10 backdrop-blur-sm border-4 border-theme-primary border-dashed rounded-theme text-theme-primary"
+      class="z-50 absolute inset-0 flex flex-col justify-center items-center bg-theme-primary/10 backdrop-blur-sm border-4 border-theme-primary border-dashed rounded-theme text-theme-primary pointer-events-none"
       style="display: none;" x-transition>
       <p class="font-bold text-2xl pointer-events-none">
         <?= _t('media_drop_hint') ?>
       </p>
-      <p class="text-sm opacity-80 mt-2 font-bold pointer-events-none" x-show="window.grindsUploadMax">
+      <p class="opacity-80 mt-2 font-bold text-sm pointer-events-none" x-show="window.grindsUploadMax">
         <span x-text="'Max: ' + Math.max(1, Math.floor(window.grindsUploadMax / 1048576)) + 'MB'"></span>
       </p>
     </div>
@@ -325,13 +333,13 @@ if (!isset($skin) || !is_array($skin)) {
       </p>
 
       <!-- Progress Bar -->
-      <div class="w-64 h-2 bg-theme-bg rounded-full mt-4 overflow-hidden border border-theme-border/50" x-show="uploadProgressPercent > 0">
-        <div class="h-full bg-theme-primary transition-all duration-200 ease-out" :style="'width: ' + uploadProgressPercent + '%'"></div>
+      <div class="bg-theme-bg mt-4 border border-theme-border/50 rounded-full w-64 h-2 overflow-hidden" x-show="uploadProgressPercent > 0">
+        <div class="bg-theme-primary h-full transition-all duration-200 ease-out" :style="'width: ' + uploadProgressPercent + '%'"></div>
       </div>
-      <p x-show="uploadProgressPercent > 0" class="text-xs text-theme-primary font-bold mt-1" x-text="uploadProgressPercent + '%'"></p>
+      <p x-show="uploadProgressPercent > 0" class="mt-1 font-bold text-theme-primary text-xs" x-text="uploadProgressPercent + '%'"></p>
 
       <p class="opacity-60 mt-4 text-theme-text text-sm" x-text="trans.uploading_wait"></p>
-      <p class="opacity-40 mt-1 text-theme-text text-[10px]"><?= _t('msg_upload_may_take_time') ?? '※ Depending on your environment, it may take a few minutes.' ?></p>
+      <p class="opacity-40 mt-1 text-[10px] text-theme-text"><?= _t('msg_upload_may_take_time') ?? '※ Depending on your environment, it may take a few minutes.' ?></p>
     </div>
 
     <!-- Grid View Area -->
@@ -346,38 +354,38 @@ if (!isset($skin) || !is_array($skin)) {
 
             <div class="relative w-full h-full">
               <template x-if="file.is_image">
-                <div class="w-full h-full bg-checker">
+                <div class="bg-checker w-full h-full">
                   <img :src="file.thumbnail_url || file.url"
                     class="w-full h-full object-contain group-hover:scale-105 transition-transform duration-500"
                     loading="lazy">
                 </div>
               </template>
               <template x-if="!file.is_image && file.file_type && file.file_type.startsWith('video/')">
-                <div class="flex flex-col justify-center items-center bg-theme-bg/80 w-full h-full text-theme-primary p-2">
-                  <svg class="w-10 h-10 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="flex flex-col justify-center items-center bg-theme-bg/80 p-2 w-full h-full text-theme-primary">
+                  <svg class="mb-1 w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-film"></use>
                   </svg>
-                  <span class="font-bold text-[10px] w-full text-center truncate text-theme-text" x-text="file.metadata?.original_name || file.filename"></span>
-                  <span class="opacity-50 text-[9px] uppercase mt-0.5" x-text="file.filename.split('.').pop()"></span>
+                  <span class="w-full font-bold text-[10px] text-theme-text text-center truncate" x-text="file.metadata?.original_name || file.filename"></span>
+                  <span class="opacity-50 mt-0.5 text-[9px] uppercase" x-text="file.filename.split('.').pop()"></span>
                 </div>
               </template>
               <template x-if="!file.is_image && file.file_type && file.file_type.startsWith('audio/')">
-                <div class="flex flex-col justify-center items-center bg-theme-bg/80 w-full h-full text-theme-primary p-2">
-                  <svg class="w-10 h-10 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="flex flex-col justify-center items-center bg-theme-bg/80 p-2 w-full h-full text-theme-primary">
+                  <svg class="mb-1 w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-musical-note"></use>
                   </svg>
-                  <span class="font-bold text-[10px] w-full text-center truncate text-theme-text" x-text="file.metadata?.original_name || file.filename"></span>
-                  <span class="opacity-50 text-[9px] uppercase mt-0.5" x-text="file.filename.split('.').pop()"></span>
+                  <span class="w-full font-bold text-[10px] text-theme-text text-center truncate" x-text="file.metadata?.original_name || file.filename"></span>
+                  <span class="opacity-50 mt-0.5 text-[9px] uppercase" x-text="file.filename.split('.').pop()"></span>
                 </div>
               </template>
               <template
                 x-if="!file.is_image && (!file.file_type || (!file.file_type.startsWith('video/') && !file.file_type.startsWith('audio/')))">
-                <div class="flex flex-col justify-center items-center bg-theme-bg/80 w-full h-full text-theme-primary p-2">
-                  <svg class="w-10 h-10 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="flex flex-col justify-center items-center bg-theme-bg/80 p-2 w-full h-full text-theme-primary">
+                  <svg class="mb-1 w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-document-text"></use>
                   </svg>
-                  <span class="font-bold text-[10px] w-full text-center truncate text-theme-text" x-text="file.metadata?.original_name || file.filename"></span>
-                  <span class="opacity-50 text-[9px] uppercase mt-0.5" x-text="file.filename.split('.').pop()"></span>
+                  <span class="w-full font-bold text-[10px] text-theme-text text-center truncate" x-text="file.metadata?.original_name || file.filename"></span>
+                  <span class="opacity-50 mt-0.5 text-[9px] uppercase" x-text="file.filename.split('.').pop()"></span>
                 </div>
               </template>
             </div>
@@ -447,7 +455,7 @@ if (!isset($skin) || !is_array($skin)) {
                 <div
                   class="flex justify-center items-center bg-checker border border-theme-border rounded-theme w-10 h-10 overflow-hidden">
                   <template x-if="file.is_image">
-                    <div class="w-full h-full bg-checker"><img :src="file.thumbnail_url || file.url"
+                    <div class="bg-checker w-full h-full"><img :src="file.thumbnail_url || file.url"
                         class="w-full h-full object-contain" loading="lazy"></div>
                   </template>
                   <template x-if="!file.is_image && file.file_type && file.file_type.startsWith('video/')">
@@ -457,7 +465,7 @@ if (!isset($skin) || !is_array($skin)) {
                   </template>
                   <template
                     x-if="!file.is_image && (!file.file_type || (!file.file_type.startsWith('video/') && !file.file_type.startsWith('audio/')))">
-                    <span class="font-bold text-[9px] uppercase truncate px-1 text-theme-primary"
+                    <span class="px-1 font-bold text-[9px] text-theme-primary truncate uppercase"
                       x-text="file.filename.split('.').pop()"></span>
                   </template>
                   <template x-if="!file.is_image && file.file_type && file.file_type.startsWith('audio/')">
@@ -480,13 +488,13 @@ if (!isset($skin) || !is_array($skin)) {
               <td class="px-6 py-4 text-center">
                 <div class="flex justify-center items-center gap-2">
                   <button @click.stop="openDetail(file)"
-                    class="p-2 flex items-center justify-center text-theme-primary hover:scale-110 transition-transform"
+                    class="flex justify-center items-center p-2 text-theme-primary hover:scale-110 transition-transform"
                     aria-label="<?= h(_t('view')) ?>"><svg class="w-4 h-4" fill="none" stroke="currentColor"
                       viewBox="0 0 24 24">
                       <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-eye"></use>
                     </svg></button>
                   <button @click.stop="deleteFile(file)"
-                    class="p-2 flex items-center justify-center text-theme-danger hover:scale-110 transition-transform"
+                    class="flex justify-center items-center p-2 text-theme-danger hover:scale-110 transition-transform"
                     title="<?= h(_t('delete')) ?>"><svg class="w-4 h-4" fill="none" stroke="currentColor"
                       viewBox="0 0 24 24">
                       <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-trash"></use>
@@ -501,8 +509,8 @@ if (!isset($skin) || !is_array($skin)) {
 
     <!-- Empty State -->
     <div x-show="!loading && files.length === 0"
-      class="flex flex-col flex-1 justify-center items-center py-16 px-4 bg-theme-bg/30 border-2 border-theme-border border-dashed rounded-theme text-center" x-cloak>
-      <div class="flex justify-center items-center w-16 h-16 mb-4 rounded-full bg-theme-surface shadow-theme text-theme-text opacity-50">
+      class="flex flex-col flex-1 justify-center items-center bg-theme-bg/30 px-4 py-16 border-2 border-theme-border border-dashed rounded-theme text-center" x-cloak>
+      <div class="flex justify-center items-center bg-theme-surface opacity-50 shadow-theme mb-4 rounded-full w-16 h-16 text-theme-text">
         <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-arrow-up-tray"></use>
         </svg>
@@ -510,10 +518,10 @@ if (!isset($skin) || !is_array($skin)) {
       <h3 class="mb-1 font-bold text-theme-text text-lg">
         <?= _t('msg_no_media') ?>
       </h3>
-      <p class="text-sm text-theme-text opacity-60">
+      <p class="opacity-60 text-theme-text text-sm">
         <?= _t('media_drop_hint') ?>
       </p>
-      <p class="text-[10px] text-theme-text opacity-40 mt-1 font-mono" x-show="window.grindsUploadMax">
+      <p class="opacity-40 mt-1 font-mono text-[10px] text-theme-text" x-show="window.grindsUploadMax">
         <span x-text="'Max: ' + Math.max(1, Math.floor(window.grindsUploadMax / 1048576)) + 'MB'"></span>
       </p>
     </div>
@@ -558,14 +566,14 @@ if (!isset($skin) || !is_array($skin)) {
   <template x-teleport="body">
     <div x-show="detailModalOpen" class="z-50 fixed inset-0 flex justify-center items-center p-4" style="display: none;"
       x-cloak>
-      <div class="fixed inset-0 skin-modal-overlay backdrop-blur-sm transition-opacity"
+      <div class="fixed inset-0 backdrop-blur-sm transition-opacity skin-modal-overlay"
         @click="detailModalOpen = false"></div>
 
       <!-- Modal Navigation and Content -->
       <div class="z-10 relative flex justify-center items-center gap-4 w-full h-full pointer-events-none">
 
         <button @click="prevFile()"
-          class="hidden md:flex items-center justify-center p-4 rounded-full pointer-events-auto btn-secondary shrink-0 opacity-80 hover:opacity-100"
+          class="hidden md:flex justify-center items-center opacity-80 hover:opacity-100 p-4 rounded-full pointer-events-auto btn-secondary shrink-0"
           title="<?= h(_t('prev')) ?>" aria-label="<?= h(_t('prev')) ?>">
           <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-chevron-left"></use>
@@ -577,7 +585,7 @@ if (!isset($skin) || !is_array($skin)) {
 
           <!-- Preview Area -->
           <div
-            class="group relative flex flex-col justify-center items-center bg-checker bg-theme-bg/50 p-4 md:p-8 border-theme-border md:border-r border-b md:border-b-0 w-full md:w-2/3 shrink-0 overflow-hidden">
+            class="group relative flex flex-col justify-center items-center bg-checker bg-theme-bg/50 p-4 md:p-8 border-theme-border md:border-r border-b md:border-b-0 w-full md:w-2/3 overflow-hidden shrink-0">
             <template x-if="activeFile">
               <div class="flex justify-center items-center w-full h-full">
                 <template x-if="activeFile.is_image">
@@ -593,7 +601,7 @@ if (!isset($skin) || !is_array($skin)) {
                 </template>
                 <template
                   x-if="!activeFile.is_image && activeFile.file_type && activeFile.file_type.startsWith('audio/')">
-                  <audio controls class="w-full max-w-md shadow-theme rounded-theme">
+                  <audio controls class="shadow-theme rounded-theme w-full max-w-md">
                     <source :src="activeFile.url" :type="activeFile.file_type">
                   </audio>
                 </template>
@@ -604,7 +612,7 @@ if (!isset($skin) || !is_array($skin)) {
                       viewBox="0 0 24 24">
                       <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-document-text"></use>
                     </svg>
-                    <div class="font-mono font-bold text-theme-text text-2xl break-all px-4"
+                    <div class="px-4 font-mono font-bold text-theme-text text-2xl break-all"
                       x-text="activeFile.metadata?.original_name || activeFile.filename"></div>
                   </div>
                 </template>
@@ -613,21 +621,21 @@ if (!isset($skin) || !is_array($skin)) {
           </div>
 
           <!-- File Info Sidebar -->
-          <div class="flex flex-col bg-theme-surface w-full md:w-1/3 md:min-w-[320px] flex-1 min-h-0">
+          <div class="flex flex-col flex-1 bg-theme-surface w-full md:w-1/3 md:min-w-[320px] min-h-0">
             <div class="flex justify-between items-center bg-theme-bg/20 p-4 md:p-6 border-theme-border border-b">
               <div class="pr-4 min-w-0">
                 <h3 class="font-bold text-theme-text text-lg truncate"
                   x-text="activeFile?.metadata?.original_name || activeFile?.filename"></h3>
                 <p class="opacity-50 mt-1 font-mono text-theme-text text-xs truncate" x-text="activeFile?.file_type"></p>
-                <div class="flex flex-wrap items-center gap-2 mt-2 text-[10px] text-theme-text opacity-70 font-mono">
+                <div class="flex flex-wrap items-center gap-2 opacity-70 mt-2 font-mono text-[10px] text-theme-text">
                   <template x-if="activeFile?.metadata?.width && activeFile?.metadata?.height">
-                    <span class="bg-theme-bg px-1.5 py-0.5 rounded border border-theme-border" x-text="activeFile?.metadata?.width + ' × ' + activeFile?.metadata?.height + ' px'"></span>
+                    <span class="bg-theme-bg px-1.5 py-0.5 border border-theme-border rounded" x-text="activeFile?.metadata?.width + ' × ' + activeFile?.metadata?.height + ' px'"></span>
                   </template>
-                  <span class="bg-theme-bg px-1.5 py-0.5 rounded border border-theme-border" x-text="formatSize(activeFile?.file_size)"></span>
-                  <span class="bg-theme-bg px-1.5 py-0.5 rounded border border-theme-border" x-text="activeFile?.uploaded_at ? activeFile.uploaded_at.substring(0, 16) : ''"></span>
+                  <span class="bg-theme-bg px-1.5 py-0.5 border border-theme-border rounded" x-text="formatSize(activeFile?.file_size)"></span>
+                  <span class="bg-theme-bg px-1.5 py-0.5 border border-theme-border rounded" x-text="activeFile?.uploaded_at ? activeFile.uploaded_at.substring(0, 16) : ''"></span>
                 </div>
               </div>
-              <button @click="detailModalOpen = false" class="opacity-40 hover:opacity-100 p-2 flex items-center justify-center text-theme-text"
+              <button @click="detailModalOpen = false" class="flex justify-center items-center opacity-40 hover:opacity-100 p-2 text-theme-text"
                 aria-label="<?= h(_t('close_menu')) ?>"><svg class="w-6 h-6" fill="none" stroke="currentColor"
                   viewBox="0 0 24 24">
                   <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-x-mark"></use>
@@ -665,7 +673,7 @@ if (!isset($skin) || !is_array($skin)) {
                       class="flex items-center gap-1 bg-theme-primary/20 px-2 py-0.5 border border-theme-primary/30 rounded-theme text-theme-primary text-xs">
                       <span x-text="tag"></span>
                       <button type="button" @click.stop="removeTag(index)"
-                        class="focus:outline-none hover:text-theme-danger p-1 -m-1"
+                        class="-m-1 p-1 focus:outline-none hover:text-theme-danger"
                         aria-label="<?= h(_t('remove')) ?>">&times;</button>
                     </span>
                   </template>
@@ -700,7 +708,7 @@ if (!isset($skin) || !is_array($skin)) {
                   <label class="block opacity-70 mb-1 font-bold text-theme-text text-xs"><?= _t('lbl_title') ?></label>
                   <input type="text" x-model="metaForm.title" class="w-full form-control-sm">
                 </div>
-                <hr class="border-theme-border my-4">
+                <hr class="my-4 border-theme-border">
                 <div>
                   <label class="block opacity-70 mb-1 font-bold text-theme-text text-xs">
                     <?= _t('lbl_license_status') ?>
@@ -749,6 +757,45 @@ if (!isset($skin) || !is_array($skin)) {
                       placeholder="<?= _t('ph_prompt') ?>"></textarea>
                   </div>
                 </div>
+
+                <!-- Usage Info -->
+                <div class="pt-4 border-theme-border border-t">
+                  <div class="flex justify-between items-center mb-2">
+                    <span class="opacity-70 font-bold text-theme-text text-xs">
+                      <?= _t('lbl_media_usage') ?? 'Used In' ?>
+                    </span>
+                    <div x-show="isFetchingUsage">
+                      <svg class="w-4 h-4 text-theme-primary animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-arrow-path"></use>
+                      </svg>
+                    </div>
+                  </div>
+                  <div x-show="!isFetchingUsage && fileUsageList.length === 0" class="opacity-50 text-[10px] text-theme-text italic">
+                    <?= _t('msg_media_not_used') ?? 'Not currently in use.' ?>
+                  </div>
+                  <ul x-show="!isFetchingUsage && fileUsageList.length > 0" class="space-y-1.5 mt-2 pr-1 max-h-32 overflow-y-auto custom-scrollbar">
+                    <template x-for="usage in fileUsageList" :key="usage.type + '-' + usage.id">
+                      <li class="flex items-center gap-2 bg-theme-surface shadow-sm px-2 py-1.5 border border-theme-border rounded-theme text-[10px] text-theme-text">
+                        <span class="opacity-80 min-w-10 font-bold text-theme-primary text-center uppercase shrink-0" x-text="usage.type"></span>
+                        <div class="bg-theme-border w-px h-3 shrink-0"></div>
+                        <template x-if="usage.edit_url">
+                          <a :href="usage.edit_url" target="_blank" class="flex-1 font-mono font-medium hover:text-theme-primary truncate transition-colors" x-text="usage.title" :title="usage.title"></a>
+                        </template>
+                        <template x-if="!usage.edit_url">
+                          <span class="flex-1 font-mono font-medium truncate" x-text="usage.title" :title="usage.title"></span>
+                        </template>
+                        <template x-if="usage.edit_url">
+                          <a :href="usage.edit_url" target="_blank" class="opacity-40 hover:opacity-100 text-theme-text hover:text-theme-primary transition-colors shrink-0" aria-label="<?= h(_t('edit')) ?>">
+                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-arrow-top-right-on-square"></use>
+                            </svg>
+                          </a>
+                        </template>
+                      </li>
+                    </template>
+                  </ul>
+                </div>
+
               </div>
             </div>
 
@@ -768,7 +815,7 @@ if (!isset($skin) || !is_array($skin)) {
         </div>
 
         <button @click="nextFile()"
-          class="hidden md:flex items-center justify-center p-4 rounded-full pointer-events-auto btn-secondary shrink-0 opacity-80 hover:opacity-100"
+          class="hidden md:flex justify-center items-center opacity-80 hover:opacity-100 p-4 rounded-full pointer-events-auto btn-secondary shrink-0"
           title="<?= h(_t('next')) ?>" aria-label="<?= h(_t('next')) ?>">
           <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-chevron-right"></use>

@@ -176,7 +176,7 @@ return [
     'alert_warning_files_title' => '不要なOS設定ファイルが見つかりました',
     'alert_warning_files_msg' => 'システムにとって必須ではないOSのメタデータファイル（隠しファイル）が混入しています。<br>検出されたファイル: <code>%s</code><br>直ちに危険があるわけではありませんが、ディレクトリ情報を推測されるリスクがあるため、不要であればFTP等で削除しておくことをおすすめします。<br><br><span class="opacity-80 text-xs">※ 削除後、警告表示を消すには全キャッシュをクリアするか再ログインしてください。</span>',
     'alert_mail_title' => 'メール送信設定が未完了です',
-    'alert_mail_msg' => 'パスワードリセットなどを利用するには、<a href="settings.php?tab=mail" class="font-bold underline">メール設定</a>でSMTP設定を行ってください。',
+    'alert_mail_msg' => 'パスワードリセットなどの利用や、セキュリティを大幅に強化する<strong>「2要素認証（メールOTP）」プラグイン</strong>を有効化するために、<a href="settings.php?tab=mail" class="font-bold underline">メール設定</a>でSMTP設定を行ってください。',
     'alert_ga_title' => 'Google Analyticsが設定されていません',
     'alert_ga_msg' => 'アクセス解析を有効にするには、<a href="settings.php?tab=integration" class="font-bold underline">連携設定</a>ページで測定IDを設定してください。',
     'alert_log_title' => 'システムログ肥大化の警告',
@@ -779,7 +779,7 @@ return [
 
     // Define mail settings.
     'st_smtp_title' => 'メール送信設定 (SMTP)',
-    'st_mail_desc' => 'お問い合わせフォームの自動送信や、システムからの通知に使用します。Gmailを利用する場合、<a href="https://support.google.com/accounts/answer/185833" target="_blank" class="text-theme-primary hover:underline">アプリパスワード</a> の使用を推奨します。',
+    'st_mail_desc' => 'お問い合わせフォームの自動送信やシステムからの通知、および<strong>2要素認証（メールOTP）</strong>に使用します。Gmailを利用する場合、<a href="https://support.google.com/accounts/answer/185833" target="_blank" class="text-theme-primary hover:underline">アプリパスワード</a> の使用を推奨します。',
     'st_smtp_from' => '差出人メールアドレス (From)',
     'st_smtp_from_h' => '受信者に表示されるメールアドレスです。例: noreply@yoursite.com',
     'st_smtp_admin' => '管理者メールアドレス',
@@ -795,6 +795,8 @@ return [
     'st_smtp_enc' => '暗号化方式',
     'st_test_mail_h' => 'テストメール送信',
     'mail_test_sent' => 'テストメールを送信しました。受信トレイを確認してください。',
+    'st_2fa_guide_title' => '🔒 2要素認証 (2FA) を有効にするには',
+    'st_2fa_guide_desc' => 'SMTP設定を完了し、テストメールが届くことを確認した後、<code>src/plugins/_mail_otp_2fa.php</code> のファイル名から先頭の <code>_</code> (アンダースコア) を削除して有効化してください。詳細は <code>README.md</code> を参照してください。',
     'st_sess_timeout' => 'セッションタイムアウト (秒)',
     'st_max_attempts' => 'ログイン試行回数の上限',
     'st_lockout_time' => 'ログインロック時間 (分)',
@@ -872,6 +874,8 @@ return [
     'st_trust_proxies_desc' => 'CloudflareやAWS ELBなどのリバースプロキシ配下で運用する場合に有効にしてください。正しいIPアドレスが取得できるようになります。',
     'st_trusted_ips' => '信頼するプロキシIP',
     'st_trusted_ips_desc' => 'プロキシサーバーのIPアドレスまたはCIDR範囲をカンマ区切りで入力します（例: 10.0.0.0/8, 172.16.0.1）。空欄の場合はすべて信頼します（非推奨）。',
+    'st_proxy_warning_title' => '⚠️ セキュリティ警告: IPスプーフィングの危険性',
+    'st_proxy_warning_desc' => 'この欄を空にすると、世界中の誰もがHTTPヘッダーを偽装してIPアドレスをなりすますことが可能になります。サイトを守るため、必ずCloudflare等のプロバイダが公開しているIPアドレス帯を入力してください。',
     'st_debug_mode' => 'デバッグモード',
     'st_debug_mode_desc' => '詳細なエラーを表示します（開発用）。',
     'st_check_uploads' => '未使用のアップロードファイルをチェック',
@@ -1656,6 +1660,9 @@ return [
     'err_encode_preview_data' => 'プレビューデータのJSONエンコードに失敗しました。',
     'st_backup_important_title' => '【重要】完全な復元のために',
     'st_backup_important_desc' => 'ここからダウンロードできるのはデータベース（記事や設定データ）のみです。<br>万が一のサーバー障害や移転に備えて、必ずFTPやコントロールパネル等で <strong>config.php</strong> および <strong>assets/uploads/</strong> フォルダも別途バックアップして手元に保管してください。',
+    'st_backup_zip_password' => 'ZIP 暗号化パスワード (AES-256)',
+    'help_backup_zip_password' => '⚠️ 設定すると、フルバックアップ（移行用）ZIPファイルが暗号化されます。パスワードを忘れないでください！',
+    'ph_backup_zip_password' => '暗号化しない場合は空欄',
 
     'msg_post_saved' => '記事を保存しました。',
     'drag_to_reorder' => 'ドラッグして並べ替え',
@@ -1671,4 +1678,7 @@ return [
     'msg_password_protect_below' => 'ここから下のブロックはロックされます',
     'msg_esc_to_blur' => 'ESCキーでフォーカスを外す',
     'Test Password Screen' => 'テストパスワード画面',
+    'lbl_media_usage' => '使用箇所',
+    'msg_media_not_used' => '現在使用されていません',
+    'msg_delete_skipped' => '%s 件削除しました。%s 件は使用中のためスキップされました。',
 ];

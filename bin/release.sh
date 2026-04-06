@@ -1,11 +1,11 @@
 #!/bin/bash
 
 # GrindSite Release Automation Script
-# Usage: ./bin/release.sh v1.4.1 "Added powerful CLI tool and new admin skins"
+# Usage: ./bin/release.sh v1.5.0 "Added powerful CLI tool and new admin skins"
 
 if [ -z "$1" ]; then
   echo "❌ Error: Version tag is required."
-  echo "Usage: ./bin/release.sh v1.4.1 \"Release message\""
+  echo "Usage: ./bin/release.sh v1.5.0 \"Release message\""
   exit 1
 fi
 
@@ -56,5 +56,14 @@ echo "🏷️ Tagging and pushing to GitHub..."
 git tag -a "$VERSION" -m "$MESSAGE"
 git push origin main
 git push origin "$VERSION"
+
+# 7. Prepare Release Notes Template to Clipboard (macOS)
+TEMPLATE_FILE="bin/release_template.txt"
+if [ -f "$TEMPLATE_FILE" ]; then
+  echo "📋 Copying release template to clipboard..."
+  sed "s/{{VERSION}}/$VERSION/g" "$TEMPLATE_FILE" | pbcopy
+  echo "✅ Template copied! You can now just Paste (Cmd+V) into GitHub."
+  echo "👉 Open: https://github.com/grindworks/grind-site/releases/new?tag=$VERSION"
+fi
 
 echo "🎉 All Done! Release $VERSION has been cleanly archived, committed, tagged, and pushed."

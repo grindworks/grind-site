@@ -154,8 +154,9 @@ $search_q = Routing::getString($params, 'q');
 $whereSql = '';
 $whereParams = [];
 if ($search_q !== '') {
-  $whereSql = 'name LIKE ? OR slug LIKE ?';
-  $whereParams = ["%$search_q%", "%$search_q%"];
+  $escaped_q = grinds_escape_like($search_q);
+  $whereSql = "WHERE name LIKE ? ESCAPE '\\' OR slug LIKE ? ESCAPE '\\'";
+  $whereParams = ["%{$escaped_q}%", "%{$escaped_q}%"];
 }
 
 // Fetch tags using the paginator helper

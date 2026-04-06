@@ -694,10 +694,12 @@ function grinds_save_post(PDO $pdo, array $data, array $files, string $action, ?
         $retryCount = 0;
         $maxRetries = 10;
 
-        $inTransaction = $pdo->inTransaction();
+        $wasExternallyTransactioned = $pdo->inTransaction();
 
         while (!$saved && $retryCount < $maxRetries) {
-            if (!$inTransaction) {
+            $currentTransactionState = $pdo->inTransaction();
+
+            if (!$currentTransactionState) {
                 $pdo->beginTransaction();
                 $startedTransaction = true;
             } else {
@@ -817,16 +819,17 @@ function grinds_save_post(PDO $pdo, array $data, array $files, string $action, ?
                     }
                 }
 
-                if (!$inTransaction) {
+                if (!$currentTransactionState) {
                     $pdo->commit();
                 } else {
                     $pdo->exec("RELEASE SAVEPOINT grinds_save_post_retry");
                 }
                 $saved = true;
             } catch (PDOException $e) {
-                if (!$inTransaction) {
+                if (!$currentTransactionState) {
                     if ($pdo->inTransaction()) {
                         $pdo->rollBack();
+                        $startedTransaction = false;
                     }
                 } else {
                     $pdo->exec("ROLLBACK TO SAVEPOINT grinds_save_post_retry");
@@ -870,7 +873,7 @@ function grinds_save_post(PDO $pdo, array $data, array $files, string $action, ?
         // Rollback only if this function started the main transaction
         if ($startedTransaction && $pdo->inTransaction()) {
             $pdo->rollBack();
-        } elseif (isset($inTransaction) && $inTransaction && $pdo->inTransaction()) {
+        } elseif (isset($wasExternallyTransactioned) && $wasExternallyTransactioned && $pdo->inTransaction()) {
             // If inside an external transaction, rollback to the savepoint to keep the parent transaction safe
             try {
                 $pdo->exec("ROLLBACK TO SAVEPOINT grinds_save_post_retry");
@@ -1280,10 +1283,19 @@ function grinds_cleanup_unused_media_files(PDO $pdo, array $paths): void
     if (!empty($cleanPaths)) {
         $usageMap = FileManager::getBulkFileUsage($pdo, $cleanPaths);
 
+        $stmtGetId = $pdo->prepare("SELECT id FROM media WHERE filepath = ?");
+        $stmtDelTags = $pdo->prepare("DELETE FROM media_tags WHERE media_id = ?");
+        $stmtDelMedia = $pdo->prepare("DELETE FROM media WHERE id = ?");
+
         foreach ($cleanPaths as $cleanPath) {
             if (!isset($usageMap[$cleanPath])) {
                 if (FileManager::delete($cleanPath)) {
-                    $pdo->prepare("DELETE FROM media WHERE filepath = ?")->execute([$cleanPath]);
+                    $stmtGetId->execute([$cleanPath]);
+                    $mediaId = $stmtGetId->fetchColumn();
+                    if ($mediaId) {
+                        $stmtDelTags->execute([$mediaId]);
+                        $stmtDelMedia->execute([$mediaId]);
+                    }
                 }
             }
         }
@@ -1350,7 +1362,7 @@ if (!class_exists('PostRepository')) {
                     $where[] = "p.type = ?";
                     $params[] = $filters['type'];
                 }
-            } elseif (!isset($filters['ignore_type']) && empty($filters['ids'])) {
+            } elseif (empty($filters['ids'])) {
                 // Default exclude templates if not specified
                 $where[] = "p.type != 'template'";
             }

@@ -17,8 +17,15 @@ if (!defined('GRINDS_APP')) exit; ?>
         <!-- Loop rows -->
         <template x-for="(row, rowIndex) in block.data.content" :key="rowIndex">
           <tr :class="{'border-t-2 border-theme-primary': dropIdx === rowIndex && dragIdx !== null && dragIdx > rowIndex, 'border-b-2 border-theme-primary': dropIdx === rowIndex && dragIdx !== null && dragIdx < rowIndex}"
-            @dragover.prevent="dropIdx = rowIndex"
-            @drop.prevent="if(dragIdx !== null && dragIdx !== rowIndex) block.data.content.splice(rowIndex, 0, block.data.content.splice(dragIdx, 1)[0]); dragIdx = null; dropIdx = null;">
+            @dragover.prevent.stop="dropIdx = rowIndex"
+            @drop.prevent.stop="
+              if(dragIdx !== null && dragIdx !== rowIndex) {
+                  const draggedItem = block.data.content.splice(dragIdx, 1)[0];
+                  const insertPos = (dragIdx < rowIndex) ? rowIndex - 1 : rowIndex;
+                  block.data.content.splice(insertPos, 0, draggedItem);
+              }
+              dragIdx = null; dropIdx = null;
+            ">
             <!-- Controls (Drag handle & Move buttons) -->
             <td class="w-8 p-1 border border-theme-border text-center align-middle" :class="{'bg-theme-surface': block.data.withHeadings && rowIndex === 0}">
               <div class="flex flex-col items-center justify-center w-full h-full gap-1 opacity-50 hover:opacity-100 transition-opacity">
@@ -30,8 +37,8 @@ if (!defined('GRINDS_APP')) exit; ?>
                 </button>
                 <!-- Drag handle (Hidden on mobile, visible on PC) -->
                 <button type="button" draggable="true"
-                  @dragstart="dragIdx = rowIndex; $event.dataTransfer.effectAllowed='move';"
-                  @dragend="dragIdx = null; dropIdx = null;"
+                  @dragstart.stop="dragIdx = rowIndex; $event.dataTransfer.effectAllowed='move';"
+                  @dragend.stop="dragIdx = null; dropIdx = null;"
                   class="cursor-grab active:cursor-grabbing hidden sm:block p-1 text-theme-text hover:text-theme-primary transition-colors" title="<?= h(_t('drag_to_reorder') ?? 'Drag to reorder') ?>">
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8h16M4 16h16" />
@@ -56,7 +63,7 @@ if (!defined('GRINDS_APP')) exit; ?>
             <template x-for="(cell, colIndex) in row" :key="colIndex">
               <td class="relative p-1 border border-theme-border group/cell" :class="{'bg-theme-surface font-bold': block.data.withHeadings && rowIndex === 0}">
                 <!-- Column Controls (visible on hover for the first row) -->
-                <div x-show="rowIndex === 0" class="absolute -top-3 left-1/2 -translate-x-1/2 z-10 flex items-center bg-theme-surface border border-theme-border rounded shadow-theme opacity-0 group-hover/cell:opacity-100 transition-opacity">
+                <div x-show="rowIndex === 0" class="absolute -top-3 left-1/2 -translate-x-1/2 z-10 flex items-center bg-theme-surface border border-theme-border rounded shadow-theme opacity-0 group-hover/cell:opacity-100 group-focus-within/cell:opacity-100 transition-opacity">
                   <!-- Move Left -->
                   <button type="button" @click.prevent="if(colIndex > 0) block.data.content.forEach(r => [r[colIndex - 1], r[colIndex]] = [r[colIndex], r[colIndex - 1]])" x-show="colIndex > 0" class="p-1 text-theme-text hover:text-theme-primary transition-colors" title="<?= h(_t('btn_move_left') ?? 'Move Left') ?>">
                     <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">

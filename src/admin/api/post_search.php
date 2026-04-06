@@ -27,7 +27,7 @@ try {
         $filters['search'] = $q;
     }
 
-    $posts = $repo->fetch($filters, 20, 0, 'p.published_at DESC', 'p.id, p.title, p.slug, p.type, p.published_at, p.updated_at');
+    $posts = $repo->fetch($filters, 20, 0, 'p.published_at DESC', 'p.id, p.title, p.slug, p.type, p.published_at, p.updated_at', false);
 
     $results = [];
     foreach ($posts as $row) {

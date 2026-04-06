@@ -32,8 +32,8 @@ add_action('grinds_footer', function () {
         const style1 = "color: #10b981; font-size: 14px; font-weight: bold;";
         const style2 = "color: #94a3b8; font-size: 12px;";
 
-        console.log("%cGrindSite Admin: Keep the codebase clean.", style1);
-        console.log("%cThank you for maintaining a bloat-free site.", style2);
+        console.log("%cGrindSite core loaded. All primary systems online. Awaiting instructions.", style1);
+        console.log("%cThank you for using our system. Have a great day!", style2);
     })();
 </script>
 HTML;

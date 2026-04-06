@@ -51,9 +51,8 @@ trait GeneratorCacheTrait
         $types = property_exists($this, 'cachePostTypes') ? $this->cachePostTypes : ['post', 'page'];
 
         $latest = $repo->getLatestPostTimestamp([
-            'status' => 'published',
-            'type' => $types,
-            'is_noindex' => 0
+            'status' => 'any',
+            'type' => $types
         ]);
         return $latest ? strtotime((string)$latest) : null;
     }

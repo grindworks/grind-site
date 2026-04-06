@@ -66,8 +66,9 @@ add_action('grinds_post_saved', function ($postId, $data) {
     $message = "[{$timestamp}] Post Saved! ID: {$postId}, Title: {$title}" . PHP_EOL;
 
     // Save log (Suppressed errors with @)
+    // LOCK_EX を追加して、複数人同時の書き込み時によるファイルの破損（競合状態）を防ぎます。
     // エラー抑制(@)付きで追記保存
-    @file_put_contents($logFile, $message, FILE_APPEND);
+    @file_put_contents($logFile, $message, FILE_APPEND | LOCK_EX);
 });
 
 // Other hooks available: 'grinds_post_deleted', 'grinds_trash_emptied'

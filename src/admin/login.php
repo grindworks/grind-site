@@ -116,7 +116,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$is_locked) {
                 $user = $stmt->fetch();
 
                 // Set dummy hash for timing attack mitigation
-                $dummy_hash = '$2y$10$abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1';
+                $dummy_hash = '$2y$10$USESOMESILLYSTRINGFORExKOfhA5k1d3Oa2W60u/U8hM52p.m7O';
 
                 if ($user) {
                     $isValid = password_verify($input_pass, $user['password']);
@@ -153,6 +153,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$is_locked) {
                     if (!empty($_POST['remember_me']) && function_exists('grinds_remember_me')) {
                         grinds_remember_me($user['id']);
                     }
+
+                    // Fire post-login hook
+                    do_action('grinds_post_login', $user['id']);
 
                     // Clear failed attempts
                     $pdo->prepare("DELETE FROM login_attempts WHERE ip_address = ?")->execute([$ip_address]);

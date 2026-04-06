@@ -176,7 +176,7 @@ return [
     'alert_warning_files_title' => 'Arquivos de SO Desnecessários Detectados',
     'alert_warning_files_msg' => 'Metadados de sistema operacional (arquivos ocultos) que não são essenciais para o sistema foram encontrados.<br>Arquivos detectados: <code>%s</code><br>Embora não representem uma ameaça imediata, eles podem vazar informações do diretório. Recomenda-se excluí-los via FTP se não forem necessários.<br><br><span class="opacity-80 text-xs">* Nota: Para atualizar este aviso após a exclusão, limpe os caches ou faça login novamente.</span>',
     'alert_mail_title' => 'Configurações de E-mail Incompletas',
-    'alert_mail_msg' => 'Para usar a redefinição de senha e notificações, configure o SMTP nas configurações de <a href="settings.php?tab=mail" class="font-bold underline">E-mail</a>.',
+    'alert_mail_msg' => 'Para usar a redefinição de senha, notificações e ativar a <strong>Autenticação de Dois Fatores (plugin Email OTP)</strong> para maior segurança, configure o SMTP nas configurações de <a href="settings.php?tab=mail" class="font-bold underline">E-mail</a>.',
     'alert_ga_title' => 'Google Analytics Não Configurado',
     'alert_ga_msg' => 'Para ativar as análises, defina seu ID de Medição nas configurações de <a href="settings.php?tab=integration" class="font-bold underline">Integração</a>.',
     'alert_log_title' => 'Log do Sistema Cheio',
@@ -779,7 +779,7 @@ return [
 
     // Define mail settings.
     'st_smtp_title' => 'Configurações de E-mail (SMTP)',
-    'st_mail_desc' => 'Usado para envios de formulário de contato e notificações do sistema. Se usar Gmail, uma <a href="https://support.google.com/accounts/answer/185833" target="_blank" class="text-theme-primary hover:underline">Senha de Aplicativo</a> é recomendada.',
+    'st_mail_desc' => 'Usado para envios de formulário de contato, notificações do sistema e <strong>Autenticação de Dois Fatores (2FA)</strong>. Se usar Gmail, uma <a href="https://support.google.com/accounts/answer/185833" target="_blank" class="text-theme-primary hover:underline">Senha de Aplicativo</a> é recomendada.',
     'st_smtp_from' => 'Endereço do Remetente',
     'st_smtp_from_h' => 'Endereço de e-mail exibido para os destinatários (ex., noreply@seusite.com).',
     'st_smtp_admin' => 'E-mail do Administrador',
@@ -795,6 +795,8 @@ return [
     'st_smtp_enc' => 'Criptografia',
     'st_test_mail_h' => 'Enviar E-mail de Teste',
     'mail_test_sent' => 'E-mail de teste enviado! Por favor, verifique sua caixa de entrada.',
+    'st_2fa_guide_title' => '🔒 Como ativar a Autenticação de Dois Fatores (2FA)',
+    'st_2fa_guide_desc' => 'Após configurar o SMTP e confirmar que os e-mails de teste funcionam, renomeie <code>src/plugins/_mail_otp_2fa.php</code> para <code>mail_otp_2fa.php</code> (remova o sublinhado) para ativá-lo. Consulte o <code>README.md</code> para mais detalhes.',
     'st_sess_timeout' => 'Tempo Limite da Sessão (seg)',
     'st_max_attempts' => 'Tentativas Máximas de Login',
     'st_lockout_time' => 'Tempo de Bloqueio (min)',
@@ -872,6 +874,8 @@ return [
     'st_trust_proxies_desc' => 'Ative isso se o seu site estiver atrás de um proxy reverso (ex: Cloudflare, AWS ELB) para detectar corretamente as IPs dos clientes.',
     'st_trusted_ips' => 'IPs de Proxy Confiáveis',
     'st_trusted_ips_desc' => 'Lista separada por vírgulas de endereços IP ou intervalos CIDR (ex: 10.0.0.0/8, 172.16.0.1). Deixe em branco para confiar em todos (Não recomendado).',
+    'st_proxy_warning_title' => '⚠️ Aviso de Segurança: Risco de Falsificação de IP (IP Spoofing)',
+    'st_proxy_warning_desc' => 'Deixar isso em branco permite que QUALQUER servidor falsifique IPs de clientes via cabeçalhos. Você DEVE inserir os intervalos de IP do seu provedor de proxy (ex: IPs da Cloudflare) para proteger seu site contra ataques de falsificação de IP.',
     'st_debug_mode' => 'Modo de Depuração',
     'st_debug_mode_desc' => 'Exibir erros detalhados (Para desenvolvimento).',
     'st_check_uploads' => 'Verificar Arquivos de Upload Não Utilizados',
@@ -1656,6 +1660,9 @@ return [
     'err_encode_preview_data' => 'Falha ao codificar os dados de pré-visualização para JSON.',
     'st_backup_important_title' => 'Aviso Importante para Recuperação Completa',
     'st_backup_important_desc' => 'Esses backups contêm apenas o banco de dados (posts e configurações). Para uma recuperação completa ou migração de servidor, certifique-se de baixar manualmente o seu arquivo <strong>config.php</strong> e o diretório <strong>assets/uploads/</strong> via FTP.',
+    'st_backup_zip_password' => 'Senha de criptografia ZIP (AES-256)',
+    'help_backup_zip_password' => '⚠️ Se definida, os arquivos ZIP de Backup Completo (Migração) serão criptografados. Não perca esta senha!',
+    'ph_backup_zip_password' => 'Deixe em branco para não criptografar',
 
     'msg_post_saved' => 'Post salvo com sucesso.',
     'drag_to_reorder' => 'Arraste para reordenar',
@@ -1671,4 +1678,7 @@ return [
     'msg_password_protect_below' => 'O conteúdo abaixo será bloqueado',
     'msg_esc_to_blur' => 'Pressione ESC para desfocar',
     'Test Password Screen' => 'Tela de teste de senha',
+    'lbl_media_usage' => 'Usado em',
+    'msg_media_not_used' => 'Não está em uso no momento.',
+    'msg_delete_skipped' => '%s excluídos. %s ignorados (em uso).',
 ];

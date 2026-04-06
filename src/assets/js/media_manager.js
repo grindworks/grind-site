@@ -184,6 +184,14 @@ window.GrindsMediaApi = {
     const query = id ? `?id=${id}` : '?action=suggestions';
     return this.request(`media_tags.php${query}`);
   },
+
+  /**
+   * Get usage info.
+   * @param {number} id
+   */
+  async getUsage(id) {
+    return this.request(`media_usage.php?id=${id}`);
+  },
 };
 
 // UI helpers
@@ -255,10 +263,7 @@ window.GrindsMediaHelpers = {
         return null;
       } catch (e) {
         if (e.status === 409) {
-          const forceMsg = trans.confirm_force_delete || 'Force delete?';
-          if (confirm(e.message + '\n\n' + forceMsg)) {
-            return await attempt(true);
-          }
+          window.showToast(e.message, 'error');
           return null;
         }
         throw e;
@@ -309,6 +314,8 @@ document.addEventListener('alpine:init', () => {
     // Modal
     detailModalOpen: false,
     activeFile: null,
+    fileUsageList: [],
+    isFetchingUsage: false,
     metaForm: { id: null, license: 'unknown', tags: [], credit: '', is_ai: false, prompt: '' },
 
     // Translation strings
@@ -498,6 +505,7 @@ document.addEventListener('alpine:init', () => {
       this.activeFile = file;
       this.syncForm(file);
       this.fetchFileTags(file.id);
+      this.fetchFileUsage(file.id);
       this.detailModalOpen = true;
     },
 
@@ -564,6 +572,24 @@ document.addEventListener('alpine:init', () => {
         const tags = await GrindsMediaApi.getTags(id);
         this.metaForm.tags = Array.isArray(tags) ? tags : [];
       } catch (e) {}
+    },
+
+    /**
+     * Fetch file usage details.
+     * @param {number} id
+     */
+    async fetchFileUsage(id) {
+      this.isFetchingUsage = true;
+      this.fileUsageList = [];
+      try {
+        const json = await GrindsMediaApi.getUsage(id);
+        if (json.success && Array.isArray(json.usage)) {
+          this.fileUsageList = json.usage;
+        }
+      } catch (e) {
+      } finally {
+        this.isFetchingUsage = false;
+      }
     },
 
     /**
@@ -749,7 +775,9 @@ document.addEventListener('alpine:init', () => {
         if (data && data.success) {
           this.selectedIds = [];
           if (data.skipped > 0) {
-            window.showToast(`${data.deleted} deleted. ${data.skipped} skipped (in use).`, 'warning');
+            let msg = this.trans.msg_delete_skipped || '%s deleted. %s skipped (in use).';
+            msg = msg.replace('%s', data.deleted).replace('%s', data.skipped);
+            window.showToast(msg, 'warning');
           }
 
           if (this.files.length <= data.deleted && this.page > 1) {

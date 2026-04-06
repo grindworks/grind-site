@@ -1831,7 +1831,7 @@ class FileManager
         }
 
         $escapedPath = preg_quote($path, '/');
-        $pattern = '/(?<![a-zA-Z0-9\.\-\_\/])' . $escapedPath . '(?![a-zA-Z0-9\.\-\_\/])/u';
+        $pattern = '/(?<![a-zA-Z0-9\.\-\_])' . $escapedPath . '(?![a-zA-Z0-9\.\-\_])/u';
 
         return preg_match($pattern, $content) === 1;
     }

@@ -948,6 +948,13 @@ if (!function_exists('grinds_admin_bar')) {
         $previewData = null;
         $previewToken = $_GET['preview'] ?? '';
 
+        // 管理画面（ダッシュボードなど）の中ではアドミンバーを表示しない
+        $requestUri = $_SERVER['REQUEST_URI'] ?? '';
+        $scriptName = $_SERVER['SCRIPT_NAME'] ?? '';
+        if (str_contains($requestUri, '/admin/') || str_contains($scriptName, '/admin/')) {
+            return;
+        }
+
         // Check for preview mode
         if ($previewToken && preg_match('/^[a-f0-9]{32}$/', $previewToken)) {
             $previewFile = ROOT_PATH . '/data/tmp/preview/preview_' . $previewToken . '.json';

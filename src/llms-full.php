@@ -367,6 +367,9 @@ if (!class_exists('LlmsFullGenerator')) {
                                 if (!preg_match('/^(https?:\/\/|\/\/|mailto:|tel:|data:|#)/i', $url)) {
                                     if (function_exists('resolve_url')) {
                                         $url = (string)resolve_url($url);
+                                        if ($this->isSsgMode && function_exists('grinds_ssg_replace_base_url')) {
+                                            $url = grinds_ssg_replace_base_url($url, $this->baseUrl);
+                                        }
                                     } else {
                                         if (!str_starts_with($url, '/')) {
                                             $url = '/' . ltrim($url, './');

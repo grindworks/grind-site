@@ -80,9 +80,22 @@ if (!defined('GRINDS_APP')) exit; ?>
       </label>
       <label class="block">
         <span class="block mb-2 font-bold text-theme-text text-sm"><?= _t('st_timezone') ?></span>
-        <select name="timezone" class="form-control">
-          <?php foreach (DateTimeZone::listIdentifiers() as $tz): ?>
-            <option value="<?= $tz ?>" <?= $opt['timezone'] === $tz ? 'selected' : '' ?>><?= $tz ?></option>
+        <select name="timezone" class="form-control cursor-pointer">
+          <?php
+          $groupedTimezones = [];
+          foreach (DateTimeZone::listIdentifiers() as $tz) {
+            $parts = explode('/', $tz);
+            $region = $parts[0];
+            $groupedTimezones[$region][] = $tz;
+          }
+          foreach ($groupedTimezones as $region => $list): ?>
+            <optgroup label="<?= h($region) ?>" class="bg-theme-bg font-bold text-theme-text">
+              <?php foreach ($list as $tz): ?>
+                <option value="<?= h($tz) ?>" <?= $opt['timezone'] === $tz ? 'selected' : '' ?> class="bg-theme-surface font-normal">
+                  <?= h($tz) ?>
+                </option>
+              <?php endforeach; ?>
+            </optgroup>
           <?php endforeach; ?>
         </select>
       </label>

@@ -17,11 +17,10 @@ if (!defined('GRINDS_APP')) exit; ?>
     <span class="opacity-50 text-[10px] text-theme-text"><?= _t('msg_esc_to_blur') ?? 'Press Esc to unfocus' ?></span>
   </div>
   <!-- Code content -->
-  <textarea x-model="block.data.code" :id="'block-' + block.id + '-code'" rows="8"
-    class="w-full font-mono text-xs form-control-sm resize-y overflow-y-auto min-h-[10rem] max-h-[500px]"
+  <textarea x-model="block.data.code" :id="'block-' + block.id + '-code'" rows="12"
+    class="w-full font-mono text-xs form-control-sm resize-y overflow-y-auto min-h-[10rem] max-h-[600px]"
     placeholder="<?= _t('ph_code') ?>"
-    x-init="$nextTick(() => { $el.style.height = 'auto'; $el.style.height = $el.scrollHeight + 'px' })"
-    @input="$el.style.height = 'auto'; $el.style.height = $el.scrollHeight + 'px'" @keydown.escape="$el.blur()" @keydown.tab.prevent="
+    @keydown.escape="$el.blur()" @keydown.tab.prevent="
       handleCodeIndent($event, index);
     "></textarea>
 </div>

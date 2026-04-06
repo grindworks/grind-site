@@ -138,7 +138,7 @@ try {
       'thumbnail' => !empty($post['thumbnail']) ? resolve_url(grinds_url_to_view((string)$post['thumbnail'])) : null,
       'content' => $blocks,
       'html' => function_exists('render_content') ? render_content($blocks) : '',
-      'plain_text' => function_exists('grinds_extract_text_from_content') ? grinds_extract_text_from_content($contentResolved) : strip_tags($contentResolved),
+      'plain_text' => mb_strimwidth(strip_tags(str_replace(['<br>', '<br/>', '</p>', '</div>'], ' ', $contentResolved)), 0, 5000, '...', 'UTF-8'),
       'features' => [
         'has_math' => strpos($contentResolved, '"type":"math"') !== false,
         'has_code' => strpos($contentResolved, '"type":"code"') !== false,

@@ -283,6 +283,9 @@ document.addEventListener('alpine:init', () => {
         // Escape HTML tags to prevent XSS (allow <br> for line breaks)
         str = this.escapeHtml(str).replace(/&lt;br&gt;/g, '<br>');
 
+        // Bail-out for extreme lengths to prevent performance degradation
+        if (str.length > 5000) return str;
+
         return str
           .replace(/\*\*(.*?)\*\*/g, '<b>$1</b>')
           .replace(/\*(.*?)\*/g, '<i>$1</i>')
@@ -2286,6 +2289,17 @@ document.addEventListener('alpine:init', () => {
         if (successfulUploads.length > 0) {
           // Push all at once to maintain order and improve reactivity performance.
           this.blocks[blockIndex].data.images.push(...successfulUploads);
+
+          // UX改善: 追加された画像が見えるように右端へスクロール
+          this.$nextTick(() => {
+            const blockEl = document.getElementById('block-wrapper-' + this.blocks[blockIndex].id);
+            if (blockEl) {
+              const scrollContainer = blockEl.querySelector('.overflow-x-auto') || blockEl.querySelector('.grid');
+              if (scrollContainer) {
+                scrollContainer.scrollTo({ left: scrollContainer.scrollWidth, behavior: 'smooth' });
+              }
+            }
+          });
         }
 
         if (errorMessages.length > 0) {
@@ -2549,6 +2563,12 @@ document.addEventListener('DOMContentLoaded', function () {
 // BFCache (Back/Forward Cache) recovery
 window.addEventListener('pageshow', (event) => {
   if (event.persisted) {
+    // Force release scroll lock on BFCache restore
+    if (typeof window.toggleScrollLock === 'function') {
+      window.scrollLockCount = 0;
+      window.toggleScrollLock(false);
+    }
+
     // Reset Alpine.js local component states
     document.querySelectorAll('[x-data]').forEach((el) => {
       if (el._x_dataStack && el._x_dataStack[0]) {

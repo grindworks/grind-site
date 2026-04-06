@@ -156,14 +156,21 @@ try {
       throw new Exception("Cannot create zip file.");
     }
 
+    $zipPassword = function_exists('get_option') ? get_option('backup_zip_password', '') : '';
+    if ($zipPassword !== '') {
+      $zip->setPassword($zipPassword);
+    }
+
     // Add DB file
     $dbName = basename(DB_FILE);
     $zip->addFile($safeDbFile, 'data/' . $dbName);
+    if ($zipPassword !== '') $zip->setEncryptionName('data/' . $dbName, ZipArchive::EM_AES_256);
 
     if (file_exists(ROOT_PATH . '/config.php')) {
       $origConfig = file_get_contents(ROOT_PATH . '/config.php');
       $configContent = grinds_prepare_migration_config($origConfig, $dbName);
       $zip->addFromString('config.php', $configContent);
+      if ($zipPassword !== '') $zip->setEncryptionName('config.php', ZipArchive::EM_AES_256);
     }
     $zip->close();
 
@@ -187,6 +194,11 @@ try {
     $zip = new ZipArchive();
     if ($zip->open($zipFile) !== TRUE) {
       throw new Exception("Cannot open zip file.");
+    }
+
+    $zipPassword = function_exists('get_option') ? get_option('backup_zip_password', '') : '';
+    if ($zipPassword !== '') {
+      $zip->setPassword($zipPassword);
     }
 
     $fp = fopen($fileListPath, 'r');
@@ -214,6 +226,9 @@ try {
           $relativePath = 'assets/uploads/' . ltrim(substr($normRealFilePath, strlen($normRealUploadDir)), '/');
           if (is_readable($realFilePath)) {
             $zip->addFile($realFilePath, $relativePath);
+            if ($zipPassword !== '') {
+              $zip->setEncryptionName($relativePath, ZipArchive::EM_AES_256);
+            }
           }
         }
       }

@@ -78,6 +78,18 @@ if (!defined('GRINDS_APP')) exit; ?>
       </label>
     </div>
 
+    <div class="flex items-start gap-3 bg-theme-info/10 mb-8 p-4 border border-theme-info/20 rounded-theme text-theme-info">
+      <svg class="mt-0.5 w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-information-circle"></use>
+      </svg>
+      <div class="text-xs leading-relaxed opacity-90">
+        <strong class="block mb-1 font-bold text-sm">
+          <?= _t('st_2fa_guide_title') ?>
+        </strong>
+        <?= _t('st_2fa_guide_desc') ?>
+      </div>
+    </div>
+
     <div class="flex sm:flex-row flex-col justify-between items-center gap-4 pt-6 border-theme-border border-t">
       <button type="submit" name="send_test_mail" value="1" :disabled="isSubmitting" class="shadow-theme px-4 py-2 rounded-theme w-full sm:w-auto text-xs font-bold transition-all disabled:opacity-70 disabled:cursor-not-allowed btn-secondary">
         <?= _t('send_test') ?>

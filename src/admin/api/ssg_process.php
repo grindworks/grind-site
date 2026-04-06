@@ -442,7 +442,6 @@ class GrindsSSG
 
             foreach ($exportIterator as $htmlFile) {
                 if ($htmlFile->isFile() && in_array(strtolower($htmlFile->getExtension()), ['html', 'css', 'js'])) {
-                    // 巨大なファイルは正規表現スキャンをスキップし、PCRE制限やメモリ枯渇を防ぐ（2MB上限）
                     if ($htmlFile->getSize() > 2 * 1024 * 1024) {
                         continue;
                     }
@@ -451,6 +450,10 @@ class GrindsSSG
                     if (preg_match_all($uploadPattern, $content, $matches)) {
                         foreach ($matches[1] as $match) {
                             $cleanPath = trim($match, '\'"\\ ');
+                            // Prevent path traversal strings in extracted URLs
+                            if (strpos($cleanPath, '..') !== false) {
+                                continue;
+                            }
                             $fullPath = $this->normalizePath($this->rootDir . '/' . $cleanPath);
                             if (file_exists($fullPath)) {
                                 $usedUploads[$fullPath] = true;
@@ -575,6 +578,11 @@ class GrindsSSG
             if (in_array($baseFileName, ['.ds_store', 'thumbs.db', 'desktop.ini']))
                 continue;
 
+            // Prevent path traversal strings
+            if (strpos($src, '..') !== false || strpos($srcPath, '..') !== false) {
+                continue;
+            }
+
             // Prevent path traversal
             // Use case-insensitive check for Windows compatibility
             $realSrc = realpath($src);
@@ -582,22 +590,42 @@ class GrindsSSG
 
             if ($realSrc && $realRoot) {
                 $realRootWithSlash = $realRoot . DIRECTORY_SEPARATOR;
-                // Check if it is the root itself OR inside the root
-                if ($realSrc !== $realRoot && stripos($realSrc, $realRootWithSlash) !== 0) {
+
+                // Must be inside safe directories: assets, plugins, theme
+                $isSafe = false;
+                foreach (['assets', 'plugins', 'theme'] as $safeDir) {
+                    $safePath = $realRootWithSlash . $safeDir . DIRECTORY_SEPARATOR;
+                    if (stripos($realSrc, $safePath) === 0) {
+                        $isSafe = true;
+                        break;
+                    }
+                }
+                if (!$isSafe) {
                     continue;
                 }
             } else {
                 // Fallback if realpath fails (unlikely for existing files)
                 $rootWithSlash = $this->rootDir . '/';
-                if ($srcPath !== $this->rootDir && stripos($srcPath, $rootWithSlash) !== 0) {
+
+                $isSafe = false;
+                foreach (['assets', 'plugins', 'theme'] as $safeDir) {
+                    $safePath = $rootWithSlash . $safeDir . '/';
+                    if (stripos($srcPath, $safePath) === 0) {
+                        $isSafe = true;
+                        break;
+                    }
+                }
+                if (!$isSafe) {
                     continue;
                 }
             }
 
             // Ensure paths are normalized for Windows compatibility before substring
-            $srcPath = str_replace('\\', '/', $srcPath);
-            $rootDirNorm = str_replace('\\', '/', $this->rootDir);
-            $rel = ltrim(substr($srcPath, strlen($rootDirNorm)), '/');
+            // Calculate relative path using the resolved absolute path ($realSrc) for safety
+            $realSrcNorm = str_replace('\\', '/', $realSrc ?: $srcPath);
+            $rootDirNorm = str_replace('\\', '/', $realRoot ?: $this->rootDir);
+            $rel = ltrim(substr($realSrcNorm, strlen($rootDirNorm)), '/');
+
             $dst = $this->exportDir . '/' . $rel;
             $dstDir = dirname($dst);
             if (!is_dir($dstDir))

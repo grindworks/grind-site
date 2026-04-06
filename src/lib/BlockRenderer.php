@@ -11,6 +11,7 @@ class BlockRenderer
     private string $spriteUrl;
     private bool $allowUnsafe;
     private static bool $scriptsEnqueued = false;
+    private bool $firstImageRendered = false;
 
     /**
      * Initialize the renderer.
@@ -83,15 +84,24 @@ class BlockRenderer
                 if (isset($_SESSION['admin_logged_in']) && $_SESSION['admin_logged_in']) {
                     $bypass = true;
                 } elseif (!empty($_GET['preview']) && preg_match('/^[a-f0-9]{32}$/', $_GET['preview'])) {
-                    $previewFile = defined('ROOT_PATH') ? ROOT_PATH . '/data/tmp/preview/preview_' . $_GET['preview'] . '.json' : '';
-                    if ($previewFile && file_exists($previewFile)) {
-                        global $pageData;
-                        $currentPostId = $pageData['post']['id'] ?? null;
-                        $pData = @json_decode(file_get_contents($previewFile), true);
-                        $previewIdMatch = ($currentPostId && isset($pData['id']) && $pData['id'] == $currentPostId) || (empty($currentPostId) && empty($pData['id']));
-                        if (is_array($pData) && $previewIdMatch) {
-                            if (!isset($pData['__expires_at']) || $pData['__expires_at'] > time()) {
-                                $bypass = true;
+                    global $pageData;
+
+                    // 1. すでにメモリ上にプレビューデータが展開されていればファイルI/Oをスキップ
+                    if (isset($pageData['post']['__expires_at'])) {
+                        if ($pageData['post']['__expires_at'] > time()) {
+                            $bypass = true;
+                        }
+                    } else {
+                        // 2. フォールバック: 通常の表示経由ではなく直接呼ばれた場合などのためにファイルを検証
+                        $previewFile = defined('ROOT_PATH') ? ROOT_PATH . '/data/tmp/preview/preview_' . $_GET['preview'] . '.json' : '';
+                        if ($previewFile && file_exists($previewFile)) {
+                            $currentPostId = $pageData['post']['id'] ?? null;
+                            $pData = @json_decode(file_get_contents($previewFile), true);
+                            $previewIdMatch = ($currentPostId && isset($pData['id']) && $pData['id'] == $currentPostId) || (empty($currentPostId) && empty($pData['id']));
+                            if (is_array($pData) && $previewIdMatch) {
+                                if (!isset($pData['__expires_at']) || $pData['__expires_at'] > time()) {
+                                    $bypass = true;
+                                }
                             }
                         }
                     }
@@ -711,10 +721,17 @@ HTML;
                 $width = (int)($data['width'] ?? 100);
                 $figStyle = ($width > 0 && $width < 100) ? " style='max-width: {$width}%; margin-left: auto; margin-right: auto;'" : "";
                 $html = "<figure class='{$commonClass} my-8'{$figStyle}>";
+
+                $loadingAttr = $this->firstImageRendered ? 'lazy' : 'eager';
                 $attrs = [
-                    'loading' => 'lazy',
+                    'loading' => $loadingAttr,
                     'class' => 'w-full rounded-theme shadow-theme border border-gray-100' . ($width === 100 ? ' mx-auto' : '')
                 ];
+                if (!$this->firstImageRendered) {
+                    $attrs['fetchpriority'] = 'high';
+                    $this->firstImageRendered = true;
+                }
+
                 if (isset($data['alt']) && $data['alt'] !== '') {
                     $attrs['alt'] = $data['alt'];
                 } elseif (isset($data['alt']) && $data['alt'] === '') {
@@ -879,7 +896,14 @@ HTML;
                     $src = resolve_url($img['url']);
                     $cap = h($img['caption'] ?? '');
                     $html .= "<div>";
-                    $html .= get_image_html($src, ['class' => 'w-full h-full object-cover rounded-theme shadow-theme', 'loading' => 'lazy', 'alt' => $img['alt'] ?? $img['caption'] ?? '']);
+
+                    $loadingAttr = $this->firstImageRendered ? 'lazy' : 'eager';
+                    $imgAttrs = ['class' => 'w-full h-full object-cover rounded-theme shadow-theme', 'loading' => $loadingAttr, 'alt' => $img['alt'] ?? $img['caption'] ?? ''];
+                    if (!$this->firstImageRendered) {
+                        $imgAttrs['fetchpriority'] = 'high';
+                        $this->firstImageRendered = true;
+                    }
+                    $html .= get_image_html($src, $imgAttrs);
                     if ($cap) $html .= "<div class='mt-1 text-gray-500 text-xs text-center'>{$cap}</div>";
                     $html .= "</div>";
                 }

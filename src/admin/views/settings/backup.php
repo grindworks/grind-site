@@ -64,9 +64,9 @@ if (!isset($backups)) {
     ]
   ];
   ?>
-  <div class="bg-theme-primary/5 shadow-theme p-6 border border-theme-primary/20 rounded-theme"
+  <div class="bg-theme-primary/5 shadow-theme flex flex-col border border-theme-primary/20 rounded-theme overflow-hidden"
     x-data="migrationExporter(<?= htmlspecialchars(json_encode($migConfig, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT), ENT_QUOTES, 'UTF-8') ?>)">
-    <div class="flex md:flex-row flex-col justify-between items-center gap-6">
+    <div class="flex md:flex-row flex-col justify-between items-center gap-6 p-6">
       <div class="flex-1">
         <h4 class="flex items-center gap-2 mb-2 font-bold text-theme-primary text-lg">
           <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -110,22 +110,65 @@ if (!isset($backups)) {
         </button>
       </div>
     </div>
+
+    <!-- ZIP Encryption Settings -->
+    <div class="bg-theme-primary/10 px-6 py-4 border-t border-theme-primary/20">
+      <form method="post" action="settings.php?tab=backup" class="flex flex-col md:flex-row md:items-start gap-4 warn-on-unsaved">
+        <input type="hidden" name="csrf_token" value="<?= h(generate_csrf_token()) ?>">
+        <input type="hidden" name="action" value="update_backup_settings">
+
+        <div class="flex-1 w-full" x-data="{ showZipPass: false }">
+          <label class="block">
+            <span class="flex items-center gap-2 opacity-80 mb-2 font-bold text-theme-primary text-xs">
+              <?= function_exists('_t') ? _t('st_backup_zip_password') : 'ZIP Encryption Password (AES-256)' ?>
+              <?php if (!empty($opt['backup_zip_password'])): ?>
+                <span class="bg-theme-success/10 text-theme-success px-2 py-0.5 border border-theme-success/20 rounded-full font-bold text-[10px] flex items-center gap-1">
+                  <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-shield-check"></use>
+                  </svg>
+                  <?= function_exists('_t') ? _t('lbl_active') : 'Active' ?>
+                </span>
+              <?php endif; ?>
+            </span>
+            <div class="relative w-full md:w-1/2">
+              <input :type="showZipPass ? 'text' : 'password'" name="backup_zip_password" value="<?= h($opt['backup_zip_password'] ?? '') ?>" class="w-full font-mono text-sm pr-10 form-control border-theme-primary/30 focus:border-theme-primary bg-theme-surface" autocomplete="new-password" placeholder="<?= function_exists('_t') ? _t('ph_backup_zip_password') : 'Leave empty for no encryption' ?>">
+              <button type="button" @click="showZipPass = !showZipPass" class="absolute right-0 inset-y-0 px-3 flex items-center text-theme-primary opacity-50 hover:opacity-100 focus:outline-none">
+                <svg x-show="!showZipPass" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-eye"></use>
+                </svg>
+                <svg x-show="showZipPass" x-cloak class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-eye-slash"></use>
+                </svg>
+              </button>
+            </div>
+            <p class="opacity-70 mt-1.5 text-[10px] text-theme-primary leading-tight font-bold">
+              <?= function_exists('_t') ? _t('help_backup_zip_password') : '⚠️ If set, Full Backup (Migration) ZIP files will be encrypted. Do not lose this password!' ?>
+            </p>
+          </label>
+        </div>
+        <button type="submit" class="mt-0 md:mt-6 shadow-theme px-6 py-2 h-[42px] rounded-theme font-bold text-xs transition-all btn-primary whitespace-nowrap">
+          <?= function_exists('_t') ? _t('save') : 'Save' ?>
+        </button>
+      </form>
+    </div>
   </div>
 
-  <div class="bg-theme-bg/30 p-5 border border-theme-border rounded-theme">
-    <div class="mb-6">
-      <h4 class="flex items-center gap-2 mb-2 font-bold text-theme-text text-lg">
-        <svg class="w-5 h-5 text-theme-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-adjustments-horizontal"></use>
-        </svg>
-        <?= _t('st_backup_settings_title') ?>
-      </h4>
-      <p class="opacity-60 ml-0 sm:ml-7 text-theme-text text-sm leading-relaxed">
-        <?= _t('st_backup_settings_desc') ?>
-      </p>
-    </div>
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <!-- Database Auto Backup Settings -->
+    <div class="bg-theme-bg/30 p-5 border border-theme-border rounded-theme flex flex-col">
+      <div class="mb-6">
+        <h4 class="flex items-center gap-2 mb-2 font-bold text-theme-text text-lg">
+          <svg class="w-5 h-5 text-theme-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-adjustments-horizontal"></use>
+          </svg>
+          <?= _t('st_backup_settings_title') ?>
+        </h4>
+        <p class="opacity-60 ml-0 sm:ml-7 text-theme-text text-sm leading-relaxed">
+          <?= _t('st_backup_settings_desc') ?>
+        </p>
+      </div>
 
-    <form method="post" action="settings.php?tab=backup" class="warn-on-unsaved" x-data="{
+      <form method="post" action="settings.php?tab=backup" class="warn-on-unsaved flex flex-col h-full" x-data="{
         currentLimit: <?= (int)$opt['bk_limit'] ?>,
         checkLimit(e) {
           const newLimit = parseInt(this.$el.querySelector('[name=backup_retention_limit]').value);
@@ -134,100 +177,101 @@ if (!isset($backups)) {
           }
         }
       }" @submit="checkLimit($event)">
-      <input type="hidden" name="csrf_token" value="<?= h(generate_csrf_token()) ?>">
-      <input type="hidden" name="action" value="update_backup_settings">
+        <input type="hidden" name="csrf_token" value="<?= h(generate_csrf_token()) ?>">
+        <input type="hidden" name="action" value="update_backup_settings">
 
-      <div class="items-start gap-5 grid grid-cols-1 md:grid-cols-3">
-        <label class="block">
-          <span class="block opacity-70 mb-2 font-bold text-theme-text text-xs">
-            <?= _t('st_login_backup_freq') ?>
-          </span>
-          <select name="login_backup_frequency" class="w-full text-sm cursor-pointer form-control">
-            <option value="10" <?= ($opt['login_bk_freq'] ?? 10) == 10 ? 'selected' : '' ?>>
-              <?= _t('opt_1_in_10_rec') ?> (1/10)
-            </option>
-            <option value="5" <?= ($opt['login_bk_freq'] ?? 10) == 5 ? 'selected' : '' ?>>
-              <?= _t('opt_1_in_5') ?> (1/5)
-            </option>
-            <option value="1" <?= ($opt['login_bk_freq'] ?? 10) == 1 ? 'selected' : '' ?>>
-              <?= _t('opt_every_time') ?> (1/1)
-            </option>
-            <option value="0" <?= ($opt['login_bk_freq'] ?? 10) == 0 ? 'selected' : '' ?>>
-              <?= _t('opt_disabled') ?>
-            </option>
-          </select>
-          <p class="opacity-50 mt-1 text-[10px] text-theme-text leading-tight">
-            <?= _t('help_login_backup_freq') ?>
-          </p>
-        </label>
-        <label class="block">
-          <span class="block opacity-70 mb-2 font-bold text-theme-text text-xs">
-            <?= _t('lbl_auto_delete') ?>
-          </span>
-          <select name="backup_retention_limit" class="w-full text-sm cursor-pointer form-control">
-            <option value="5" <?= $opt['bk_limit'] == 5 ? 'selected' : '' ?>>
-              <?= _t('opt_recent_n_files', 5) ?>
-            </option>
-            <option value="10" <?= $opt['bk_limit'] == 10 ? 'selected' : '' ?>>
-              <?= _t('opt_recent_n_files', 10) ?>
-            </option>
-            <option value="15" <?= $opt['bk_limit'] == 15 ? 'selected' : '' ?>>
-              <?= _t('opt_recent_n_files', 15) ?>
-            </option>
-            <option value="20" <?= $opt['bk_limit'] == 20 ? 'selected' : '' ?>>
-              <?= _t('opt_recent_n_files', 20) ?>
-            </option>
-            <option value="30" <?= $opt['bk_limit'] == 30 ? 'selected' : '' ?>>
-              <?= _t('opt_recent_n_files', 30) ?>
-            </option>
-          </select>
-          <p class="opacity-50 mt-1 text-[10px] text-theme-text leading-tight">
-            <?= _t('help_backup_retention') ?>
-          </p>
-        </label>
-        <label class="block">
-          <span class="block opacity-70 mb-2 font-bold text-theme-text text-xs">
-            <?= _t('st_auto_backup_limit') ?: 'Auto Backup Limit' ?>
-          </span>
-          <select name="auto_backup_limit_mb" class="w-full text-sm cursor-pointer form-control">
-            <option value="50" <?= ($opt['auto_backup_limit_mb'] ?? 50) == 50 ? 'selected' : '' ?>>50 MB</option>
-            <option value="100" <?= ($opt['auto_backup_limit_mb'] ?? 50) == 100 ? 'selected' : '' ?>>100 MB</option>
-            <option value="500" <?= ($opt['auto_backup_limit_mb'] ?? 50) == 500 ? 'selected' : '' ?>>500 MB</option>
-            <option value="1000" <?= ($opt['auto_backup_limit_mb'] ?? 50) == 1000 ? 'selected' : '' ?>>1 GB</option>
-            <option value="0" <?= ($opt['auto_backup_limit_mb'] ?? 50) == 0 ? 'selected' : '' ?>>
-              <?= _t('opt_unlimited') ?: 'Unlimited' ?>
-            </option>
-          </select>
-          <p class="opacity-50 mt-1 text-[10px] text-theme-text leading-tight">
-            <?= _t('help_auto_backup_limit') ?: 'Skip auto backup if DB size exceeds this limit.' ?>
-          </p>
-        </label>
-      </div>
-      <div class="mt-4 text-right">
-        <button type="submit" class="shadow-theme px-6 py-2.5 rounded-theme font-bold text-sm transition-all btn-primary">
-          <?= _t('btn_save_settings') ?>
-        </button>
-      </div>
-    </form>
-  </div>
-
-  <div class="bg-theme-bg/30 p-5 border border-theme-border rounded-theme">
-    <div class="mb-6">
-      <h4 class="flex items-center gap-2 mb-2 font-bold text-theme-text text-lg">
-        <svg class="w-5 h-5 text-theme-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-camera"></use>
-        </svg>
-        <?= _t('st_manual_backup_title') ?>
-      </h4>
-      <p class="opacity-60 ml-0 sm:ml-7 text-theme-text text-sm leading-relaxed">
-        <?= _t('st_manual_backup_desc') ?>
-      </p>
+        <div class="items-start gap-5 grid grid-cols-1 flex-1 mb-6">
+          <label class="block">
+            <span class="block opacity-70 mb-2 font-bold text-theme-text text-xs">
+              <?= _t('st_login_backup_freq') ?>
+            </span>
+            <select name="login_backup_frequency" class="w-full text-sm cursor-pointer form-control">
+              <option value="10" <?= ($opt['login_bk_freq'] ?? 10) == 10 ? 'selected' : '' ?>>
+                <?= _t('opt_1_in_10_rec') ?> (1/10)
+              </option>
+              <option value="5" <?= ($opt['login_bk_freq'] ?? 10) == 5 ? 'selected' : '' ?>>
+                <?= _t('opt_1_in_5') ?> (1/5)
+              </option>
+              <option value="1" <?= ($opt['login_bk_freq'] ?? 10) == 1 ? 'selected' : '' ?>>
+                <?= _t('opt_every_time') ?> (1/1)
+              </option>
+              <option value="0" <?= ($opt['login_bk_freq'] ?? 10) == 0 ? 'selected' : '' ?>>
+                <?= _t('opt_disabled') ?>
+              </option>
+            </select>
+            <p class="opacity-50 mt-1 text-[10px] text-theme-text leading-tight">
+              <?= _t('help_login_backup_freq') ?>
+            </p>
+          </label>
+          <label class="block">
+            <span class="block opacity-70 mb-2 font-bold text-theme-text text-xs">
+              <?= _t('lbl_auto_delete') ?>
+            </span>
+            <select name="backup_retention_limit" class="w-full text-sm cursor-pointer form-control">
+              <option value="5" <?= $opt['bk_limit'] == 5 ? 'selected' : '' ?>>
+                <?= _t('opt_recent_n_files', 5) ?>
+              </option>
+              <option value="10" <?= $opt['bk_limit'] == 10 ? 'selected' : '' ?>>
+                <?= _t('opt_recent_n_files', 10) ?>
+              </option>
+              <option value="15" <?= $opt['bk_limit'] == 15 ? 'selected' : '' ?>>
+                <?= _t('opt_recent_n_files', 15) ?>
+              </option>
+              <option value="20" <?= $opt['bk_limit'] == 20 ? 'selected' : '' ?>>
+                <?= _t('opt_recent_n_files', 20) ?>
+              </option>
+              <option value="30" <?= $opt['bk_limit'] == 30 ? 'selected' : '' ?>>
+                <?= _t('opt_recent_n_files', 30) ?>
+              </option>
+            </select>
+            <p class="opacity-50 mt-1 text-[10px] text-theme-text leading-tight">
+              <?= _t('help_backup_retention') ?>
+            </p>
+          </label>
+          <label class="block">
+            <span class="block opacity-70 mb-2 font-bold text-theme-text text-xs">
+              <?= _t('st_auto_backup_limit') ?: 'Auto Backup Limit' ?>
+            </span>
+            <select name="auto_backup_limit_mb" class="w-full text-sm cursor-pointer form-control">
+              <option value="50" <?= ($opt['auto_backup_limit_mb'] ?? 50) == 50 ? 'selected' : '' ?>>50 MB</option>
+              <option value="100" <?= ($opt['auto_backup_limit_mb'] ?? 50) == 100 ? 'selected' : '' ?>>100 MB</option>
+              <option value="500" <?= ($opt['auto_backup_limit_mb'] ?? 50) == 500 ? 'selected' : '' ?>>500 MB</option>
+              <option value="1000" <?= ($opt['auto_backup_limit_mb'] ?? 50) == 1000 ? 'selected' : '' ?>>1 GB</option>
+              <option value="0" <?= ($opt['auto_backup_limit_mb'] ?? 50) == 0 ? 'selected' : '' ?>>
+                <?= _t('opt_unlimited') ?: 'Unlimited' ?>
+              </option>
+            </select>
+            <p class="opacity-50 mt-1 text-[10px] text-theme-text leading-tight">
+              <?= _t('help_auto_backup_limit') ?: 'Skip auto backup if DB size exceeds this limit.' ?>
+            </p>
+          </label>
+        </div>
+        <div class="pt-5 border-t border-theme-border text-right mt-auto">
+          <button type="submit" class="shadow-theme px-6 py-2.5 rounded-theme font-bold text-sm transition-all btn-primary w-full sm:w-auto">
+            <?= _t('btn_save_settings') ?>
+          </button>
+        </div>
+      </form>
     </div>
-    <form method="post" class="flex flex-col gap-5 warn-on-unsaved" action="settings.php?tab=backup">
-      <input type="hidden" name="csrf_token" value="<?= h(generate_csrf_token()) ?>">
-      <input type="hidden" name="action" value="create_backup">
-      <div class="flex md:flex-row flex-col md:items-end gap-5">
-        <div class="w-full md:flex-1">
+
+    <!-- Database Manual Backup -->
+    <div class="bg-theme-bg/30 p-5 border border-theme-border rounded-theme flex flex-col">
+      <div class="mb-6">
+        <h4 class="flex items-center gap-2 mb-2 font-bold text-theme-text text-lg">
+          <svg class="w-5 h-5 text-theme-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-camera"></use>
+          </svg>
+          <?= _t('st_manual_backup_title') ?>
+        </h4>
+        <p class="opacity-60 ml-0 sm:ml-7 text-theme-text text-sm leading-relaxed">
+          <?= _t('st_manual_backup_desc') ?>
+        </p>
+      </div>
+      <form method="post" class="flex flex-col gap-5 warn-on-unsaved h-full" action="settings.php?tab=backup">
+        <input type="hidden" name="csrf_token" value="<?= h(generate_csrf_token()) ?>">
+        <input type="hidden" name="action" value="create_backup">
+
+        <div class="flex flex-col flex-1 gap-5">
           <label class="block">
             <span class="block opacity-70 mb-2 font-bold text-theme-text text-xs"><?= _t('lbl_backup_note') ?></span>
             <div class="relative">
@@ -241,44 +285,42 @@ if (!isset($backups)) {
               </div>
             </div>
           </label>
-        </div>
-        <div class="w-full md:w-auto">
-          <button type="submit"
-            class="flex justify-center items-center gap-2 shadow-theme px-4 py-2.5 rounded-theme w-full md:w-auto h-[42px] text-sm whitespace-nowrap btn-secondary">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-plus"></use>
+
+          <div class="flex items-start gap-3 bg-theme-warning/10 mt-2 p-3 border border-theme-warning/20 rounded-theme">
+            <svg class="mt-0.5 w-5 h-5 text-theme-warning shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-exclamation-triangle"></use>
             </svg>
-            <span>
-              <?= _t('btn_create_backup') ?>
-            </span>
-          </button>
+            <div class="opacity-80 text-theme-text text-xs leading-relaxed">
+              <strong class="block mb-1 font-bold text-theme-warning">
+                <?= _t('manual_backup_warn_title') ?>
+              </strong>
+              <?= _t('manual_backup_warn_desc') ?>
+            </div>
+          </div>
+
+          <div class="mt-auto pt-5 border-t border-theme-border text-right">
+            <button type="submit" class="flex justify-center items-center gap-2 shadow-theme px-6 py-2.5 rounded-theme w-full sm:w-auto text-sm whitespace-nowrap btn-secondary">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-plus"></use>
+              </svg>
+              <span><?= _t('btn_create_backup') ?></span>
+            </button>
+          </div>
         </div>
-      </div>
-    </form>
-
-    <div class="flex items-start gap-3 bg-theme-warning/10 mt-6 p-3 border border-theme-warning/20 rounded-theme">
-      <svg class="mt-0.5 w-5 h-5 text-theme-warning shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-exclamation-triangle"></use>
-      </svg>
-      <div class="opacity-80 text-theme-text text-xs leading-relaxed">
-        <strong class="block mb-1 font-bold text-theme-warning">
-          <?= _t('manual_backup_warn_title') ?>
-        </strong>
-        <?= _t('manual_backup_warn_desc') ?>
-      </div>
+      </form>
     </div>
+  </div>
 
-    <!-- Config Backup Notice -->
-    <div class="flex items-start gap-3 bg-theme-info/10 mt-4 p-4 border border-theme-info/20 rounded-theme text-theme-info">
-      <svg class="mt-0.5 w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-information-circle"></use>
-      </svg>
-      <div class="text-xs leading-relaxed opacity-90">
-        <strong class="block mb-1 font-bold">
-          <?= _t('st_backup_important_title') ?>
-        </strong>
-        <?= _t('st_backup_important_desc') ?>
-      </div>
+  <!-- Config Backup Notice -->
+  <div class="flex items-start gap-3 bg-theme-info/10 p-4 border border-theme-info/20 rounded-theme text-theme-info">
+    <svg class="mt-0.5 w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-information-circle"></use>
+    </svg>
+    <div class="text-xs leading-relaxed opacity-90">
+      <strong class="block mb-1 font-bold">
+        <?= _t('st_backup_important_title') ?>
+      </strong>
+      <?= _t('st_backup_important_desc') ?>
     </div>
   </div>
 

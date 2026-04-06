@@ -269,6 +269,7 @@ if (!function_exists('grinds_get_default_settings')) {
             'trusted_proxy_ips' => '',
             'backup_retention_limit' => '10',
             'login_backup_frequency' => '10',
+            'backup_zip_password' => '',
             'db_version' => defined('GRINDS_DB_SCHEMA_VERSION') ? constant('GRINDS_DB_SCHEMA_VERSION') : 8,
             'system_base_url' => '',
             'ssg_search_chunk_size' => '500',

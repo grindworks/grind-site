@@ -597,7 +597,8 @@ ob_start();
             </svg>
             <?= _t('dash_analytics_title') ?>
         </h2>
-        <div class="flex items-center gap-2">
+        <div class="flex items-center gap-3">
+            <span class="bg-theme-bg px-2 py-1 border border-theme-border rounded-theme font-bold text-[10px] text-theme-text opacity-80 hidden sm:inline-block"><?= _t('dash_last_30_days') ?></span>
             <!-- Tab Buttons -->
             <div class="flex bg-theme-bg/60 p-0.5 border border-theme-border rounded-theme">
                 <button @click="analyticsTab = 'growth'" :class="analyticsTab === 'growth' ? 'bg-theme-surface shadow-sm text-theme-primary font-bold' : 'text-theme-text opacity-60 hover:opacity-100'" class="flex items-center gap-1.5 px-3 py-1.5 rounded-theme text-xs transition-all">
@@ -613,7 +614,6 @@ ob_start();
                     <?= _t('dash_tab_timing') ?>
                 </button>
             </div>
-            <span class="opacity-40 font-mono text-theme-text text-[10px] hidden sm:inline"><?= _t('dash_last_30_days') ?></span>
         </div>
     </div>
 

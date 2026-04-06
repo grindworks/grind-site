@@ -241,6 +241,11 @@ if (!class_exists('SitemapGenerator')) {
 
       if (function_exists('grinds_url_to_view') && function_exists('resolve_url')) {
         $url = resolve_url(grinds_url_to_view($path));
+
+        if ($this->isSsgMode && function_exists('grinds_ssg_replace_base_url')) {
+          $url = grinds_ssg_replace_base_url($url, $this->baseUrl);
+        }
+
         if (str_starts_with($url, '//')) {
           $parsedBase = parse_url($this->baseUrl);
           $scheme = $parsedBase['scheme'] ?? 'https';

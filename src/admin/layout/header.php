@@ -343,4 +343,5 @@ $lang = grinds_detect_language();
     </style>
   <?php
   endif; ?>
+  <?php if (function_exists('do_action')) do_action('grinds_head'); ?>
 </head>

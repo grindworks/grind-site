@@ -291,6 +291,10 @@ if (!class_exists('RssGenerator')) {
       $thumbUrl = function_exists('grinds_url_to_view') ? grinds_url_to_view($thumbnail) : $thumbnail;
       $resolvedThumb = (string)resolve_url($thumbUrl);
 
+      if ($this->isSsgMode && function_exists('grinds_ssg_replace_base_url')) {
+        $resolvedThumb = grinds_ssg_replace_base_url($resolvedThumb, $this->baseUrl);
+      }
+
       // Ensure absolute URL.
       if (str_starts_with($resolvedThumb, '//')) {
         $parsedBase = parse_url($this->serverRoot);

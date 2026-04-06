@@ -156,6 +156,7 @@ if (!defined('GRINDS_APP')) exit;
     }, 15 * 60 * 1000); // 15 minutes
   });
 </script>
+<?php if (function_exists('do_action')) do_action('grinds_footer'); ?>
 </body>
 
 </html>

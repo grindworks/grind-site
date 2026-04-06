@@ -50,15 +50,19 @@ add_action('grinds_post_saved', function ($postId, $postData) {
 
         // Send using cURL (short timeout to avoid blocking the save process)
         // cURLを使用して送信（タイムアウトを短くし、保存処理をブロックしないようにする）
-        if (function_exists('curl_init')) {
-            $ch = curl_init($webhook_url);
-            curl_setopt($ch, CURLOPT_POST, true);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
-            curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($ch, CURLOPT_TIMEOUT, 3); // Timeout in 3 seconds to avoid delaying the admin UI / 3秒でタイムアウト（管理画面の動作を遅延させないため）
-            curl_exec($ch);
-            curl_close($ch);
-        }
+        // さらに register_shutdown_function を使うことで、ユーザーに画面を返した後のバックグラウンドで送信させ、体感の遅延をゼロにします。
+        register_shutdown_function(function () use ($webhook_url, $payload) {
+            if (function_exists('curl_init')) {
+                $ch = curl_init($webhook_url);
+                curl_setopt($ch, CURLOPT_POST, true);
+                curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
+                curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
+                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                // バックグラウンド処理のため、少し長めのタイムアウト（5秒）でもUXに影響しません
+                curl_setopt($ch, CURLOPT_TIMEOUT, 5);
+                curl_exec($ch);
+                curl_close($ch);
+            }
+        });
     }
 });

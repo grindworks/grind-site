@@ -23,6 +23,13 @@ function grinds_save_settings_from_post($keys = [], $checkboxes = [])
   foreach ($keys as $k) {
     if (isset($_POST[$k])) {
       $val = is_array($_POST[$k]) ? json_encode($_POST[$k], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_INVALID_UTF8_IGNORE) : $_POST[$k];
+
+      // Allow HTML for specific keys, strip tags for everything else to prevent XSS and layout breaks
+      $allowHtmlKeys = ['site_footer_text', 'custom_head_scripts', 'custom_footer_scripts', 'maintenance_message'];
+      if (!in_array($k, $allowHtmlKeys, true)) {
+        $val = strip_tags((string)$val);
+      }
+
       update_option($k, trim((string)$val));
     }
   }
@@ -363,6 +370,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           throw new Exception('.htaccess is not writable.');
 
         $content = file_get_contents($htaccessPath);
+        if ($content === false) {
+          throw new Exception('Failed to read .htaccess.');
+        }
 
         // Calculate base path
         $path = parse_url(BASE_URL, PHP_URL_PATH) ?? '/';
@@ -379,7 +389,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         if ($newContent && $newContent !== $content) {
-          file_put_contents($htaccessPath, $newContent);
+          // Apply file lock and atomic write to avoid race conditions
+          $fp = @fopen($htaccessPath, 'c');
+          if ($fp && flock($fp, LOCK_EX)) {
+            ftruncate($fp, 0);
+            rewind($fp);
+            if (fwrite($fp, $newContent) === false) {
+              flock($fp, LOCK_UN);
+              fclose($fp);
+              throw new Exception('Failed to write .htaccess.');
+            }
+            fflush($fp);
+            flock($fp, LOCK_UN);
+            fclose($fp);
+          } else {
+            throw new Exception('Failed to lock .htaccess file.');
+          }
+
           if (!empty($_POST['ajax_mode'])) {
             // Return response for frontend to handle logout in Ajax mode
             json_response(['success' => true, 'message' => _t('msg_rewritebase_updated', $detectedBase)]);
@@ -902,6 +928,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           throw $e;
         }
         if (!empty($_POST['send_test_mail'])) {
+          $adminEmail = trim($_POST['smtp_admin_email'] ?? '');
+          if (empty($adminEmail) || !filter_var($adminEmail, FILTER_VALIDATE_EMAIL)) {
+            set_flash(function_exists('_t') ? _t('err_invalid_parameters') . ' (Invalid Admin Email)' : 'Invalid Admin Email', 'error');
+            break;
+          }
+
           // Load mailer
           require_once __DIR__ . '/../lib/mail.php';
 
@@ -1012,6 +1044,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           }
           if (isset($_POST['auto_backup_limit_mb'])) {
             update_option('auto_backup_limit_mb', (int)$_POST['auto_backup_limit_mb']);
+          }
+          if (isset($_POST['backup_zip_password'])) {
+            update_option('backup_zip_password', trim(Routing::getString($_POST, 'backup_zip_password')));
           }
           $pdo->commit();
         } catch (Exception $e) {

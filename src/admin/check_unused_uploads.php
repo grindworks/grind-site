@@ -175,8 +175,14 @@ if (isset($params['action'])) {
             }
 
             // Remove from media table to prevent zombie records
-            $stmtDelMedia = $pdo->prepare("DELETE FROM media WHERE filepath = ?");
-            $stmtDelMedia->execute([ltrim($relPath, '/')]);
+            $cleanRelPath = ltrim($relPath, '/');
+            $stmtGetId = $pdo->prepare("SELECT id FROM media WHERE filepath = ?");
+            $stmtGetId->execute([$cleanRelPath]);
+            $mediaId = $stmtGetId->fetchColumn();
+            if ($mediaId) {
+              $pdo->prepare("DELETE FROM media_tags WHERE media_id = ?")->execute([$mediaId]);
+              $pdo->prepare("DELETE FROM media WHERE id = ?")->execute([$mediaId]);
+            }
           }
         }
       }

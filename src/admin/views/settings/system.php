@@ -325,19 +325,20 @@ if (!defined('GRINDS_APP')) exit; ?>
           headers: {'Content-Type': 'application/x-www-form-urlencoded'},
           body: 'action=fetch_system_log&csrf_token=<?= h(generate_csrf_token()) ?>'
       }).then(r=>r.json()).then(d=>{ logs=d.logs; loading=false; }); } else { show=false; }"
-      class="flex items-center gap-2 font-bold text-theme-text hover:text-theme-primary text-lg transition-colors"
-      :class="show ? 'mb-6' : 'mb-0'">
-      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-document-text"></use>
-      </svg>
-      <?= _t('st_log_viewer_title') ?>
-      <svg class="w-4 h-4 transition-transform" :class="show ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      class="flex justify-between items-center w-full text-left font-bold text-theme-text hover:text-theme-primary text-lg transition-colors focus:outline-none">
+      <div class="flex items-center gap-2">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-document-text"></use>
+        </svg>
+        <?= _t('st_log_viewer_title') ?>
+      </div>
+      <svg class="w-5 h-5 opacity-50 transition-transform duration-200" :class="show ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-chevron-down"></use>
       </svg>
     </button>
 
     <div x-show="show" x-collapse>
-      <div class="bg-theme-surface shadow-inner p-5 border border-theme-border rounded-theme h-64 overflow-y-auto font-mono text-theme-text text-xs">
+      <div class="mt-6 bg-theme-surface shadow-inner p-5 border border-theme-border rounded-theme h-64 overflow-y-auto font-mono text-theme-text text-xs">
         <div x-show="loading" class="opacity-50 py-10 text-center"><?= _t('js_loading_logs') ?></div>
         <template x-if="!loading && logs.length === 0">
           <div class="opacity-50 py-10 text-center"><?= _t('js_log_empty') ?></div>
@@ -350,46 +351,64 @@ if (!defined('GRINDS_APP')) exit; ?>
     </div>
   </div>
 
-  <div class="bg-theme-bg/30 p-5 border border-theme-border rounded-theme space-y-6">
-    <h4 class="flex items-center gap-2 font-bold text-theme-text text-lg">
-      <svg class="w-5 h-5 text-theme-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-cog-6-tooth"></use>
+  <!-- プロキシ（ネットワーク）設定ブロック -->
+  <div class="bg-theme-bg/30 p-5 border border-theme-border rounded-theme">
+    <h4 class="flex items-center gap-2 mb-6 font-bold text-theme-text text-lg">
+      <svg class="w-5 h-5 text-theme-info" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-globe-alt"></use>
       </svg>
-      <?= _t('system') ?> <?= _t('menu_settings') ?>
+      <?= _t('st_proxy_title') ?>
     </h4>
 
-    <form method="post" class="space-y-4 warn-on-unsaved" x-data="{ enabled: <?= !empty($opt['trust_proxies']) ? 'true' : 'false' ?> }">
+    <form method="post" class="space-y-4 warn-on-unsaved" x-data="{
+      enabled: <?= !empty($opt['trust_proxies']) ? 'true' : 'false' ?>,
+      proxyIps: <?= htmlspecialchars(json_encode($opt['trusted_proxy_ips'] ?? ''), ENT_QUOTES, 'UTF-8') ?>
+    }">
       <input type="hidden" name="csrf_token" value="<?= h(generate_csrf_token()) ?>">
       <input type="hidden" name="action" value="update_proxy_settings">
 
-      <div>
-        <h5 class="flex items-center gap-2 font-bold text-theme-text text-sm">
-          <svg class="w-5 h-5 text-theme-info" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-globe-alt"></use>
-          </svg>
-          <?= _t('st_proxy_title') ?>
-        </h5>
-        <div class="mt-3">
-          <label class="flex items-start gap-3 cursor-pointer">
-            <input type="checkbox" name="trust_proxies" value="1" class="mt-1 bg-theme-bg border-theme-border rounded focus:ring-theme-primary w-5 h-5 text-theme-primary form-checkbox" x-model="enabled">
-            <div>
-              <span class="block font-bold text-theme-text text-sm"><?= _t('st_trust_proxies') ?></span>
-              <span class="block opacity-60 mt-1 text-theme-text text-xs leading-relaxed"><?= _t('st_trust_proxies_desc') ?></span>
+      <label class="flex items-start gap-3 cursor-pointer">
+        <input type="checkbox" name="trust_proxies" value="1" class="mt-1 bg-theme-bg border-theme-border rounded focus:ring-theme-primary w-5 h-5 text-theme-primary form-checkbox" x-model="enabled">
+        <div>
+          <span class="block font-bold text-theme-text text-sm"><?= _t('st_trust_proxies') ?></span>
+          <span class="block opacity-60 mt-1 text-theme-text text-xs leading-relaxed"><?= _t('st_trust_proxies_desc') ?></span>
+        </div>
+      </label>
+
+      <div class="block pl-8" x-show="enabled" x-cloak>
+        <label class="block">
+          <span class="block opacity-70 mb-1 font-bold text-theme-text text-xs"><?= _t('st_trusted_ips') ?></span>
+          <input type="text" name="trusted_proxy_ips" x-model="proxyIps" class="w-full text-sm form-control" placeholder="10.0.0.0/8, 172.16.0.0/12">
+          <p class="opacity-50 mt-1 text-[10px] text-theme-text"><?= _t('st_trusted_ips_desc') ?></p>
+        </label>
+
+        <div x-show="proxyIps.trim() === ''" x-collapse x-cloak>
+          <div class="flex items-start gap-3 bg-theme-danger/10 mt-3 p-3 border border-theme-danger/30 rounded-theme">
+            <svg class="mt-0.5 w-4 h-4 text-theme-danger shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-exclamation-triangle"></use>
+            </svg>
+            <div class="opacity-90 text-theme-danger text-[11px] leading-relaxed">
+              <strong class="font-bold block mb-0.5"><?= _t('st_proxy_warning_title') ?></strong>
+              <?= _t('st_proxy_warning_desc') ?>
             </div>
-          </label>
+          </div>
         </div>
       </div>
-
-      <label class="block pl-8" x-show="enabled" x-cloak>
-        <span class="block opacity-70 mb-1 font-bold text-theme-text text-xs"><?= _t('st_trusted_ips') ?></span>
-        <input type="text" name="trusted_proxy_ips" value="<?= h($opt['trusted_proxy_ips'] ?? '') ?>" class="w-full text-sm form-control" placeholder="10.0.0.0/8, 172.16.0.0/12">
-        <p class="opacity-50 mt-1 text-[10px] text-theme-text"><?= _t('st_trusted_ips_desc') ?></p>
-      </label>
 
       <div class="text-right">
         <button type="submit" class="shadow-theme px-4 py-2 rounded-theme text-xs font-bold btn-secondary"><?= _t('save') ?></button>
       </div>
     </form>
+  </div>
+
+  <!-- 一般システム設定ブロック -->
+  <div class="bg-theme-bg/30 p-5 border border-theme-border rounded-theme space-y-6">
+    <h4 class="flex items-center gap-2 font-bold text-theme-text text-lg">
+      <svg class="w-5 h-5 text-theme-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-cog-6-tooth"></use>
+      </svg>
+      <?= _t('menu_settings') ?>
+    </h4>
 
     <form method="post" class="flex sm:flex-row flex-col justify-between sm:items-center gap-4 warn-on-unsaved"
       x-data="{ current: <?= !empty($opt['debug_mode']) ? 'true' : 'false' ?>, initial: <?= !empty($opt['debug_mode']) ? 'true' : 'false' ?> }">

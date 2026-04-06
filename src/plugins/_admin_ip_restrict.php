@@ -23,6 +23,7 @@ add_action('grinds_init', function () {
         '::1',         // Local environment IPv6 / ローカル環境IPv6
         // '192.168.1.10', // Example: Office fixed IP / 例: オフィスの固定IP
         // '203.0.113.50'  // Example: Home fixed IP / 例: 自宅の固定IP
+        // '192.168.1.0/24' // Example: Office Subnet (CIDR) / 例: オフィスのサブネット (CIDR)
     ];
 
     // Get the current request URI and script name
@@ -43,9 +44,30 @@ add_action('grinds_init', function () {
         // GrindSiteコアの get_client_ip() 関数を利用して、プロキシ越しのIPも正確に取得
         $client_ip = function_exists('get_client_ip') ? get_client_ip() : ($_SERVER['REMOTE_ADDR'] ?? '');
 
+        $is_allowed = false;
+        foreach ($allowed_ips as $allowed_ip) {
+            if (str_contains($allowed_ip, '/')) {
+                // CIDR (Subnet) match / サブネット（CIDR）による範囲一致
+                list($subnet, $bits) = explode('/', $allowed_ip);
+                $ip_calc = ip2long($client_ip);
+                $subnet_calc = ip2long($subnet);
+                if ($ip_calc !== false && $subnet_calc !== false) {
+                    $mask = -1 << (32 - (int)$bits);
+                    if (($ip_calc & $mask) === ($subnet_calc & $mask)) {
+                        $is_allowed = true;
+                        break;
+                    }
+                }
+            } elseif ($client_ip === $allowed_ip) {
+                // Exact match / 完全一致
+                $is_allowed = true;
+                break;
+            }
+        }
+
         // Block access if the IP is not in the allowed list
         // IPが許可リストに存在しない場合はアクセスを遮断
-        if (!in_array($client_ip, $allowed_ips, true)) {
+        if (!$is_allowed) {
             http_response_code(403);
             header('Content-Type: text/html; charset=utf-8');
             die("<div style='font-family:sans-serif; padding:50px; text-align:center; color:#333;'>
