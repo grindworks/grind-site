@@ -2,7 +2,15 @@
 
 /** Table Block View */
 if (!defined('GRINDS_APP')) exit; ?>
-<div class="bg-theme-bg/40 p-4 border border-theme-border rounded-theme" x-init="if(!block.data.content) block.data.content = [['', ''], ['', '']]; if(block.data.withHeadings === undefined) block.data.withHeadings = true">
+<div class="bg-theme-bg/40 p-4 border border-theme-border rounded-theme" x-init="
+  if(!block.data.content) block.data.content = [['', ''], ['', '']];
+  if(block.data.withHeadings === undefined) block.data.withHeadings = true;
+
+  // 行データ（配列）に保存時に無視される隠しIDを付与してリアクティビティのバグを防ぐ
+  const ensureRowId = (row) => { if (!row._id) Object.defineProperty(row, '_id', { value: generateId(), enumerable: false, writable: true }); };
+  block.data.content.forEach(ensureRowId);
+  $watch('block.data.content', val => val && val.forEach(ensureRowId));
+">
   <!-- Options -->
   <div class="flex items-center gap-4 mb-3 text-theme-text text-xs">
     <label class="flex items-center cursor-pointer select-none">
@@ -15,7 +23,7 @@ if (!defined('GRINDS_APP')) exit; ?>
     <table class="min-w-full text-sm border-collapse" x-data="{ dragIdx: null, dropIdx: null }">
       <tbody @dragleave.prevent="dropIdx = null">
         <!-- Loop rows -->
-        <template x-for="(row, rowIndex) in block.data.content" :key="rowIndex">
+        <template x-for="(row, rowIndex) in block.data.content" :key="row._id">
           <tr :class="{'border-t-2 border-theme-primary': dropIdx === rowIndex && dragIdx !== null && dragIdx > rowIndex, 'border-b-2 border-theme-primary': dropIdx === rowIndex && dragIdx !== null && dragIdx < rowIndex}"
             @dragover.prevent.stop="dropIdx = rowIndex"
             @drop.prevent.stop="
@@ -41,7 +49,7 @@ if (!defined('GRINDS_APP')) exit; ?>
                   @dragend.stop="dragIdx = null; dropIdx = null;"
                   class="cursor-grab active:cursor-grabbing hidden sm:block p-1 text-theme-text hover:text-theme-primary transition-colors" title="<?= h(_t('drag_to_reorder') ?? 'Drag to reorder') ?>">
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8h16M4 16h16" />
+                    <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-bars-2"></use>
                   </svg>
                 </button>
                 <!-- Move down -->

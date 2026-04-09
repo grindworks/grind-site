@@ -641,11 +641,13 @@ class FileManager
             }
         }
 
-        // Scan content security
-        if (in_array($mime, ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/avif', 'image/svg+xml', 'text/plain', 'text/csv', 'text/markdown', 'application/json', 'application/xml', 'text/xml'])) {
-            $isSvg = ($mime === 'image/svg+xml');
-            $isText = in_array($mime, ['text/plain', 'text/csv', 'text/markdown', 'application/json', 'application/xml', 'text/xml']);
-            $scanLimit = ($isSvg || $isText) ? 2 * 1024 * 1024 : 1024;
+        // Scan content security for text-based formats
+        $isSvg = ($mime === 'image/svg+xml');
+        $isText = in_array($mime, ['text/plain', 'text/csv', 'text/markdown', 'application/json', 'application/xml', 'text/xml']);
+
+        if ($isSvg || $isText) {
+            // Increase scan limit to 2MB to prevent malicious code hidden in files
+            $scanLimit = 2 * 1024 * 1024;
             $content = file_get_contents($tmpPath, false, null, 0, $scanLimit);
 
             // Check PHP tags
@@ -1484,6 +1486,7 @@ class FileManager
             }
 
             self::extractPathsFromContent($row['content'], $used_files);
+            self::extractPathsFromContent($row['meta_data'], $used_files);
         }
 
         // Check for more
@@ -1516,6 +1519,9 @@ class FileManager
                                 if (!empty($pData['content'])) {
                                     self::extractPathsFromContent($pData['content'], $used_files);
                                 }
+                                if (!empty($pData['meta_data'])) {
+                                    self::extractPathsFromContent($pData['meta_data'], $used_files);
+                                }
                             }
                         }
                     }
@@ -1524,9 +1530,26 @@ class FileManager
 
             // Scan banners
             try {
-                $stmt = $pdo->query("SELECT image_url FROM banners WHERE image_url IS NOT NULL AND image_url != ''");
-                while ($row = $stmt->fetch(PDO::FETCH_ASSOC))
-                    $used_files[] = self::normalizeDbPath($row['image_url']);
+                $stmt = $pdo->query("SELECT image_url, html_code FROM banners");
+                while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                    if (!empty($row['image_url'])) {
+                        $used_files[] = self::normalizeDbPath($row['image_url']);
+                    }
+                    if (!empty($row['html_code'])) {
+                        self::extractPathsFromContent($row['html_code'], $used_files);
+                    }
+                }
+            } catch (Exception $e) {
+            }
+
+            // Scan category meta_data
+            try {
+                $stmtCats = $pdo->query("SELECT meta_data FROM categories");
+                while ($cRow = $stmtCats->fetch(PDO::FETCH_ASSOC)) {
+                    if (!empty($cRow['meta_data'])) {
+                        self::extractPathsFromContent($cRow['meta_data'], $used_files);
+                    }
+                }
             } catch (Exception $e) {
             }
 
@@ -1663,12 +1686,13 @@ class FileManager
      *
      * @param string $dir Directory path.
      * @param array $options Options: exclude_dirs, exclude_files, exclude_exts, include_exts, since.
-     * @return array List of file paths.
+     * @return Generator List of file paths.
      */
     public static function scanDirectory($dir, $options = [])
     {
-        if (!is_dir($dir))
-            return [];
+        if (!is_dir($dir)) {
+            return;
+        }
 
         $excludeDirs = $options['exclude_dirs'] ?? ['node_modules', 'vendor', '.git'];
         $excludeFiles = $options['exclude_files'] ?? ['composer.json', 'composer.lock', 'package.json', 'package-lock.json', 'config.php', '.DS_Store', 'Thumbs.db'];
@@ -1812,9 +1836,11 @@ class FileManager
                 };
 
                 // Execute fuzzy searches for relevant tables
-                $fuzzySearch('posts', ['content', 'hero_settings'], 'content');
+                $fuzzySearch('posts', ['content', 'hero_settings', 'meta_data'], 'content');
+                $fuzzySearch('categories', ['meta_data'], 'category');
                 $fuzzySearch('widgets', ['content', 'settings'], 'widget');
                 $fuzzySearch('settings', ['value'], 'settings');
+                $fuzzySearch('banners', ['html_code'], 'banner');
             }
         }
 

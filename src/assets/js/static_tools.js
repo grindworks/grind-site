@@ -56,12 +56,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const escapeRegExp = (string) => string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
-        keywords.forEach((kw) => {
-          if (!kw) return;
-          const escapedKw = escapeRegExp(escapeHtml(kw));
-          const regex = new RegExp(`(${escapedKw})`, 'gi');
+        const sortedKeywords = keywords.slice().sort((a, b) => b.length - a.length);
+        const regexPattern = sortedKeywords
+          .filter((kw) => kw)
+          .map((kw) => escapeRegExp(escapeHtml(kw)))
+          .join('|');
+
+        if (regexPattern) {
+          const regex = new RegExp(`(${regexPattern})`, 'gi');
           result = result.replace(regex, '<mark class="bg-yellow-200 text-gray-900 rounded-sm px-0.5">$1</mark>');
-        });
+        }
         return result;
       };
 

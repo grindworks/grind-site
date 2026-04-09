@@ -1002,7 +1002,7 @@ class GrindsSystemCheck
                     'label' => $chkSqliteVer,
                     'value' => $sqliteVer,
                     'status' => 'warning',
-                    'msg' => function_exists('_t') ? _t('adv_sqlite_req') : "Running in Legacy Mode (FTS5 disabled)."
+                    'msg' => (function_exists('_t') ? _t('adv_sqlite_req') : "Running in Legacy Mode (FTS5 disabled).") . "<br><strong>Warning:</strong> Do NOT upload a database file created on a newer local environment directly. Use the Migration Tool instead."
                 ];
             } elseif (version_compare($sqliteVer, $recSqlite, '<')) {
                 $checks[] = [

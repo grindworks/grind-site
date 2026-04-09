@@ -2,7 +2,7 @@
 
 /** Code Block View */
 if (!defined('GRINDS_APP')) exit; ?>
-<div class="space-y-2 bg-theme-bg/40 p-4 border border-theme-border rounded-theme" x-init="if(!block.data.language) block.data.language = 'plaintext'">
+<div class="space-y-2 bg-theme-bg/40 p-4 border border-theme-border rounded-theme" x-init="if(!block.data.language) block.data.language = 'plaintext'; if(typeof block.data.code === 'undefined') block.data.code = '';">
   <!-- Language selector -->
   <div class="flex items-center justify-between">
     <select x-model="block.data.language" class="w-auto text-xs form-control-sm">

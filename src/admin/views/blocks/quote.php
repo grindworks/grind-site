@@ -3,7 +3,7 @@
 /** Quote Block View */
 if (!defined('GRINDS_APP'))
   exit; ?>
-<div class="bg-theme-bg/40 p-4 rounded-r-theme border-l-4 border-theme-border">
+<div class="bg-theme-bg/40 p-4 rounded-r-theme border-l-4 border-theme-border" x-init="if(typeof block.data.text === 'undefined') block.data.text = ''; if(typeof block.data.cite === 'undefined') block.data.cite = ''; if(typeof block.data.citeUrl === 'undefined') block.data.citeUrl = '';">
   <!-- Quote content -->
   <textarea x-model="block.data.text" :id="'block-' + block.id + '-text'" rows="2"
     x-init="$nextTick(() => { $el.style.height = 'auto'; $el.style.height = $el.scrollHeight + 'px' })"

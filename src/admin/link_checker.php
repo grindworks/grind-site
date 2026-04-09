@@ -259,7 +259,9 @@ if (isset($params['action']) && $params['action'] === 'scan') {
             }
 
             foreach ($items as $item) {
-                $urls = grinds_extract_urls($item['content']);
+                $contentUrls = grinds_extract_urls($item['content']);
+                $metaUrls = grinds_extract_urls($item['meta_data'] ?? '{}');
+                $urls = array_unique(array_merge($contentUrls, $metaUrls));
                 foreach ($urls as $url) {
                     $res = check_internal_link($url, $pdo);
                     $checkedCount++;
@@ -381,6 +383,36 @@ if (isset($params['action']) && $params['action'] === 'scan') {
             } catch (Exception $e) {
                 // Handle missing table
             }
+        } elseif ($type === 'categories') {
+            try {
+                $total = $pdo->query("SELECT COUNT(*) FROM categories")->fetchColumn();
+                $stmt = $pdo->prepare("SELECT id, name, meta_data FROM categories LIMIT ? OFFSET ?");
+                $stmt->bindValue(1, $limit, PDO::PARAM_INT);
+                $stmt->bindValue(2, $offset, PDO::PARAM_INT);
+                $stmt->execute();
+                $items = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                foreach ($items as $item) {
+                    $urls = grinds_extract_urls($item['meta_data'] ?? '{}');
+                    foreach ($urls as $url) {
+                        $res = check_internal_link($url, $pdo);
+                        $checkedCount++;
+                        if (!$res['isValid']) {
+                            $brokenLinks[] = [
+                                'source_type' => 'Category',
+                                'source_id' => $item['id'],
+                                'source_title' => $item['name'] ?: 'Category #' . $item['id'],
+                                'url' => $url,
+                                'reason' => $res['reason']
+                            ];
+                        }
+                    }
+                }
+                $nextOffset += count($items);
+                $hasMore = $nextOffset < $total;
+            } catch (Exception $e) {
+                // Handle missing table
+            }
         }
 
         json_response([
@@ -409,7 +441,8 @@ ob_start();
         type_posts: <?= json_encode(_t('menu_posts')) ?>,
         type_menus: <?= json_encode(_t('menu_menus')) ?>,
         type_widgets: <?= json_encode(_t('menu_widgets')) ?>,
-        type_banners: <?= json_encode(_t('menu_banners')) ?>
+        type_banners: <?= json_encode(_t('menu_banners')) ?>,
+        type_categories: <?= json_encode(_t('menu_categories')) ?>
     };
 </script>
 
@@ -543,6 +576,7 @@ ob_start();
                     await this.scanPaged('menus');
                     await this.scanPaged('widgets');
                     await this.scanPaged('banners');
+                    await this.scanPaged('categories');
 
                     this.progress = 100;
                     this.statusMsg = <?= json_encode(_t('js_scan_complete')) ?>;
@@ -586,6 +620,8 @@ ob_start();
                     } else if (type === 'widgets') {
                         this.progress = 85;
                     } else if (type === 'banners') {
+                        this.progress = 90;
+                    } else if (type === 'categories') {
                         this.progress = 95;
                     }
                 }
@@ -601,6 +637,8 @@ ob_start();
                         return 'widgets.php?edit_id=' + link.source_id;
                     case 'Banner':
                         return 'banners.php?edit_id=' + link.source_id;
+                    case 'Category':
+                        return 'categories.php?edit_id=' + link.source_id;
                     default:
                         return '#';
                 }

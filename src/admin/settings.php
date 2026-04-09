@@ -166,7 +166,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       $offset = 0;
 
       while (true) {
-        $posts = $repo->fetch(['status' => 'any'], $batchLimit, $offset, 'p.id ASC', 'p.id, p.title, p.content, p.thumbnail, p.hero_image, p.hero_settings', false);
+        $posts = $repo->fetch(['status' => 'any'], $batchLimit, $offset, 'p.id ASC', 'p.id, p.title, p.content, p.thumbnail, p.hero_image, p.hero_settings, p.meta_data', false);
         if (empty($posts))
           break;
 
@@ -179,12 +179,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (strpos($row['thumbnail'] ?? '', $targetBase) !== false) $isHit = true;
             elseif (strpos($row['hero_image'] ?? '', $targetBase) !== false) $isHit = true;
             elseif (strpos($row['hero_settings'] ?? '', $targetBase) !== false) $isHit = true;
+            elseif (strpos($row['meta_data'] ?? '', $targetBase) !== false) $isHit = true;
           }
           if ($isHit) {
             $foundPosts[] = ['id' => $row['id'], 'title' => $row['title']];
           }
         }
         $offset += $batchLimit;
+      }
+
+      // Scan categories
+      $stmtCat = $pdo->query("SELECT id, name, meta_data FROM categories");
+      while ($row = $stmtCat->fetch()) {
+        if (strpos($row['meta_data'] ?? '', $targetBase) !== false) {
+          $foundPosts[] = ['id' => 'Category-' . $row['id'], 'title' => 'Category: ' . ($row['name'] ?: 'ID ' . $row['id'])];
+        }
       }
 
       // Scan menus
@@ -229,12 +238,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
       // Update posts
       $repo = new PostRepository($pdo);
-      $updateStmt = $pdo->prepare("UPDATE posts SET content = ?, thumbnail = ?, hero_image = ?, hero_settings = ? WHERE id = ?");
+      $updateStmt = $pdo->prepare("UPDATE posts SET content = ?, thumbnail = ?, hero_image = ?, hero_settings = ?, meta_data = ? WHERE id = ?");
 
       $batchLimit = 50;
       $offset = 0;
       while (true) {
-        $posts = $repo->fetch(['status' => 'any'], $batchLimit, $offset, 'p.id ASC', 'p.id, p.content, p.thumbnail, p.hero_image, p.hero_settings', false);
+        $posts = $repo->fetch(['status' => 'any'], $batchLimit, $offset, 'p.id ASC', 'p.id, p.content, p.thumbnail, p.hero_image, p.hero_settings, p.meta_data', false);
         if (empty($posts))
           break;
 
@@ -243,13 +252,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           $newThumb = Routing::convertToDbUrl($row['thumbnail'] ?? '', $targetBase);
           $newHeroImg = Routing::convertToDbUrl($row['hero_image'] ?? '', $targetBase);
           $newHeroSet = Routing::convertToDbUrl($row['hero_settings'] ?? '', $targetBase);
+          $newMetaData = Routing::convertToDbUrl($row['meta_data'] ?? '{}', $targetBase);
 
-          if ($newContent !== $row['content'] || $newThumb !== ($row['thumbnail'] ?? '') || $newHeroImg !== ($row['hero_image'] ?? '') || $newHeroSet !== ($row['hero_settings'] ?? '')) {
-            $updateStmt->execute([$newContent, $newThumb, $newHeroImg, $newHeroSet, $row['id']]);
+          if ($newContent !== $row['content'] || $newThumb !== ($row['thumbnail'] ?? '') || $newHeroImg !== ($row['hero_image'] ?? '') || $newHeroSet !== ($row['hero_settings'] ?? '') || $newMetaData !== ($row['meta_data'] ?? '{}')) {
+            $updateStmt->execute([$newContent, $newThumb, $newHeroImg, $newHeroSet, $newMetaData, $row['id']]);
             $fixedCount++;
           }
         }
         $offset += $batchLimit;
+      }
+
+      // Update categories
+      $stmt = $pdo->query("SELECT id, meta_data FROM categories");
+      $updateStmtCat = $pdo->prepare("UPDATE categories SET meta_data = ? WHERE id = ?");
+      while ($row = $stmt->fetch()) {
+        $newMetaData = Routing::convertToDbUrl($row['meta_data'] ?? '{}', $targetBase);
+        if ($newMetaData !== ($row['meta_data'] ?? '{}')) {
+          $updateStmtCat->execute([$newMetaData, $row['id']]);
+          $fixedCount++;
+        }
       }
 
       // Update menus

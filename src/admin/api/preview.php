@@ -124,12 +124,87 @@ try {
     }
   }
 
+  // --- BUG FIX: Correctly Parse Custom Fields (meta_data) for preview ---
+  $metaData = [];
+  $themeForMeta = !empty($postData['page_theme']) ? $postData['page_theme'] : null;
+  $customFields = function_exists('grinds_get_theme_custom_fields') ? grinds_get_theme_custom_fields($postData['type'], $themeForMeta) : [];
+  $rawPostMetaData = $_POST['meta_data'] ?? [];
+
+  // Carry over current values if they exist
+  $currentMetaData = $_POST['current_meta_data'] ?? [];
+  $metaData = is_array($currentMetaData) ? $currentMetaData : [];
+
+  $baseUrl = rtrim(defined('BASE_URL') ? BASE_URL : '', '/');
+
+  foreach ($customFields as $field) {
+    $fName = $field['name'] ?? '';
+    $fType = $field['type'] ?? 'text';
+    if (!$fName) continue;
+
+    if ($fType === 'image') {
+      $uploadFieldName = 'meta_data_' . $fName;
+      $urlFieldName = $uploadFieldName . '_url';
+      $deleteFieldName = 'delete_' . $uploadFieldName;
+
+      // Handle deletion
+      if (!empty($_POST[$deleteFieldName])) {
+        $metaData[$fName] = '';
+        continue;
+      }
+
+      // Handle new file upload in preview
+      if (isset($_FILES[$uploadFieldName]) && $_FILES[$uploadFieldName]['error'] === UPLOAD_ERR_OK && is_uploaded_file($_FILES[$uploadFieldName]['tmp_name'])) {
+        $maxSize = function_exists('grinds_get_max_upload_size') ? grinds_get_max_upload_size() : 5 * 1024 * 1024;
+        if ($_FILES[$uploadFieldName]['size'] > $maxSize) {
+          continue; // Skip silently on preview
+        }
+
+        $finfo = new finfo(FILEINFO_MIME_TYPE);
+        $mime = $finfo->file($_FILES[$uploadFieldName]['tmp_name']);
+        if (strpos($mime, 'image/') === 0) {
+          $safeExt = match ($mime) {
+            'image/jpeg' => 'jpg',
+            'image/png'  => 'png',
+            'image/gif'  => 'gif',
+            'image/webp' => 'webp',
+            'image/avif' => 'avif',
+            'image/svg+xml' => 'svg',
+            default => 'jpg'
+          };
+          $tmpFilename = 'preview_meta_' . bin2hex(random_bytes(8)) . '.' . $safeExt;
+          $tmpPreviewDir = ROOT_PATH . '/assets/uploads/_preview';
+          if (!is_dir($tmpPreviewDir)) @mkdir($tmpPreviewDir, 0775, true);
+
+          if (move_uploaded_file($_FILES[$uploadFieldName]['tmp_name'], $tmpPreviewDir . '/' . $tmpFilename)) {
+            $metaData[$fName] = $baseUrl . '/assets/uploads/_preview/' . $tmpFilename;
+          }
+        }
+      }
+      // Fallback to URL field
+      elseif (!empty($_POST[$urlFieldName])) {
+        $urlVal = $_POST[$urlFieldName];
+        if (!preg_match('/^\s*(javascript|vbscript|data(?!:image)):/i', trim($urlVal))) {
+          $metaData[$fName] = filter_var($urlVal, FILTER_SANITIZE_URL);
+        }
+      }
+    } elseif ($fType === 'checkbox') {
+      $metaData[$fName] = !empty($rawPostMetaData[$fName]) ? '1' : '0';
+    } else {
+      if (isset($rawPostMetaData[$fName])) {
+        $metaData[$fName] = strip_tags((string)$rawPostMetaData[$fName]);
+      }
+    }
+  }
+  $metaDataJson = !empty($metaData) ? json_encode($metaData, JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_IGNORE) : '{}';
+  // ----------------------------------------------------------------------
+
   // Structure preview data
   $previewData = array_merge($postData, [
     'id' => $_POST['id'] ?? 0,
     'hero_image' => $getPreviewImage('hero_image'),
     'hero_settings' => $heroSettingsJson,
     'thumbnail' => $getPreviewImage('thumbnail'),
+    'meta_data' => $metaDataJson,
     'updated_at' => date('Y-m-d H:i:s'),
     'created_at' => date('Y-m-d H:i:s'),
     '__tags_preview' => $tagsPreview,

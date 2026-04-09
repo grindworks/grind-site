@@ -60,8 +60,9 @@ if (!function_exists('the_reading_time')) {
 
         $lang = get_option('site_lang', 'en');
 
+        $spriteUrl = function_exists('grinds_asset_url') ? grinds_asset_url('assets/img/sprite.svg') : resolve_url('assets/img/sprite.svg');
         echo '<span class="text-xs text-gray-500 flex items-center gap-1">';
-        echo '<svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>';
+        echo '<svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="' . h($spriteUrl) . '#outline-clock"></use></svg>';
 
         if ($lang === 'ja') {
             echo "この記事は 約{$minutes}分 で読めます";

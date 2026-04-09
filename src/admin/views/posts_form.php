@@ -129,6 +129,8 @@ $js_translations = [
     'Video' => _t('Video'),
     'Audio' => _t('Audio'),
     'filter_docs' => _t('filter_docs'),
+    'js_offline' => _t('js_offline'),
+    'js_online' => _t('js_online'),
 ];
 
 // Ensure required variables exist to prevent warnings
@@ -274,7 +276,11 @@ $basePath = rtrim($parsedBase['path'] ?? '/', '/') . '/';
         this.dropTargetIndex = null;
     }
 }'
-    x-effect="window.toggleScrollLock(inserterOpen || templateModalOpen)"
+    x-init="$watch('inserterOpen', val => window.toggleScrollLock(val)); $watch('templateModalOpen', val => window.toggleScrollLock(val));"
+    @dragenter.window.prevent="handleGlobalDragEnter($event)"
+    @dragover.window.prevent=""
+    @dragleave.window.prevent="handleGlobalDragLeave($event)"
+    @drop.window.prevent="handleGlobalDrop($event)"
     @announce.window="document.getElementById('a11y-live-region').textContent = $event.detail"
     :class="inserterOpen || templateModalOpen ? 'pointer-events-none' : ''">
 
@@ -317,17 +323,19 @@ $basePath = rtrim($parsedBase['path'] ?? '/', '/') . '/';
         <!-- Mobile-only top save button -->
         <button type="button"
             @click="postStatus = 'published'; document.getElementById('post-form').requestSubmit();"
-            :disabled="isSubmitting || isUploading"
+            :disabled="isSubmitting || isUploading || isOffline"
             class="lg:hidden bg-theme-primary hover:opacity-90 shadow-sm px-4 py-2 rounded-theme font-bold text-white text-xs transition transform hover:-translate-y-0.5 disabled:opacity-50">
             <?= $isFuture ? _t('action_schedule') : ($action === 'new' ? _t('action_publish') : _t('update')) ?>
         </button>
 
         <!-- Auto-save Indicator -->
-        <div class="hidden sm:flex items-center opacity-50 font-mono text-theme-text text-xs transition-opacity duration-500" x-show="lastAutoSaved" x-transition.opacity.duration.500ms x-cloak>
-            <svg class="mr-1.5 w-3 h-3 text-theme-success" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-check"></use>
-            </svg>
-            <span x-text='<?= json_encode(_t('js_auto_saved'), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>.replace("%s", lastAutoSaved)'></span>
+        <div class="hidden sm:flex items-center gap-1.5 bg-theme-surface shadow-sm px-2.5 py-1 border border-theme-border rounded-full transition-all duration-500" x-show="lastAutoSaved" x-transition.opacity.duration.500ms x-cloak>
+            <div class="flex justify-center items-center bg-theme-success/10 rounded-full w-4 h-4">
+                <svg class="w-3 h-3 text-theme-success" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-check"></use>
+                </svg>
+            </div>
+            <span class="opacity-60 font-mono text-theme-text text-[10px] tracking-wide" x-text='<?= json_encode(_t('js_auto_saved'), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>.replace("%s", lastAutoSaved)'></span>
         </div>
     </div>
 
@@ -381,12 +389,12 @@ $basePath = rtrim($parsedBase['path'] ?? '/', '/') . '/';
                     <div class="flex gap-2">
                         <button type="button" @click="undo()" :disabled="history.length === 0" class="p-2 rounded-theme hover:bg-theme-bg opacity-60 disabled:opacity-20 text-theme-text hover:text-theme-primary transition-colors" title="<?= h(_t('undo')) ?>">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
+                                <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-arrow-uturn-left"></use>
                             </svg>
                         </button>
                         <button type="button" @click="redo()" :disabled="future.length === 0" class="p-2 rounded-theme hover:bg-theme-bg opacity-60 disabled:opacity-20 text-theme-text hover:text-theme-primary transition-colors" title="<?= h(_t('redo')) ?>">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 10h-10a8 8 0 00-8 8v2M21 10l-6 6m6-6l-6-6" />
+                                <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-arrow-uturn-right"></use>
                             </svg>
                         </button>
                         <span class="text-theme-border">|</span>
@@ -433,99 +441,130 @@ $basePath = rtrim($parsedBase['path'] ?? '/', '/') . '/';
                 </div>
 
                 <!-- Blocks -->
-                <div class="space-y-4 min-h-[200px]" aria-live="polite" aria-relevant="additions removals">
+                <div class="space-y-4 min-h-[200px] relative" aria-live="polite" aria-relevant="additions removals">
+
+                    <!-- NEW: Top Dropzone (Before first block) -->
+                    <div x-show="isGlobalDragging && blocks.length > 0"
+                        class="absolute -top-4 left-0 right-0 h-4 flex items-center justify-center z-30"
+                        @dragover.prevent.stop="$el.children[0].classList.add('opacity-100', 'scale-y-100')"
+                        @dragleave.prevent.stop="$el.children[0].classList.remove('opacity-100', 'scale-y-100')"
+                        @drop.prevent.stop="$el.children[0].classList.remove('opacity-100', 'scale-y-100'); handleBlockDrop($event, 0)" x-cloak>
+                        <div class="w-full h-1.5 bg-theme-primary rounded-full opacity-0 scale-y-0 transition-all duration-200 pointer-events-none"></div>
+                    </div>
+
                     <template x-for="(block, index) in blocks" :key="block.id">
-                        <div :id="'block-wrapper-' + block.id"
-                            class="group relative bg-theme-surface hover:shadow-theme p-4 border border-theme-border rounded-theme transition-all"
-                            :class="{
+                        <div class="relative">
+                            <div :id="'block-wrapper-' + block.id"
+                                class="group relative bg-theme-surface hover:shadow-theme p-4 border border-theme-border rounded-theme transition-all"
+                                :class="{
                                 'py-2': block.collapsed,
                                 'opacity-50': draggingIndex === index,
-                                '!border-theme-primary ring-2 ring-theme-primary/50': dropTargetIndex === index && draggingIndex !== index
+                                '!border-theme-primary ring-2 ring-theme-primary/50': dropTargetIndex === index && draggingIndex !== index,
+                                'pointer-events-none ring-2 ring-theme-primary': block._isUploading
                             }"
-                            @dragover.prevent="handleDragOver(index)"
-                            @dragleave.prevent="handleDragLeave()"
-                            @drop.prevent="handleDrop(index)">
+                                @dragover.prevent="if(draggingIndex !== null) handleDragOver(index)"
+                                @dragleave.prevent="if(draggingIndex !== null) handleDragLeave()"
+                                @drop.prevent="if(draggingIndex !== null) handleDrop(index)">
 
-                            <div class="flex items-center gap-3">
-                                <!-- Drag Handle -->
-                                <div draggable="true" @dragstart.stop="handleDragStart(index, $event)" @dragend.stop="handleDragEnd()" class="cursor-move p-1 text-theme-text/40 hover:text-theme-text transition-colors" title="<?= _t('drag_to_reorder') ?>">
-                                    <svg class="w-5 h-5 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                                <!-- Uploading Overlay -->
+                                <div x-show="block._isUploading" class="absolute inset-0 bg-theme-surface/60 backdrop-blur-[2px] z-20 flex flex-col items-center justify-center rounded-theme transition-all duration-200" style="display: none;">
+                                    <svg class="w-8 h-8 text-theme-primary animate-spin mb-2 drop-shadow-sm" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-arrow-path"></use>
                                     </svg>
+                                    <span class="text-xs font-bold text-theme-primary bg-theme-surface px-2 py-0.5 rounded-full shadow-sm"><?= _t('uploading') ?? 'Uploading...' ?></span>
                                 </div>
 
-                                <!-- Order Input -->
-                                <div class="shrink-0" @click.stop>
-                                    <input type="number" :value="index + 1"
-                                        @change="const val = parseInt($event.target.value); if (isNaN(val)) { $event.target.value = index + 1; return; } moveBlockTo(index, val - 1); $dispatch('announce', 'Block moved to position ' + val);"
-                                        @keydown.enter.prevent="$event.target.blur()"
-                                        class="bg-theme-bg shadow-theme py-1 border border-theme-border focus:border-theme-primary rounded-theme focus:ring-theme-primary w-12 font-bold text-theme-text text-sm text-center appearance-none [-moz-appearance:textfield]"
-                                        min="1" :max="blocks.length" title="<?= _t('change_order') ?>">
+                                <div class="flex items-center gap-3">
+                                    <!-- Drag Handle -->
+                                    <div draggable="true" @dragstart.stop="handleDragStart(index, $event)" @dragend.stop="handleDragEnd()" class="cursor-move p-1 text-theme-text/40 hover:text-theme-text transition-colors" title="<?= _t('drag_to_reorder') ?>">
+                                        <svg class="w-5 h-5 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-bars-3"></use>
+                                        </svg>
+                                    </div>
+
+                                    <!-- Order Input -->
+                                    <div class="shrink-0" @click.stop>
+                                        <input type="number" :value="index + 1"
+                                            @change="const val = parseInt($event.target.value); if (isNaN(val)) { $event.target.value = index + 1; return; } moveBlockTo(index, val - 1); $dispatch('announce', 'Block moved to position ' + val);"
+                                            @keydown.enter.prevent="$event.target.blur()"
+                                            class="bg-theme-bg shadow-theme py-1 border border-theme-border focus:border-theme-primary rounded-theme focus:ring-theme-primary w-12 font-bold text-theme-text text-sm text-center appearance-none [-moz-appearance:textfield]"
+                                            min="1" :max="blocks.length" title="<?= _t('change_order') ?>">
+                                    </div>
+                                    <div class="flex-1 min-w-0">
+                                        <!-- Block controls. -->
+                                        <?php include __DIR__ . '/parts/block_controls.php'; ?>
+                                    </div>
                                 </div>
-                                <div class="flex-1 min-w-0">
-                                    <!-- Block controls. -->
-                                    <?php include __DIR__ . '/parts/block_controls.php'; ?>
+
+                                <!-- Render dynamic blocks. -->
+                                <div x-show="!block.collapsed" x-collapse>
+                                    <?php
+                                    foreach ($all_blocks_flat as $type => $info) {
+                                        if (!preg_match('/^[a-z0-9_]+$/', $type))
+                                            continue;
+
+                                        $file = __DIR__ . '/blocks/' . $type . '.php';
+
+                                        // Render block.
+                                        $result = $render_block_safe($file, $type, $render_context);
+
+                                        if ($result['status'] === 'success') {
+                                            echo '<template x-if="block.type === \'' . $type . '\'">';
+                                            echo '<div class="block-scope-' . h($type) . ' pt-6">';
+
+                                            echo $result['html'];
+                                            echo '</div>';
+                                            echo '</template>';
+                                            $loaded_block_types[] = $type;
+                                        } elseif ($result['msg'] !== 'File not found') {
+                                            echo '<template x-if="block.type === \'' . $type . '\'">';
+                                            echo '<div class="flex items-start gap-3 bg-theme-danger/10 p-4 border border-theme-danger/20 rounded-theme text-theme-danger">';
+                                            echo '  <svg class="w-6 h-6 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="' . grinds_asset_url('assets/img/sprite.svg') . '#outline-exclamation-circle"></use></svg>';
+                                            echo '  <div>';
+                                            echo '    <p class="font-bold text-sm">' . _t('err_block_crash') . ': ' . h($type) . '</p>';
+                                            echo '  </div>';
+                                            echo '</div>';
+                                            echo '</template>';
+                                            $loaded_block_types[] = $type;
+                                        }
+                                    }
+                                    $jsLoadedTypes = json_encode($loaded_block_types, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);
+                                    ?>
+
+                                    <!-- Unknown block fallback. -->
+                                    <template x-if='!<?= $jsLoadedTypes ?>.includes(block.type)'>
+                                        <div class="flex items-center gap-4 bg-theme-bg/50 mt-6 p-4 border border-theme-border border-dashed rounded-theme">
+                                            <div class="flex justify-center items-center bg-theme-surface border border-theme-border rounded-full w-10 h-10 text-theme-text/40">
+                                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-question-mark-circle"></use>
+                                                </svg>
+                                            </div>
+                                            <div class="flex-1 min-w-0">
+                                                <p class="font-bold text-theme-text text-sm">
+                                                    <?= _t('msg_unknown_block') ?>:
+                                                    <span x-text="block.type" class="bg-theme-bg px-1.5 py-0.5 border border-theme-border rounded-theme font-mono text-xs"></span>
+                                                </p>
+                                                <p class="mt-1 text-theme-text/60 text-xs"><?= _t('msg_unknown_block_desc') ?></p>
+                                                <details class="mt-2">
+                                                    <summary class="text-theme-primary text-xs hover:underline cursor-pointer select-none"><?= _t('lbl_show_raw_data') ?></summary>
+                                                    <pre class="bg-theme-bg mt-2 p-2 border border-theme-border rounded-theme overflow-x-auto font-mono text-[10px] text-theme-text" x-text="JSON.stringify(block.data, null, 2)"></pre>
+                                                </details>
+                                            </div>
+                                        </div>
+                                    </template>
                                 </div>
                             </div>
 
-                            <!-- Render dynamic blocks. -->
-                            <div x-show="!block.collapsed" x-collapse>
-                                <?php
-                                foreach ($all_blocks_flat as $type => $info) {
-                                    if (!preg_match('/^[a-z0-9_]+$/', $type))
-                                        continue;
-
-                                    $file = __DIR__ . '/blocks/' . $type . '.php';
-
-                                    // Render block.
-                                    $result = $render_block_safe($file, $type, $render_context);
-
-                                    if ($result['status'] === 'success') {
-                                        echo '<template x-if="block.type === \'' . $type . '\'">';
-                                        echo '<div class="block-scope-' . h($type) . ' pt-6">';
-
-                                        echo $result['html'];
-                                        echo '</div>';
-                                        echo '</template>';
-                                        $loaded_block_types[] = $type;
-                                    } elseif ($result['msg'] !== 'File not found') {
-                                        echo '<template x-if="block.type === \'' . $type . '\'">';
-                                        echo '<div class="flex items-start gap-3 bg-theme-danger/10 p-4 border border-theme-danger/20 rounded-theme text-theme-danger">';
-                                        echo '  <svg class="w-6 h-6 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="' . grinds_asset_url('assets/img/sprite.svg') . '#outline-exclamation-circle"></use></svg>';
-                                        echo '  <div>';
-                                        echo '    <p class="font-bold text-sm">' . _t('err_block_crash') . ': ' . h($type) . '</p>';
-                                        echo '  </div>';
-                                        echo '</div>';
-                                        echo '</template>';
-                                        $loaded_block_types[] = $type;
-                                    }
-                                }
-                                $jsLoadedTypes = json_encode($loaded_block_types, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);
-                                ?>
-
-                                <!-- Unknown block fallback. -->
-                                <template x-if='!<?= $jsLoadedTypes ?>.includes(block.type)'>
-                                    <div class="flex items-center gap-4 bg-theme-bg/50 mt-6 p-4 border border-theme-border border-dashed rounded-theme">
-                                        <div class="flex justify-center items-center bg-theme-surface border border-theme-border rounded-full w-10 h-10 text-theme-text/40">
-                                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-question-mark-circle"></use>
-                                            </svg>
-                                        </div>
-                                        <div class="flex-1 min-w-0">
-                                            <p class="font-bold text-theme-text text-sm">
-                                                <?= _t('msg_unknown_block') ?>:
-                                                <span x-text="block.type" class="bg-theme-bg px-1.5 py-0.5 border border-theme-border rounded-theme font-mono text-xs"></span>
-                                            </p>
-                                            <p class="mt-1 text-theme-text/60 text-xs"><?= _t('msg_unknown_block_desc') ?></p>
-                                            <details class="mt-2">
-                                                <summary class="text-theme-primary text-xs hover:underline cursor-pointer select-none"><?= _t('lbl_show_raw_data') ?></summary>
-                                                <pre class="bg-theme-bg mt-2 p-2 border border-theme-border rounded-theme overflow-x-auto font-mono text-[10px] text-theme-text" x-text="JSON.stringify(block.data, null, 2)"></pre>
-                                            </details>
-                                        </div>
-                                    </div>
-                                </template>
+                            <!-- NEW: Bottom Dropzone (After each block) -->
+                            <div x-show="isGlobalDragging"
+                                class="absolute top-full left-0 right-0 h-4 flex items-center justify-center z-30"
+                                @dragover.prevent.stop="$el.children[0].classList.add('opacity-100', 'scale-y-100')"
+                                @dragleave.prevent.stop="$el.children[0].classList.remove('opacity-100', 'scale-y-100')"
+                                @drop.prevent.stop="$el.children[0].classList.remove('opacity-100', 'scale-y-100'); handleBlockDrop($event, index + 1)">
+                                <div class="w-full h-1.5 bg-theme-primary rounded-full opacity-0 scale-y-0 transition-all duration-200 pointer-events-none"></div>
                             </div>
                         </div>
+
                     </template>
 
                     <!-- Empty state. -->
@@ -617,9 +656,9 @@ $basePath = rtrim($parsedBase['path'] ?? '/', '/') . '/';
         </div>
 
         <!-- Right Column (Settings) -->
-        <div class="lg:top-6 lg:sticky space-y-6">
+        <div class="space-y-6">
             <!-- Publish Box -->
-            <div class="bg-theme-surface shadow-theme border border-theme-border rounded-theme overflow-hidden">
+            <div class="bg-theme-surface shadow-theme border border-theme-border rounded-theme overflow-hidden lg:sticky lg:top-6 z-20">
                 <?php
                 $status = $post['status'] ?? 'new';
                 // Default (New)
@@ -673,7 +712,7 @@ $basePath = rtrim($parsedBase['path'] ?? '/', '/') . '/';
                     endif; ?>
                 </div>
 
-                <div class="space-y-6 p-5">
+                <div class="space-y-5 px-5 pb-5">
                     <!-- Status hidden field: Updated by buttons via JS -->
                     <input type="hidden" name="status" x-model="postStatus">
 
@@ -707,7 +746,7 @@ $basePath = rtrim($parsedBase['path'] ?? '/', '/') . '/';
                         <button type="submit"
                             @click="postStatus = 'draft'"
                             class="group flex-row justify-center items-center gap-2 hover:bg-theme-text/5 px-4 py-2.5 hover:border-theme-text/20 transition-all btn-secondary"
-                            :disabled="isSubmitting || isUploading"
+                            :disabled="isSubmitting || isUploading || isOffline"
                             title="<?= h(_t('st_draft')) ?>">
                             <svg class="opacity-50 group-hover:opacity-100 w-4 h-4 text-theme-text transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-arrow-down-on-square"></use>
@@ -717,7 +756,7 @@ $basePath = rtrim($parsedBase['path'] ?? '/', '/') . '/';
 
                         <button type="button"
                             @click="if(document.getElementById('post-form').reportValidity()) saveDraftAndPreview()"
-                            :disabled="isSaving || isSubmitting || isUploading"
+                            :disabled="isSaving || isSubmitting || isUploading || isOffline"
                             class="group relative flex-row justify-center items-center gap-2 hover:bg-theme-text/5 px-4 py-2.5 hover:border-theme-text/20 overflow-hidden transition-all btn-secondary"
                             title="<?= h(_t('preview')) ?>">
 
@@ -740,7 +779,7 @@ $basePath = rtrim($parsedBase['path'] ?? '/', '/') . '/';
                     <button type="submit"
                         @click="postStatus = 'published'"
                         class="group relative shadow-theme py-2.5 w-full overflow-hidden transition-all btn-primary"
-                        :disabled="isSubmitting || isUploading">
+                        :disabled="isSubmitting || isUploading || isOffline">
 
                         <div class="z-10 relative flex justify-center items-center gap-2 font-bold text-sm transition-opacity duration-200" :class="isSubmitting ? 'text-transparent' : ''">
                             <?php if (($post['status'] ?? '') === 'published'): ?>
@@ -783,13 +822,134 @@ $basePath = rtrim($parsedBase['path'] ?? '/', '/') . '/';
                 </div>
             </div>
 
+            <!-- Revisions History -->
+            <?php if ($action === 'edit' && !empty($post['id'])): ?>
+                <div class="bg-theme-surface shadow-theme border border-theme-border rounded-theme overflow-hidden mt-6"
+                    x-data="{
+                    revOpen: false,
+                    revisions: [],
+                    isLoading: false,
+                    async loadRevisions() {
+                        this.revOpen = !this.revOpen;
+                        if(this.revOpen && this.revisions.length === 0) {
+                            this.isLoading = true;
+                            try {
+                                const res = await fetch((window.grindsBaseUrl || '').replace(/\/$/, '') + '/admin/api/revisions.php?post_id=<?= $post['id'] ?>');
+                                const data = await res.json();
+                                if(data.success) {
+                                    this.revisions = data.list;
+                                }
+                            } catch(e) { console.error(e); }
+                            this.isLoading = false;
+                        }
+                    },
+                    async restoreRevision(revId) {
+                        if(!confirm(<?= htmlspecialchars(json_encode(_t('confirm_restore_revision')), ENT_QUOTES, 'UTF-8') ?>)) return;
+                        try {
+                            const res = await fetch((window.grindsBaseUrl || '').replace(/\/$/, '') + '/admin/api/revisions.php?post_id=<?= $post['id'] ?>&rev_id=' + revId);
+                            const data = await res.json();
+                            if(data.success && data.data) {
+                                // Apply Revision Data
+                                if(data.data.title) seoTitle = data.data.title;
+                                if(data.data.content && data.data.content.blocks) {
+                                    blocks = data.data.content.blocks.map(b => ({...b, id: typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).substr(2, 9), collapsed: false}));
+                                }
+
+                                if (data.data.meta_data) {
+                                    try {
+                                        const meta = typeof data.data.meta_data === 'string' ? JSON.parse(data.data.meta_data) : data.data.meta_data;
+                                        for (const key in meta) {
+                                            const input = document.querySelector(`[name='meta_data[${key}]']`) || document.querySelector(`[name='meta_data_${key}_url']`);
+                                            if (input) {
+                                                if (input.type === 'checkbox' || input.type === 'radio') {
+                                                    input.checked = (meta[key] == '1');
+                                                } else {
+                                                    input.value = meta[key];
+                                                }
+                                                input.dispatchEvent(new Event('change', { bubbles: true }));
+                                            }
+                                            // 画像プレビューの更新
+                                            if (document.getElementById(`meta_data_${key}_input`)) {
+                                                window.dispatchEvent(new CustomEvent(`set-meta-image-${key}`, { detail: { url: meta[key] } }));
+                                            }
+                                        }
+                                    } catch (e) {
+                                        console.error('Failed to parse meta_data from revision', e);
+                                    }
+                                }
+
+                    this.$nextTick(()=> {
+                    document.querySelectorAll('#post-form textarea').forEach((ta) => {
+                    if (ta.style.overflow === 'hidden') {
+                    ta.style.height = 'auto';
+                    ta.style.height = ta.scrollHeight + 'px';
+                    }
+                    });
+                    });
+
+                    if (window.ToastManager) {
+                    window.ToastManager.show({ type: 'success', message: <?= htmlspecialchars(json_encode(_t('msg_revision_loaded')), ENT_QUOTES, 'UTF-8') ?> });
+                    }
+                    this.revOpen = false;
+                    }
+                    } catch(e) { alert(<?= htmlspecialchars(json_encode(_t('err_load_revision')), ENT_QUOTES, 'UTF-8') ?>); }
+                    }
+                    }">
+                    <button type="button" @click="loadRevisions()" class="flex justify-between items-center w-full px-5 py-4 border-theme-border text-left hover:bg-theme-bg transition-colors">
+                        <div class="flex items-center gap-2">
+                            <svg class="w-5 h-5 text-theme-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-clock"></use>
+                            </svg>
+                            <span class="font-bold text-theme-text text-sm"><?= _t('lbl_revision_history') ?></span>
+                        </div>
+                        <svg class="w-4 h-4 text-theme-text opacity-50 transition-transform" :class="revOpen ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-chevron-down"></use>
+                        </svg>
+                    </button>
+                    <div x-show="revOpen" x-collapse class="border-t border-theme-border" style="display:none;">
+                        <div class="p-3">
+                            <div x-show="isLoading" class="text-center py-4 text-theme-text opacity-50">
+                                <svg class="w-5 h-5 animate-spin mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-arrow-path"></use>
+                                </svg>
+                            </div>
+                            <div x-show="!isLoading && revisions.length === 0" class="text-center py-4 text-xs text-theme-text opacity-50">
+                                <?= _t('msg_no_revisions') ?>
+                            </div>
+                            <ul x-show="!isLoading && revisions.length > 0" class="space-y-2 max-h-60 overflow-y-auto custom-scrollbar pr-1">
+                                <template x-for="rev in revisions" :key="rev.id">
+                                    <li class="flex items-center justify-between bg-theme-bg/50 p-2 rounded-theme border border-theme-border text-xs">
+                                        <span class="font-mono text-theme-text opacity-80" x-text="rev.created_at"></span>
+                                        <button type="button" @click="restoreRevision(rev.id)" class="text-theme-primary hover:underline font-bold px-2 py-1"><?= _t('btn_restore') ?></button>
+                                    </li>
+                                </template>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            <?php endif; ?>
+
             <!-- Categories and tags. -->
             <div class="bg-theme-surface shadow-theme p-5 border border-theme-border rounded-theme" x-data='{ postType: <?= json_encode($post['type'] ?? 'post', JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?> }'>
+                <?php
+                // Function to check if a UI section is supported
+                $cpts = function_exists('grinds_get_theme_post_types') ? grinds_get_theme_post_types() : [];
+                $postTypeKey = $post['type'] ?? 'post';
+
+                $supports = function ($feature) use ($cpts, $postTypeKey) {
+                    if (!isset($cpts[$postTypeKey])) return true; // Standard posts support everything
+                    $supported = $cpts[$postTypeKey]['supports'] ?? ['title', 'content', 'thumbnail', 'hero', 'seo', 'category', 'tags', 'custom_fields', 'display_options'];
+                    return in_array($feature, $supported, true);
+                };
+                ?>
                 <div class="mb-4">
                     <label class="block opacity-70 mb-1 font-bold text-theme-text text-xs"><?= _t('col_type') ?></label>
-                    <?php if (($post['type'] ?? '') === 'template'): ?>
+                    <?php if ($postTypeKey === 'template'): ?>
                         <input type="text" value="<?= _t('btn_template') ?>" class="bg-theme-bg opacity-70 text-sm form-control" readonly>
                         <input type="hidden" name="type" value="template">
+                    <?php elseif (isset($cpts[$postTypeKey])): ?>
+                        <input type="text" value="<?= h(function_exists('_t') && isset($cpts[$postTypeKey]['label']) ? _t($cpts[$postTypeKey]['label']) : ($cpts[$postTypeKey]['label'] ?? ucfirst($postTypeKey))) ?>" class="bg-theme-bg opacity-70 text-sm font-bold text-theme-primary form-control" readonly>
+                        <input type="hidden" name="type" value="<?= h($postTypeKey) ?>">
                     <?php
                     else: ?>
                         <select name="type" x-model="postType" class="text-sm form-control">
@@ -799,343 +959,495 @@ $basePath = rtrim($parsedBase['path'] ?? '/', '/') . '/';
                     <?php
                     endif; ?>
                 </div>
-                <div class="mb-4" x-show="postType === 'post'" x-transition>
-                    <label class="block opacity-70 mb-1 font-bold text-theme-text text-xs"><?= _t('lbl_category') ?></label>
-                    <select name="category_id" class="text-sm form-control">
-                        <?php foreach ($categories as $cat): ?>
-                            <option value="<?= $cat['id'] ?>" <?= ($post['category_id'] ?? '') == $cat['id'] ? 'selected' : '' ?>><?= h($cat['name']) ?></option>
-                        <?php
-                        endforeach; ?>
-                    </select>
-                </div>
-                <div x-data="{
+                <?php if ($supports('category')): ?>
+                    <div class="mb-4" <?php if (!isset($cpts[$postTypeKey])): ?>x-show="postType === 'post'" x-transition<?php endif; ?>>
+                        <label class="block opacity-70 mb-1 font-bold text-theme-text text-xs"><?= _t('lbl_category') ?></label>
+                        <select name="category_id" class="text-sm form-control">
+                            <?php foreach ($categories as $cat): ?>
+                                <option value="<?= $cat['id'] ?>" <?= ($post['category_id'] ?? '') == $cat['id'] ? 'selected' : '' ?>><?= h($cat['name']) ?></option>
+                            <?php
+                            endforeach; ?>
+                        </select>
+                    </div>
+                <?php endif; ?>
+                <?php if ($supports('tags')): ?>
+                    <div x-data="{
                     tags: <?= htmlspecialchars(json_encode(array_values(array_filter(array_map('trim', explode(',', $currentTags ?? ''))))), ENT_QUOTES, 'UTF-8') ?>,
                     tagInput: '',
-                    addTag() { this.tagInput.split(/[,、]/).forEach(t => { const val = t.trim(); if (val && !this.tags.includes(val)) this.tags.push(val); }); this.tagInput = ''; },
+                    allTags: <?= htmlspecialchars(json_encode($allTagsList), ENT_QUOTES, 'UTF-8') ?>,
+                    tagSuggestions: [],
+                    showTagSuggestions: false,
+                    filterTagSuggestions() {
+                        const lower = this.tagInput.toLowerCase();
+                        this.tagSuggestions = this.allTags.filter(t => t.toLowerCase().includes(lower) && !this.tags.includes(t));
+                    },
+                    addTag(tagValue = null) { const val = tagValue || this.tagInput.trim(); val.split(/[,、]/).forEach(t => { const clean = t.trim(); if (clean && !this.tags.includes(clean)) this.tags.push(clean); }); this.tagInput = ''; this.showTagSuggestions = false; },
                     removeTag(index) { this.tags.splice(index, 1); }
                 }">
-                    <label class="block opacity-70 mb-1 font-bold text-theme-text text-xs"><?= _t('lbl_tags') ?></label>
-                    <div class="flex flex-wrap items-center gap-1.5 bg-theme-bg px-3 py-2 border border-theme-border focus-within:ring-1 focus-within:ring-theme-primary w-full min-h-[42px] cursor-text rounded-theme transition-colors" @click="$refs.tagInput.focus()">
-                        <template x-for="(tag, index) in tags" :key="index">
-                            <span class="flex items-center gap-1 bg-theme-primary/10 px-2 py-0.5 border border-theme-primary/20 rounded-theme text-theme-primary text-xs font-bold">
-                                <span x-text="tag"></span>
-                                <button type="button" @click.stop="removeTag(index)" class="focus:outline-none hover:text-theme-danger p-0.5 -mr-1" aria-label='<?= h(_t('remove')) ?>'>&times;</button>
-                            </span>
-                        </template>
-                        <input type="text" x-ref="tagInput" x-model="tagInput"
-                            @keydown.enter.prevent="if(!$event.isComposing) addTag()"
-                            @keydown.backspace="if(!$event.isComposing && tagInput === '' && tags.length > 0) removeTag(tags.length - 1)"
-                            @blur="if(tagInput.trim() !== '') addTag()"
-                            class="flex-1 bg-transparent p-0 border-none outline-none focus:ring-0 min-w-[60px] text-theme-text text-sm placeholder-theme-text/40" placeholder="<?= _t('ph_tags') ?>">
+                        <label class="block opacity-70 mb-1 font-bold text-theme-text text-xs"><?= _t('lbl_tags') ?></label>
+                        <div class="flex flex-wrap items-center gap-1.5 bg-theme-bg px-3 py-2 border border-theme-border focus-within:ring-1 focus-within:ring-theme-primary w-full min-h-[42px] cursor-text rounded-theme transition-colors" @click="$refs.tagInput.focus()">
+                            <template x-for="(tag, index) in tags" :key="index">
+                                <span class="flex items-center gap-1 bg-theme-primary/10 px-2 py-0.5 border border-theme-primary/20 rounded-theme text-theme-primary text-xs font-bold">
+                                    <span x-text="tag"></span>
+                                    <button type="button" @click.stop="removeTag(index)" class="focus:outline-none hover:text-theme-danger p-0.5 -mr-1" aria-label='<?= h(_t('remove')) ?>'>&times;</button>
+                                </span>
+                            </template>
+                            <div class="relative flex-1 min-w-[120px]">
+                                <input type="text" x-ref="tagInput" x-model="tagInput"
+                                    @focus="filterTagSuggestions(); showTagSuggestions = true"
+                                    @input="filterTagSuggestions(); showTagSuggestions = true"
+                                    @keydown.enter.prevent="if(!$event.isComposing) addTag()"
+                                    @keydown.backspace="if(!$event.isComposing && tagInput === '' && tags.length > 0) removeTag(tags.length - 1)"
+                                    @blur="setTimeout(() => { if(tagInput.trim() !== '') addTag() }, 150)"
+                                    @click.stop="showTagSuggestions = true"
+                                    @click.outside="showTagSuggestions = false"
+                                    class="bg-transparent p-0 border-none outline-none focus:ring-0 w-full text-theme-text text-sm placeholder-theme-text/40" placeholder="<?= _t('ph_tags') ?>">
+
+                                <div x-show="showTagSuggestions && tagSuggestions.length > 0" x-cloak
+                                    class="absolute left-0 top-full mt-2 w-48 max-h-48 overflow-y-auto bg-theme-surface border border-theme-border shadow-theme rounded-theme z-50">
+                                    <template x-for="suggestion in tagSuggestions">
+                                        <button type="button" @click="addTag(suggestion)" class="block w-full text-left px-3 py-2 text-sm text-theme-text hover:bg-theme-bg transition-colors" x-text="suggestion"></button>
+                                    </template>
+                                </div>
+                            </div>
+                        </div>
+                        <input type="hidden" name="tags" :value="tags.join(',')">
+                        <p class="opacity-50 mt-1 text-[10px] text-theme-text">
+                            <?= _t('help_tags_comma') ?>
+                        </p>
                     </div>
-                    <input type="hidden" name="tags" :value="tags.join(',')">
-                    <p class="opacity-50 mt-1 text-[10px] text-theme-text">
-                        <?= _t('help_tags_comma') ?>
-                    </p>
-                </div>
+                <?php endif; ?>
             </div>
 
-            <!-- Display Options -->
+            <!-- Right Column Settings Box -->
             <div class="bg-theme-surface shadow-theme p-5 border border-theme-border rounded-theme">
-                <h3 class="block opacity-70 mb-3 pb-2 border-theme-border border-b font-bold text-theme-text text-xs"><?= _t('lbl_display_options') ?></h3>
+                <!-- Display Options -->
+                <?php if ($supports('display_options')): ?>
+                    <h3 class="block opacity-70 mb-3 pb-2 border-theme-border border-b font-bold text-theme-text text-xs"><?= _t('lbl_display_options') ?></h3>
 
-                <!-- Page theme selector. -->
-                <div class="mb-4">
-                    <label class="block opacity-60 mb-1 font-bold text-theme-text text-xs">
-                        <?= _t('lbl_page_theme') ?>
-                    </label>
-                    <select name="page_theme" class="text-sm form-control">
-                        <option value="" <?= empty($post['page_theme']) ? 'selected' : '' ?>><?= _t('theme_default') ?></option>
-                        <?php foreach ($available_themes as $dir => $name): ?>
-                            <option value="<?= h($dir) ?>" <?= ($post['page_theme'] ?? '') === $dir ? 'selected' : '' ?>><?= h($name) ?></option>
-                        <?php
-                        endforeach; ?>
-                    </select>
-                    <p class="opacity-50 mt-1 text-[10px] text-theme-text">
-                        <?= _t('help_page_theme') ?>
-                    </p>
-                </div>
+                    <!-- Page theme selector. -->
+                    <div class="mb-4">
+                        <label class="block opacity-60 mb-1 font-bold text-theme-text text-xs">
+                            <?= _t('lbl_page_theme') ?>
+                        </label>
+                        <select name="page_theme" class="text-sm form-control">
+                            <option value="" <?= empty($post['page_theme']) ? 'selected' : '' ?>><?= _t('theme_default') ?></option>
+                            <?php foreach ($available_themes as $dir => $name): ?>
+                                <option value="<?= h($dir) ?>" <?= ($post['page_theme'] ?? '') === $dir ? 'selected' : '' ?>><?= h($name) ?></option>
+                            <?php
+                            endforeach; ?>
+                        </select>
+                        <p class="opacity-50 mt-1 text-[10px] text-theme-text">
+                            <?= _t('help_page_theme') ?>
+                        </p>
+                    </div>
 
-                <div class="space-y-3 mb-6">
-                    <label class="group flex items-center cursor-pointer">
-                        <input type="checkbox" name="show_category" value="1" class="bg-theme-bg border-theme-border rounded w-5 h-5 text-theme-primary form-checkbox" <?= (!isset($post['show_category']) || $post['show_category']) ? 'checked' : '' ?>>
-                        <span class="ml-2 text-theme-text group-hover:text-theme-primary text-sm transition-colors"><?= _t('lbl_show_category') ?></span>
-                    </label>
-                    <label class="group flex items-center cursor-pointer">
-                        <input type="checkbox" name="show_date" value="1" class="bg-theme-bg border-theme-border rounded w-5 h-5 text-theme-primary form-checkbox" <?= (!isset($post['show_date']) || $post['show_date']) ? 'checked' : '' ?>>
-                        <span class="ml-2 text-theme-text group-hover:text-theme-primary text-sm transition-colors"><?= _t('lbl_show_date') ?></span>
-                    </label>
-                    <label class="group flex items-center cursor-pointer">
-                        <input type="checkbox" name="show_share_buttons" value="1" class="bg-theme-bg border-theme-border rounded w-5 h-5 text-theme-primary form-checkbox" <?= (!isset($post['show_share_buttons']) || $post['show_share_buttons']) ? 'checked' : '' ?>>
-                        <span class="ml-2 text-theme-text group-hover:text-theme-primary text-sm transition-colors"><?= _t('lbl_show_share_buttons') ?></span>
-                    </label>
-                </div>
+                    <div class="space-y-3 mb-6">
+                        <label class="group flex items-center cursor-pointer">
+                            <input type="checkbox" name="show_category" value="1" class="bg-theme-bg border-theme-border rounded w-5 h-5 text-theme-primary form-checkbox" <?= (!isset($post['show_category']) || $post['show_category']) ? 'checked' : '' ?>>
+                            <span class="ml-2 text-theme-text group-hover:text-theme-primary text-sm transition-colors"><?= _t('lbl_show_category') ?></span>
+                        </label>
+                        <label class="group flex items-center cursor-pointer">
+                            <input type="checkbox" name="show_date" value="1" class="bg-theme-bg border-theme-border rounded w-5 h-5 text-theme-primary form-checkbox" <?= (!isset($post['show_date']) || $post['show_date']) ? 'checked' : '' ?>>
+                            <span class="ml-2 text-theme-text group-hover:text-theme-primary text-sm transition-colors"><?= _t('lbl_show_date') ?></span>
+                        </label>
+                        <label class="group flex items-center cursor-pointer">
+                            <input type="checkbox" name="show_share_buttons" value="1" class="bg-theme-bg border-theme-border rounded w-5 h-5 text-theme-primary form-checkbox" <?= (!isset($post['show_share_buttons']) || $post['show_share_buttons']) ? 'checked' : '' ?>>
+                            <span class="ml-2 text-theme-text group-hover:text-theme-primary text-sm transition-colors"><?= _t('lbl_show_share_buttons') ?></span>
+                        </label>
+                    </div>
 
-                <!-- TOC settings. -->
-                <h3 class="block opacity-70 mb-3 pb-2 border-theme-border border-b font-bold text-theme-text text-xs"><?= _t('lbl_toc') ?></h3>
-                <div class="mb-4">
-                    <label class="group inline-flex items-center cursor-pointer">
-                        <input type="checkbox" name="show_toc" value="1" class="bg-theme-bg border-theme-border rounded focus:ring-theme-primary/20 w-5 h-5 text-theme-primary form-checkbox" <?= !empty($post['show_toc']) ? 'checked' : '' ?>>
-                        <span class="ml-2 text-theme-text group-hover:text-theme-primary text-sm transition-colors"><?= _t('lbl_toc_show') ?></span>
-                    </label>
-                </div>
-                <div class="mb-6">
-                    <label class="block opacity-60 mb-1 font-bold text-theme-text text-xs"><?= _t('lbl_toc_title') ?></label>
-                    <input type="text" name="toc_title" value="<?= h($post['toc_title'] ?? _t('ph_toc_title')) ?>" class="text-sm form-control" placeholder="<?= _t('ph_toc_title') ?>">
-                </div>
+                    <!-- TOC settings. -->
+                    <h3 class="block opacity-70 mb-3 pb-2 border-theme-border border-b font-bold text-theme-text text-xs"><?= _t('lbl_toc') ?></h3>
+                    <div class="mb-4">
+                        <label class="group inline-flex items-center cursor-pointer">
+                            <input type="checkbox" name="show_toc" value="1" class="bg-theme-bg border-theme-border rounded focus:ring-theme-primary/20 w-5 h-5 text-theme-primary form-checkbox" <?= !empty($post['show_toc']) ? 'checked' : '' ?>>
+                            <span class="ml-2 text-theme-text group-hover:text-theme-primary text-sm transition-colors"><?= _t('lbl_toc_show') ?></span>
+                        </label>
+                    </div>
+                    <div class="mb-6">
+                        <label class="block opacity-60 mb-1 font-bold text-theme-text text-xs"><?= _t('lbl_toc_title') ?></label>
+                        <input type="text" name="toc_title" value="<?= h($post['toc_title'] ?? _t('ph_toc_title')) ?>" class="text-sm form-control" placeholder="<?= _t('ph_toc_title') ?>">
+                    </div>
+                <?php endif; ?>
 
                 <!-- SEO & Thumbnail -->
-                <h3 class="block opacity-70 mb-3 pb-2 border-theme-border border-b font-bold text-theme-text text-xs"><?= _t('lbl_seo') ?></h3>
-                <div class="mb-4">
-                    <label class="block opacity-60 mb-1 font-bold text-theme-text text-xs"><?= _t('lbl_seo_author') ?></label>
-                    <input type="text" name="seo_author" value="<?= h($heroConfig['seo_author'] ?? '') ?>" class="text-sm form-control" placeholder="<?= _t('ph_seo_author') ?>">
-                </div>
-                <div class="mb-6">
-                    <?php
-                    $label = _t('lbl_social_card');
-                    $name = 'thumbnail';
-                    $value = $post['thumbnail'] ?? '';
-                    $current_value_input_name = 'current_thumbnail';
-                    $delete_name = 'delete_thumbnail';
-                    $input_style = 'box';
-                    $preview_class = 'w-full h-32 object-cover';
-                    include __DIR__ . '/parts/image_uploader.php';
-                    ?>
-                </div>
+                <?php if ($supports('seo')): ?>
+                    <h3 class="block opacity-70 mb-3 pb-2 border-theme-border border-b font-bold text-theme-text text-xs"><?= _t('lbl_seo') ?></h3>
+                    <div class="mb-4">
+                        <label class="block opacity-60 mb-1 font-bold text-theme-text text-xs"><?= _t('lbl_seo_author') ?></label>
+                        <input type="text" name="seo_author" value="<?= h($heroConfig['seo_author'] ?? '') ?>" class="text-sm form-control" placeholder="<?= _t('ph_seo_author') ?>">
+                    </div>
+                <?php endif; ?>
+                <?php if ($supports('thumbnail')): ?>
+                    <div class="mb-6">
+                        <?php
+                        $label = _t('lbl_social_card');
+                        $name = 'thumbnail';
+                        $value = $post['thumbnail'] ?? '';
+                        $current_value_input_name = 'current_thumbnail';
+                        $delete_name = 'delete_thumbnail';
+                        $input_style = 'box';
+                        $preview_class = 'w-full h-32 object-cover';
+                        include __DIR__ . '/parts/image_uploader.php';
+                        ?>
+                    </div>
+                <?php endif; ?>
 
                 <!-- Hero Section (Collapsible) -->
-                <div class="bg-theme-surface mb-6 p-4 border border-theme-border rounded-theme" x-data="{ open: false }">
-                    <button type="button" @click="open = !open" class="flex justify-between items-center w-full text-left">
-                        <span class="block opacity-70 font-bold text-theme-text text-xs cursor-pointer"><?= _t('lbl_hero') ?></span>
-                        <svg class="opacity-50 w-4 h-4 text-theme-text transition-transform" :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-chevron-down"></use>
-                        </svg>
-                    </button>
+                <?php if ($supports('hero')): ?>
+                    <div class="bg-theme-surface mb-6 p-4 border border-theme-border rounded-theme" x-data="{ open: false }">
+                        <button type="button" @click="open = !open" class="flex justify-between items-center w-full text-left">
+                            <span class="block opacity-70 font-bold text-theme-text text-xs cursor-pointer"><?= _t('lbl_hero') ?></span>
+                            <svg class="opacity-50 w-4 h-4 text-theme-text transition-transform" :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-chevron-down"></use>
+                            </svg>
+                        </button>
 
-                    <div x-show="open" x-collapse>
-                        <div class="space-y-4 mt-4">
-                            <!-- Hero image. -->
-                            <div x-data='{ previewUrl: <?= json_encode(get_media_url($post['hero_image'] ?? ''), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>, isDeleted: false }'
-                                @set-hero-image.window="if(!$event.detail.mobile) { previewUrl = $event.detail.url; isDeleted = false; document.getElementById('hero_image_url_input').value = $event.detail.url; }">
-                                <label class="block opacity-60 mb-1 font-bold text-theme-text text-xs"><?= _t('hero_img') ?></label>
-                                <div class="mb-2 bg-checker border border-theme-border rounded-theme w-full h-32 overflow-hidden" x-show="previewUrl && !isDeleted">
-                                    <img :src="previewUrl" class="w-full h-full object-cover">
-                                </div>
-                                <div class="flex flex-col gap-2">
-                                    <button type="button" @click="openLibrary('hero_image')" class="flex justify-center items-center hover:bg-theme-bg px-4 py-2 border border-theme-border rounded-theme w-full text-xs text-center transition-colors btn-secondary">
-                                        <svg class="mr-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-photo"></use>
-                                        </svg>
-                                        <span><?= h(_t('btn_select_library')) ?></span>
-                                    </button>
-                                    <label class="px-3 py-1 rounded-theme w-full text-xs text-center cursor-pointer btn-secondary">
-                                        <?= h(_t('select_file')) ?>
-                                        <input type="file" name="hero_image" accept="image/*" class="sr-only" @change="const file = $event.target.files[0]; if(file){ if(previewUrl && previewUrl.startsWith('blob:')) URL.revokeObjectURL(previewUrl); previewUrl = URL.createObjectURL(file); isDeleted = false; }">
-                                    </label>
-                                    <?php if (!empty($post['hero_image'])): ?>
-                                        <label class="flex justify-center items-center bg-theme-danger/10 px-2 border border-theme-danger/30 rounded-theme text-theme-danger transition-colors cursor-pointer"
-                                            :class="{'bg-theme-danger text-white border-theme-danger': isDeleted}"
-                                            title="<?= h(_t('delete')) ?>">
-                                            <input type="checkbox" name="delete_hero_image" value="1" class="hidden" x-model="isDeleted">
-                                            <span x-show="!isDeleted">&times;</span>
-                                            <span x-show="isDeleted" class="font-bold text-[10px]"><?= h(_t('btn_restore')) ?></span>
+                        <div x-show="open" x-collapse>
+                            <div class="space-y-4 mt-4">
+                                <!-- Hero image. -->
+                                <div x-data='{ previewUrl: <?= json_encode(get_media_url($post['hero_image'] ?? ''), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>, isDeleted: false }'
+                                    @set-hero-image.window="if(!$event.detail.mobile) { previewUrl = $event.detail.url; isDeleted = false; document.getElementById('hero_image_url_input').value = $event.detail.url; }">
+                                    <label class="block opacity-60 mb-1 font-bold text-theme-text text-xs"><?= _t('hero_img') ?></label>
+                                    <div class="mb-2 bg-checker border border-theme-border rounded-theme w-full h-32 overflow-hidden" x-show="previewUrl && !isDeleted">
+                                        <img :src="previewUrl" class="w-full h-full object-cover">
+                                    </div>
+                                    <div class="flex flex-col gap-2">
+                                        <button type="button" @click="openLibrary('hero_image')" class="flex justify-center items-center hover:bg-theme-bg px-4 py-2 border border-theme-border rounded-theme w-full text-xs text-center transition-colors btn-secondary">
+                                            <svg class="mr-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-photo"></use>
+                                            </svg>
+                                            <span><?= h(_t('btn_select_library')) ?></span>
+                                        </button>
+                                        <label class="flex justify-center items-center px-4 py-2 rounded-theme w-full text-xs text-center cursor-pointer btn-secondary">
+                                            <svg class="mr-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-arrow-up-tray"></use>
+                                            </svg>
+                                            <span><?= h(_t('upload')) ?></span>
+                                            <input type="file" name="hero_image" accept="image/*" class="hidden" @change="const file = $event.target.files[0]; if(file){ if(previewUrl && previewUrl.startsWith('blob:')) URL.revokeObjectURL(previewUrl); previewUrl = URL.createObjectURL(file); isDeleted = false; }">
                                         </label>
-                                        <input type="hidden" name="current_hero_image" value="<?= h($post['hero_image']) ?>">
-                                    <?php
-                                    endif; ?>
-                                    <input type="hidden" name="hero_image_url" id="hero_image_url_input">
+                                        <?php if (!empty($post['hero_image'])): ?>
+                                            <label class="flex justify-center items-center bg-theme-danger/10 px-2 border border-theme-danger/30 rounded-theme text-theme-danger transition-colors cursor-pointer"
+                                                :class="{'bg-theme-danger text-white border-theme-danger': isDeleted}"
+                                                title="<?= h(_t('delete')) ?>">
+                                                <input type="checkbox" name="delete_hero_image" value="1" class="hidden" x-model="isDeleted">
+                                                <span x-show="!isDeleted">&times;</span>
+                                                <span x-show="isDeleted" class="font-bold text-[10px]"><?= h(_t('btn_restore')) ?></span>
+                                            </label>
+                                            <input type="hidden" name="current_hero_image" value="<?= h($post['hero_image']) ?>">
+                                        <?php
+                                        endif; ?>
+                                        <input type="hidden" name="hero_image_url" id="hero_image_url_input">
+                                    </div>
+                                    <p x-show="isDeleted" class="mt-2 font-bold text-theme-danger text-xs"><?= _t('msg_deleted') ?></p>
                                 </div>
-                                <p x-show="isDeleted" class="mt-2 font-bold text-theme-danger text-xs"><?= _t('msg_deleted') ?></p>
-                            </div>
 
-                            <div x-data='{ previewUrl: <?= json_encode(get_media_url($heroConfig['mobile_image'] ?? ''), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>, isDeleted: false }'
-                                class="pt-4 border-theme-border border-t"
-                                @set-hero-image.window="if($event.detail.mobile) { previewUrl = $event.detail.url; isDeleted = false; document.getElementById('hero_image_mobile_url_input').value = $event.detail.url; }">
-                                <label class="block opacity-60 mb-1 font-bold text-theme-text text-xs">
-                                    <svg class="inline mr-1 w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-device-phone-mobile"></use>
-                                    </svg>
-                                    <?= _t('hero_img_mobile') ?>
+                                <div x-data='{ previewUrl: <?= json_encode(get_media_url($heroConfig['mobile_image'] ?? ''), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>, isDeleted: false }'
+                                    class="pt-4 border-theme-border border-t"
+                                    @set-hero-image.window="if($event.detail.mobile) { previewUrl = $event.detail.url; isDeleted = false; document.getElementById('hero_image_mobile_url_input').value = $event.detail.url; }">
+                                    <label class="block opacity-60 mb-1 font-bold text-theme-text text-xs">
+                                        <svg class="inline mr-1 w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-device-phone-mobile"></use>
+                                        </svg>
+                                        <?= _t('hero_img_mobile') ?>
+                                    </label>
+                                    <div class="mb-2 mx-auto bg-checker border border-theme-border rounded-theme w-24 h-32 overflow-hidden" x-show="previewUrl && !isDeleted">
+                                        <img :src="previewUrl" class="w-full h-full object-cover">
+                                    </div>
+                                    <div class="flex flex-col gap-2">
+                                        <button type="button" @click="openLibrary('hero_image_mobile')" class="flex justify-center items-center hover:bg-theme-bg px-4 py-2 border border-theme-border rounded-theme w-full text-xs text-center transition-colors btn-secondary">
+                                            <svg class="mr-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-photo"></use>
+                                            </svg>
+                                            <span><?= h(_t('btn_select_library')) ?></span>
+                                        </button>
+                                        <label class="flex justify-center items-center px-4 py-2 rounded-theme w-full text-xs text-center cursor-pointer btn-secondary">
+                                            <svg class="mr-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-arrow-up-tray"></use>
+                                            </svg>
+                                            <span><?= h(_t('upload')) ?></span>
+                                            <input type="file" name="hero_image_mobile" accept="image/*" class="hidden" @change="
+                                                if (typeof isUploading !== 'undefined') isUploading = true;
+                                                const file = $event.target.files[0]; if(file){ if(previewUrl && previewUrl.startsWith('blob:')) URL.revokeObjectURL(previewUrl); previewUrl = URL.createObjectURL(file); isDeleted = false; }
+                                                setTimeout(() => { if (typeof isUploading !== 'undefined') isUploading = false; }, 1000);
+                                            ">
+                                        </label>
+                                        <?php if (!empty($heroConfig['mobile_image'])): ?>
+                                            <label class="flex justify-center items-center bg-theme-danger/10 px-2 border border-theme-danger/30 rounded-theme text-theme-danger transition-colors cursor-pointer"
+                                                :class="{'bg-theme-danger text-white border-theme-danger': isDeleted}"
+                                                title="<?= h(_t('delete')) ?>">
+                                                <input type="checkbox" name="delete_hero_image_mobile" value="1" class="hidden" x-model="isDeleted">
+                                                <span x-show="!isDeleted">&times;</span>
+                                                <span x-show="isDeleted" class="font-bold text-[10px]"><?= h(_t('btn_restore')) ?></span>
+                                            </label>
+                                            <input type="hidden" name="current_hero_image_mobile" value="<?= h($heroConfig['mobile_image']) ?>">
+                                        <?php
+                                        endif; ?>
+                                        <input type="hidden" name="hero_image_mobile_url" id="hero_image_mobile_url_input">
+                                    </div>
+                                </div>
+
+                                <!-- Hero layout. -->
+                                <div>
+                                    <label class="block opacity-60 mb-1 font-bold text-theme-text text-xs"><?= _t('hero_layout') ?></label>
+                                    <select name="hero_layout" class="py-1 text-xs form-control">
+                                        <option value="standard" <?= ($heroConfig['layout'] ?? '') === 'standard' ? 'selected' : '' ?>><?= _t('hero_layout_std') ?></option>
+                                        <option value="wide" <?= ($heroConfig['layout'] ?? '') === 'wide' ? 'selected' : '' ?>><?= _t('hero_layout_wide') ?></option>
+                                        <option value="fullscreen" <?= ($heroConfig['layout'] ?? '') === 'fullscreen' ? 'selected' : '' ?>><?= _t('hero_layout_full') ?></option>
+                                    </select>
+                                </div>
+
+                                <!-- Hero text fields. -->
+                                <div>
+                                    <label class="block opacity-60 mb-1 font-bold text-theme-text text-xs"><?= _t('hero_title') ?></label>
+                                    <input type="text" name="hero_title" value="<?= h($heroConfig['title'] ?? '') ?>" class="text-xs form-control">
+                                </div>
+                                <div>
+                                    <label class="block opacity-60 mb-1 font-bold text-theme-text text-xs"><?= _t('hero_sub') ?></label>
+                                    <textarea name="hero_subtext" rows="2" class="text-xs form-control"><?= h($heroConfig['subtext'] ?? '') ?></textarea>
+                                </div>
+
+                                <!-- Hero overlay. -->
+                                <label class="flex items-center cursor-pointer">
+                                    <input type="checkbox" name="hero_overlay" value="1" class="bg-theme-bg border-theme-border w-5 h-5 text-theme-primary form-checkbox" <?= !empty($heroConfig['overlay']) ? 'checked' : '' ?>>
+                                    <span class="ml-2 text-theme-text text-xs"><?= _t('hero_overlay') ?></span>
                                 </label>
-                                <div class="mb-2 mx-auto bg-checker border border-theme-border rounded-theme w-24 h-32 overflow-hidden" x-show="previewUrl && !isDeleted">
-                                    <img :src="previewUrl" class="w-full h-full object-cover">
-                                </div>
-                                <div class="flex flex-col gap-2">
-                                    <button type="button" @click="openLibrary('hero_image_mobile')" class="flex justify-center items-center hover:bg-theme-bg px-4 py-2 border border-theme-border rounded-theme w-full text-xs text-center transition-colors btn-secondary">
-                                        <svg class="mr-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-photo"></use>
-                                        </svg>
-                                        <span><?= h(_t('btn_select_library')) ?></span>
-                                    </button>
-                                    <label class="px-3 py-1 rounded-theme w-full text-xs text-center cursor-pointer btn-secondary">
-                                        <?= h(_t('select_file')) ?>
-                                        <input type="file" name="hero_image_mobile" accept="image/*" class="sr-only" @change="const file = $event.target.files[0]; if(file){ if(previewUrl && previewUrl.startsWith('blob:')) URL.revokeObjectURL(previewUrl); previewUrl = URL.createObjectURL(file); isDeleted = false; }">
-                                    </label>
-                                    <?php if (!empty($heroConfig['mobile_image'])): ?>
-                                        <label class="flex justify-center items-center bg-theme-danger/10 px-2 border border-theme-danger/30 rounded-theme text-theme-danger transition-colors cursor-pointer"
-                                            :class="{'bg-theme-danger text-white border-theme-danger': isDeleted}"
-                                            title="<?= h(_t('delete')) ?>">
-                                            <input type="checkbox" name="delete_hero_image_mobile" value="1" class="hidden" x-model="isDeleted">
-                                            <span x-show="!isDeleted">&times;</span>
-                                            <span x-show="isDeleted" class="font-bold text-[10px]"><?= h(_t('btn_restore')) ?></span>
-                                        </label>
-                                        <input type="hidden" name="current_hero_image_mobile" value="<?= h($heroConfig['mobile_image']) ?>">
-                                    <?php
-                                    endif; ?>
-                                    <input type="hidden" name="hero_image_mobile_url" id="hero_image_mobile_url_input">
-                                </div>
-                            </div>
 
-                            <!-- Hero layout. -->
-                            <div>
-                                <label class="block opacity-60 mb-1 font-bold text-theme-text text-xs"><?= _t('hero_layout') ?></label>
-                                <select name="hero_layout" class="py-1 text-xs form-control">
-                                    <option value="standard" <?= ($heroConfig['layout'] ?? '') === 'standard' ? 'selected' : '' ?>><?= _t('hero_layout_std') ?></option>
-                                    <option value="wide" <?= ($heroConfig['layout'] ?? '') === 'wide' ? 'selected' : '' ?>><?= _t('hero_layout_wide') ?></option>
-                                    <option value="fullscreen" <?= ($heroConfig['layout'] ?? '') === 'fullscreen' ? 'selected' : '' ?>><?= _t('hero_layout_full') ?></option>
-                                </select>
-                            </div>
+                                <label class="flex items-center mt-2 cursor-pointer">
+                                    <input type="checkbox" name="hero_fixed_bg" value="1" class="bg-theme-bg border-theme-border w-5 h-5 text-theme-primary form-checkbox" <?= !empty($heroConfig['fixed_bg']) ? 'checked' : '' ?>>
+                                    <span class="ml-2 text-theme-text text-xs"><?= _t('hero_fixed_bg') ?></span>
+                                </label>
 
-                            <!-- Hero text fields. -->
-                            <div>
-                                <label class="block opacity-60 mb-1 font-bold text-theme-text text-xs"><?= _t('hero_title') ?></label>
-                                <input type="text" name="hero_title" value="<?= h($heroConfig['title'] ?? '') ?>" class="text-xs form-control">
-                            </div>
-                            <div>
-                                <label class="block opacity-60 mb-1 font-bold text-theme-text text-xs"><?= _t('hero_sub') ?></label>
-                                <textarea name="hero_subtext" rows="2" class="text-xs form-control"><?= h($heroConfig['subtext'] ?? '') ?></textarea>
-                            </div>
+                                <!-- Hero button settings. -->
+                                <div class="mt-2 pt-4 border-theme-border border-t"
+                                    x-data="heroSettings">
 
-                            <!-- Hero overlay. -->
-                            <label class="flex items-center cursor-pointer">
-                                <input type="checkbox" name="hero_overlay" value="1" class="bg-theme-bg border-theme-border w-5 h-5 text-theme-primary form-checkbox" <?= !empty($heroConfig['overlay']) ? 'checked' : '' ?>>
-                                <span class="ml-2 text-theme-text text-xs"><?= _t('hero_overlay') ?></span>
-                            </label>
+                                    <div class="flex justify-between items-center opacity-70 mb-2 font-bold text-theme-text text-xs">
+                                        <span><?= _t('hero_cta') ?></span>
+                                        <button type="button" @click="addBtn()" class="flex items-center bg-transparent border-none text-[10px] text-theme-primary hover:underline cursor-pointer">
+                                            <svg class="mr-1 w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-plus"></use>
+                                            </svg>
+                                            <?= _t('hero_btn_add') ?>
+                                        </button>
+                                    </div>
 
-                            <label class="flex items-center mt-2 cursor-pointer">
-                                <input type="checkbox" name="hero_fixed_bg" value="1" class="bg-theme-bg border-theme-border w-5 h-5 text-theme-primary form-checkbox" <?= !empty($heroConfig['fixed_bg']) ? 'checked' : '' ?>>
-                                <span class="ml-2 text-theme-text text-xs"><?= _t('hero_fixed_bg') ?></span>
-                            </label>
+                                    <!-- Hidden input for buttons. -->
+                                    <input type="hidden" name="hero_buttons_json" :value="JSON.stringify(buttons)">
 
-                            <!-- Hero button settings. -->
-                            <div class="mt-2 pt-4 border-theme-border border-t"
-                                x-data="heroSettings">
+                                    <div class="space-y-4">
+                                        <template x-for="(btn, index) in buttons" :key="index">
+                                            <div class="group relative bg-theme-bg/50 p-3 border border-theme-border rounded-theme">
+                                                <!-- Delete button. -->
+                                                <button type="button" @click="removeBtn(index)" class="top-1 right-1 p-2 flex items-center justify-center absolute opacity-30 hover:opacity-100 text-theme-text hover:text-theme-danger" title="<?= h(_t('hero_btn_remove')) ?>" aria-label="<?= h(_t('hero_btn_remove')) ?>">
+                                                    &times;
+                                                </button>
 
-                                <div class="flex justify-between items-center opacity-70 mb-2 font-bold text-theme-text text-xs">
-                                    <span><?= _t('hero_cta') ?></span>
-                                    <button type="button" @click="addBtn()" class="flex items-center bg-transparent border-none text-[10px] text-theme-primary hover:underline cursor-pointer">
-                                        <svg class="mr-1 w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-plus"></use>
-                                        </svg>
-                                        <?= _t('hero_btn_add') ?>
-                                    </button>
-                                </div>
+                                                <div class="space-y-2 pr-4">
+                                                    <!-- Button text and style. -->
+                                                    <div class="flex gap-2">
+                                                        <input type="text" x-model="btn.text" class="flex-1 text-xs form-control" placeholder="<?= _t('hero_btn_text') ?>">
+                                                        <select x-model="btn.style" class="px-1 w-24 text-xs cursor-pointer form-control shrink-0">
+                                                            <option value="primary"><?= _t('btn_style_primary') ?></option>
+                                                            <option value="secondary"><?= _t('btn_style_secondary') ?></option>
+                                                            <option value="white"><?= _t('btn_style_white') ?></option>
+                                                            <option value="outline"><?= _t('btn_style_outline') ?></option>
+                                                        </select>
+                                                    </div>
 
-                                <!-- Hidden input for buttons. -->
-                                <input type="hidden" name="hero_buttons_json" :value="JSON.stringify(buttons)">
+                                                    <!-- Button URL and page selector. -->
+                                                    <div class="flex flex-col gap-1">
+                                                        <input type="text" x-model="btn.url" class="font-mono text-xs form-control" placeholder="<?= _t('ph_https_path') ?>">
 
-                                <div class="space-y-4">
-                                    <template x-for="(btn, index) in buttons" :key="index">
-                                        <div class="group relative bg-theme-bg/50 p-3 border border-theme-border rounded-theme">
-                                            <!-- Delete button. -->
-                                            <button type="button" @click="removeBtn(index)" class="top-1 right-1 p-2 flex items-center justify-center absolute opacity-30 hover:opacity-100 text-theme-text hover:text-theme-danger" title="<?= h(_t('hero_btn_remove')) ?>" aria-label="<?= h(_t('hero_btn_remove')) ?>">
-                                                &times;
-                                            </button>
+                                                        <div class="relative" @click.outside="searchingIndex = null">
+                                                            <input type="text"
+                                                                class="opacity-70 py-1 text-[10px] text-theme-text form-control"
+                                                                placeholder="<?= _t('hero_btn_select') ?> (<?= _t('ph_type_to_search') ?>)"
+                                                                @focus="searchingIndex = index"
+                                                                @input.debounce.300ms="searchContent($event.target.value)">
 
-                                            <div class="space-y-2 pr-4">
-                                                <!-- Button text and style. -->
-                                                <div class="flex gap-2">
-                                                    <input type="text" x-model="btn.text" class="flex-1 text-xs form-control" placeholder="<?= _t('hero_btn_text') ?>">
-                                                    <select x-model="btn.style" class="px-1 w-24 text-xs cursor-pointer form-control shrink-0">
-                                                        <option value="primary"><?= _t('btn_style_primary') ?></option>
-                                                        <option value="secondary"><?= _t('btn_style_secondary') ?></option>
-                                                        <option value="white"><?= _t('btn_style_white') ?></option>
-                                                        <option value="outline"><?= _t('btn_style_outline') ?></option>
-                                                    </select>
-                                                </div>
-
-                                                <!-- Button URL and page selector. -->
-                                                <div class="flex flex-col gap-1">
-                                                    <input type="text" x-model="btn.url" class="font-mono text-xs form-control" placeholder="<?= _t('ph_https_path') ?>">
-
-                                                    <div class="relative" @click.outside="searchingIndex = null">
-                                                        <input type="text"
-                                                            class="opacity-70 py-1 text-[10px] text-theme-text form-control"
-                                                            placeholder="<?= _t('hero_btn_select') ?> (<?= _t('ph_type_to_search') ?>)"
-                                                            @focus="searchingIndex = index"
-                                                            @input.debounce.300ms="searchContent($event.target.value)">
-
-                                                        <div x-show="searchingIndex === index && searchResults.length > 0"
-                                                            class="right-0 left-0 z-10 absolute bg-theme-surface shadow-theme mt-1 border border-theme-border rounded-theme max-h-40 overflow-y-auto">
-                                                            <template x-for="result in searchResults">
-                                                                <button type="button"
-                                                                    class="flex justify-between items-center hover:bg-theme-bg px-2 py-1 w-full text-[10px] text-left truncate"
-                                                                    @click="selectPage(index, result.url)">
-                                                                    <span x-text="result.title"></span>
-                                                                    <span x-text="window.grindsTranslations['type_' + result.type] || result.type" class="opacity-50 ml-2 px-1 border border-theme-border rounded-theme text-[9px] uppercase"></span>
-                                                                </button>
-                                                            </template>
+                                                            <div x-show="searchingIndex === index && searchResults.length > 0"
+                                                                class="right-0 left-0 z-10 absolute bg-theme-surface shadow-theme mt-1 border border-theme-border rounded-theme max-h-40 overflow-y-auto">
+                                                                <template x-for="result in searchResults">
+                                                                    <button type="button"
+                                                                        class="flex justify-between items-center hover:bg-theme-bg px-2 py-1 w-full text-[10px] text-left truncate"
+                                                                        @click="selectPage(index, result.url)">
+                                                                        <span x-text="result.title"></span>
+                                                                        <span x-text="window.grindsTranslations['type_' + result.type] || result.type" class="opacity-50 ml-2 px-1 border border-theme-border rounded-theme text-[9px] uppercase"></span>
+                                                                    </button>
+                                                                </template>
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                    </template>
+                                        </template>
 
-                                    <div x-show="buttons.length === 0" class="opacity-40 py-2 border border-theme-border border-dashed rounded-theme text-theme-text text-xs text-center">
-                                        <?= h(_t('hero_no_buttons')) ?>
+                                        <div x-show="buttons.length === 0" class="opacity-40 py-2 border border-theme-border border-dashed rounded-theme text-theme-text text-xs text-center">
+                                            <?= h(_t('hero_no_buttons')) ?>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
+                <?php endif; ?>
 
-                <!-- SNS Preview -->
-                <div class="mb-6">
-                    <h3 class="block opacity-70 mb-2 font-bold text-theme-text text-xs"><?= _t('lbl_sns_preview') ?></h3>
-                    <div class="mb-6 bg-theme-surface shadow-theme mx-auto border border-theme-border rounded-theme max-w-sm overflow-hidden">
-                        <div class="flex justify-center items-center bg-checker aspect-video">
-                            <img :src="seoImage" x-show="seoImage" class="w-full h-full object-cover" @error='$el.src = <?= json_encode(PLACEHOLDER_IMG, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>'>
-                            <svg x-show="!seoImage" class="w-10 h-10 text-theme-text/20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-photo"></use>
+                <!-- Custom Fields (Meta Data) -->
+                <?php
+                $themeForMeta = !empty($post['page_theme']) ? $post['page_theme'] : null;
+                $customFields = function_exists('grinds_get_theme_custom_fields') ? grinds_get_theme_custom_fields($post['type'] ?? 'post', $themeForMeta) : [];
+                $postMetaData = json_decode($post['meta_data'] ?? '{}', true);
+                if (!is_array($postMetaData)) $postMetaData = [];
+                ?>
+                <?php if (!empty($customFields) && $supports('custom_fields')): ?>
+                    <div class="bg-theme-surface mb-6 p-4 border border-theme-border rounded-theme" x-data="{ openMeta: true }">
+                        <button type="button" @click="openMeta = !openMeta" class="flex justify-between items-center w-full text-left focus:outline-none">
+                            <span class="block opacity-70 font-bold text-theme-text text-xs cursor-pointer"><?= function_exists('_t') ? _t('Custom Fields') ?? 'Custom Fields' : 'Custom Fields' ?></span>
+                            <svg class="opacity-50 w-4 h-4 text-theme-text transition-transform" :class="openMeta ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-chevron-down"></use>
                             </svg>
-                        </div>
-                        <!-- Preview Text -->
-                        <div class="p-3 text-sm">
-                            <span class="opacity-60 text-theme-text text-xs truncate" x-text="siteDomain"></span>
-                            <p class="my-1 font-bold text-theme-text truncate" x-text='seoTitle || <?= json_encode(_t('lbl_title'), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>'></p>
-                            <p class="opacity-80 text-theme-text text-xs line-clamp-2" x-text='seoDesc || <?= json_encode(_t('lbl_desc'), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>'></p>
-                        </div>
-                    </div>
+                        </button>
+                        <div x-show="openMeta" x-collapse>
+                            <div class="space-y-4 mt-4 pt-4 border-theme-border border-t">
+                                <?php foreach ($customFields as $cf):
+                                    $cfName = $cf['name'] ?? '';
+                                    $cfLabel = $cf['label'] ?? $cfName;
+                                    $cfType = $cf['type'] ?? 'text';
+                                    $cfVal = $postMetaData[$cfName] ?? '';
+                                ?>
+                                    <div>
+                                        <?php if ($cfType !== 'checkbox'): ?>
+                                            <label class="block opacity-60 mb-1 font-bold text-theme-text text-xs"><?= h(function_exists('_t') ? _t($cfLabel) : $cfLabel) ?></label>
+                                        <?php endif; ?>
 
-                    <!-- Robots meta tags. -->
-                    <div>
-                        <h3 class="block opacity-70 mb-2 font-bold text-theme-text text-xs"><?= _t('lbl_robots') ?></h3>
-                        <div class="space-y-3">
-                            <label class="group flex items-center cursor-pointer">
-                                <input type="checkbox" name="is_noindex" value="1" class="bg-theme-bg border-theme-border rounded focus:ring-theme-primary/20 w-5 h-5 text-theme-primary form-checkbox" <?= !empty($post['is_noindex']) ? 'checked' : '' ?>>
-                                <span class="ml-2 text-theme-text group-hover:text-theme-primary text-sm transition-colors"><?= _t('lbl_noindex') ?></span>
-                            </label>
-                            <label class="group flex items-center cursor-pointer">
-                                <input type="checkbox" name="is_nofollow" value="1" class="bg-theme-bg border-theme-border rounded focus:ring-theme-primary/20 w-5 h-5 text-theme-primary form-checkbox" <?= !empty($post['is_nofollow']) ? 'checked' : '' ?>>
-                                <span class="ml-2 text-theme-text group-hover:text-theme-primary text-sm transition-colors"><?= _t('lbl_nofollow') ?></span>
-                            </label>
-                            <label class="group flex items-center cursor-pointer">
-                                <input type="checkbox" name="is_noarchive" value="1" class="bg-theme-bg border-theme-border rounded focus:ring-theme-primary/20 w-5 h-5 text-theme-primary form-checkbox" <?= !empty($post['is_noarchive']) ? 'checked' : '' ?>>
-                                <span class="ml-2 text-theme-text group-hover:text-theme-primary text-sm transition-colors"><?= _t('lbl_noarchive') ?></span>
-                            </label>
-                            <label class="group flex items-center cursor-pointer">
-                                <input type="checkbox" name="is_hide_rss" value="1" class="bg-theme-bg border-theme-border rounded focus:ring-theme-primary/20 w-5 h-5 text-theme-primary form-checkbox" <?= !empty($post['is_hide_rss']) ? 'checked' : '' ?>>
-                                <span class="ml-2 text-theme-text group-hover:text-theme-primary text-sm transition-colors"><?= _t('lbl_hide_rss') ?></span>
-                            </label>
-                            <label class="group flex items-center cursor-pointer">
-                                <input type="checkbox" name="is_hide_llms" value="1" class="bg-theme-bg border-theme-border rounded focus:ring-theme-primary/20 w-5 h-5 text-theme-primary form-checkbox" <?= !empty($post['is_hide_llms']) ? 'checked' : '' ?>>
-                                <span class="ml-2 text-theme-text group-hover:text-theme-primary text-sm transition-colors"><?= _t('lbl_hide_llms') ?></span>
-                            </label>
+                                        <?php if ($cfType === 'textarea'): ?>
+                                            <textarea name="meta_data[<?= h($cfName) ?>]" rows="3" class="text-xs form-control"><?= h($cfVal) ?></textarea>
+
+                                        <?php elseif ($cfType === 'image'): ?>
+                                            <div x-data="{
+                                                    previewUrl: <?= htmlspecialchars(json_encode(get_media_url($cfVal), JSON_HEX_TAG | JSON_HEX_AMP), ENT_QUOTES, 'UTF-8') ?>,
+                                                    isDeleted: false
+                                                }"
+                                                @set-meta-image-<?= h($cfName) ?>.window="previewUrl = $event.detail.url; isDeleted = false; document.getElementById('meta_data_<?= h($cfName) ?>_input').value = $event.detail.url;">
+
+                                                <div class="mb-2 bg-checker border border-theme-border rounded-theme w-full h-32 overflow-hidden flex items-center justify-center" x-show="previewUrl && !isDeleted">
+                                                    <img :src="previewUrl" class="w-full h-full object-contain">
+                                                </div>
+
+                                                <div class="flex flex-col gap-2">
+                                                    <button type="button" @click="window.dispatchEvent(new CustomEvent('open-media-picker', { detail: { type: 'image', callback: (file) => { window.dispatchEvent(new CustomEvent('set-meta-image-<?= h($cfName) ?>', { detail: { url: file.url } })); } } }));" class="flex justify-center items-center hover:bg-theme-bg px-4 py-2 border border-theme-border rounded-theme w-full text-xs text-center transition-colors btn-secondary">
+                                                        <svg class="mr-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-photo"></use>
+                                                        </svg>
+                                                        <span><?= h(function_exists('_t') ? _t('btn_select_library') ?? 'Select File' : 'Select File') ?></span>
+                                                    </button>
+                                                    <label class="px-3 py-1 rounded-theme w-full text-xs text-center cursor-pointer btn-secondary">
+                                                        <svg class="mr-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-arrow-up-tray"></use>
+                                                        </svg>
+                                                        <span><?= h(_t('upload')) ?></span>
+                                                        <input type="file" name="meta_data_<?= h($cfName) ?>" accept="image/*" class="hidden" @change="
+                                                            if (typeof isUploading !== 'undefined') isUploading = true;
+                                                            const file = $event.target.files[0]; if(file){ if(previewUrl && previewUrl.startsWith('blob:')) URL.revokeObjectURL(previewUrl); previewUrl = URL.createObjectURL(file); isDeleted = false; }
+                                                            setTimeout(() => { if (typeof isUploading !== 'undefined') isUploading = false; }, 1000);
+                                                        ">
+                                                    </label>
+
+                                                    <?php if (!empty($cfVal)): ?>
+                                                        <label class="flex justify-center items-center bg-theme-danger/10 px-2 py-1 border border-theme-danger/30 rounded-theme text-theme-danger transition-colors cursor-pointer" :class="{'bg-theme-danger text-white border-theme-danger': isDeleted}" title="<?= h(function_exists('_t') ? _t('delete') ?? 'Delete' : 'Delete') ?>">
+                                                            <input type="checkbox" name="delete_meta_data_<?= h($cfName) ?>" value="1" class="hidden" x-model="isDeleted">
+                                                            <span x-show="!isDeleted">&times; <?= h(function_exists('_t') ? _t('delete') ?? 'Delete' : 'Delete') ?></span>
+                                                            <span x-show="isDeleted" class="font-bold text-[10px]"><?= h(function_exists('_t') ? _t('btn_restore') ?? 'Restore' : 'Restore') ?></span>
+                                                        </label>
+                                                    <?php endif; ?>
+
+                                                    <input type="hidden" name="current_meta_data[<?= h($cfName) ?>]" value="<?= h($cfVal) ?>">
+                                                    <!-- Update name attribute to _url format -->
+                                                    <input type="hidden" name="meta_data_<?= h($cfName) ?>_url" id="meta_data_<?= h($cfName) ?>_input" value="<?= h($cfVal) ?>" :disabled="isDeleted">
+                                                </div>
+                                            </div>
+
+                                        <?php elseif ($cfType === 'date'): ?>
+                                            <input type="date" name="meta_data[<?= h($cfName) ?>]" value="<?= h($cfVal) ?>" class="text-xs form-control">
+
+                                        <?php elseif ($cfType === 'select' && isset($cf['options']) && is_array($cf['options'])): ?>
+                                            <select name="meta_data[<?= h($cfName) ?>]" class="text-xs form-control cursor-pointer">
+                                                <option value=""><?= function_exists('_t') ? _t('lbl_select_option') ?? 'Select...' : 'Select...' ?></option>
+                                                <?php foreach ($cf['options'] as $optVal => $optLabel):
+                                                    if (is_numeric($optVal)) {
+                                                        $optVal = $optLabel;
+                                                    } // Handle unkeyed arrays
+                                                ?>
+                                                    <option value="<?= h($optVal) ?>" <?= ($cfVal === (string)$optVal) ? 'selected' : '' ?>><?= h(function_exists('_t') ? _t($optLabel) : $optLabel) ?></option>
+                                                <?php endforeach; ?>
+                                            </select>
+
+                                        <?php elseif ($cfType === 'checkbox'): ?>
+                                            <label class="flex items-center cursor-pointer mt-1">
+                                                <input type="hidden" name="meta_data[<?= h($cfName) ?>]" value="0">
+                                                <input type="checkbox" name="meta_data[<?= h($cfName) ?>]" value="1" class="bg-theme-bg border-theme-border rounded focus:ring-theme-primary/20 w-5 h-5 text-theme-primary form-checkbox" <?= (string)$cfVal === '1' ? 'checked' : '' ?>>
+                                                <span class="ml-2 text-theme-text text-sm font-bold opacity-80"><?= h(function_exists('_t') ? _t($cfLabel) : $cfLabel) ?></span>
+                                            </label>
+
+                                        <?php else: ?>
+                                            <input type="text" name="meta_data[<?= h($cfName) ?>]" value="<?= h($cfVal) ?>" class="text-xs form-control">
+                                        <?php endif; ?>
+                                    </div>
+                                <?php endforeach; ?>
+                            </div>
                         </div>
                     </div>
-                </div>
+                <?php endif; ?>
+
+                <?php if ($supports('seo')): ?>
+                    <!-- SNS Preview -->
+                    <div class="mb-6">
+                        <h3 class="block opacity-70 mb-2 font-bold text-theme-text text-xs"><?= _t('lbl_sns_preview') ?></h3>
+                        <div class="mb-6 bg-theme-surface shadow-theme mx-auto border border-theme-border rounded-theme max-w-sm overflow-hidden">
+                            <div class="flex justify-center items-center bg-checker aspect-video">
+                                <img :src="seoImage" x-show="seoImage" class="w-full h-full object-cover" @error='$el.src = <?= json_encode(PLACEHOLDER_IMG, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>'>
+                                <svg x-show="!seoImage" class="w-10 h-10 text-theme-text/20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-photo"></use>
+                                </svg>
+                            </div>
+                            <!-- Preview Text -->
+                            <div class="p-3 text-sm">
+                                <span class="opacity-60 text-theme-text text-xs truncate" x-text="siteDomain"></span>
+                                <p class="my-1 font-bold text-theme-text truncate" x-text='seoTitle || <?= json_encode(_t('lbl_title'), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>'></p>
+                                <p class="opacity-80 text-theme-text text-xs line-clamp-2" x-text='seoDesc || <?= json_encode(_t('lbl_desc'), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>'></p>
+                            </div>
+                        </div>
+
+                        <!-- Robots meta tags. -->
+                        <div>
+                            <h3 class="block opacity-70 mb-2 font-bold text-theme-text text-xs"><?= _t('lbl_robots') ?></h3>
+                            <div class="space-y-3">
+                                <label class="group flex items-center cursor-pointer">
+                                    <input type="checkbox" name="is_noindex" value="1" class="bg-theme-bg border-theme-border rounded focus:ring-theme-primary/20 w-5 h-5 text-theme-primary form-checkbox" <?= !empty($post['is_noindex']) ? 'checked' : '' ?>>
+                                    <span class="ml-2 text-theme-text group-hover:text-theme-primary text-sm transition-colors"><?= _t('lbl_noindex') ?></span>
+                                </label>
+                                <label class="group flex items-center cursor-pointer">
+                                    <input type="checkbox" name="is_nofollow" value="1" class="bg-theme-bg border-theme-border rounded focus:ring-theme-primary/20 w-5 h-5 text-theme-primary form-checkbox" <?= !empty($post['is_nofollow']) ? 'checked' : '' ?>>
+                                    <span class="ml-2 text-theme-text group-hover:text-theme-primary text-sm transition-colors"><?= _t('lbl_nofollow') ?></span>
+                                </label>
+                                <label class="group flex items-center cursor-pointer">
+                                    <input type="checkbox" name="is_noarchive" value="1" class="bg-theme-bg border-theme-border rounded focus:ring-theme-primary/20 w-5 h-5 text-theme-primary form-checkbox" <?= !empty($post['is_noarchive']) ? 'checked' : '' ?>>
+                                    <span class="ml-2 text-theme-text group-hover:text-theme-primary text-sm transition-colors"><?= _t('lbl_noarchive') ?></span>
+                                </label>
+                                <label class="group flex items-center cursor-pointer">
+                                    <input type="checkbox" name="is_hide_rss" value="1" class="bg-theme-bg border-theme-border rounded focus:ring-theme-primary/20 w-5 h-5 text-theme-primary form-checkbox" <?= !empty($post['is_hide_rss']) ? 'checked' : '' ?>>
+                                    <span class="ml-2 text-theme-text group-hover:text-theme-primary text-sm transition-colors"><?= _t('lbl_hide_rss') ?></span>
+                                </label>
+                                <label class="group flex items-center cursor-pointer">
+                                    <input type="checkbox" name="is_hide_llms" value="1" class="bg-theme-bg border-theme-border rounded focus:ring-theme-primary/20 w-5 h-5 text-theme-primary form-checkbox" <?= !empty($post['is_hide_llms']) ? 'checked' : '' ?>>
+                                    <span class="ml-2 text-theme-text group-hover:text-theme-primary text-sm transition-colors"><?= _t('lbl_hide_llms') ?></span>
+                                </label>
+                            </div>
+                        </div>
+                    <?php endif; ?>
+                    </div>
             </div>
     </form>
 
@@ -1145,21 +1457,21 @@ $basePath = rtrim($parsedBase['path'] ?? '/', '/') . '/';
         @focusout.window="keyboardOpen = false"
         :class="(keyboardOpen || inserterOpen || templateModalOpen || (typeof mediaModalOpen !== 'undefined' && mediaModalOpen) || mobileOpen || searchOpen) ? 'translate-y-full opacity-0 pointer-events-none' : 'translate-y-0 opacity-100'"
         class="transition-all duration-200 lg:hidden fixed bottom-0 left-0 right-0 bg-theme-surface/95 backdrop-blur-md border-t border-theme-border p-3 z-[60] flex justify-between gap-2 shadow-[0_-4px_10px_rgba(0,0,0,0.05)] pb-[calc(0.75rem+env(safe-area-inset-bottom))]">
-        <button type="button" @click="if(document.getElementById('post-form').reportValidity()) saveDraftAndPreview()" :disabled="isSaving || isSubmitting || isUploading" class="flex-1 py-3 bg-theme-bg border border-theme-border text-theme-text rounded-theme font-bold text-sm flex items-center justify-center gap-1 shadow-sm transition-colors hover:bg-theme-surface disabled:opacity-50 disabled:cursor-not-allowed">
+        <button type="button" @click="if(document.getElementById('post-form').reportValidity()) saveDraftAndPreview()" :disabled="isSaving || isSubmitting || isUploading || isOffline" class="flex-1 py-3 bg-theme-bg border border-theme-border text-theme-text rounded-theme font-bold text-sm flex items-center justify-center gap-1 shadow-sm transition-colors hover:bg-theme-surface disabled:opacity-50 disabled:cursor-not-allowed">
             <svg class="w-4 h-4 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-eye"></use>
             </svg>
             <?= _t('preview') ?>
         </button>
 
-        <button type="button" @click="postStatus = 'draft'; document.getElementById('post-form').requestSubmit();" :disabled="isSubmitting || isUploading" class="flex-1 py-3 bg-theme-bg border border-theme-border text-theme-text rounded-theme font-bold text-sm flex items-center justify-center gap-1 shadow-sm transition-colors hover:bg-theme-surface disabled:opacity-50 disabled:cursor-not-allowed">
+        <button type="button" @click="postStatus = 'draft'; document.getElementById('post-form').requestSubmit();" :disabled="isSubmitting || isUploading || isOffline" class="flex-1 py-3 bg-theme-bg border border-theme-border text-theme-text rounded-theme font-bold text-sm flex items-center justify-center gap-1 shadow-sm transition-colors hover:bg-theme-surface disabled:opacity-50 disabled:cursor-not-allowed">
             <svg class="w-4 h-4 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-arrow-down-on-square"></use>
             </svg>
             <?= _t('st_draft') ?>
         </button>
 
-        <button type="button" @click="postStatus = 'published'; document.getElementById('post-form').requestSubmit();" :disabled="isSubmitting || isUploading" class="flex-1 py-3 bg-theme-primary text-theme-on-primary rounded-theme font-bold text-sm flex items-center justify-center gap-1 shadow-theme transition-all hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed">
+        <button type="button" @click="postStatus = 'published'; document.getElementById('post-form').requestSubmit();" :disabled="isSubmitting || isUploading || isOffline" class="flex-1 py-3 bg-theme-primary text-theme-on-primary rounded-theme font-bold text-sm flex items-center justify-center gap-1 shadow-theme transition-all hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed">
             <?php if (($post['status'] ?? '') === 'published'): ?>
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-arrow-path"></use>

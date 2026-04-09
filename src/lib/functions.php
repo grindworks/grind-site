@@ -30,7 +30,7 @@ if (!defined('PLACEHOLDER_IMG')) {
 }
 
 /**
- * データベースに保存されたメディアパスを、フロントエンド表示用の絶対URLに変換する統合関数
+ * Convert database media path to absolute URL for frontend display.
  */
 if (!function_exists('get_media_url')) {
   function get_media_url($path)

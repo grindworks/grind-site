@@ -38,6 +38,7 @@ Any ".php" files placed here will be automatically loaded at system startup.
   - `grinds_before_post_delete`: Right before a post is permanently deleted.
   - `grinds_post_deleted`: After a post is permanently deleted.
   - `grinds_trash_emptied`: After the trash is emptied.
+  - `grinds_html_block_tools`: Inside the HTML block toolbar (Useful for shortcode buttons).
 
   Usage Example:
   add_action('grinds_head', function() {
@@ -52,7 +53,7 @@ Any ".php" files placed here will be automatically loaded at system startup.
   - `grinds_frontend_content`: Modifies the final HTML content before output on the frontend.
 
 - Samples:
-  Eleven sample files are included (disabled by default):
+  Fifteen sample files are included (some are enabled by default):
 
   1. `_custom_helpers.php`
      Useful functions for theme development (e.g., debug `dd()`, reading time).
@@ -103,6 +104,29 @@ Any ".php" files placed here will be automatically loaded at system startup.
      requests per IP address using file-based storage.
      Rename to "rate_limiter.php" to enable.
 
+  12. `amazon_affiliate.php`
+     Amazon Affiliate Shortcode Plugin.
+     Converts `[amazon id="ASIN" title="Product" region="com"]` shortcodes
+     into beautiful Amazon affiliate product cards.
+     Integrated directly into the admin toolbar.
+     (Enabled by default)
+
+  13. `_ebay_affiliate.php`
+     eBay Affiliate Shortcode Plugin.
+     Converts `[ebay url="URL" title="Product" image="IMG_URL"]` shortcodes
+     into beautiful eBay affiliate product cards.
+     (Disabled by default. Rename to "ebay_affiliate.php" to enable)
+
+  14. `_rakuten_affiliate.php`
+     Rakuten Affiliate Shortcode Plugin.
+     Converts `[rakuten url="URL" title="Product" image="IMG_URL"]` shortcodes
+     into beautiful Rakuten affiliate product cards.
+     (Disabled by default. Rename to "rakuten_affiliate.php" to enable)
+
+  15. `easter_egg.php`
+     Displays an engineer-focused Easter egg (console log) in the admin footer.
+     (Enabled by default. Rename to "_easter_egg.php" to disable.)
+
 -------------------------------------------------------------------------
 
 [Japanese]
@@ -141,6 +165,7 @@ Any ".php" files placed here will be automatically loaded at system startup.
   - `grinds_before_post_delete`: 記事が完全に削除される直前。
   - `grinds_post_deleted`: 記事が完全に削除された時。
   - `grinds_trash_emptied`: ゴミ箱が空にされた時。
+  - `grinds_html_block_tools`: HTMLブロックのツールバー内（ショートコード生成ボタンなどの追加に便利）。
 
   使用例:
   add_action('grinds_head', function() {
@@ -155,7 +180,7 @@ Any ".php" files placed here will be automatically loaded at system startup.
   - `grinds_frontend_content`: フロントエンドで最終的なHTMLとして出力される直前に内容を変更します。
 
 - サンプル:
-  11のサンプルファイルが同梱されています（デフォルトでは無効です）。
+  15のサンプルファイルが同梱されています（一部はデフォルトで有効です）。
 
   1. `_custom_helpers.php`
      テーマ開発に便利な関数集（デバッグ用 `dd()` や読了時間表示など）。
@@ -204,3 +229,25 @@ Any ".php" files placed here will be automatically loaded at system startup.
      APIやお問い合わせフォーム向けの軽量レートリミット（スロットリング）プラグインです。
      IPアドレスベースでリクエスト回数を制限し、簡易的なDoS攻撃やスパム送信を防御します。
      リネームして "rate_limiter.php" にすると有効になります。
+
+  12. `amazon_affiliate.php`
+     Amazonアフィリエイト用ショートコードプラグインです。
+     `[amazon id="ASIN" title="商品名" region="co.jp"]` のショートコードを
+     美しい商品カードに自動変換します。region指定で各国のAmazonに対応可能です。
+     （デフォルトで有効です）
+
+  13. `_ebay_affiliate.php`
+     eBayアフィリエイト用ショートコードプラグインです。
+     `[ebay url="商品URL" title="商品名" image="画像URL"]` のショートコードを
+     美しい商品カードに自動変換します。
+     （デフォルトでは無効です。有効にするには "ebay_affiliate.php" にリネームしてください）
+
+  14. `_rakuten_affiliate.php`
+     楽天アフィリエイト用ショートコードプラグインです。
+     `[rakuten url="商品URL" title="商品名" image="画像URL"]` のショートコードを
+     美しい商品カードに自動変換します。
+     （デフォルトでは無効です。有効にするには "rakuten_affiliate.php" にリネームしてください）
+
+  15. `easter_egg.php`
+     管理画面のコンソールにエンジニア向けのイースターエッグ（システムメッセージ）を表示します。
+     （デフォルトで有効です。無効化するには "_easter_egg.php" にリネームしてください）

@@ -154,6 +154,48 @@ if (!defined('GRINDS_APP')) exit;
         }).catch(() => {});
       }
     }, 15 * 60 * 1000); // 15 minutes
+
+    // Virtual Publish Queue Processor
+    // Runs every 2 seconds if there are tasks, or 30 seconds if idle.
+    let queueCheckInterval = 30000;
+
+    function processQueue() {
+      if (document.hidden) {
+        setTimeout(processQueue, queueCheckInterval);
+        return;
+      }
+
+      fetch(<?= json_encode(resolve_url('admin/api/process_queue.php')) ?>, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            csrf_token: window.grindsCsrfToken || "<?= generate_csrf_token() ?>"
+          })
+        })
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            window.dispatchEvent(new CustomEvent('update-publish-queue', {
+              detail: {
+                remaining: data.remaining
+              }
+            }));
+            if (data.remaining > 0) {
+              setTimeout(processQueue, 2000);
+              return;
+            }
+          }
+          setTimeout(processQueue, queueCheckInterval);
+        })
+        .catch(() => {
+          setTimeout(processQueue, queueCheckInterval);
+        });
+    }
+
+    // Initial trigger
+    setTimeout(processQueue, 3000);
   });
 </script>
 <?php if (function_exists('do_action')) do_action('grinds_footer'); ?>

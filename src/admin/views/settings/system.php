@@ -351,7 +351,6 @@ if (!defined('GRINDS_APP')) exit; ?>
     </div>
   </div>
 
-  <!-- プロキシ（ネットワーク）設定ブロック -->
   <div class="bg-theme-bg/30 p-5 border border-theme-border rounded-theme">
     <h4 class="flex items-center gap-2 mb-6 font-bold text-theme-text text-lg">
       <svg class="w-5 h-5 text-theme-info" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -401,7 +400,6 @@ if (!defined('GRINDS_APP')) exit; ?>
     </form>
   </div>
 
-  <!-- 一般システム設定ブロック -->
   <div class="bg-theme-bg/30 p-5 border border-theme-border rounded-theme space-y-6">
     <h4 class="flex items-center gap-2 font-bold text-theme-text text-lg">
       <svg class="w-5 h-5 text-theme-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">

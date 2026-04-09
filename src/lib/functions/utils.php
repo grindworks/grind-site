@@ -7,6 +7,25 @@
 if (!defined('GRINDS_APP'))
     exit;
 
+/**
+ * Polyfill for PHP 8.3 json_validate() function.
+ */
+if (!function_exists('json_validate')) {
+    function json_validate(string $json, int $depth = 512, int $flags = 0): bool
+    {
+        if ($flags !== 0 && defined('JSON_INVALID_UTF8_IGNORE') && $flags !== JSON_INVALID_UTF8_IGNORE) {
+            throw new ValueError('json_validate() only supports 0 or JSON_INVALID_UTF8_IGNORE as flags');
+        }
+
+        if ($depth <= 0 || $depth > 2147483647) {
+            throw new ValueError('json_validate() depth must be greater than 0 and less than 2147483647');
+        }
+
+        json_decode($json, true, $depth, $flags);
+        return json_last_error() === JSON_ERROR_NONE;
+    }
+}
+
 /** Sanitize string for slug usage */
 if (!function_exists('sanitize_slug')) {
     function sanitize_slug(string $slug): string
@@ -438,6 +457,7 @@ if (!function_exists('grinds_ip_in_range')) {
             return $ip === $range;
         }
         list($subnet, $bits) = explode('/', $range);
+        $bits = (int)$bits;
 
         if (str_contains($ip, '.') && str_contains($subnet, '.')) {
             $ipLong = ip2long($ip);
@@ -656,7 +676,9 @@ if (!function_exists('grinds_clean_output_buffer')) {
     function grinds_clean_output_buffer(): void
     {
         while (ob_get_level() > 0) {
-            ob_end_clean();
+            if (!@ob_end_clean()) {
+                break;
+            }
         }
     }
 }
@@ -675,6 +697,7 @@ if (!function_exists('json_response')) {
 
         http_response_code($status);
         header('Content-Type: application/json; charset=utf-8');
+        header('X-Content-Type-Options: nosniff');
         echo json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_INVALID_UTF8_IGNORE);
         exit;
     }
@@ -1089,8 +1112,13 @@ if (!function_exists('grinds_fetch_url')) {
                 curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, $verifySsl ? 2 : 0);
 
                 // Restrict protocols to HTTP/HTTPS for security hardening (SSRF prevention)
-                curl_setopt($ch, CURLOPT_PROTOCOLS, CURLPROTO_HTTP | CURLPROTO_HTTPS);
-                curl_setopt($ch, CURLOPT_REDIR_PROTOCOLS, CURLPROTO_HTTP | CURLPROTO_HTTPS);
+                if (defined('CURLOPT_PROTOCOLS_STR')) {
+                    curl_setopt($ch, CURLOPT_PROTOCOLS_STR, 'http,https');
+                    curl_setopt($ch, CURLOPT_REDIR_PROTOCOLS_STR, 'http,https');
+                } else {
+                    curl_setopt($ch, CURLOPT_PROTOCOLS, CURLPROTO_HTTP | CURLPROTO_HTTPS);
+                    curl_setopt($ch, CURLOPT_REDIR_PROTOCOLS, CURLPROTO_HTTP | CURLPROTO_HTTPS);
+                }
 
                 // Abort download if file exceeds max size
                 curl_setopt($ch, CURLOPT_NOPROGRESS, false);
@@ -1773,8 +1801,8 @@ if (!function_exists('grinds_sync_taxonomy_urls')) {
             $likeTerm = '%' . $type . '/' . $oldSlug . '%';
             $likeTermEnc = '%' . $type . '/' . rawurlencode($oldSlug) . '%';
 
-            $stmt = $pdo->prepare("SELECT id, content, hero_settings FROM posts WHERE content LIKE ? OR hero_settings LIKE ? OR content LIKE ? OR hero_settings LIKE ?");
-            $stmt->execute([$likeTerm, $likeTerm, $likeTermEnc, $likeTermEnc]);
+            $stmt = $pdo->prepare("SELECT id, content, hero_settings, meta_data FROM posts WHERE content LIKE ? OR hero_settings LIKE ? OR meta_data LIKE ? OR content LIKE ? OR hero_settings LIKE ? OR meta_data LIKE ?");
+            $stmt->execute([$likeTerm, $likeTerm, $likeTerm, $likeTermEnc, $likeTermEnc, $likeTermEnc]);
             $candidates = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
             if (empty($candidates)) {
@@ -1819,17 +1847,19 @@ if (!function_exists('grinds_sync_taxonomy_urls')) {
             $searchKeys = array_keys($map);
             $replaceVals = array_values($map);
 
-            $stmtUpdate = $pdo->prepare("UPDATE posts SET content = ?, hero_settings = ? WHERE id = ?");
+            $stmtUpdate = $pdo->prepare("UPDATE posts SET content = ?, hero_settings = ?, meta_data = ? WHERE id = ?");
 
             foreach ($candidates as $row) {
                 $content = $row['content'];
                 $hero = $row['hero_settings'];
+                $meta = $row['meta_data'] ?? '{}';
 
                 $newContent = str_replace($searchKeys, $replaceVals, $content);
                 $newHero = str_replace($searchKeys, $replaceVals, $hero);
+                $newMeta = str_replace($searchKeys, $replaceVals, $meta);
 
-                if ($content !== $newContent || $hero !== $newHero) {
-                    $stmtUpdate->execute([$newContent, $newHero, $row['id']]);
+                if ($content !== $newContent || $hero !== $newHero || $meta !== $newMeta) {
+                    $stmtUpdate->execute([$newContent, $newHero, $newMeta, $row['id']]);
                 }
             }
         }

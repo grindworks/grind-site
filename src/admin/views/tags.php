@@ -16,7 +16,7 @@ $csrf_token = generate_csrf_token();
 <?php include __DIR__ . '/parts/hidden_action_form.php'; ?>
 
 <div class="relative flex lg:flex-row flex-col gap-8"
-  x-effect="window.toggleScrollLock(mobileFormOpen)"
+  x-init="if(mobileFormOpen) window.toggleScrollLock(true); $watch('mobileFormOpen', val => window.toggleScrollLock(val));"
   x-data="{
     mobileFormOpen: <?= $edit_id ? 'true' : 'false' ?>,
     isSubmitting: false

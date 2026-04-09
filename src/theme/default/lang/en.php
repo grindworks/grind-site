@@ -88,4 +88,20 @@ return [
     'confirm_embed_figma' => 'Figma URL detected. Convert to Embed Block?',
     'presentation_not_found' => 'Presentation content not found.',
     'Go Back' => 'Go Back',
+
+    'Custom Fields' => 'Custom Fields',
+    // Custom Fields
+    'Post Details' => 'Post Details',
+    'Price' => 'Price',
+    'Event Date' => 'Event Date',
+    'Product Type' => 'Product Type',
+    'Cover Image' => 'Cover Image',
+    'Physical' => 'Physical',
+    'Digital' => 'Digital',
+    'Service' => 'Service',
+    'Featured Product' => 'Featured Product',
+    'min read' => 'min read',
+    'Author Note' => 'Author Note',
+    'This article contains promotional links.' => 'This article contains promotional links.',
+    'View Sponsored Link' => 'View Sponsored Link',
 ];

@@ -39,7 +39,10 @@ $previewUrl = get_media_url($value);
             this.previewUrl = URL.createObjectURL(file);
             this.isDeleted = false;
             // Clear URL input when file is selected
-            if($refs.urlInput) $refs.urlInput.value = '';
+            if($refs.urlInput) {
+                $refs.urlInput.value = '';
+                $refs.urlInput.dispatchEvent(new Event('input', { bubbles: true }));
+            }
         }
     },
     openPicker() {
@@ -48,7 +51,10 @@ $previewUrl = get_media_url($value);
                 callback: (file) => {
                     this.previewUrl = file.url;
                     this.isDeleted = false;
-                    if($refs.urlInput) $refs.urlInput.value = file.url;
+                    if($refs.urlInput) {
+                        $refs.urlInput.value = file.url;
+                        $refs.urlInput.dispatchEvent(new Event('input', { bubbles: true }));
+                    }
                     // Clear file input
                     if($refs.fileInput) $refs.fileInput.value = '';
                 }
@@ -68,7 +74,7 @@ $previewUrl = get_media_url($value);
         <div class="<?= $preview_container_class ?> relative group" x-show="previewUrl && !isDeleted">
             <img :src="previewUrl" class="<?= $preview_class ?> shadow-theme <?= $preview_bg_class ?>"
                 alt="<?= _t('lbl_preview') ?>" <?= $preview_attrs ?>>
-            <button type="button" @click="isDeleted = true; $refs.urlInput.value=''; $refs.fileInput.value='';"
+            <button type="button" @click="isDeleted = true; $refs.urlInput.value=''; $refs.fileInput.value=''; if($refs.urlInput) $refs.urlInput.dispatchEvent(new Event('input', { bubbles: true }));"
                 class="absolute top-2 right-2 bg-theme-surface/90 hover:bg-theme-danger text-theme-text hover:text-white p-1.5 rounded-full shadow-theme transition-colors"
                 title="<?= h(_t('delete')) ?>">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -109,7 +115,11 @@ $previewUrl = get_media_url($value);
                     <?= _t('upload') ?>
                 </span>
                 <input type="file" x-ref="fileInput" name="<?= h($name) ?>" accept="<?= h($accept) ?>" class="hidden"
-                    @change="handleFile" <?= $extra_attrs ?>>
+                    @change="
+                        if (typeof isUploading !== 'undefined') isUploading = true;
+                        handleFile($event);
+                        setTimeout(() => { if (typeof isUploading !== 'undefined') isUploading = false; }, 1000);
+                    " <?= $extra_attrs ?>>
             </label>
 
             <?php if (!empty($value)): ?>
@@ -119,7 +129,7 @@ $previewUrl = get_media_url($value);
                         :disabled="isDeleted">
                 </div>
 
-                <button type="button" @click="isDeleted = false" x-show="isDeleted"
+                <button type="button" @click="isDeleted = false; if($refs.urlInput) $refs.urlInput.dispatchEvent(new Event('input', { bubbles: true }));" x-show="isDeleted"
                     class="w-full text-xs font-bold text-theme-primary hover:underline flex justify-center items-center gap-1 py-2"
                     style="display: none;">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

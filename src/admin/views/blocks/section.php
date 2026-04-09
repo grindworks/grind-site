@@ -7,7 +7,7 @@ $section_colors = $block_config['library']['layout']['items']['section']['colors
 ?>
 <!-- Main container -->
 <div class="p-4 border rounded-theme transition-colors"
-  x-init="if(!block.data.bgColor) block.data.bgColor = 'gray'"
+  x-init="if(!block.data.bgColor) block.data.bgColor = 'gray'; if(typeof block.data.name === 'undefined') block.data.name = ''; if(typeof block.data.text === 'undefined') block.data.text = '';"
   x-data="{ colors: <?= htmlspecialchars(json_encode($section_colors), ENT_QUOTES) ?> }"
   :class="(colors[block.data.bgColor] || {}).class"
   :style="(colors[block.data.bgColor] || {}).style">

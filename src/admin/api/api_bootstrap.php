@@ -17,7 +17,7 @@ if (!headers_sent()) {
 
 // Disable error display for JSON output to prevent invalid JSON
 ini_set('display_errors', 0);
-error_reporting(0);
+error_reporting(E_ALL);
 
 define('GRINDS_APP', true);
 

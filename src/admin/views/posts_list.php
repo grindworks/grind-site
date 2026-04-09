@@ -101,11 +101,18 @@ $csrf_token = generate_csrf_token();
   <div class="border-theme-border border-b overflow-x-auto no-scrollbar">
     <nav class="flex space-x-1" aria-label="Tabs">
       <?php
-      $tabs = [
-        'post' => _t('type_post'),
-        'page' => _t('type_page'),
-        'template' => _t('btn_template')
-      ];
+      $tabs = [];
+      $cpts = function_exists('grinds_get_theme_post_types') ? grinds_get_theme_post_types() : [];
+      $isCpt = isset($cpts[$type]);
+      if ($isCpt) {
+        $tabs[$type] = function_exists('_t') && isset($cpts[$type]['label']) ? _t($cpts[$type]['label']) : ($cpts[$type]['label'] ?? ucfirst($type));
+      } else {
+        $tabs = [
+          'post' => _t('type_post'),
+          'page' => _t('type_page'),
+          'template' => _t('btn_template')
+        ];
+      }
       foreach ($tabs as $k => $label):
         $isActive = ($type === $k && !$is_trash_view);
       ?>

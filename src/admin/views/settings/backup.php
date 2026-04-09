@@ -65,49 +65,165 @@ if (!isset($backups)) {
   ];
   ?>
   <div class="bg-theme-primary/5 shadow-theme flex flex-col border border-theme-primary/20 rounded-theme overflow-hidden"
-    x-data="migrationExporter(<?= htmlspecialchars(json_encode($migConfig, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT), ENT_QUOTES, 'UTF-8') ?>)">
-    <div class="flex md:flex-row flex-col justify-between items-center gap-6 p-6">
-      <div class="flex-1">
-        <h4 class="flex items-center gap-2 mb-2 font-bold text-theme-primary text-lg">
-          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-archive-box"></use>
-          </svg>
-          <?= _t('st_full_backup_title') ?>
-        </h4>
-        <p class="opacity-80 ml-0 sm:ml-8 text-theme-text text-sm leading-relaxed">
-          <?= _t('st_full_backup_desc') ?>
-        </p>
+    x-data="{
+      ...migrationExporter(<?= htmlspecialchars(json_encode($migConfig, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT), ENT_QUOTES, 'UTF-8') ?>),
+      isMarkdown: false,
+      async startMarkdown() {
+          this.processing = true;
+          this.isMarkdown = true;
+          this.progress = 0;
+          this.statusMsg = <?= htmlspecialchars(json_encode(_t('ssg_btn_generating') ?: 'Generating...'), ENT_QUOTES, 'UTF-8') ?>;
 
-        <div x-show="processing" class="mt-4 ml-0 sm:ml-8" x-cloak>
-          <div class="flex justify-between mb-1 font-bold text-theme-primary text-xs">
-            <span x-text="statusMsg"></span>
-            <span x-text="progress + '%'"></span>
-          </div>
-          <div class="bg-theme-bg border border-theme-primary/20 rounded-full w-full h-2 overflow-hidden">
-            <div class="relative bg-theme-primary rounded-full h-2 overflow-hidden transition-all duration-300"
-              :style="'width: ' + progress + '%'">
-              <div class="absolute inset-0 bg-white/20 animate-[shimmer_2s_infinite]"></div>
+          let interval = setInterval(() => {
+              if (this.progress < 90) this.progress += 10;
+          }, 500);
+
+          try {
+              const formData = new FormData();
+              formData.append('csrf_token', window.grindsCsrfToken || document.querySelector('input[name=\'csrf_token\']').value);
+
+              const response = await fetch('api/export_markdown.php', {
+                  method: 'POST',
+                  body: formData
+              });
+
+              clearInterval(interval);
+
+              if (!response.ok) {
+                  throw new Error('Export failed: ' + response.statusText);
+              }
+
+              this.progress = 100;
+              this.statusMsg = <?= htmlspecialchars(json_encode(_t('js_done') ?: 'Done!'), ENT_QUOTES, 'UTF-8') ?>;
+
+              const blob = await response.blob();
+              const url = window.URL.createObjectURL(blob);
+              const a = document.createElement('a');
+              a.href = url;
+
+              const disposition = response.headers.get('Content-Disposition');
+              let filename = 'markdown_export.zip';
+              if (disposition && disposition.indexOf('attachment') !== -1) {
+                  const matches = /filename[^;=\n]*=((['\x22]).*?\2|[^;\n]*)/.exec(disposition);
+                  if (matches != null && matches[1]) {
+                      filename = matches[1].replace(/['\x22]/g, '');
+                  }
+              }
+
+              a.download = filename;
+              document.body.appendChild(a);
+              a.click();
+              window.URL.revokeObjectURL(url);
+              document.body.removeChild(a);
+
+              setTimeout(() => {
+                  this.processing = false;
+              }, 2000);
+
+          } catch (e) {
+              clearInterval(interval);
+              this.processing = false;
+              if (typeof window.ToastManager !== 'undefined') {
+                  window.ToastManager.show({ type: 'error', message: e.message });
+              } else {
+                  alert(e.message);
+              }
+          }
+      }
+    }">
+    <div class="flex flex-col divide-y divide-theme-primary/10">
+      <!-- Full Backup Section -->
+      <div class="flex md:flex-row flex-col justify-between items-start gap-6 p-6">
+        <div class="flex-1">
+          <h4 class="flex items-center gap-2 mb-2 font-bold text-theme-primary text-lg">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-archive-box"></use>
+            </svg>
+            <?= _t('st_full_backup_title') ?>
+          </h4>
+          <p class="opacity-80 ml-0 sm:ml-8 text-theme-text text-sm leading-relaxed">
+            <?= _t('st_full_backup_desc') ?>
+          </p>
+
+          <div x-show="processing && !isMarkdown" class="mt-4 ml-0 sm:ml-8" x-cloak>
+            <div class="flex justify-between mb-1 font-bold text-theme-primary text-xs">
+              <span x-text="statusMsg"></span>
+              <span x-text="progress + '%'"></span>
+            </div>
+            <div class="bg-theme-bg border border-theme-primary/20 rounded-full w-full h-2 overflow-hidden">
+              <div class="relative bg-theme-primary rounded-full h-2 overflow-hidden transition-all duration-300"
+                :style="'width: ' + progress + '%'">
+                <div class="absolute inset-0 bg-white/20 animate-[shimmer_2s_infinite]"></div>
+              </div>
             </div>
           </div>
         </div>
+
+        <div class="w-full md:w-auto shrink-0 mt-2 md:mt-0">
+          <button type="button" @click="isMarkdown = false; startExport()" :disabled="processing"
+            class="relative flex justify-center items-center shadow-theme px-6 py-2.5 rounded-theme w-full sm:w-auto font-bold transition-all disabled:opacity-70 disabled:cursor-not-allowed btn-primary overflow-hidden">
+            <div class="flex items-center gap-2 transition-opacity duration-200" :class="processing && !isMarkdown ? 'opacity-0' : 'opacity-100'">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-arrow-down-tray"></use>
+              </svg>
+              <span><?= h(_t('btn_download_full')) ?></span>
+            </div>
+            <div class="absolute inset-0 flex items-center justify-center gap-2 transition-opacity duration-200" :class="processing && !isMarkdown ? 'opacity-100' : 'opacity-0 pointer-events-none'">
+              <svg class="w-5 h-5 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-arrow-path"></use>
+              </svg>
+              <span><?= h(_t('ssg_btn_generating')) ?></span>
+            </div>
+          </button>
+        </div>
       </div>
 
-      <div class="w-full md:w-auto">
-        <button type="button" @click="startExport()" :disabled="processing"
-          class="relative flex justify-center items-center shadow-theme px-6 py-2.5 rounded-theme w-full md:w-auto font-bold transition-all disabled:opacity-70 disabled:cursor-not-allowed btn-primary overflow-hidden">
-          <div class="flex items-center gap-2 transition-opacity duration-200" :class="processing ? 'opacity-0' : 'opacity-100'">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-arrow-down-tray"></use>
+      <!-- Markdown Export Section -->
+      <div class="flex md:flex-row flex-col justify-between items-start gap-6 p-6 bg-theme-surface/50">
+        <div class="flex-1">
+          <h4 class="flex items-center gap-2 mb-2 font-bold text-theme-primary text-lg">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-document-text"></use>
             </svg>
-            <span><?= h(_t('btn_download_full')) ?></span>
+            <?= function_exists('_t') ? (_t('btn_export_markdown') ?: 'Export as Markdown') : 'Export as Markdown' ?>
+          </h4>
+          <p class="opacity-80 ml-0 sm:ml-8 text-theme-text text-sm leading-relaxed">
+            <?= function_exists('_t') ? _t('st_markdown_export_desc') : '* For migrating to other CMS. Cannot be used to restore data.' ?>
+          </p>
+
+          <div x-show="processing && isMarkdown" class="mt-4 ml-0 sm:ml-8" x-cloak>
+            <div class="flex justify-between mb-1 font-bold text-theme-primary text-xs">
+              <span x-text="statusMsg"></span>
+              <span x-text="progress + '%'"></span>
+            </div>
+            <div class="bg-theme-bg border border-theme-primary/20 rounded-full w-full h-2 overflow-hidden">
+              <div class="relative bg-theme-primary rounded-full h-2 overflow-hidden transition-all duration-300"
+                :style="'width: ' + progress + '%'">
+                <div class="absolute inset-0 bg-white/20 animate-[shimmer_2s_infinite]"></div>
+              </div>
+            </div>
           </div>
-          <div class="absolute inset-0 flex items-center justify-center gap-2 transition-opacity duration-200" :class="processing ? 'opacity-100' : 'opacity-0 pointer-events-none'">
-            <svg class="w-5 h-5 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-arrow-path"></use>
-            </svg>
-            <span><?= h(_t('ssg_btn_generating')) ?></span>
-          </div>
-        </button>
+        </div>
+
+        <div class="w-full md:w-auto shrink-0 mt-2 md:mt-0">
+          <form method="post" action="api/export_markdown.php" target="_blank" class="w-full sm:w-auto" @submit.prevent="isMarkdown = true; startMarkdown()">
+            <input type="hidden" name="csrf_token" value="<?= h(generate_csrf_token()) ?>">
+            <button type="submit" :disabled="processing" class="relative flex justify-center items-center shadow-theme px-6 py-2.5 rounded-theme w-full sm:w-auto font-bold transition-all disabled:opacity-70 disabled:cursor-not-allowed btn-secondary hover:text-theme-primary hover:border-theme-primary overflow-hidden">
+              <div class="flex items-center gap-2 transition-opacity duration-200" :class="processing && isMarkdown ? 'opacity-0' : 'opacity-100'">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-arrow-down-tray"></use>
+                </svg>
+                <span><?= function_exists('_t') ? (_t('btn_download') ?: 'Download') : 'Download' ?></span>
+              </div>
+              <div class="absolute inset-0 flex items-center justify-center gap-2 transition-opacity duration-200" :class="processing && isMarkdown ? 'opacity-100' : 'opacity-0 pointer-events-none'">
+                <svg class="w-5 h-5 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-arrow-path"></use>
+                </svg>
+                <span><?= h(_t('ssg_btn_generating')) ?></span>
+              </div>
+            </button>
+          </form>
+        </div>
       </div>
     </div>
 

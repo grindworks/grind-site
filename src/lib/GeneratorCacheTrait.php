@@ -8,7 +8,7 @@ declare(strict_types=1);
  */
 trait GeneratorCacheTrait
 {
-    // トレイトを利用するクラスは必ず独自の sendHeaders を実装するよう強制する
+    // Force classes using this trait to implement their own sendHeaders
     abstract protected function sendHeaders(): void;
 
     protected function serveFromCache(): bool
@@ -47,7 +47,7 @@ trait GeneratorCacheTrait
         }
         $repo = new PostRepository($this->pdo);
 
-        // 各クラスで対象タイプを定義できるようにする（デフォルトは post と page）
+        // Allow each class to define target types (default: post, page)
         $types = property_exists($this, 'cachePostTypes') ? $this->cachePostTypes : ['post', 'page'];
 
         $latest = $repo->getLatestPostTimestamp([

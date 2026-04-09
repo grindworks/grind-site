@@ -606,20 +606,29 @@ if (!isset($userList)) {
                 </div>
                 <ul class="mt-2 text-[10px] space-y-1" x-show="password.length > 0" x-cloak>
                   <li class="flex items-center gap-1 transition-colors" :class="password.length >= 8 ? 'text-theme-success' : 'text-theme-danger'">
-                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" :d="password.length >= 8 ? 'M5 13l4 4L19 7' : 'M6 18L18 6M6 6l12 12'" />
+                    <svg x-show="password.length >= 8" class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-check"></use>
+                    </svg>
+                    <svg x-show="password.length < 8" class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" x-cloak>
+                      <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-x-mark"></use>
                     </svg>
                     8+ Characters
                   </li>
                   <li class="flex items-center gap-1 transition-colors" :class="/[a-zA-Z]/.test(password) ? 'text-theme-success' : 'text-theme-danger'">
-                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" :d="/[a-zA-Z]/.test(password) ? 'M5 13l4 4L19 7' : 'M6 18L18 6M6 6l12 12'" />
+                    <svg x-show="/[a-zA-Z]/.test(password)" class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-check"></use>
+                    </svg>
+                    <svg x-show="!/[a-zA-Z]/.test(password)" class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" x-cloak>
+                      <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-x-mark"></use>
                     </svg>
                     Includes Letter
                   </li>
                   <li class="flex items-center gap-1 transition-colors" :class="/[0-9]/.test(password) ? 'text-theme-success' : 'text-theme-danger'">
-                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" :d="/[0-9]/.test(password) ? 'M5 13l4 4L19 7' : 'M6 18L18 6M6 6l12 12'" />
+                    <svg x-show="/[0-9]/.test(password)" class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-check"></use>
+                    </svg>
+                    <svg x-show="!/[0-9]/.test(password)" class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" x-cloak>
+                      <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-x-mark"></use>
                     </svg>
                     Includes Number
                   </li>

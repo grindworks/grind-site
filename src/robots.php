@@ -51,16 +51,6 @@ if (!class_exists('RobotsGenerator')) {
             'Webz'
         ];
 
-        private const AI_BOTS_ALLOWLIST = [
-            'GPTBot',
-            'Google-Extended',
-            'Claude-Bot',
-            'Applebot-Extended',
-            'OAI-SearchBot',
-            'Amazonbot',
-            'PerplexityBot'
-        ];
-
         private bool $isSsgMode;
         private bool $isBlockAi;
         private bool $isNoIndex;
@@ -147,6 +137,7 @@ if (!class_exists('RobotsGenerator')) {
             }
 
             $lines[] = "User-agent: *";
+            $lines[] = "Crawl-delay: 1";
 
             // Block base directories while allowing crawl to read noindex tags.
             $lines[] = $this->getBaseRules();
@@ -192,13 +183,10 @@ if (!class_exists('RobotsGenerator')) {
                 $lines[] = "# We embrace AI technologies and allow ethical crawling.";
                 $llmsUrl = $this->baseUrl !== '' ? "{$this->baseUrl}/llms.txt" : "/llms.txt";
                 $lines[] = "# See {$llmsUrl} for detailed crawler instructions.";
-
-                $baseRules = $this->getBaseRules();
-                foreach (self::AI_BOTS_ALLOWLIST as $bot) {
-                    $lines[] = "User-agent: {$bot}";
-                    $lines[] = $baseRules;
-                    $lines[] = "";
-                }
+                // Prevent specification conflict: Defining explicit User-agents for allowed bots
+                // causes them to ignore the global 'User-agent: *' rules above.
+                // To safely enforce base directory restrictions (/admin/, etc.) on AI crawlers,
+                // we omit explicit Allow/Disallow rules here and let them follow 'User-agent: *'.
             }
             return implode("\n", $lines);
         }

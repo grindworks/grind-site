@@ -93,7 +93,7 @@ if ($latestVersion && version_compare($latestVersion, CMS_VERSION, '>')) {
       </button>
 
       <div x-show="mobileMenuOpen"
-        @click.away="mobileMenuOpen = false"
+        @click.outside="mobileMenuOpen = false"
         x-transition:enter="transition ease-out duration-100"
         x-transition:enter-start="transform opacity-0 scale-95 -translate-y-2"
         x-transition:enter-end="transform opacity-100 scale-100 translate-y-0"

@@ -128,14 +128,60 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       // Check duplicate slugs
       $slug = grinds_get_unique_slug($pdo, 'categories', $slug, (int)($target_id ?? 0));
 
+      // --- NEW: Custom Fields (Meta Data) Processing ---
+      $themeForMeta = !empty($cat_theme) ? $cat_theme : null;
+      $customFields = function_exists('grinds_get_theme_custom_fields') ? grinds_get_theme_custom_fields('category', $themeForMeta) : [];
+      $rawPostMetaData = $_POST['meta_data'] ?? [];
+
+      $existingMetaData = [];
+      if ($target_id) {
+        $stmtOldMeta = $pdo->prepare("SELECT meta_data FROM categories WHERE id = ?");
+        $stmtOldMeta->execute([$target_id]);
+        $oldMetaJson = $stmtOldMeta->fetchColumn();
+        if ($oldMetaJson) {
+          $decoded = json_decode($oldMetaJson, true);
+          if (is_array($decoded)) $existingMetaData = $decoded;
+        }
+      }
+      $metaData = !empty($existingMetaData) ? $existingMetaData : (is_array($_POST['current_meta_data'] ?? []) ? $_POST['current_meta_data'] : []);
+
+      foreach ($customFields as $field) {
+        $fName = $field['name'] ?? '';
+        $fType = $field['type'] ?? 'text';
+        if (!$fName) continue;
+
+        if ($fType === 'image') {
+          $uploadFieldName = 'meta_data_' . $fName;
+          $currentValInput = $metaData[$fName] ?? '';
+          $deleteField = 'delete_' . $uploadFieldName;
+
+          $uploadedUrl = grinds_process_image_upload($pdo, $uploadFieldName, $currentValInput, [
+            'post_data' => $_POST,
+            'files_data' => $_FILES,
+            'throw_error' => true,
+            'delete_field' => $deleteField
+          ]);
+          $metaData[$fName] = Routing::convertToDbUrl($uploadedUrl);
+        } elseif ($fType === 'checkbox') {
+          $metaData[$fName] = !empty($rawPostMetaData[$fName]) ? '1' : '0';
+        } else {
+          if (isset($rawPostMetaData[$fName])) {
+            $val = strip_tags((string)$rawPostMetaData[$fName]);
+            $metaData[$fName] = Routing::convertToDbUrl($val);
+          }
+        }
+      }
+      $metaDataJson = json_encode($metaData, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR);
+      // --------------------------------------------------
+
       if ($target_id) {
         // Fetch old data
         $stmtOld = $pdo->prepare("SELECT name, slug FROM categories WHERE id = ?");
         $stmtOld->execute([$target_id]);
         $oldData = $stmtOld->fetch();
 
-        $stmt = $pdo->prepare("UPDATE categories SET name = ?, slug = ?, sort_order = ?, category_theme = ? WHERE id = ?");
-        $stmt->execute([$name, $slug, $sort_order, $cat_theme, $target_id]);
+        $stmt = $pdo->prepare("UPDATE categories SET name = ?, slug = ?, sort_order = ?, category_theme = ?, meta_data = ? WHERE id = ?");
+        $stmt->execute([$name, $slug, $sort_order, $cat_theme, $metaDataJson, $target_id]);
 
         // Sync menu items and post content URLs
         if ($oldData && ($oldData['name'] !== $name || $oldData['slug'] !== $slug)) {
@@ -154,8 +200,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         set_flash(_t('msg_saved'));
         $redirect_url = 'admin/categories.php?edit_id=' . $target_id;
       } else {
-        $stmt = $pdo->prepare("INSERT INTO categories (name, slug, sort_order, category_theme) VALUES (?, ?, ?, ?)");
-        $stmt->execute([$name, $slug, $sort_order, $cat_theme]);
+        $stmt = $pdo->prepare("INSERT INTO categories (name, slug, sort_order, category_theme, meta_data) VALUES (?, ?, ?, ?, ?)");
+        $stmt->execute([$name, $slug, $sort_order, $cat_theme, $metaDataJson]);
         set_flash(_t('msg_saved'));
         $redirect_url = 'admin/categories.php';
       }
@@ -215,7 +261,7 @@ $allCategories = $pdo->query("SELECT id, name FROM categories ORDER BY sort_orde
 $available_themes = get_available_themes();
 
 // Prepare edit data
-$edit_data = ['name' => '', 'slug' => '', 'sort_order' => 0, 'category_theme' => ''];
+$edit_data = ['name' => '', 'slug' => '', 'sort_order' => 0, 'category_theme' => '', 'meta_data' => '{}'];
 
 if ($edit_id) {
   $stmt = $pdo->prepare("SELECT * FROM categories WHERE id = ?");

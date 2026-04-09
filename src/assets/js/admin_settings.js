@@ -60,32 +60,35 @@ document.addEventListener('alpine:init', () => {
         this.progress = 100;
         this.statusMsg = this.trans.complete;
 
-        // Trigger download
-        window.onbeforeunload = null;
-
-        // Relative path resolution based on current page
-        const urlObj = new URL(finalRes.url, window.location.href);
-        const form = document.createElement('form');
-        form.method = 'POST';
-        form.action = urlObj.pathname;
-        form.style.display = 'none';
-
-        urlObj.searchParams.forEach((value, key) => {
-          const input = document.createElement('input');
-          input.type = 'hidden';
-          input.name = key;
-          input.value = value;
-          form.appendChild(input);
-        });
-
-        document.body.appendChild(form);
-        form.submit();
-        document.body.removeChild(form);
-
+        // Delay for UX to allow the progress bar to animate to 100% smoothly
         setTimeout(() => {
-          this.processing = false;
-          this.progress = 0;
-        }, 3000);
+          // Trigger download
+          window.onbeforeunload = null;
+
+          // Relative path resolution based on current page
+          const urlObj = new URL(finalRes.url, window.location.href);
+          const form = document.createElement('form');
+          form.method = 'POST';
+          form.action = urlObj.pathname;
+          form.style.display = 'none';
+
+          urlObj.searchParams.forEach((value, key) => {
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = key;
+            input.value = value;
+            form.appendChild(input);
+          });
+
+          document.body.appendChild(form);
+          form.submit();
+          document.body.removeChild(form);
+
+          setTimeout(() => {
+            this.processing = false;
+            this.progress = 0;
+          }, 3000);
+        }, 500); // 300ms(アニメーション) + 200ms(余韻)
       } catch (e) {
         window.showToast('Error: ' + e.message, 'error');
         this.processing = false;

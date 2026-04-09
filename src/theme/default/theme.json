@@ -1,0 +1,61 @@
+{
+  "name": "Default Theme",
+  "version": "1.0.0",
+  "description": "The default theme for GrindSite.",
+  "post_types": {
+    "product": {
+      "label": "Products",
+      "icon": "outline-shopping-bag",
+      "supports": ["title", "content", "thumbnail", "hero", "seo", "category", "tags", "custom_fields"]
+    },
+    "event": {
+      "label": "Events",
+      "icon": "outline-calendar",
+      "supports": ["title", "content", "hero", "seo", "tags", "custom_fields"]
+    }
+  },
+  "custom_fields": {
+    "product": [
+      { "name": "product_image", "label": "Product Image", "type": "image" },
+      { "name": "gallery_1", "label": "Gallery Image 1", "type": "image" },
+      { "name": "gallery_2", "label": "Gallery Image 2", "type": "image" },
+      { "name": "short_desc", "label": "Short Description", "type": "textarea" },
+      { "name": "price", "label": "Price", "type": "text" },
+      { "name": "sale_price", "label": "Sale Price", "type": "text" },
+      { "name": "in_stock", "label": "In Stock", "type": "checkbox" },
+      { "name": "sku", "label": "SKU", "type": "text" },
+      { "name": "related_post_ids", "label": "Related Product IDs (Comma separated)", "type": "text" },
+      {
+        "name": "product_type",
+        "label": "Product Type",
+        "type": "select",
+        "options": {
+          "physical": "Physical",
+          "digital": "Digital",
+          "subscription": "Subscription"
+        }
+      }
+    ],
+    "event": [
+      { "name": "event_date", "label": "Event Date", "type": "date" },
+      { "name": "location", "label": "Location", "type": "text" }
+    ],
+    "post": [
+      { "name": "author_note", "label": "Author Note", "type": "textarea" },
+      { "name": "reading_time", "label": "Reading Time (min)", "type": "text" },
+      { "name": "sponsored_link", "label": "Sponsored Link URL", "type": "text" }
+    ],
+    "category": [
+      { "name": "category_icon", "label": "Category Icon", "type": "image" },
+      {
+        "name": "display_style",
+        "label": "Display Style",
+        "type": "select",
+        "options": {
+          "list": "List View",
+          "grid": "Grid View"
+        }
+      }
+    ]
+  }
+}

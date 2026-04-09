@@ -221,7 +221,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $error = t('err_csrf');
   } else {
     $inputKey = trim($_POST['app_key'] ?? '');
-    if (!defined('APP_KEY') || !hash_equals(APP_KEY, $inputKey)) {
+    if (!defined('APP_KEY') || !hash_equals(hash('sha256', APP_KEY), hash('sha256', $inputKey))) {
       $error = t('err_app_key');
     } else {
       $identity = trim($_POST['identity'] ?? '');

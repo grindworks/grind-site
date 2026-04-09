@@ -141,6 +141,10 @@ function Grinds_GetSampleData($lang = 'en')
             [
                 'title' => $isJa ? 'サービス・料金' : 'Services & Pricing',
                 'slug'  => 'services',
+                'meta_data' => [
+                    'price' => 'Variable',
+                    'product_type' => 'service'
+                ],
                 'content' => [
                     'blocks' => [
                         ['type' => 'paragraph', 'data' => ['text' => $isJa ? 'お客様のニーズに合わせた柔軟なプランをご用意しています。' : 'We offer flexible plans tailored to your needs.']],
@@ -222,6 +226,12 @@ function Grinds_GetSampleData($lang = 'en')
                 'tags' => ['tutorial', 'featured'],
                 'description' => $isJa ? '目次自動生成機能やヒーローヘッダーの設定例です。' : 'Demo of Table of Contents and Hero Header settings.',
                 'hero_image' => $dummyImg,
+                'meta_data' => [
+                    'price' => 'Free',
+                    'event_date' => date('Y-m-d', strtotime('+14 days')),
+                    'product_type' => 'digital',
+                    'cover_image' => $dummyImg
+                ],
                 'hero_settings' => [
                     'title' => $isJa ? '高度なカスタマイズ' : 'Advanced Customization',
                     'subtext' => $isJa ? '記事ごとに個別のヘッダー画像とタイトルを設定できます。' : 'Set individual header images and titles for each post.',
@@ -401,6 +411,37 @@ function Grinds_GetSampleData($lang = 'en')
                         ['type' => 'paragraph', 'data' => ['text' => $isJa ? '社外秘の情報をここに記述します。' : 'Confidential information would be written here.']],
                     ]
                 ]
+            ],
+            // Define custom fields demo for Product
+            [
+                'title' => $isJa ? 'プレミアム・コーヒー豆 (デモ)' : 'Premium Coffee Beans (Demo)',
+                'slug'  => 'premium-coffee-beans',
+                'type'  => 'product',
+                'cat_slug' => 'tutorials',
+                'tags' => ['dev', 'tutorial'],
+                'description' => $isJa ? '商品管理のカスタムフィールド入力テスト用のデモデータです。' : 'Demo data for testing product custom fields input.',
+                'thumbnail' => $dummyImg,
+                'meta_data' => [
+                    'product_image' => $dummyImg,
+                    'gallery_1' => $dummyImg,
+                    'gallery_2' => $dummyImg,
+                    'short_desc' => $isJa ? "厳選された最高品質のコーヒー豆です。\n豊かな香りと深いコクをお楽しみください。" : "Carefully selected premium coffee beans.\nEnjoy the rich aroma and deep flavor.",
+                    'price' => '2400',
+                    'sale_price' => '1980',
+                    'in_stock' => '1', // checkbox indicates true
+                    'sku' => 'COF-PRM-001',
+                    'related_post_ids' => '',
+                    'product_type' => 'physical'
+                ],
+                'content' => [
+                    'blocks' => [
+                        ['type' => 'paragraph', 'data' => ['text' => $isJa ? 'これはtheme.jsonの `product` 定義に基づくカスタムフィールドを持つ商品のデモです。' : 'This is a product demo with custom fields based on theme.json `product` definition.']],
+                        ['type' => 'code', 'data' => [
+                            'language' => 'php',
+                            'code' => "<?php\n// テーマ内でカスタムフィールドを取得する例\n\$meta = json_decode(\$post['meta_data'] ?? '{}', true);\n\n// テキストフィールドの表示\nif (!empty(\$meta['text_field'])) {\n    echo htmlspecialchars(\$meta['text_field'], ENT_QUOTES, 'UTF-8');\n}\n?>"
+                        ]]
+                    ]
+                ]
             ]
         ],
 
@@ -408,6 +449,10 @@ function Grinds_GetSampleData($lang = 'en')
         'templates' => [
             [
                 'title' => $isJa ? '製品ランディングページ (LP)' : 'Product Landing Page',
+                'meta_data' => [
+                    'price' => '199',
+                    'product_type' => 'physical',
+                ],
                 'content' => [
                     'blocks' => [
                         ['type' => 'header', 'data' => ['text' => $isJa ? '製品名' : 'Product Name', 'level' => 'h2']],
@@ -523,7 +568,7 @@ function Grinds_InstallSampleData($pdo, $lang = 'en', $siteName = 'GrindSite')
     }
 
     // Insert pages
-    $stmtPage = $pdo->prepare("INSERT INTO posts (title, slug, content, search_text, type, status, show_category, show_date, hero_image, hero_settings, created_at, updated_at) VALUES (?, ?, ?, ?, 'page', 'published', 0, 0, ?, ?, ?, ?)");
+    $stmtPage = $pdo->prepare("INSERT INTO posts (title, slug, content, search_text, type, status, show_category, show_date, hero_image, hero_settings, meta_data, created_at, updated_at) VALUES (?, ?, ?, ?, 'page', 'published', 0, 0, ?, ?, ?, ?, ?)");
 
     // Prepare statement
     $stmtCheck = $pdo->prepare("SELECT count(*) FROM posts WHERE slug = ?");
@@ -536,6 +581,7 @@ function Grinds_InstallSampleData($pdo, $lang = 'en', $siteName = 'GrindSite')
             $jsonContent = json_encode($page['content'], JSON_UNESCAPED_UNICODE);
             $heroImg = $page['hero_image'] ?? '';
             $heroSet = isset($page['hero_settings']) ? json_encode($page['hero_settings'], JSON_UNESCAPED_UNICODE) : '';
+            $metaData = isset($page['meta_data']) ? json_encode($page['meta_data'], JSON_UNESCAPED_UNICODE) : '{}';
 
             // Generate search text
             $searchText = grinds_generate_search_text($page['title'], '', $jsonContent);
@@ -547,6 +593,7 @@ function Grinds_InstallSampleData($pdo, $lang = 'en', $siteName = 'GrindSite')
                 $searchText,
                 $heroImg,
                 $heroSet,
+                $metaData,
                 $now,
                 $now
             ]);
@@ -554,7 +601,7 @@ function Grinds_InstallSampleData($pdo, $lang = 'en', $siteName = 'GrindSite')
     }
 
     // Insert posts
-    $stmtPost = $pdo->prepare("INSERT INTO posts (title, slug, content, search_text, type, status, category_id, show_category, show_date, hero_image, hero_settings, show_toc, show_share_buttons, description, thumbnail, is_hide_llms, created_at, updated_at, deleted_at) VALUES (?, ?, ?, ?, 'post', 'published', ?, 1, 1, ?, ?, ?, ?, ?, ?, ?, ?, ?, NULL)");
+    $stmtPost = $pdo->prepare("INSERT INTO posts (title, slug, content, search_text, type, status, category_id, show_category, show_date, hero_image, hero_settings, meta_data, show_toc, show_share_buttons, description, thumbnail, is_hide_llms, created_at, updated_at, deleted_at) VALUES (?, ?, ?, ?, ?, 'published', ?, 1, 1, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NULL)");
 
     foreach ($data['posts'] as $post) {
         $stmtCheck->execute([$post['slug']]);
@@ -573,11 +620,13 @@ function Grinds_InstallSampleData($pdo, $lang = 'en', $siteName = 'GrindSite')
             $jsonContent = json_encode($post['content'], JSON_UNESCAPED_UNICODE);
             $heroImg = $post['hero_image'] ?? '';
             $heroSet = isset($post['hero_settings']) ? json_encode($post['hero_settings'], JSON_UNESCAPED_UNICODE) : '';
+            $metaData = isset($post['meta_data']) ? json_encode($post['meta_data'], JSON_UNESCAPED_UNICODE) : '{}';
             $showToc = $post['show_toc'] ?? 0;
             $showShare = $post['show_share_buttons'] ?? 1;
             $desc = $post['description'] ?? '';
             $thumb = $post['thumbnail'] ?? '';
             $isHideLlms = $post['is_hide_llms'] ?? 0;
+            $postType = $post['type'] ?? 'post'; // ★ typeが指定されていればそれを使う
 
             // Generate search text
             $searchText = grinds_generate_search_text($post['title'], $desc, $jsonContent);
@@ -587,9 +636,11 @@ function Grinds_InstallSampleData($pdo, $lang = 'en', $siteName = 'GrindSite')
                 $post['slug'],
                 $jsonContent,
                 $searchText,
+                $postType,
                 $catId,
                 $heroImg,
                 $heroSet,
+                $metaData,
                 $showToc,
                 $showShare,
                 $desc,
@@ -615,7 +666,7 @@ function Grinds_InstallSampleData($pdo, $lang = 'en', $siteName = 'GrindSite')
     }
 
     // Insert templates
-    $stmtTpl = $pdo->prepare("INSERT INTO posts (title, slug, content, search_text, type, status, created_at, updated_at) VALUES (?, ?, ?, '', 'template', 'private', ?, ?)");
+    $stmtTpl = $pdo->prepare("INSERT INTO posts (title, slug, content, search_text, type, status, meta_data, created_at, updated_at) VALUES (?, ?, ?, '', 'template', 'private', ?, ?, ?)");
 
     foreach ($data['templates'] as $tpl) {
         $exists = $pdo->prepare("SELECT count(*) FROM posts WHERE type='template' AND title = ?");
@@ -623,8 +674,9 @@ function Grinds_InstallSampleData($pdo, $lang = 'en', $siteName = 'GrindSite')
         if (!$exists->fetchColumn()) {
             $slug = 'tpl-' . bin2hex(random_bytes(6));
             $json = json_encode($tpl['content'], JSON_UNESCAPED_UNICODE);
+            $metaData = isset($tpl['meta_data']) ? json_encode($tpl['meta_data'], JSON_UNESCAPED_UNICODE) : '{}';
             // Exclude from search
-            $stmtTpl->execute([$tpl['title'], $slug, $json, $now, $now]);
+            $stmtTpl->execute([$tpl['title'], $slug, $json, $metaData, $now, $now]);
         }
     }
 
@@ -863,8 +915,9 @@ function Grinds_InstallKitchenSink($pdo, $lang = 'en')
     if (!$postId) {
         // Wrap blocks
         $jsonContent = json_encode(['blocks' => $content], JSON_UNESCAPED_UNICODE);
-        $stmtPost = $pdo->prepare("INSERT INTO posts (title, slug, content, type, status, published_at, created_at, updated_at) VALUES (?, ?, ?, 'post', 'published', ?, ?, ?)");
-        $stmtPost->execute([$title, $slug, $jsonContent, $now, $now, $now]);
+        $metaData = json_encode(['product_type' => 'service', 'event_date' => date('Y-m-d', strtotime('+1 month'))], JSON_UNESCAPED_UNICODE);
+        $stmtPost = $pdo->prepare("INSERT INTO posts (title, slug, content, type, status, meta_data, published_at, created_at, updated_at) VALUES (?, ?, ?, 'post', 'published', ?, ?, ?, ?)");
+        $stmtPost->execute([$title, $slug, $jsonContent, $metaData, $now, $now, $now]);
         $postId = $pdo->lastInsertId();
     }
 

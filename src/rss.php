@@ -31,7 +31,6 @@ if (!class_exists('RssGenerator')) {
     private string $siteDesc;
     private string $siteLang;
 
-    // キャッシュ判定の対象を RSS 用に 'post' のみに限定する
     protected array $cachePostTypes = ['post'];
 
     public function __construct(?PDO $pdo, string $baseUrl, bool $isSsgMode = false)
@@ -341,11 +340,11 @@ if (!class_exists('RssGenerator')) {
       $html = preg_replace('/<!--(?:[^-]++|-(?!->))*+-->/', '', $html) ?? $html;
 
       // Strip picture and source tags while keeping images.
-      $html = preg_replace('/<\/?picture[^>]*>/i', '', $html) ?? $html;
-      $html = preg_replace('/<source[^>]*>/i', '', $html) ?? $html;
+      $html = preg_replace('/<\/?picture[^>]*+>/i', '', $html) ?? $html;
+      $html = preg_replace('/<source[^>]*+>/i', '', $html) ?? $html;
 
       // Strip Base64 inline images.
-      $html = preg_replace('/<img[^>]+src=["\']data:image\/[^"\']+["\'][^>]*>/i', '', $html) ?? $html;
+      $html = preg_replace('/<img[^>]++src=["\']data:image\/[^"\']++["\'][^>]*+>/i', '', $html) ?? $html;
 
       // Convert relative URLs to absolute.
       $html = preg_replace_callback('/(href|src)=["\']([^"\']+)["\']/i', function ($m) {

@@ -21,7 +21,7 @@ $csrf_token = generate_csrf_token();
 <?php include __DIR__ . '/parts/hidden_action_form.php'; ?>
 
 <div class="relative flex lg:flex-row flex-col gap-8"
-  x-effect="window.toggleScrollLock(mobileFormOpen || deleteModalOpen)"
+  x-init="if(mobileFormOpen) window.toggleScrollLock(true); $watch('mobileFormOpen', val => window.toggleScrollLock(val)); $watch('deleteModalOpen', val => window.toggleScrollLock(val));"
   x-data='{
     mobileFormOpen: <?= $edit_id ? 'true' : 'false' ?>,
     isSubmitting: false,
@@ -328,6 +328,110 @@ $csrf_token = generate_csrf_token();
             <?= _t('help_category_theme') ?>
           </p>
         </div>
+
+        <!-- Custom Fields (Meta Data) -->
+        <?php
+        $themeForMeta = !empty($edit_data['category_theme']) ? $edit_data['category_theme'] : null;
+        $customFields = function_exists('grinds_get_theme_custom_fields') ? grinds_get_theme_custom_fields('category', $themeForMeta) : [];
+        $catMetaData = json_decode($edit_data['meta_data'] ?? '{}', true);
+        if (!is_array($catMetaData)) $catMetaData = [];
+        ?>
+        <?php if (!empty($customFields)): ?>
+          <div class="bg-theme-surface mb-6 p-4 border border-theme-border rounded-theme" x-data="{ openMeta: true }">
+            <button type="button" @click="openMeta = !openMeta" class="flex justify-between items-center w-full text-left focus:outline-none">
+              <span class="block opacity-70 font-bold text-theme-text text-xs cursor-pointer"><?= function_exists('_t') ? _t('Custom Fields') ?? 'Custom Fields' : 'Custom Fields' ?></span>
+              <svg class="opacity-50 w-4 h-4 text-theme-text transition-transform" :class="openMeta ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-chevron-down"></use>
+              </svg>
+            </button>
+            <div x-show="openMeta" x-collapse>
+              <div class="space-y-4 mt-4 pt-4 border-theme-border border-t">
+                <?php foreach ($customFields as $cf):
+                  $cfName = $cf['name'] ?? '';
+                  $cfLabel = $cf['label'] ?? $cfName;
+                  $cfType = $cf['type'] ?? 'text';
+                  $cfVal = $catMetaData[$cfName] ?? '';
+                ?>
+                  <div>
+                    <?php if ($cfType !== 'checkbox'): ?>
+                      <label class="block opacity-60 mb-1 font-bold text-theme-text text-xs"><?= h(function_exists('_t') ? _t($cfLabel) : $cfLabel) ?></label>
+                    <?php endif; ?>
+
+                    <?php if ($cfType === 'textarea'): ?>
+                      <textarea name="meta_data[<?= h($cfName) ?>]" rows="3" class="text-xs form-control"><?= h($cfVal) ?></textarea>
+
+                    <?php elseif ($cfType === 'image'): ?>
+                      <div x-data="{
+                                            previewUrl: <?= htmlspecialchars(json_encode(get_media_url($cfVal), JSON_HEX_TAG | JSON_HEX_AMP), ENT_QUOTES, 'UTF-8') ?>,
+                                            isDeleted: false
+                                        }"
+                        @set-meta-image-<?= h($cfName) ?>.window="previewUrl = $event.detail.url; isDeleted = false; document.getElementById('meta_data_<?= h($cfName) ?>_input').value = $event.detail.url;">
+
+                        <div class="mb-2 bg-checker border border-theme-border rounded-theme w-full h-32 overflow-hidden flex items-center justify-center" x-show="previewUrl && !isDeleted">
+                          <img :src="previewUrl" class="w-full h-full object-contain">
+                        </div>
+
+                        <div class="flex flex-col gap-2">
+                          <button type="button" @click="window.dispatchEvent(new CustomEvent('open-media-picker', { detail: { type: 'image', callback: (file) => { window.dispatchEvent(new CustomEvent('set-meta-image-<?= h($cfName) ?>', { detail: { url: file.url } })); } } }));" class="flex justify-center items-center hover:bg-theme-bg px-4 py-2 border border-theme-border rounded-theme w-full text-xs text-center transition-colors btn-secondary">
+                            <svg class="mr-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-photo"></use>
+                            </svg>
+                            <span><?= h(function_exists('_t') ? _t('btn_select_library') ?? 'Select File' : 'Select File') ?></span>
+                          </button>
+                          <label class="px-3 py-1 rounded-theme w-full text-xs text-center cursor-pointer btn-secondary">
+                            <?= h(function_exists('_t') ? _t('select_file') ?? 'Upload' : 'Upload') ?>
+                            <input type="file" name="meta_data_<?= h($cfName) ?>" accept="image/*" class="hidden" @change="
+                                if (typeof isUploading !== 'undefined') isUploading = true;
+                                const file = $event.target.files[0]; if(file){ if(previewUrl && previewUrl.startsWith('blob:')) URL.revokeObjectURL(previewUrl); previewUrl = URL.createObjectURL(file); isDeleted = false; }
+                                setTimeout(() => { if (typeof isUploading !== 'undefined') isUploading = false; }, 1000);
+                            ">
+                          </label>
+
+                          <?php if (!empty($cfVal)): ?>
+                            <label class="flex justify-center items-center bg-theme-danger/10 px-2 py-1 border border-theme-danger/30 rounded-theme text-theme-danger transition-colors cursor-pointer" :class="{'bg-theme-danger text-white border-theme-danger': isDeleted}" title="<?= h(function_exists('_t') ? _t('delete') ?? 'Delete' : 'Delete') ?>">
+                              <input type="checkbox" name="delete_meta_data_<?= h($cfName) ?>" value="1" class="hidden" x-model="isDeleted">
+                              <span x-show="!isDeleted">&times; <?= h(function_exists('_t') ? _t('delete') ?? 'Delete' : 'Delete') ?></span>
+                              <span x-show="isDeleted" class="font-bold text-[10px]"><?= h(function_exists('_t') ? _t('btn_restore') ?? 'Restore' : 'Restore') ?></span>
+                            </label>
+                          <?php endif; ?>
+
+                          <input type="hidden" name="current_meta_data[<?= h($cfName) ?>]" value="<?= h($cfVal) ?>">
+                          <!-- Update name attribute to _url format to ensure correct backend processing -->
+                          <input type="hidden" name="meta_data_<?= h($cfName) ?>_url" id="meta_data_<?= h($cfName) ?>_input" value="<?= h($cfVal) ?>" :disabled="isDeleted">
+                        </div>
+                      </div>
+
+                    <?php elseif ($cfType === 'date'): ?>
+                      <input type="date" name="meta_data[<?= h($cfName) ?>]" value="<?= h($cfVal) ?>" class="text-xs form-control">
+
+                    <?php elseif ($cfType === 'select' && isset($cf['options']) && is_array($cf['options'])): ?>
+                      <select name="meta_data[<?= h($cfName) ?>]" class="text-xs form-control cursor-pointer">
+                        <option value=""><?= function_exists('_t') ? _t('lbl_select_option') ?? 'Select...' : 'Select...' ?></option>
+                        <?php foreach ($cf['options'] as $optVal => $optLabel):
+                          if (is_numeric($optVal)) {
+                            $optVal = $optLabel;
+                          } // Handle unkeyed arrays
+                        ?>
+                          <option value="<?= h($optVal) ?>" <?= ($cfVal === (string)$optVal) ? 'selected' : '' ?>><?= h(function_exists('_t') ? _t($optLabel) : $optLabel) ?></option>
+                        <?php endforeach; ?>
+                      </select>
+
+                    <?php elseif ($cfType === 'checkbox'): ?>
+                      <label class="flex items-center cursor-pointer mt-1">
+                        <input type="hidden" name="meta_data[<?= h($cfName) ?>]" value="0">
+                        <input type="checkbox" name="meta_data[<?= h($cfName) ?>]" value="1" class="bg-theme-bg border-theme-border rounded focus:ring-theme-primary/20 w-5 h-5 text-theme-primary form-checkbox" <?= (string)$cfVal === '1' ? 'checked' : '' ?>>
+                        <span class="ml-2 text-theme-text text-sm font-bold opacity-80"><?= h(function_exists('_t') ? _t($cfLabel) : $cfLabel) ?></span>
+                      </label>
+
+                    <?php else: ?>
+                      <input type="text" name="meta_data[<?= h($cfName) ?>]" value="<?= h($cfVal) ?>" class="text-xs form-control">
+                    <?php endif; ?>
+                  </div>
+                <?php endforeach; ?>
+              </div>
+            </div>
+          </div>
+        <?php endif; ?>
 
         <div class="mb-8">
           <label class="block mb-2 font-bold text-theme-text text-sm"><?= _t('col_order') ?></label>

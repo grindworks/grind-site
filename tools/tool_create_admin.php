@@ -214,7 +214,7 @@ try {
 
     $inputKey = trim($_POST['app_key'] ?? '');
     $appKey = defined('APP_KEY') ? APP_KEY : null;
-    if ($appKey === null || !hash_equals($appKey, $inputKey)) {
+    if ($appKey === null || !hash_equals(hash('sha256', $appKey), hash('sha256', $inputKey))) {
       throw new Exception(t('err_app_key'));
     }
 

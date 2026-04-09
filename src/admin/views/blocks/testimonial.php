@@ -2,7 +2,7 @@
 
 /** Testimonial Block View */
 if (!defined('GRINDS_APP')) exit; ?>
-<div class="bg-theme-bg/40 p-4 border border-theme-border rounded-theme" x-data="{ isUploading: false }">
+<div class="bg-theme-bg/40 p-4 border border-theme-border rounded-theme" x-init="if(typeof block.data.comment === 'undefined') block.data.comment = ''; if(typeof block.data.name === 'undefined') block.data.name = ''; if(typeof block.data.role === 'undefined') block.data.role = '';" x-data="{ isUploading: false }">
   <div class="flex sm:flex-row flex-col items-start gap-4">
     <!-- Avatar uploader -->
     <div class="w-full sm:w-auto text-center shrink-0">

@@ -2,7 +2,7 @@
 
 /** Columns Block View */
 if (!defined('GRINDS_APP')) exit; ?>
-<div class="space-y-3" x-init="if(!block.data.ratio) block.data.ratio = '1-1'">
+<div class="space-y-3" x-init="if(!block.data.ratio) block.data.ratio = '1-1'; if(typeof block.data.leftText === 'undefined') block.data.leftText = ''; if(typeof block.data.rightText === 'undefined') block.data.rightText = '';">
   <!-- Ratio selector -->
   <div class="flex justify-end items-center mb-2">
     <label class="opacity-60 mr-2 text-[10px] text-theme-text"><?= _t('col_ratio') ?></label>

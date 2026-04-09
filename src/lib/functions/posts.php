@@ -39,6 +39,12 @@ function _grinds_collect_media_from_posts(PDO $pdo, ?array $postIds = null, bool
                 $candidates[] = $u;
             }
         }
+        if (!empty($row['meta_data']) && function_exists('grinds_extract_urls')) {
+            $urls = grinds_extract_urls($row['meta_data']);
+            foreach ($urls as $u) {
+                $candidates[] = $u;
+            }
+        }
     };
 
     try {
@@ -50,14 +56,14 @@ function _grinds_collect_media_from_posts(PDO $pdo, ?array $postIds = null, bool
             $chunks = array_chunk($postIds, 900);
             foreach ($chunks as $chunk) {
                 $placeholders = implode(',', array_fill(0, count($chunk), '?'));
-                $stmt = $pdo->prepare("SELECT thumbnail, hero_image, hero_settings, content FROM posts WHERE id IN ($placeholders)");
+                $stmt = $pdo->prepare("SELECT thumbnail, hero_image, hero_settings, content, meta_data FROM posts WHERE id IN ($placeholders)");
                 $stmt->execute($chunk);
                 while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
                     $processRow($row);
                 }
             }
         } else {
-            $selectCols = "thumbnail, hero_image, hero_settings, content";
+            $selectCols = "thumbnail, hero_image, hero_settings, content, meta_data";
             if ($collectIds) {
                 $selectCols = "id, " . $selectCols;
             }
@@ -311,7 +317,7 @@ function grinds_process_bulk_actions(PDO $pdo, array $data): array
                 }
                 $newCatName = $catInfo['name'] ?? '';
 
-                $stmtGet = $pdo->prepare("SELECT title, description, content FROM posts WHERE id = ?");
+                $stmtGet = $pdo->prepare("SELECT title, description, content, meta_data FROM posts WHERE id = ?");
                 $stmtTags = $pdo->prepare("SELECT t.name FROM tags t JOIN post_tags pt ON t.id = pt.tag_id WHERE pt.post_id = ?");
                 $stmt = $pdo->prepare("UPDATE posts SET category_id = ?, search_text = ?, updated_at = ?, version = version + 1 WHERE id = ?");
 
@@ -325,7 +331,14 @@ function grinds_process_bulk_actions(PDO $pdo, array $data): array
 
                     $stmtTags->execute([$tid]);
                     $tags = $stmtTags->fetchAll(PDO::FETCH_COLUMN);
-                    $searchText = grinds_generate_search_text($post['title'], $post['description'], $post['content'], $newCatName, $tags);
+
+                    $metaData = json_decode($post['meta_data'] ?? '{}', true) ?: [];
+                    $metaValues = [];
+                    foreach ($metaData as $val) {
+                        if (is_scalar($val)) $metaValues[] = strip_tags((string)$val);
+                    }
+                    $searchDesc = trim($post['description'] . ' ' . implode(' ', $metaValues));
+                    $searchText = grinds_generate_search_text($post['title'], $searchDesc, $post['content'], $newCatName, $tags);
                     $stmt->execute([$newCatId, $searchText, $now, $tid]);
                     $count++;
                 }
@@ -361,6 +374,8 @@ function grinds_process_bulk_actions(PDO $pdo, array $data): array
                             'current_thumbnail' => $source['thumbnail'],
                             'current_hero_image' => $source['hero_image'],
                             'tags' => $tagsString,
+                            'meta_data' => json_decode($source['meta_data'] ?? '{}', true) ?: [],
+                            'current_meta_data' => json_decode($source['meta_data'] ?? '{}', true) ?: [],
                         ];
 
                         // Handle boolean fields
@@ -383,13 +398,14 @@ function grinds_process_bulk_actions(PDO $pdo, array $data): array
                                 $newData['hero_fixed_bg'] = 1;
                             $newData['current_hero_image_mobile'] = $hs['mobile_image'] ?? '';
                             $newData['hero_buttons_json'] = $hs['buttons'] ?? [];
+                            $newData['seo_author'] = $hs['seo_author'] ?? '';
                         }
 
                         grinds_save_post($pdo, $newData, [], 'new');
                         $count++;
                     }
                 }
-                $message = "$count items duplicated.";
+                $message = _t('msg_duplicated_count', $count);
                 break;
 
             default:
@@ -483,7 +499,14 @@ function grinds_prepare_post_data_from_request(array $data): array
     $description = trim((string)($data['description'] ?? ''));
     $status = $data['status'] ?? 'draft';
     $type = $data['type'] ?? 'post';
-    if (!in_array($type, ['post', 'page', 'template'])) {
+
+    $allowed_types = ['post', 'page', 'template'];
+    if (function_exists('grinds_get_theme_post_types')) {
+        $cpts = grinds_get_theme_post_types();
+        $allowed_types = array_merge($allowed_types, array_keys($cpts));
+    }
+
+    if (!in_array($type, $allowed_types)) {
         $type = 'post';
     }
 
@@ -648,13 +671,66 @@ function grinds_save_post(PDO $pdo, array $data, array $files, string $action, ?
         $hero_settings = grinds_build_hero_settings($data, $hero_image_mobile);
         $hero_settings_json = json_encode($hero_settings, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR);
 
+        // --- NEW: Custom Fields (Meta Data) Processing ---
+        $themeForMeta = !empty($postData['page_theme']) ? $postData['page_theme'] : null;
+        $customFields = function_exists('grinds_get_theme_custom_fields') ? grinds_get_theme_custom_fields($postData['type'], $themeForMeta) : [];
+        $rawPostMetaData = $data['meta_data'] ?? [];
+
+        $existingMetaData = [];
+        if ($action === 'edit' && $id) {
+            $stmtMeta = $pdo->prepare("SELECT meta_data FROM posts WHERE id = ?");
+            $stmtMeta->execute([$id]);
+            $metaJson = $stmtMeta->fetchColumn();
+            if ($metaJson) {
+                $decoded = json_decode($metaJson, true);
+                if (is_array($decoded)) $existingMetaData = $decoded;
+            }
+        }
+        $metaData = !empty($existingMetaData) ? $existingMetaData : (is_array($data['current_meta_data'] ?? []) ? $data['current_meta_data'] : []);
+
+        foreach ($customFields as $field) {
+            $fName = $field['name'] ?? '';
+            $fType = $field['type'] ?? 'text';
+            if (!$fName) continue;
+
+            if ($fType === 'image') {
+                $uploadFieldName = 'meta_data_' . $fName;
+                $currentVal = $metaData[$fName] ?? '';
+                $deleteField = 'delete_' . $uploadFieldName;
+
+                // Allow process to read dynamically named file inputs
+                $uploadedUrl = grinds_process_image_upload($pdo, $uploadFieldName, $currentVal, [
+                    'post_data' => $data,
+                    'files_data' => $files,
+                    'throw_error' => true,
+                    'delete_field' => $deleteField
+                ]);
+                $metaData[$fName] = Routing::convertToDbUrl($uploadedUrl);
+            } elseif ($fType === 'checkbox') {
+                $metaData[$fName] = !empty($rawPostMetaData[$fName]) ? '1' : '0';
+            } else {
+                if (isset($rawPostMetaData[$fName])) {
+                    $val = strip_tags((string)$rawPostMetaData[$fName]);
+                    $metaData[$fName] = Routing::convertToDbUrl($val);
+                }
+            }
+        }
+        $metaDataJson = json_encode($metaData, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR);
+        // --------------------------------------------------
+
         $category_name = '';
         if (!empty($postData['category_id'])) {
             $stmtCat = $pdo->prepare("SELECT name FROM categories WHERE id = ?");
             $stmtCat->execute([$postData['category_id']]);
             $category_name = $stmtCat->fetchColumn() ?: '';
         }
-        $search_text = grinds_generate_search_text($postData['title'], $postData['description'], $postData['content'], (string)$category_name, $tagNames);
+
+        $metaValues = [];
+        foreach ($metaData as $val) {
+            if (is_scalar($val)) $metaValues[] = strip_tags((string)$val);
+        }
+        $searchDesc = trim($postData['description'] . ' ' . implode(' ', $metaValues));
+        $search_text = grinds_generate_search_text($postData['title'], $searchDesc, $postData['content'], (string)$category_name, $tagNames);
 
         $current_time = date('Y-m-d H:i:s');
 
@@ -669,6 +745,7 @@ function grinds_save_post(PDO $pdo, array $data, array $files, string $action, ?
             ':thumbnail' => $thumbnail,
             ':hero_image' => $hero_image,
             ':hero_settings' => $hero_settings_json,
+            ':meta_data' => $metaDataJson,
             ':page_theme' => $postData['page_theme'],
             ':published_at' => $postData['published_at'],
             ':is_noindex' => $postData['is_noindex'],
@@ -743,6 +820,16 @@ function grinds_save_post(PDO $pdo, array $data, array $files, string $action, ?
                         throw new Exception(_t('err_conflict'));
                     }
 
+                    // --- NEW: Save Revision History ---
+                    // Save the current state before overwriting
+                    $stmtRev = $pdo->prepare("INSERT INTO post_revisions (post_id, title, content, hero_settings, meta_data, created_at) VALUES (?, ?, ?, ?, ?, ?)");
+                    $stmtRev->execute([$id, $current['title'], $current['content'], $current['hero_settings'], $current['meta_data'] ?? '{}', $current['updated_at']]);
+
+                    // Keep only the last 10 revisions to prevent database bloat
+                    $stmtClean = $pdo->prepare("DELETE FROM post_revisions WHERE post_id = ? AND id NOT IN (SELECT id FROM post_revisions WHERE post_id = ? ORDER BY id DESC LIMIT 10)");
+                    $stmtClean->execute([$id, $id]);
+                    // ----------------------------------
+
                     $sql = "UPDATE posts SET
                           title = :title,
                           slug = :slug,
@@ -755,6 +842,7 @@ function grinds_save_post(PDO $pdo, array $data, array $files, string $action, ?
                           thumbnail = :thumbnail,
                           hero_image = :hero_image,
                           hero_settings = :hero_settings,
+                          meta_data = :meta_data,
                           page_theme = :page_theme,
                           published_at = :published_at,
                           is_noindex = :is_noindex,
@@ -792,14 +880,14 @@ function grinds_save_post(PDO $pdo, array $data, array $files, string $action, ?
                 } else {
                     $sql = "INSERT INTO posts (
                           title, slug, content, search_text, description, category_id, status, type, thumbnail,
-                          hero_image, hero_settings, page_theme,
+                          hero_image, hero_settings, meta_data, page_theme,
                           published_at,
                           is_noindex, is_nofollow, is_noarchive, is_hide_rss, is_hide_llms, show_toc, toc_title,
                           show_category, show_date, show_share_buttons,
                           created_at, updated_at, version
                         ) VALUES (
                           :title, :slug, :content, :search_text, :description, :category_id, :status, :type, :thumbnail,
-                          :hero_image, :hero_settings, :page_theme,
+                          :hero_image, :hero_settings, :meta_data, :page_theme,
                           :published_at,
                           :is_noindex, :is_nofollow, :is_noarchive, :is_hide_rss, :is_hide_llms, :show_toc, :toc_title,
                           :show_category, :show_date, :show_share_buttons,
@@ -886,6 +974,11 @@ function grinds_save_post(PDO $pdo, array $data, array $files, string $action, ?
 
     do_action('grinds_post_saved', $postId, $data);
 
+    // Queue SSG dependencies for Virtual Publish Queue
+    if (function_exists('grinds_queue_ssg_dependencies')) {
+        grinds_queue_ssg_dependencies($pdo, $postId, 'build');
+    }
+
     return [
         'id' => $postId,
         'slug' => $finalSlug,
@@ -915,7 +1008,7 @@ function grinds_reassign_category_posts(PDO $pdo, int $fromCatId, int $toCatId):
     }
 
     // Get posts to update
-    $stmtGet = $pdo->prepare("SELECT id, title, description, content FROM posts WHERE category_id = ?");
+    $stmtGet = $pdo->prepare("SELECT id, title, description, content, meta_data FROM posts WHERE category_id = ?");
     $stmtGet->execute([$fromCatId]);
     $posts = $stmtGet->fetchAll(PDO::FETCH_ASSOC);
 
@@ -935,7 +1028,13 @@ function grinds_reassign_category_posts(PDO $pdo, int $fromCatId, int $toCatId):
     foreach ($posts as $post) {
         $tags = isset($post['tags']) ? array_column($post['tags'], 'name') : [];
 
-        $searchText = grinds_generate_search_text($post['title'], $post['description'], $post['content'], $newCatName, $tags);
+        $metaData = json_decode($post['meta_data'] ?? '{}', true) ?: [];
+        $metaValues = [];
+        foreach ($metaData as $val) {
+            if (is_scalar($val)) $metaValues[] = strip_tags((string)$val);
+        }
+        $searchDesc = trim($post['description'] . ' ' . implode(' ', $metaValues));
+        $searchText = grinds_generate_search_text($post['title'], $searchDesc, $post['content'], $newCatName, $tags);
 
         $stmtUpdate->execute([$toCatId, $searchText, $now, $post['id']]);
         $count++;
@@ -1002,7 +1101,7 @@ function _grinds_rebuild_index_chunk(PDO $pdo, $post_id, $limit, $offset): int
         $filters['ids'] = is_array($post_id) ? $post_id : [$post_id];
     }
 
-    $posts = $repo->fetch($filters, $limit, $offset, 'p.id ASC', 'p.id, p.title, p.description, p.content, p.search_text');
+    $posts = $repo->fetch($filters, $limit, $offset, 'p.id ASC', 'p.id, p.title, p.description, p.content, p.meta_data, p.search_text');
 
     if (empty($posts)) {
         return 0;
@@ -1016,7 +1115,14 @@ function _grinds_rebuild_index_chunk(PDO $pdo, $post_id, $limit, $offset): int
     $updates = [];
     foreach ($posts as $post) {
         $tags = isset($post['tags']) ? array_column($post['tags'], 'name') : [];
-        $text = grinds_generate_search_text($post['title'], $post['description'], $post['content'], $post['category_name'], $tags);
+
+        $metaData = json_decode($post['meta_data'] ?? '{}', true) ?: [];
+        $metaValues = [];
+        foreach ($metaData as $val) {
+            if (is_scalar($val)) $metaValues[] = strip_tags((string)$val);
+        }
+        $searchDesc = trim($post['description'] . ' ' . implode(' ', $metaValues));
+        $text = grinds_generate_search_text($post['title'], $searchDesc, $post['content'], $post['category_name'] ?? '', $tags);
 
         // Force update to trigger FTS rebuild even if content is same
         $updates[] = ['id' => $post['id'], 'text' => $text];
@@ -1299,6 +1405,105 @@ function grinds_cleanup_unused_media_files(PDO $pdo, array $paths): void
                 }
             }
         }
+    }
+}
+
+/**
+ * Queue SSG dependencies for a specific post.
+ * Calculates exact dependencies (Adjacent posts, Categories, Tags, Home) to rebuild.
+ *
+ * @param PDO $pdo
+ * @param int $postId
+ * @param string $actionType 'build' or 'delete'
+ */
+function grinds_queue_ssg_dependencies(PDO $pdo, int $postId, string $actionType = 'build'): void
+{
+    // Check if auto SSG is globally enabled
+    $autoSsgEnabled = function_exists('get_option') ? (bool)get_option('enable_auto_ssg', true) : true;
+    if (!$autoSsgEnabled) return;
+
+    $stmt = $pdo->prepare("SELECT id, slug, category_id, type, status FROM posts WHERE id = ?");
+    $stmt->execute([$postId]);
+    $post = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if (!$post) return;
+
+    $urlsToQueue = [];
+
+    // 1. The Post Itself
+    $slug = $post['slug'];
+    if (pathinfo($slug, PATHINFO_EXTENSION) === '') $slug .= '.html';
+    $urlsToQueue[] = ['url' => $slug, 'action' => $actionType];
+
+    // If it's a published post, calculate dependencies
+    if ($post['type'] === 'post' && $post['status'] === 'published') {
+        // 2. Home Page (Page 1 only for speed)
+        $urlsToQueue[] = ['url' => 'index.html', 'action' => 'build'];
+
+        // 3. Category Page
+        if (!empty($post['category_id'])) {
+            $catStmt = $pdo->prepare("SELECT slug FROM categories WHERE id = ?");
+            $catStmt->execute([$post['category_id']]);
+            $catSlug = $catStmt->fetchColumn();
+            if ($catSlug) {
+                $urlsToQueue[] = ['url' => "category/{$catSlug}.html", 'action' => 'build'];
+            }
+        }
+
+        // 4. Tag Pages
+        $tagStmt = $pdo->prepare("SELECT t.slug FROM tags t JOIN post_tags pt ON t.id = pt.tag_id WHERE pt.post_id = ?");
+        $tagStmt->execute([$postId]);
+        while ($tagSlug = $tagStmt->fetchColumn()) {
+            $urlsToQueue[] = ['url' => "tag/{$tagSlug}.html", 'action' => 'build'];
+        }
+
+        // 5. Adjacent Posts (Prev / Next)
+        $adjStmt = $pdo->prepare("SELECT slug FROM posts WHERE status = 'published' AND type = 'post' AND id < ? ORDER BY id DESC LIMIT 1");
+        $adjStmt->execute([$postId]);
+        if ($prevSlug = $adjStmt->fetchColumn()) {
+            if (pathinfo($prevSlug, PATHINFO_EXTENSION) === '') $prevSlug .= '.html';
+            $urlsToQueue[] = ['url' => $prevSlug, 'action' => 'build'];
+        }
+
+        $adjStmt = $pdo->prepare("SELECT slug FROM posts WHERE status = 'published' AND type = 'post' AND id > ? ORDER BY id ASC LIMIT 1");
+        $adjStmt->execute([$postId]);
+        if ($nextSlug = $adjStmt->fetchColumn()) {
+            if (pathinfo($nextSlug, PATHINFO_EXTENSION) === '') $nextSlug .= '.html';
+            $urlsToQueue[] = ['url' => $nextSlug, 'action' => 'build'];
+        }
+
+        // 6. Feeds
+        $urlsToQueue[] = ['url' => 'rss.xml', 'action' => 'build'];
+        $urlsToQueue[] = ['url' => 'sitemap.xml', 'action' => 'build'];
+        $urlsToQueue[] = ['url' => 'llms.txt', 'action' => 'build'];
+    }
+
+    // Ensure SQLite 3.7.17 compatibility by avoiding UPSERT (ON CONFLICT)
+    $stmtUpdate = $pdo->prepare("UPDATE ssg_queue SET status = 'pending', action_type = ?, updated_at = CURRENT_TIMESTAMP WHERE target_url = ?");
+    $stmtInsert = $pdo->prepare("INSERT INTO ssg_queue (target_url, action_type, status, updated_at) VALUES (?, ?, 'pending', CURRENT_TIMESTAMP)");
+
+    $inTransaction = $pdo->inTransaction();
+    if (!$inTransaction) {
+        $pdo->beginTransaction();
+    }
+    try {
+        foreach ($urlsToQueue as $item) {
+            // Try to update existing record first
+            $stmtUpdate->execute([$item['action'], $item['url']]);
+
+            // If no record was updated, insert a new one
+            if ($stmtUpdate->rowCount() === 0) {
+                $stmtInsert->execute([$item['url'], $item['action']]);
+            }
+        }
+        if (!$inTransaction) {
+            $pdo->commit();
+        }
+    } catch (Exception $e) {
+        if (!$inTransaction && $pdo->inTransaction()) {
+            $pdo->rollBack();
+        }
+        error_log("SSG Queue Error: " . $e->getMessage());
     }
 }
 

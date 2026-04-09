@@ -86,13 +86,13 @@ class BlockRenderer
                 } elseif (!empty($_GET['preview']) && preg_match('/^[a-f0-9]{32}$/', $_GET['preview'])) {
                     global $pageData;
 
-                    // 1. すでにメモリ上にプレビューデータが展開されていればファイルI/Oをスキップ
+                    // 1. Skip file I/O if preview data is already loaded in memory
                     if (isset($pageData['post']['__expires_at'])) {
                         if ($pageData['post']['__expires_at'] > time()) {
                             $bypass = true;
                         }
                     } else {
-                        // 2. フォールバック: 通常の表示経由ではなく直接呼ばれた場合などのためにファイルを検証
+                        // 2. Fallback: Validate file if accessed directly
                         $previewFile = defined('ROOT_PATH') ? ROOT_PATH . '/data/tmp/preview/preview_' . $_GET['preview'] . '.json' : '';
                         if ($previewFile && file_exists($previewFile)) {
                             $currentPostId = $pageData['post']['id'] ?? null;
@@ -1031,11 +1031,17 @@ HTML;
                     $html = "<div class='{$commonClass} relative flex sm:flex-row flex-col bg-white shadow-theme hover:shadow-theme mx-auto border border-gray-200 hover:border-theme-primary/30 rounded-theme max-w-3xl overflow-hidden transition-all group my-10'>";
                     if ($thumb) {
                         $html .= "<div class='relative bg-gray-100 sm:w-48 h-40 sm:h-auto overflow-hidden shrink-0'>";
-                        $html .= get_image_html($thumb, [
+                        $loadingAttr = $this->firstImageRendered ? 'lazy' : 'eager';
+                        $imgAttrs = [
                             'class' => 'absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 transform',
-                            'loading' => 'lazy',
+                            'loading' => $loadingAttr,
                             'alt' => $post['title']
-                        ]);
+                        ];
+                        if (!$this->firstImageRendered) {
+                            $imgAttrs['fetchpriority'] = 'high';
+                            $this->firstImageRendered = true;
+                        }
+                        $html .= get_image_html($thumb, $imgAttrs);
                         $html .= "</div>";
                     } else {
                         $html .= "<div class='flex justify-center items-center bg-gray-100 sm:w-32 h-32 sm:h-auto text-gray-300 shrink-0'>";
@@ -1113,11 +1119,17 @@ HTML;
                 $html = "<div class='{$commonClass} relative flex flex-col sm:flex-row bg-white border border-gray-200 rounded-theme overflow-hidden shadow-theme hover:shadow-theme hover:border-theme-primary/30 transition-all max-w-3xl {$marginClass} group my-10'>";
                 if ($img) {
                     $html .= "<div class='relative bg-gray-100 sm:w-56 h-48 sm:h-auto overflow-hidden shrink-0'>";
-                    $html .= get_image_html($img, [
+                    $loadingAttr = $this->firstImageRendered ? 'lazy' : 'eager';
+                    $imgAttrs = [
                         'class' => 'absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 transform',
-                        'loading' => 'lazy',
+                        'loading' => $loadingAttr,
                         'alt' => $data['title'] ?? ''
-                    ]);
+                    ];
+                    if (!$this->firstImageRendered) {
+                        $imgAttrs['fetchpriority'] = 'high';
+                        $this->firstImageRendered = true;
+                    }
+                    $html .= get_image_html($img, $imgAttrs);
                     $html .= "</div>";
                 }
                 $html .= "<div class='flex flex-col flex-1 justify-center p-6'>";
@@ -1487,7 +1499,8 @@ HTML;
         $errText = h(function_exists('_t') ? _t('err_wrong_password') : 'Incorrect password.');
         $httpsErrText = h(function_exists('_t') ? _t('err_https_required') : 'HTTPS is required to unlock this content.');
 
-        $out = "<div id='{$uid}-container' class='cms-block-password-protect my-12'>";
+        // Add data-nosnippet attribute to prevent noise in search engine snippets
+        $out = "<div id='{$uid}-container' class='cms-block-password-protect my-12' data-nosnippet>";
         $out .= "<div class='pwd-form bg-gray-50 border border-gray-200 rounded-theme p-8 text-center max-w-lg mx-auto shadow-theme'>";
         $out .= "<svg class='w-12 h-12 mx-auto mb-4 text-gray-400' fill='none' stroke='currentColor' viewBox='0 0 24 24'><use href='{$this->spriteUrl}#outline-lock-closed'></use></svg>";
         $out .= "<p class='mb-6 text-gray-700 font-bold leading-relaxed'>{$safeMsg}</p>";

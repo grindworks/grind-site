@@ -69,6 +69,18 @@ if (!defined('GRINDS_APP')) exit;
               <?= the_date($modDateStr) ?>
             </time>
           <?php endif; ?>
+
+          <?php
+          $headerMetaData = json_decode($pageData['post']['meta_data'] ?? '{}', true);
+          if (!empty($headerMetaData['reading_time'])):
+          ?>
+            <span class="flex items-center text-gray-500">
+              <svg class="mr-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+              <span><?= h($headerMetaData['reading_time']) ?> <?= theme_t('min read') ?></span>
+            </span>
+          <?php endif; ?>
         </div>
       <?php endif; ?>
 
@@ -107,10 +119,95 @@ if (!defined('GRINDS_APP')) exit;
   <div class="px-6 md:px-10 pb-10">
     <!-- Render post content -->
     <div id="post-content" class="mx-auto text-gray-800 leading-relaxed">
+      <?php
+      $postMeta = json_decode($pageData['post']['meta_data'] ?? '{}', true);
+      if (!empty($postMeta['sponsored_link'])):
+      ?>
+        <div class="mb-8 p-4 bg-gray-50 border border-gray-200 rounded-lg text-center text-sm text-gray-600 flex flex-col sm:flex-row items-center justify-center gap-3">
+          <div>
+            <span class="inline-block border border-gray-400 text-gray-500 text-[10px] px-1.5 py-0.5 rounded-sm mr-1 font-bold leading-none tracking-wider">PR</span>
+            <?= theme_t('This article contains promotional links.') ?>
+          </div>
+          <a href="<?= h($postMeta['sponsored_link']) ?>" target="_blank" rel="noopener sponsored" class="inline-flex items-center text-theme-primary hover:underline font-bold text-sm">
+            <?= theme_t('View Sponsored Link') ?>
+            <svg class="w-3 h-3 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+            </svg>
+          </a>
+        </div>
+      <?php endif; ?>
+
       <?php if (!empty($pageData['post']['show_toc'])): ?>
         <?php get_template_part('parts/toc'); ?>
       <?php endif; ?>
       <?= render_content($pageData['post']['content_decoded'] ?? $pageData['post']['content']) ?>
+
+      <?php
+      // --- Custom Fields (Meta Data) Output ---
+      $metaData = json_decode($pageData['post']['meta_data'] ?? '{}', true);
+
+      // --- Author Note Output ---
+      if (!empty($metaData['author_note'])):
+      ?>
+        <div class="mt-10 p-5 bg-blue-50 border-l-4 border-blue-400 text-blue-800 rounded-r-lg">
+          <div class="font-bold text-sm mb-2 flex items-center gap-1.5">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+            </svg>
+            <?= theme_t('Author Note') ?>
+          </div>
+          <div class="text-sm leading-relaxed">
+            <?= nl2br(h($metaData['author_note'])) ?>
+          </div>
+        </div>
+      <?php endif; ?>
+
+      <?php
+      // デフォルトテーマで表示対応しているキーのみをチェックし、中身が空でないか判定する
+      $displayKeys = ['price', 'event_date', 'product_type', 'cover_image'];
+      $hasVisibleMeta = false;
+      if (is_array($metaData)) {
+        foreach ($displayKeys as $key) {
+          if (!empty($metaData[$key])) {
+            $hasVisibleMeta = true;
+            break;
+          }
+        }
+      }
+
+      // 表示すべき有効なデータがある場合のみ外枠を描画する
+      if ($hasVisibleMeta):
+      ?>
+        <div class="mt-12 p-6 bg-gray-50 border border-gray-200 rounded-xl shadow-sm">
+          <h3 class="text-lg font-bold mb-4 text-gray-800 border-b border-gray-200 pb-2"><?= theme_t('Post Details') ?></h3>
+          <dl class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4">
+            <?php if (!empty($metaData['price'])): ?>
+              <div>
+                <dt class="text-gray-500 text-xs font-bold uppercase tracking-wider mb-1"><?= theme_t('Price') ?></dt>
+                <dd class="text-gray-900 font-bold"><?= h($metaData['price']) ?></dd>
+              </div>
+            <?php endif; ?>
+            <?php if (!empty($metaData['event_date'])): ?>
+              <div>
+                <dt class="text-gray-500 text-xs font-bold uppercase tracking-wider mb-1"><?= theme_t('Event Date') ?></dt>
+                <dd class="text-gray-900 font-bold"><?= h($metaData['event_date']) ?></dd>
+              </div>
+            <?php endif; ?>
+            <?php if (!empty($metaData['product_type'])): ?>
+              <div>
+                <dt class="text-gray-500 text-xs font-bold uppercase tracking-wider mb-1"><?= theme_t('Product Type') ?></dt>
+                <dd class="text-gray-900 font-bold"><?= h(theme_t($metaData['product_type'])) ?></dd>
+              </div>
+            <?php endif; ?>
+          </dl>
+          <?php if (!empty($metaData['cover_image'])): ?>
+            <div class="mt-4">
+              <span class="block text-gray-500 text-xs font-bold uppercase tracking-wider mb-2"><?= theme_t('Cover Image') ?></span>
+              <img src="<?= h(get_media_url($metaData['cover_image'])) ?>" class="w-48 rounded-lg shadow-sm border border-gray-200" alt="Cover">
+            </div>
+          <?php endif; ?>
+        </div>
+      <?php endif; ?>
 
       <?php
       if (function_exists('get_sidebar_widgets')) {

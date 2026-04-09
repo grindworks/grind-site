@@ -32,7 +32,11 @@ src/data/tmp/*
 src/assets/uploads/*
 !src/assets/uploads/.gitkeep
 
-# 🛠️ Tools & Exports
+# 🔌 Local Plugins (Not for Git)
+# src/plugins/rakuten_affiliate.php
+# src/plugins/_rakuten_affiliate.php
+
+# �️ Tools & Exports
 /src/admin/export_ai.php
 /tools/check/
 

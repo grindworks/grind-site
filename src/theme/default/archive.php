@@ -11,8 +11,14 @@ $isSearch = (isset($pageType) && $pageType === 'search');
 ?>
 <div class="mb-10">
   <?php if (isset($pageType) && $pageType === 'category'): ?>
+    <?php $catMeta = json_decode($pageData['category']['meta_data'] ?? '{}', true); ?>
     <div class="relative bg-grinds-dark shadow-md mb-8 p-8 rounded-lg overflow-hidden text-white">
       <div class="z-10 relative">
+        <?php if (!empty($catMeta['category_icon'])): ?>
+          <div class="mb-4">
+            <img src="<?= h(get_media_url($catMeta['category_icon'])) ?>" class="w-16 h-16 rounded-full object-cover border-2 border-white/20 shadow-sm" alt="Category Icon">
+          </div>
+        <?php endif; ?>
         <span class="font-bold text-grinds-red text-xs uppercase tracking-widest"><?= theme_t('Category') ?></span>
         <h1 class="mt-2 font-bold text-3xl">
           <?= h($pageData['category']['name']) ?>
@@ -68,7 +74,16 @@ $isSearch = (isset($pageType) && $pageType === 'search');
     </div>
   <?php
   else: ?>
-    <div class="gap-8 grid grid-cols-1 md:grid-cols-2">
+    <?php
+    // Change layout based on category custom field 'display_style'
+    $gridClass = 'md:grid-cols-2';
+    if (isset($pageType) && $pageType === 'category') {
+      if (($catMeta['display_style'] ?? '') === 'list') {
+        $gridClass = 'md:grid-cols-1';
+      }
+    }
+    ?>
+    <div class="gap-8 grid grid-cols-1 <?= $gridClass ?>">
       <?php foreach ($pageData['posts'] as $index => $post): ?>
         <?php get_template_part('parts/card-post', null, ['post' => $post, 'index' => $index]); ?>
       <?php

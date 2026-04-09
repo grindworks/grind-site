@@ -36,6 +36,11 @@ require_once $srcPath . '/lib/info.php';
 require_once $srcPath . '/lib/functions.php';
 require_once $srcPath . '/lib/db.php';
 
+// Initialize system to sync timezone and settings
+if (function_exists('init_system')) {
+    init_system();
+}
+
 /**
  * Helper class for terminal output coloring.
  */
@@ -76,6 +81,42 @@ class ConsoleColor
 }
 
 /**
+ * Prompts the user for input.
+ */
+function prompt(string $message): string
+{
+    echo ConsoleColor::yellow($message . " ");
+    $handle = fopen("php://stdin", "r");
+    $line = fgets($handle);
+    fclose($handle);
+    return trim((string)$line);
+}
+
+/**
+ * Prompts the user for input silently (hidden characters, useful for passwords).
+ */
+function promptSilent(string $message): string
+{
+    echo ConsoleColor::yellow($message . " ");
+    $os = strtolower(PHP_OS_FAMILY);
+    $password = '';
+
+    if ($os === 'windows') {
+        $cmd = 'powershell -Command "$p=Read-Host -AsSecureString; $BSTR=[System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($p); [System.Runtime.InteropServices.Marshal]::PtrToStringAuto($BSTR)"';
+        $password = trim((string)shell_exec($cmd));
+    } else {
+        shell_exec('stty -echo');
+        $handle = fopen("php://stdin", "r");
+        $password = fgets($handle);
+        fclose($handle);
+        shell_exec('stty echo');
+        echo "\n";
+    }
+
+    return trim((string)$password);
+}
+
+/**
  * Displays the main help message.
  */
 function displayHelp(): void
@@ -86,13 +127,14 @@ function displayHelp(): void
 
     echo ConsoleColor::bold("{$cmsName} CLI Tool ") . ConsoleColor::green("v{$version}") . "\n\n";
     echo ConsoleColor::yellow("Usage:\n");
-    echo "  php bin/{$scriptName} <command> [arguments]\n\n";
+    echo "  php bin/{$scriptName} <command> [arguments] [options]\n\n";
 
     echo ConsoleColor::yellow("System & Maintenance:\n");
     echo "  " . ConsoleColor::green('status') . "                Display system status and configuration.\n";
     echo "  " . ConsoleColor::green('cache:clear') . "           Clear the page cache and temporary files.\n";
     echo "  " . ConsoleColor::green('maintenance:on') . "        Enable maintenance mode.\n";
     echo "  " . ConsoleColor::green('maintenance:off') . "       Disable maintenance mode.\n";
+    echo "  " . ConsoleColor::green('rescue:fix') . "            Reset UI, disable Basic Auth & clear lockouts.\n";
 
     echo "\n" . ConsoleColor::yellow("Database & Data:\n");
     echo "  " . ConsoleColor::green('db:optimize') . "           Optimize the SQLite database (VACUUM).\n";
@@ -101,11 +143,12 @@ function displayHelp(): void
     echo "  " . ConsoleColor::green('backup:list') . "           List available database backups.\n";
     echo "  " . ConsoleColor::green('backup:restore') . "        Restore database from a specific backup file.\n";
     echo "  " . ConsoleColor::green('migration:create') . "      Create a full migration package (DB + Uploads ZIP).\n";
+    echo "  " . ConsoleColor::green('ssg:build') . "             Run Static Site Generation (Options: --diff, --full).\n";
 
     echo "\n" . ConsoleColor::yellow("User Management:\n");
     echo "  " . ConsoleColor::green('user:list') . "             List all registered users.\n";
-    echo "  " . ConsoleColor::green('user:create') . "           Create a new user account.\n";
-    echo "  " . ConsoleColor::green('user:reset-password') . "   Reset an existing user's password.\n";
+    echo "  " . ConsoleColor::green('user:create') . "           Create a new user account (Interactive).\n";
+    echo "  " . ConsoleColor::green('user:reset-password') . "   Reset an existing user's password (Interactive).\n";
 
     echo "\n" . ConsoleColor::yellow("Extensions:\n");
     echo "  " . ConsoleColor::green('plugin:list') . "           List all available plugins and their status.\n";
@@ -132,6 +175,7 @@ function handleStatus(string $srcPath): void
     echo str_repeat('-', 45) . "\n";
     echo ConsoleColor::green("Version") . "        : " . ConsoleColor::bold($version) . "\n";
     echo ConsoleColor::green("PHP Version") . "    : " . ConsoleColor::bold(PHP_VERSION) . "\n";
+    echo ConsoleColor::green("Timezone") . "       : " . date_default_timezone_get() . " (Current Time: " . date('Y-m-d H:i:s') . ")\n";
     echo ConsoleColor::green("Debug Mode") . "     : " . ((defined('DEBUG_MODE') && DEBUG_MODE) ? ConsoleColor::yellow('On') : 'Off') . "\n";
     echo ConsoleColor::green("Maintenance") . "    : " . ($isMaintenance ? ConsoleColor::yellow('Active') : 'Inactive') . "\n";
     echo ConsoleColor::green("Database File") . "  : " . (defined('DB_FILE') ? DB_FILE : ConsoleColor::red('Not Defined')) . "\n";
@@ -270,34 +314,36 @@ function handleUserList(): void
 }
 
 /**
- * Handles the 'user:create' command.
+ * Handles the 'user:create' command with Interactive Prompts.
  */
 function handleUserCreate(array $args): void
 {
-    if (count($args) < 3) {
-        echo ConsoleColor::red("Error: Missing arguments.\n");
-        echo ConsoleColor::yellow("Usage:\n");
-        echo "  php bin/grind user:create <username> <email> <password> [role: admin|editor]\n";
+    echo ConsoleColor::bold(ConsoleColor::blue("Create New User")) . "\n";
+    echo ConsoleColor::gray("Leave input empty to abort at any time.\n\n");
+
+    $username = $args[0] ?? prompt("Enter new username:");
+    if (empty($username)) {
+        echo ConsoleColor::red("Aborted.\n");
         exit(1);
     }
 
-    $username = $args[0];
-    $email = $args[1];
-    $password = $args[2];
-    $role = $args[3] ?? 'editor'; // Default to editor for safety
-
-    if (!in_array($role, ['admin', 'editor'])) {
-        echo ConsoleColor::red("Error: Role must be 'admin' or 'editor'.\n");
-        exit(1);
-    }
-
+    $email = $args[1] ?? prompt("Enter email address:");
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         echo ConsoleColor::red("Error: Invalid email format.\n");
         exit(1);
     }
 
+    $password = $args[2] ?? promptSilent("Enter password (hidden):");
     if (strlen($password) < 8 || !preg_match('/[A-Za-z]/', $password) || !preg_match('/[0-9]/', $password)) {
         echo ConsoleColor::red("Error: Password must be at least 8 characters long and contain both letters and numbers.\n");
+        exit(1);
+    }
+
+    $role = $args[3] ?? prompt("Enter role [admin/editor] (default: editor):");
+    if (empty($role)) $role = 'editor';
+
+    if (!in_array($role, ['admin', 'editor'])) {
+        echo ConsoleColor::red("Error: Role must be 'admin' or 'editor'.\n");
         exit(1);
     }
 
@@ -318,7 +364,7 @@ function handleUserCreate(array $args): void
         $stmt = $pdo->prepare("INSERT INTO users (username, password, email, role, created_at) VALUES (?, ?, ?, ?, ?)");
         $stmt->execute([$username, $hash, $email, $role, $now]);
 
-        echo ConsoleColor::green("✓ User '{$username}' ({$role}) created successfully.\n");
+        echo "\n" . ConsoleColor::green("✓ User '{$username}' ({$role}) created successfully.\n");
     } catch (Exception $e) {
         echo ConsoleColor::red("Error: " . $e->getMessage() . "\n");
         exit(1);
@@ -326,26 +372,26 @@ function handleUserCreate(array $args): void
 }
 
 /**
- * Handles the 'user:reset-password' command.
+ * Handles the 'user:reset-password' command with Interactive Prompts and Session Invalidation.
  */
 function handleUserResetPassword(array $args): void
 {
-    if (count($args) < 2) {
-        echo ConsoleColor::red("Error: Missing arguments.\n");
-        echo ConsoleColor::yellow("Usage:\n");
-        echo "  php bin/grind user:reset-password <username> <new_password>\n";
+    echo ConsoleColor::bold(ConsoleColor::blue("Reset User Password")) . "\n\n";
+
+    $username = $args[0] ?? prompt("Enter target username:");
+    if (empty($username)) {
+        echo ConsoleColor::red("Aborted.\n");
         exit(1);
     }
 
-    $username = $args[0];
-    $newPassword = $args[1];
+    $newPassword = $args[1] ?? promptSilent("Enter new password (hidden):");
 
     if (strlen($newPassword) < 8 || !preg_match('/[A-Za-z]/', $newPassword) || !preg_match('/[0-9]/', $newPassword)) {
         echo ConsoleColor::red("Error: Password must be at least 8 characters long and contain both letters and numbers.\n");
         exit(1);
     }
 
-    echo ConsoleColor::yellow("Attempting to reset password for user: ") . ConsoleColor::bold($username) . "\n";
+    echo "\n" . ConsoleColor::yellow("Attempting to reset password for user: ") . ConsoleColor::bold($username) . "\n";
 
     try {
         $pdo = App::db();
@@ -368,7 +414,12 @@ function handleUserResetPassword(array $args): void
             $pdo->prepare("DELETE FROM username_login_attempts WHERE username = ?")->execute([$user['username']]);
             $pdo->commit();
 
-            echo ConsoleColor::green("\n✓ Password for user '{$user['username']}' has been successfully reset.\n");
+            // Clear active sessions using the core user function if available
+            if (function_exists('grinds_invalidate_user_sessions')) {
+                grinds_invalidate_user_sessions($user['id']);
+            }
+
+            echo ConsoleColor::green("✓ Password for user '{$user['username']}' has been successfully reset.\n");
             echo ConsoleColor::gray("  (Active sessions and login lockouts for this user have been cleared.)\n");
         } catch (Exception $e) {
             $pdo->rollBack();
@@ -504,10 +555,8 @@ function handleBackupRestore(array $args, string $srcPath): void
     echo "Backup File : " . ConsoleColor::cyan($filename) . "\n";
     echo "Current DB  : " . ConsoleColor::yellow(basename($dbFile)) . "\n\n";
 
-    echo "Are you sure you want to proceed? Type '" . ConsoleColor::bold("yes") . "' to confirm: ";
-    $handle = fopen("php://stdin", "r");
-    $line = trim(fgets($handle));
-    if (strtolower($line) !== 'yes') {
+    $confirm = prompt("Are you sure you want to proceed? Type '" . ConsoleColor::bold("yes") . "' to confirm:");
+    if (strtolower($confirm) !== 'yes') {
         echo ConsoleColor::gray("Aborted.\n");
         exit(0);
     }
@@ -634,9 +683,6 @@ function handlePluginList(string $srcPath): void
 
 /**
  * Handles enabling or disabling a plugin.
- * @param array $args
- * @param string $srcPath
- * @param string $mode 'enable' or 'disable'
  */
 function handlePluginToggle(array $args, string $srcPath, string $mode): void
 {
@@ -881,6 +927,207 @@ function handleMigrationCreate(string $srcPath): void
     echo ConsoleColor::yellow("  Please download this file via FTP. (Do not leave it on the server.)\n");
 }
 
+/**
+ * Handles the 'rescue:fix' command.
+ * Instantly restores UI layout, disables debug mode, clears lockouts, and regenerates .htaccess.
+ */
+function handleRescueFix(string $srcPath): void
+{
+    echo ConsoleColor::yellow("Executing Emergency Rescue Fix...\n");
+
+    try {
+        $pdo = App::db();
+        if (!$pdo) throw new Exception("Database connection failed.");
+
+        // 1. Reset admin layout
+        $pdo->exec("INSERT OR REPLACE INTO settings (key, value) VALUES ('admin_layout', 'sidebar')");
+        echo "  " . ConsoleColor::green("✓") . " Admin layout reset to sidebar.\n";
+
+        // 2. Disable debug mode
+        $pdo->exec("INSERT OR REPLACE INTO settings (key, value) VALUES ('debug_mode', '0')");
+        echo "  " . ConsoleColor::green("✓") . " Debug mode disabled.\n";
+
+        // 3. Clear lockouts
+        $pdo->exec("DELETE FROM login_attempts");
+        $pdo->exec("DELETE FROM username_login_attempts");
+        echo "  " . ConsoleColor::green("✓") . " Login lockouts cleared.\n";
+
+        // 4. Regenerate root .htaccess
+        require_once $srcPath . '/lib/htaccess_generator.php';
+        $htContent = grinds_get_htaccess_content(false);
+        // Determine RewriteBase if in a subdirectory
+        $scriptDir = str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME']));
+        $scriptDir = ($scriptDir === '/' || $scriptDir === '/bin') ? '' : rtrim(str_replace('/bin', '', $scriptDir), '/');
+        if ($scriptDir !== '') {
+            $htContent = preg_replace('/^(\s*)#?\s*RewriteBase\s+.*$/m', '$1RewriteBase ' . $scriptDir . '/', $htContent);
+        }
+        @file_put_contents($srcPath . '/.htaccess', $htContent);
+        echo "  " . ConsoleColor::green("✓") . " Root .htaccess regenerated.\n";
+
+        // 5. Disable Basic Auth in admin directory
+        $adminHtaccess = $srcPath . '/admin/.htaccess';
+        if (file_exists($adminHtaccess)) {
+            @rename($adminHtaccess, $adminHtaccess . '_bak_' . date('YmdHis'));
+            echo "  " . ConsoleColor::green("✓") . " Admin Basic Auth disabled (admin/.htaccess renamed).\n";
+        }
+
+        // 6. Clear cache
+        if (function_exists('clear_page_cache')) {
+            clear_page_cache();
+            echo "  " . ConsoleColor::green("✓") . " Page cache cleared.\n";
+        }
+
+        echo "\n" . ConsoleColor::bold(ConsoleColor::green("System rescued successfully!")) . "\n";
+    } catch (Exception $e) {
+        echo "\n" . ConsoleColor::red("✗ Rescue failed: " . $e->getMessage()) . "\n";
+        exit(1);
+    }
+}
+
+/**
+ * Handles the 'ssg:build' command.
+ * Generates a completely static site representation via CLI.
+ */
+function handleSsgBuild(array $args, string $srcPath): void
+{
+    // Check for ZipArchive
+    if (!class_exists('ZipArchive')) {
+        echo ConsoleColor::red("Error: PHP Zip extension is missing. It is required for SSG export.\n");
+        exit(1);
+    }
+
+    echo ConsoleColor::yellow("Starting Static Site Generation (SSG)...\n");
+
+    // Remove time and memory limits for heavy builds
+    @set_time_limit(0);
+    @ini_set('memory_limit', '-1');
+
+    // SSG environment definitions
+    if (!defined('GRINDS_IS_SSG')) define('GRINDS_IS_SSG', true);
+    require_once $srcPath . '/lib/front.php';
+    require_once $srcPath . '/lib/GrindsSSG.php';
+
+    $pdo = App::db();
+    if (!$pdo) {
+        echo ConsoleColor::red("✗ Database connection failed.\n");
+        exit(1);
+    }
+
+    // Determine export mode
+    $mode = in_array('--diff', $args) ? 'diff' : 'full';
+
+    // Config setup
+    $baseUrl = function_exists('get_option') ? get_option('ssg_base_url', '') : '';
+    foreach ($args as $arg) {
+        if (str_starts_with($arg, '--url=')) {
+            $baseUrl = substr($arg, 6);
+        }
+    }
+
+    $buildId = 'cli_' . date('YmdHis');
+
+    // モックセッションに設定を仕込む
+    if (session_status() === PHP_SESSION_NONE) {
+        // CLIではセッションは開始しないが、$_SESSION変数は使える
+        $_SESSION = [];
+    }
+
+    // init ステップの実行
+    $ssgInit = new GrindsSSG($pdo, [
+        'step' => 'init',
+        'buildId' => $buildId,
+        'mode' => $mode,
+        'baseUrl' => $baseUrl,
+        'formEndpoint' => get_option('ssg_form_endpoint', ''),
+        'searchScope' => get_option('ssg_search_scope', 'title_body'),
+        'maxResults' => get_option('ssg_max_results', 1000),
+        'searchChunkSize' => get_option('ssg_search_chunk_size', 500)
+    ]);
+
+    echo "  " . ConsoleColor::gray("1/5") . " Initializing & Gathering pages...\n";
+    $initRes = $ssgInit->run('init', []);
+    if (empty($initRes['success'])) {
+        echo ConsoleColor::red("✗ Initialization failed.\n");
+        exit(1);
+    }
+    $pages = $initRes['pages'] ?? [];
+    $totalPages = count($pages);
+    echo "    Found {$totalPages} pages to generate.\n";
+
+    echo "  " . ConsoleColor::gray("2/5") . " Rendering HTML pages...\n";
+    $renderedCount = 0;
+    $batchSize = 20;
+
+    // 生成用のインスタンスを作成 (step は init 以外)
+    $ssgGen = new GrindsSSG($pdo, ['buildId' => $buildId]);
+
+    if ($totalPages > 0) {
+        for ($i = 0; $i < $totalPages; $i += $batchSize) {
+            $batch = array_slice($pages, $i, $batchSize);
+            $ssgGen->run('generate_pages', ['pages' => $batch]);
+
+            $renderedCount += count($batch);
+            $percent = floor(($renderedCount / $totalPages) * 100);
+            echo "\r      Rendered {$renderedCount}/{$totalPages} [{$percent}%]";
+        }
+    }
+    echo "\n";
+
+    echo "  " . ConsoleColor::gray("3/5") . " Extracting and copying assets...\n";
+    $scanRes = $ssgGen->run('scan_assets', []);
+
+    $assetOffset = 0;
+    $assetDone = false;
+    $assetsCopied = 0;
+    while (!$assetDone) {
+        $copyRes = $ssgGen->run('copy_assets', ['offset' => $assetOffset, 'limit' => 100]);
+        $assetsCopied += $copyRes['processed'] ?? 0;
+        $assetOffset = $copyRes['next_offset'] ?? 0;
+        $assetDone = $copyRes['done'] ?? true;
+
+        $percent = ($scanRes['total'] ?? 1) > 0 ? floor(($assetsCopied / $scanRes['total']) * 100) : 100;
+        echo "\r      Copied {$assetsCopied}/" . ($scanRes['total'] ?? '?') . " [{$percent}%]";
+    }
+    echo "\n";
+
+    echo "  " . ConsoleColor::gray("4/5") . " Generating Search Index & Feeds...\n";
+    $genAssetsDone = false;
+    $searchOffset = 0;
+    $chunkIndex = 0;
+    $manifest = ['files' => []];
+
+    while (!$genAssetsDone) {
+        $genRes = $ssgGen->run('generate_assets', [
+            'search_offset' => $searchOffset,
+            'chunk_index' => $chunkIndex,
+            'manifest' => $manifest
+        ]);
+
+        if (!empty($genRes['in_progress'])) {
+            $searchOffset = $genRes['search_offset'];
+            $chunkIndex = $genRes['chunk_index'];
+            $manifest = $genRes['manifest'];
+        } else {
+            $genAssetsDone = true;
+        }
+    }
+    echo "    Done.\n";
+
+    echo "  " . ConsoleColor::gray("5/5") . " Packaging ZIP Archive...\n";
+    $zipRes = $ssgGen->run('finalize', []);
+
+    // APIは相対URL(api/ssg_process.php?action=download...)を返すが、物理パスは tmp 内にある
+    $zipFile = $srcPath . '/data/tmp/static_site_' . $buildId . '.zip';
+
+    if (file_exists($zipFile)) {
+        echo "\n" . ConsoleColor::bold(ConsoleColor::green("✓ SSG Build Completed Successfully!")) . "\n";
+        echo "  Output File: " . ConsoleColor::cyan($zipFile) . "\n";
+    } else {
+        echo ConsoleColor::red("✗ Failed to create ZIP archive.\n");
+        exit(1);
+    }
+}
+
 
 // --- Main Application Logic ---
 $argv = $_SERVER['argv'];
@@ -964,6 +1211,14 @@ switch ($command) {
 
     case 'backup:restore':
         handleBackupRestore($args, $srcPath);
+        break;
+
+    case 'rescue:fix':
+        handleRescueFix($srcPath);
+        break;
+
+    case 'ssg:build':
+        handleSsgBuild($args, $srcPath);
         break;
 
     case 'help':

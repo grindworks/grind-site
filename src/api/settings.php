@@ -42,7 +42,6 @@ try {
         'site_desc' => function_exists('get_option') ? get_option('site_desc', '') : '',
         'site_lang' => function_exists('get_option') ? get_option('site_lang', 'en') : 'en',
         // Add any other necessary options here (e.g., logo URL, SNS links)
-        // 必要な設定（ロゴのURLやSNSリンクなど）があればここに追加します
     ];
 
     echo json_encode(['success' => true, 'data' => $data], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);

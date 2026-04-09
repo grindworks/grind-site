@@ -1,35 +1,37 @@
 Release title
-{{VERSION}} - Amazon Affiliate, Enterprise Security Plugins & Media Management
+v1.6.0 - Post Revisions, Advanced SSG & Custom Fields
 
 Release notes
-This major release introduces the highly anticipated Amazon Affiliate plugin, a suite of enterprise-grade security plugins, advanced media usage tracking, and significant UI/UX enhancements across the system.
+This major release introduces Post Revisions, advanced Static Site Generation with a Virtual Publish Queue, Custom Fields powered by `theme.json`, and new Affiliate plugins for eBay and Rakuten.
 
 ### ✨ New Features & Enhancements
-- **Amazon Affiliate Plugin:** Added `amazon_affiliate.php`. Easily create beautiful, responsive product cards using `[amazon id="ASIN" title="Product Name"]` shortcodes, integrated directly into the admin toolbar.
-- **Enterprise Security Suite:** Added institutional-grade plugins including 2FA via Email OTP (`_mail_otp_2fa.php`), Audit Logger (`_audit_logger.php`), Rate Limiter (`_rate_limiter.php`), and Strict Session Management (`_strict_session.php`).
-- **Media Usage Tracking:** The Media Library now accurately tracks where files are used across posts, settings, menus, and widgets, preventing the accidental deletion of in-use assets.
-- **Theme Pagination Refinement:** Improved pagination styling and responsiveness across all built-in themes (Default, Classic, Bootstrap, Neo-Minimalist, Photographer).
+- **Post Revisions:** Never lose your work again. Automatically saves a history of your post edits, allowing you to restore previous versions seamlessly.
+- **Custom Fields (`theme.json`):** Developers can now define custom fields directly in their theme's `theme.json` file. Create tailored editing experiences for specific post types or categories without writing PHP.
+- **Virtual Publish Queue (Advanced SSG):** Static Site Generation now features a robust background queuing system, significantly improving build reliability and performance for large sites.
+- **HTML Block Live Preview:** Added a live preview toggle for the HTML block, making it easier to embed and verify custom code, iframes, and affiliate tags directly within the editor.
+- **Markdown Export:** Export your entire site content as clean Markdown files, perfect for AI analysis, RAG pipelines, or migrating to other platforms.
+- **New Affiliate Plugins:** Expanded monetization options with new shortcode plugins for eBay (`_ebay_affiliate.php`) and Rakuten (`_rakuten_affiliate.php`).
+- **New Admin Skins:** Added two stunning new dark mode skins: "Neon Matrix" and "Obsidian Glass".
 
 ### 🛡️ Security & Stability
-- **God-Rank Security:** Comprehensive XSS and CSRF protections enforced across all new plugins. Implemented Log Forging prevention to ensure immutable audit trails.
-- **Generator Optimization:** Refactored SSG, RSS, and Sitemap generators using a new `GeneratorCacheTrait` for improved caching performance and memory efficiency.
-
-### 🌐 Documentation & DX
-- **Automated Release Workflow:** Enhanced the CLI tool (`release.sh`) to automatically copy release notes to the clipboard for frictionless GitHub publishing.
-- **Bilingual Plugins:** All core plugins now feature bilingual (English & Japanese) comments, drastically improving Developer Experience (DX).
+- **Enhanced Security:** Continued hardening of core systems, including improved sanitization and validation across all new features.
+- **Bug Fixes:** Resolved various edge cases and UI quirks based on community feedback.
 
 ---
 
 ## 🇯🇵 日本語 (Japanese)
 
-今回のメジャーリリースでは、待望のAmazonアフィリエイトプラグイン、エンタープライズ対応の強固なセキュリティプラグイン群、メディアの使用状況トラッキング、およびシステム全体のUI/UXの大幅な改善が含まれています。
+今回のメジャーリリースでは、記事のリビジョン（変更履歴）機能、バックグラウンド処理（キュー）を備えた高度な静的サイト生成（SSG）、`theme.json` で定義可能なカスタムフィールド、そして新しいアフィリエイトプラグイン（eBay、楽天）などの強力な新機能が導入されました。
 
 ### ✨ 新機能・改善
-- **Amazonアフィリエイトプラグイン:** `[amazon id="ASIN" title="商品名"]` のショートコードで美しい商品カードを生成できるプラグインを追加。管理画面のツールバーからIDを直感的に設定可能です。
-- **エンタープライズ・セキュリティスイート:** 2要素認証（メールOTP）、監査ログ、レート制限、厳格なセッションハイジャック防止機能など、金融機関レベルのセキュリティプラグインを標準同梱しました。
-- **メディア使用状況トラッキング:** 記事、設定、メニュー、ウィジェットなど、ファイルがどこで使用されているかを正確に追跡し、使用中の画像が誤って削除されるのを防ぐ機能をメディアライブラリに追加しました。
-- **ページネーションの刷新:** 全ての組み込みテーマ（Default, Classic, Bootstrap, Neo-Minimalist, Photographer）のページネーションデザインとレスポンシブ対応を改善しました。
+- **記事のリビジョン機能:** 編集のたびに履歴が自動的に保存され、過去のバージョンへシームレスに復元できるようになりました。
+- **カスタムフィールド (`theme.json`):** テーマ内の `theme.json` ファイルでカスタムフィールドを定義できるようになりました。PHPを書くことなく、投稿タイプやカテゴリに応じた専用の入力項目を作成可能です。
+- **仮想パブリッシュキュー (高度なSSG):** 静的サイト生成（SSG）にバックグラウンドキューシステムが導入され、大規模サイトにおけるビルドの安定性とパフォーマンスが大幅に向上しました。
+- **HTMLブロックのライブプレビュー:** HTMLブロックにライブプレビュートグルを追加し、カスタムコードやiframe、アフィリエイトタグの表示確認がエディタ上で直接行えるようになりました。
+- **Markdown一括エクスポート:** サイトの全コンテンツをクリーンなMarkdownファイルとしてエクスポートする機能を追加。AI分析（RAG等）や他プラットフォームへの移行に最適です。
+- **新アフィリエイトプラグイン:** eBay (`_ebay_affiliate.php`) と楽天 (`_rakuten_affiliate.php`) 向けのアフィリエイトショートコードプラグインを新たに追加し、収益化の選択肢を拡大しました。
+- **新管理画面スキン:** 美しいダークモードスキン「Neon Matrix」と「Obsidian Glass」を追加しました。
 
-### 🛡️ セキュリティ
-- **最高レベルのセキュリティ:** 新規追加されたすべてのプラグインに対し、万全のXSS/CSRF対策を実施。また、監査ログにおける改行文字を利用したログ改ざん（Log Forging）を防止しました。
-- **ジェネレーターの最適化:** SSG、RSS、Sitemapジェネレーターに共通のキャッシュトレイト（`GeneratorCacheTrait`）を導入し、パフォーマンスとメモリ効率を向上させました。
+### 🛡️ セキュリティと安定性
+- **セキュリティの強化:** 新機能を含むシステム全体のサニタイズとバリデーションをさらに強化しました。
+- **バグ修正:** コミュニティのフィードバックに基づき、さまざまなエッジケースやUIの細かな問題を修正しました。

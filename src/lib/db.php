@@ -10,7 +10,7 @@ require_once __DIR__ . '/App.php';
 require_once __DIR__ . '/functions.php';
 
 if (!defined('GRINDS_DB_SCHEMA_VERSION'))
-  define('GRINDS_DB_SCHEMA_VERSION', 9);
+  define('GRINDS_DB_SCHEMA_VERSION', 10);
 
 try {
   if (!defined('GRINDS_SKIP_DB_INIT')) {
@@ -30,11 +30,14 @@ try {
     http_response_code(500);
   error_log("GrindsCMS DB Error: " . $e->getMessage());
   $errorMsg = $e->getMessage();
-  $isDebug = defined('DEBUG_MODE') && DEBUG_MODE;
+  $isDebug = defined('DEBUG_MODE') && constant('DEBUG_MODE');
   if (!$isDebug) {
     $errorMsg = "Database Connection Error.";
     if (str_contains($e->getMessage(), 'readonly database')) {
       $errorMsg = "Database is read-only.";
+    } elseif (str_contains($e->getMessage(), 'malformed database schema')) {
+      $sqliteVer = extension_loaded('pdo_sqlite') ? (new PDO('sqlite::memory:'))->getAttribute(PDO::ATTR_SERVER_VERSION) : 'Unknown';
+      $errorMsg = "Database Schema Error.<br>The uploaded database file was created on a newer version of SQLite and is not compatible with this server's older SQLite version ({$sqliteVer}).<br><strong>Fix:</strong> Please use the Migration Tool to transfer data, or upgrade SQLite on this server.";
     }
   }
 
@@ -47,10 +50,11 @@ try {
   if ($isAjax) {
     $jsonError = 'Database Connection Error';
     $jsonMsg = $isReadOnly ? 'Database file is read-only. Please check file permissions.' : $errorMsg;
+    $isMalformed = str_contains($e->getMessage(), 'malformed database schema');
 
     if ($lang === 'ja') {
       $jsonError = 'データベース接続エラー';
-      $jsonMsg = $isReadOnly ? 'データベースファイルが読み取り専用になっています。パーミッションを確認してください。' : ($isDebug ? $errorMsg : 'データベースに接続できません。');
+      $jsonMsg = $isReadOnly ? 'データベースファイルが読み取り専用になっています。パーミッションを確認してください。' : ($isMalformed ? "スキーマエラー: アップロードされたDBファイルは新しいSQLiteで作成されており、このサーバーの古いSQLiteでは読み込めません。" : ($isDebug ? $errorMsg : 'データベースに接続できません。'));
     }
 
     json_response([
@@ -66,7 +70,7 @@ try {
       'header' => 'System Error',
       'status' => '500 System Error',
       'heading' => 'Database Connection Failed',
-      'message' => 'The system could not connect to the database.<br>Please ensure the <code>data</code> directory is writable and the database file exists.',
+      'message' => str_contains($e->getMessage(), 'malformed database schema') ? $errorMsg : 'The system could not connect to the database.<br>Please ensure the <code>data</code> directory is writable and the database file exists.',
       'hint_readonly' => '<div class="bg-yellow-50 mt-4 p-3 border border-yellow-200 rounded text-yellow-800 text-sm"><strong>Hint:</strong> The database file is read-only. Check permissions.</div>',
       'action_title' => 'Suggested Actions',
       'reload' => 'Reload Page',
@@ -76,7 +80,7 @@ try {
       'header' => 'システムエラー',
       'status' => '500 System Error',
       'heading' => 'データベースに接続できません',
-      'message' => 'システムがデータベースファイルを開けませんでした。<br><code>data</code> ディレクトリの書き込み権限を確認してください。',
+      'message' => str_contains($e->getMessage(), 'malformed database schema') ? "スキーマエラー: アップロードされたDBファイルは新しいバージョンのSQLiteで作成されており、このサーバーの古いSQLiteでは読み込めません。<br><strong>解決策:</strong> マイグレーションツール（移行ツール）を使用してデータをインポートするか、サーバーのSQLiteをアップグレードしてください。" : 'システムがデータベースファイルを開けませんでした。<br><code>data</code> ディレクトリの書き込み権限を確認してください。',
       'hint_readonly' => '<div class="bg-yellow-50 mt-4 p-3 border border-yellow-200 rounded text-yellow-800 text-sm"><strong>ヒント：</strong>データベースファイルが読み取り専用になっています。パーミッションを確認してください。</div>',
       'action_title' => '推奨される操作',
       'reload' => 'ページを再読み込み',
@@ -341,7 +345,8 @@ function grinds_db_migrate($pdo)
               show_share_buttons INTEGER DEFAULT 1,
               created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
               updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-              version INTEGER DEFAULT 1
+              version INTEGER DEFAULT 1,
+              meta_data TEXT DEFAULT '{}'
           )");
 
       $pdo->exec("CREATE TABLE IF NOT EXISTS categories (
@@ -349,7 +354,8 @@ function grinds_db_migrate($pdo)
               name TEXT,
               slug TEXT UNIQUE,
               sort_order INTEGER DEFAULT 0,
-              category_theme TEXT DEFAULT ''
+              category_theme TEXT DEFAULT '',
+              meta_data TEXT DEFAULT '{}'
           )");
 
       $pdo->exec("CREATE TABLE IF NOT EXISTS banners (
@@ -463,6 +469,29 @@ function grinds_db_migrate($pdo)
             FOREIGN KEY(tag_id) REFERENCES tags(id) ON DELETE CASCADE
         )");
 
+      // NEW: Virtual Publish Queue Table
+      $pdo->exec("CREATE TABLE IF NOT EXISTS ssg_queue (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          target_url TEXT UNIQUE,
+          action_type TEXT DEFAULT 'build',
+          status TEXT DEFAULT 'pending',
+          error_msg TEXT DEFAULT '',
+          created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+          updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+      )");
+
+      // NEW: Post Revisions Table
+      $pdo->exec("CREATE TABLE IF NOT EXISTS post_revisions (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          post_id INTEGER,
+          title TEXT,
+          content TEXT,
+          hero_settings TEXT,
+          meta_data TEXT DEFAULT '{}',
+          created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+          FOREIGN KEY(post_id) REFERENCES posts(id) ON DELETE CASCADE
+      )");
+
       // Update schema
       $rebuild_index = false;
       if ($installed_version > 0) {
@@ -493,10 +522,16 @@ function grinds_db_migrate($pdo)
         if (!in_array('version', $cols)) {
           $pdo->exec("ALTER TABLE posts ADD COLUMN version INTEGER DEFAULT 1");
         }
+        if (!in_array('meta_data', $cols)) {
+          $pdo->exec("ALTER TABLE posts ADD COLUMN meta_data TEXT DEFAULT '{}'");
+        }
 
         $cols = array_map('strtolower', $pdo->query("PRAGMA table_info(categories)")->fetchAll(PDO::FETCH_COLUMN, 1));
         if (!in_array('category_theme', $cols)) {
           $pdo->exec("ALTER TABLE categories ADD COLUMN category_theme TEXT DEFAULT ''");
+        }
+        if (!in_array('meta_data', $cols)) {
+          $pdo->exec("ALTER TABLE categories ADD COLUMN meta_data TEXT DEFAULT '{}'");
         }
 
         $cols = array_map('strtolower', $pdo->query("PRAGMA table_info(nav_menus)")->fetchAll(PDO::FETCH_COLUMN, 1));
@@ -553,6 +588,11 @@ function grinds_db_migrate($pdo)
         if (!in_array('autoload', $cols)) {
           $pdo->exec("ALTER TABLE settings ADD COLUMN autoload INTEGER DEFAULT 1");
         }
+
+        $cols = array_map('strtolower', $pdo->query("PRAGMA table_info(post_revisions)")->fetchAll(PDO::FETCH_COLUMN, 1));
+        if (!in_array('meta_data', $cols)) {
+          $pdo->exec("ALTER TABLE post_revisions ADD COLUMN meta_data TEXT DEFAULT '{}'");
+        }
       }
 
       // Remove redundant index that is covered by idx_posts_front_list
@@ -573,14 +613,20 @@ function grinds_db_migrate($pdo)
       $pdo->exec("CREATE INDEX IF NOT EXISTS idx_posts_front_list ON posts (type, status, deleted_at, published_at DESC)");
       $pdo->exec("CREATE INDEX IF NOT EXISTS idx_media_uploaded_at ON media (uploaded_at)");
       $pdo->exec("CREATE INDEX IF NOT EXISTS idx_media_filepath ON media (filepath)");
+      $pdo->exec("CREATE INDEX IF NOT EXISTS idx_ssg_queue_status ON ssg_queue (status)");
+      $pdo->exec("CREATE INDEX IF NOT EXISTS idx_post_revisions_post_id ON post_revisions(post_id)");
 
-      try {
-        $pdo->exec("DROP TABLE IF EXISTS posts_fts");
-        $pdo->exec("DROP TRIGGER IF EXISTS posts_ai");
-        $pdo->exec("DROP TRIGGER IF EXISTS posts_ad");
-        $pdo->exec("DROP TRIGGER IF EXISTS posts_au");
-      } catch (Exception $e) {
-        // FTS5 disabled.
+      // Check FTS5 support before attempting to execute FTS5 specific DDLs.
+      // This prevents older SQLite versions from automatically aborting the transaction on module errors.
+      if (function_exists('grinds_is_fts5_enabled') && grinds_is_fts5_enabled()) {
+        try {
+          $pdo->exec("DROP TABLE IF EXISTS posts_fts");
+          $pdo->exec("DROP TRIGGER IF EXISTS posts_ai");
+          $pdo->exec("DROP TRIGGER IF EXISTS posts_ad");
+          $pdo->exec("DROP TRIGGER IF EXISTS posts_au");
+        } catch (Exception $e) {
+          // FTS5 cleanup failed.
+        }
       }
 
       // Rebuild search index
@@ -590,23 +636,25 @@ function grinds_db_migrate($pdo)
         grinds_rebuild_post_index($pdo);
       }
 
-      try {
-        $pdo->exec("CREATE VIRTUAL TABLE posts_fts USING fts5(title, search_text, content='posts', content_rowid='id', tokenize='unicode61 remove_diacritics 0')");
+      if (function_exists('grinds_is_fts5_enabled') && grinds_is_fts5_enabled()) {
+        try {
+          $pdo->exec("CREATE VIRTUAL TABLE posts_fts USING fts5(title, search_text, content='posts', content_rowid='id', tokenize='unicode61 remove_diacritics 0')");
 
-        $pdo->exec("CREATE TRIGGER posts_ai AFTER INSERT ON posts BEGIN
-                INSERT INTO posts_fts(rowid, title, search_text) VALUES (new.id, new.title, COALESCE(new.search_text, ''));
-            END;");
-        $pdo->exec("CREATE TRIGGER posts_ad AFTER DELETE ON posts BEGIN
-                INSERT INTO posts_fts(posts_fts, rowid, title, search_text) VALUES('delete', old.id, old.title, COALESCE(old.search_text, ''));
-            END;");
-        $pdo->exec("CREATE TRIGGER posts_au AFTER UPDATE ON posts BEGIN
-                INSERT INTO posts_fts(posts_fts, rowid, title, search_text) VALUES('delete', old.id, old.title, COALESCE(old.search_text, ''));
-                INSERT INTO posts_fts(rowid, title, search_text) VALUES (new.id, new.title, COALESCE(new.search_text, ''));
-            END;");
+          $pdo->exec("CREATE TRIGGER posts_ai AFTER INSERT ON posts BEGIN
+                  INSERT INTO posts_fts(rowid, title, search_text) VALUES (new.id, new.title, COALESCE(new.search_text, ''));
+              END;");
+          $pdo->exec("CREATE TRIGGER posts_ad AFTER DELETE ON posts BEGIN
+                  INSERT INTO posts_fts(posts_fts, rowid, title, search_text) VALUES('delete', old.id, old.title, COALESCE(old.search_text, ''));
+              END;");
+          $pdo->exec("CREATE TRIGGER posts_au AFTER UPDATE ON posts BEGIN
+                  INSERT INTO posts_fts(posts_fts, rowid, title, search_text) VALUES('delete', old.id, old.title, COALESCE(old.search_text, ''));
+                  INSERT INTO posts_fts(rowid, title, search_text) VALUES (new.id, new.title, COALESCE(new.search_text, ''));
+              END;");
 
-        $pdo->exec("INSERT INTO posts_fts(rowid, title, search_text) SELECT id, title, search_text FROM posts");
-      } catch (Exception $e) {
-        // FTS5 disabled.
+          $pdo->exec("INSERT INTO posts_fts(rowid, title, search_text) SELECT id, title, search_text FROM posts");
+        } catch (Exception $e) {
+          // FTS5 setup failed.
+        }
       }
 
       // Update version

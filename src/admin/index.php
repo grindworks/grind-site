@@ -788,7 +788,7 @@ ob_start();
             <a href="<?= ($cnt_res_post === 0 && $cnt_res_page > 0) ? 'posts.php?status=reserved&type=page' : 'posts.php?status=reserved' ?>" class="flex items-center gap-1 font-bold text-theme-primary text-xs hover:underline">
                 View All
                 <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                    <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-chevron-right"></use>
                 </svg>
             </a>
         </div>
@@ -839,7 +839,7 @@ ob_start();
             <a href="<?= ($cnt_draft_post === 0 && $cnt_draft_page > 0) ? 'posts.php?status=draft&type=page' : 'posts.php?status=draft' ?>" class="flex items-center gap-1 font-bold text-theme-primary text-xs hover:underline">
                 View All
                 <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                    <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-chevron-right"></use>
                 </svg>
             </a>
         </div>

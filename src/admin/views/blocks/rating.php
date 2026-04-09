@@ -8,15 +8,15 @@ $rating_colors = $block_config['library']['marketing']['items']['rating']['color
 ?>
 <div class="flex items-center gap-6 bg-theme-bg/40 p-4 border border-theme-border rounded-theme"
   x-init="if(block.data.score === undefined) block.data.score = 5; if(!block.data.color) block.data.color = 'gold'"
-  x-data="{ colors: <?= htmlspecialchars(json_encode($rating_colors), ENT_QUOTES) ?> }">
+  x-data="{ colors: <?= htmlspecialchars(json_encode($rating_colors), ENT_QUOTES) ?>, previewScore: block.data.score || 5 }" x-effect="if(block.data.score !== undefined) previewScore = block.data.score">
   <!-- Score slider -->
   <div class="flex-1">
     <div class="flex justify-between mb-2">
       <label class="opacity-70 font-bold text-theme-text text-xs"><?= _t('lbl_rating_score') ?></label>
-      <span class="font-bold text-theme-primary text-lg" x-text="block.data.score"></span>
+      <span class="font-bold text-theme-primary text-lg" x-text="previewScore"></span>
     </div>
     <!-- Range slider -->
-    <input type="range" x-model="block.data.score" min="0" max="5" step="0.5" class="bg-theme-border rounded-theme w-full h-2 accent-theme-primary appearance-none cursor-pointer">
+    <input type="range" x-model="block.data.score" @input="previewScore = $event.target.value" min="0" max="5" step="0.5" class="bg-theme-border rounded-theme w-full h-2 accent-theme-primary appearance-none cursor-pointer">
     <!-- Scale -->
     <div class="flex justify-between opacity-40 mt-1 text-[10px] text-theme-text">
       <span>0</span>
@@ -34,7 +34,7 @@ $rating_colors = $block_config['library']['marketing']['items']['rating']['color
       :class="(colors[block.data.color] || {}).class"
       :style="(colors[block.data.color] || {}).style">
       <template x-for="i in 5">
-        <span x-text="i <= Math.round(block.data.score) ? '★' : '☆'"></span>
+        <span x-text="i <= Math.round(previewScore) ? '★' : '☆'"></span>
       </template>
     </div>
     <!-- Color selector -->

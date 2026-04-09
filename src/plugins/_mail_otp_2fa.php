@@ -182,7 +182,7 @@ add_action('grinds_init', function () {
             <div class="text-center mb-8">
                 <div class="flex justify-center items-center bg-blue-500/10 mx-auto mb-4 border border-blue-500/20 rounded-full w-16 h-16 text-blue-600">
                     <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
+                        <use href="<?= resolve_url('assets/img/sprite.svg') ?>#outline-lock-closed"></use>
                     </svg>
                 </div>
                 <h2 class="font-bold text-2xl tracking-tight"><?= $isJa ? '2段階認証' : 'Two-Factor Authentication' ?></h2>
@@ -194,7 +194,7 @@ add_action('grinds_init', function () {
                 <?php if ($errorMsg): ?>
                     <div class="flex items-start gap-3 bg-red-500/10 mb-6 p-4 border border-red-500/20 rounded-lg text-red-600 text-sm font-bold">
                         <svg class="flex-shrink-0 w-5 h-5 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                            <use href="<?= resolve_url('assets/img/sprite.svg') ?>#outline-exclamation-triangle"></use>
                         </svg>
                         <?= htmlspecialchars($errorMsg, ENT_QUOTES, 'UTF-8') ?>
                     </div>
@@ -209,7 +209,7 @@ add_action('grinds_init', function () {
                     <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 rounded-lg shadow-md transition-colors flex justify-center items-center gap-2">
                         <?= $isJa ? '認証する' : 'Verify Code' ?>
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                            <use href="<?= resolve_url('assets/img/sprite.svg') ?>#outline-check"></use>
                         </svg>
                     </button>
                 </form>

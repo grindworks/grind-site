@@ -67,12 +67,7 @@
   "nav_style": "pill",
   "texture": "clouds",
   "media_bg_css": "dots_light",
-  "effects": [
-    "card_lift",
-    "btn_lift",
-    "input_solid",
-    "scrollbar_custom"
-  ],
+  "effects": ["card_lift", "btn_lift", "input_solid", "scrollbar_custom"],
   "ai_paste": {
     "title": "AI Paste",
     "description": "Paste Markdown from Clipboard",

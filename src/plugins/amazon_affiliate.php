@@ -4,11 +4,11 @@
  * Amazon Affiliate Shortcode Plugin
  *
  * [English]
- * Converts [amazon id="ASIN" title="Product Name"] shortcodes into beautiful Amazon affiliate product cards.
+ * Converts [amazon id="ASIN" title="Product" region="com"] shortcodes into beautiful product cards.
  *
  * [Japanese]
- * 記事内の [amazon id="ASIN" title="商品名"] というショートコードを、
- * Amazonアフィリエイトのリッチな商品カードデザイン（HTML）に自動変換するプラグインです。
+ * 記事内の [amazon id="ASIN" title="商品名" region="co.jp"] というショートコードを、
+ * リッチな商品カードデザインに自動変換します。region指定で世界各国のAmazonに対応可能です。
  */
 if (!defined('GRINDS_APP')) exit;
 
@@ -23,16 +23,31 @@ add_filter('grinds_the_content', function ($content) {
     // 管理画面で設定されたトラッキングIDを取得
     $tracking_id = function_exists('get_option') ? get_option('amazon_tracking_id', '') : '';
 
-    // Adjust regex to capture the title attribute as well
-    // 正規表現を拡張して title 属性も取得できるように調整
-    $pattern = '/\[amazon\s+id="([A-Z0-9]{10})"(?:\s+title="([^"]*)")?\]/i';
+    // Robust attribute parser (supports id, title, region in any order)
+    // 属性の順序に依存しない堅牢なパーサー（id, title, region を取得）
+    $pattern = '/\[amazon\s+([^\]]+)\]/i';
 
     return preg_replace_callback($pattern, function ($matches) use ($tracking_id) {
-        $asin = $matches[1];
-        // XSS Prevention: Safely escape user input (title) and DB value (tracking_id)
-        // XSS対策: ユーザー入力（title）とDB値（tracking_id）を安全にエスケープ
-        $title = !empty($matches[2]) ? htmlspecialchars($matches[2], ENT_QUOTES, 'UTF-8') : "Amazonで詳細を見る";
+        preg_match_all('/([a-zA-Z0-9_]+)="([^"]*)"/', $matches[1], $attr_matches);
+        $atts = [];
+        foreach ($attr_matches[1] as $index => $key) {
+            $atts[strtolower($key)] = $attr_matches[2][$index];
+        }
+
+        $asin = $atts['id'] ?? '';
+        $title = $atts['title'] ?? 'View on Amazon';
+        $region = $atts['region'] ?? 'co.jp'; // Default to Japan
+
+        // XSS Prevention: Safely escape user inputs and DB value
+        // XSS対策: ユーザー入力とDB値を安全にエスケープ
+        $safe_asin = htmlspecialchars(strtoupper($asin), ENT_QUOTES, 'UTF-8');
+        $safe_title = htmlspecialchars($title, ENT_QUOTES, 'UTF-8');
+        $safe_region = htmlspecialchars(strtolower($region), ENT_QUOTES, 'UTF-8');
         $safe_tracking_id = htmlspecialchars($tracking_id, ENT_QUOTES, 'UTF-8');
+
+        if (empty($safe_asin) || !preg_match('/^[A-Z0-9]{10}$/', $safe_asin)) {
+            return '<div class="p-4 my-4 border border-theme-warning/50 bg-theme-warning/10 text-theme-warning font-bold rounded text-sm text-center">⚠️ Invalid or missing Amazon ASIN.</div>';
+        }
 
         // Display a warning to the site admin instead of generating a dummy URL if not set
         // 未設定の場合はダミーURLを生成せず、サイト管理者に警告を表示する
@@ -42,10 +57,14 @@ add_filter('grinds_the_content', function ($content) {
 
         // Generate affiliate link and image URL
         // アフィリエイトリンクと画像URLの生成
-        $amazon_url = "https://www.amazon.co.jp/dp/{$asin}?tag={$safe_tracking_id}";
+        $amazon_url = "https://www.amazon.{$safe_region}/dp/{$safe_asin}?tag={$safe_tracking_id}";
         // * URL for fetching simple images from ASIN (Modify if Amazon changes specifications)
         // ※ASINから簡易的に画像を取得するURL（Amazonの仕様変更により表示されない場合は適宜変更）
-        $image_url = "https://images-na.ssl-images-amazon.com/images/P/{$asin}.09.LZZZZZZZ.jpg";
+        $image_url = "https://images-na.ssl-images-amazon.com/images/P/{$safe_asin}.09.LZZZZZZZ.jpg";
+
+        // Determine button text based on region / リージョンに基づいてボタンテキストを変更
+        $btn_text = ($safe_region === 'co.jp') ? 'Amazonで購入' : 'Buy on Amazon';
+        $sprite_url = resolve_url('assets/img/sprite.svg');
 
         // HTML to output (Card design using GrindSite Tailwind CSS classes)
         // 出力するHTML（GrindSiteのTailwind CSSクラスを利用したカードデザイン）
@@ -54,19 +73,19 @@ add_filter('grinds_the_content', function ($content) {
     <div class="flex flex-col sm:flex-row gap-4 sm:gap-6 items-center sm:items-start">
         <div class="shrink-0 bg-white p-2 rounded border border-theme-border/50 flex items-center justify-center w-28 h-28 sm:w-32 sm:h-32 overflow-hidden shadow-sm">
             <a href="{$amazon_url}" target="_blank" rel="noopener noreferrer external" class="block w-full h-full">
-                <img src="{$image_url}" alt="{$title}" class="w-full h-full object-contain transition-transform group-hover:scale-105" loading="lazy">
+                <img src="{$image_url}" alt="{$safe_title}" class="w-full h-full object-contain transition-transform group-hover:scale-105" loading="lazy">
             </a>
         </div>
         <div class="flex-1 flex flex-col justify-between min-w-0 text-center sm:text-left w-full">
             <div class="mb-4">
                 <a href="{$amazon_url}" target="_blank" rel="noopener noreferrer external" class="block font-bold text-theme-text text-base sm:text-xl hover:text-theme-primary transition-colors leading-snug line-clamp-2 no-underline">
-                    {$title}
+                    {$safe_title}
                 </a>
             </div>
             <div class="flex flex-wrap justify-center sm:justify-start gap-3">
-                <a href="{$amazon_url}" target="_blank" rel="noopener noreferrer external" class="inline-flex items-center justify-center text-white font-bold text-xs sm:text-sm px-6 py-2 sm:py-2.5 rounded-full shadow-sm hover:opacity-90 transition-opacity no-underline w-full sm:w-auto" style="background-color: #f90;">
-                    <svg class="w-4 h-4 mr-1.5" fill="currentColor" viewBox="0 0 24 24"><path d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25"/></svg>
-                    Amazonで購入
+                <a href="{$amazon_url}" target="_blank" rel="noopener noreferrer external" class="inline-flex items-center justify-center bg-theme-primary text-theme-on-primary font-bold text-xs sm:text-sm px-6 py-2 sm:py-2.5 rounded-full shadow-sm hover:opacity-90 transition-opacity no-underline w-full sm:w-auto">
+                    <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="{$sprite_url}#outline-shopping-bag"></use></svg>
+                    {$btn_text}
                 </a>
             </div>
         </div>
@@ -105,10 +124,11 @@ add_action('grinds_init', function () {
 add_action('grinds_admin_toolbar', function () {
     $user = class_exists('App') ? App::user() : null;
     if (!$user) return;
+    $sprite_url = function_exists('grinds_asset_url') ? grinds_asset_url('assets/img/sprite.svg') : resolve_url('assets/img/sprite.svg');
 
     echo <<<HTML
         <button @click="\$dispatch('open-amazon-modal')" type="button" class="flex items-center gap-1.5 hover:bg-theme-bg px-2 py-1.5 rounded-theme text-theme-text/60 hover:text-theme-text transition-colors" title="Amazon ID">
-            <svg class="w-4 h-4" style="color: #f90;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+            <svg class="w-4 h-4 text-theme-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="{$sprite_url}#outline-shopping-bag"></use></svg>
             <span class="hidden sm:inline font-bold text-xs whitespace-nowrap">Amazon ID</span>
         </button>
 HTML;
@@ -128,17 +148,18 @@ add_action('grinds_footer', function () {
 
     $tracking_id = function_exists('get_option') ? get_option('amazon_tracking_id', '') : '';
     $csrfToken = function_exists('generate_csrf_token') ? generate_csrf_token() : '';
+    $sprite_url = function_exists('grinds_asset_url') ? grinds_asset_url('assets/img/sprite.svg') : resolve_url('assets/img/sprite.svg');
 
     // Output settings UI utilizing Tailwind CSS and Alpine.js
     // Tailwind CSS と Alpine.js を活用した設定UIの出力
     echo <<<HTML
-    <div x-data="{ showAmazonModal: false }" @open-amazon-modal.window="showAmazonModal = true">
+    <div x-data="{ showAmazonModal: false }" @open-amazon-modal.window="showAmazonModal = true" @keydown.escape.window="showAmazonModal = false">
         <!-- 設定モーダル -->
         <div x-show="showAmazonModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/80 backdrop-blur-sm transition-opacity" x-cloak>
-            <div @click.outside="showAmazonModal = false" class="bg-theme-surface border border-theme-border rounded-xl shadow-2xl p-6 w-full max-w-sm relative">
+            <div @click.outside="showAmazonModal = false" class="bg-theme-surface border border-theme-border rounded-xl shadow-2xl p-6 w-full max-w-md relative">
                 <button type="button" @click="showAmazonModal = false" class="absolute top-4 right-4 text-theme-text opacity-50 hover:opacity-100 transition-opacity">&times;</button>
                 <h3 class="text-theme-text font-bold text-lg mb-2 flex items-center gap-2">
-                    <svg class="w-5 h-5" style="color: #f90;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                    <svg class="w-5 h-5 text-theme-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="{$sprite_url}#outline-shopping-bag"></use></svg>
                     Amazonアフィリエイト設定
                 </h3>
                 <p class="text-theme-text opacity-70 text-xs mb-4 leading-relaxed">
@@ -147,7 +168,17 @@ add_action('grinds_footer', function () {
                 <form method="POST">
                     <input type="hidden" name="csrf_token" value="{$csrfToken}">
                     <input type="hidden" name="amazon_tracking_id_action" value="1">
-                    <input type="text" name="new_tracking_id" value="{$tracking_id}" placeholder="your_id-22" class="w-full px-3 py-2 bg-theme-bg border border-theme-border rounded text-theme-text text-sm mb-5 focus:ring-2 focus:ring-theme-primary focus:outline-none font-mono" required>
+                    <input type="text" name="new_tracking_id" value="{$tracking_id}" placeholder="your_id-22" class="w-full px-3 py-2 bg-theme-bg border border-theme-border rounded text-theme-text text-sm mb-4 focus:ring-2 focus:ring-theme-primary focus:outline-none font-mono" required>
+
+                    <div class="bg-theme-bg/50 border border-theme-border rounded-lg p-4 mb-6 text-xs text-theme-text leading-relaxed">
+                        <p class="font-bold mb-2 flex items-center gap-1"><svg class="w-4 h-4 text-theme-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="{$sprite_url}#outline-information-circle"></use></svg> ショートコードの使い方</p>
+                        <p class="mb-2 opacity-80">記事のエディタ（段落ブロックなど）に以下のように入力します。</p>
+                        <ul class="space-y-2 font-mono text-[11px] bg-theme-surface p-3 rounded border border-theme-border/50">
+                            <li><span class="opacity-50 inline-block w-20">基本:</span><code class="text-theme-text font-bold">[amazon id="ASIN"]</code></li>
+                            <li><span class="opacity-50 inline-block w-20">商品名指定:</span><code class="text-theme-text font-bold">[amazon id="ASIN" title="商品名"]</code></li>
+                            <li><span class="opacity-50 inline-block w-20">海外Amazon:</span><code class="text-theme-text font-bold">[amazon id="ASIN" title="商品名" region="com"]</code></li>
+                        </ul>
+                    </div>
                     <div class="flex justify-end gap-2">
                         <button type="button" @click="showAmazonModal = false" class="px-4 py-2 border border-theme-border text-theme-text rounded text-xs font-bold hover:bg-theme-bg transition-colors">キャンセル</button>
                         <button type="submit" class="px-4 py-2 bg-theme-primary text-theme-on-primary rounded text-xs font-bold hover:opacity-90 transition-opacity">保存する</button>

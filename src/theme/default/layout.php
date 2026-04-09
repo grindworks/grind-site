@@ -36,6 +36,13 @@ extract($headerData);
   <?php
   endif; ?>
 
+  <?php if ($showCanonical && !empty($prevUrl)): ?>
+    <link rel="prev" href="<?= h($prevUrl) ?>">
+  <?php endif; ?>
+  <?php if ($showCanonical && !empty($nextUrl)): ?>
+    <link rel="next" href="<?= h($nextUrl) ?>">
+  <?php endif; ?>
+
   <meta property="og:url" content="<?= h($ogpUrl) ?>">
   <?php
   $postAuthor = '';

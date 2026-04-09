@@ -11,7 +11,7 @@ $pb_colors = $block_config['library']['design']['items']['progress_bar']['colors
   <div class="space-y-3">
     <template x-for="(item, i) in block.data.items" :key="item.id">
       <div class="relative bg-theme-surface p-3 pr-8 border border-theme-border rounded-theme flex flex-col gap-2">
-        <button type="button" @click="block.data.items.splice(i, 1)" class="top-2 right-2 absolute hover:bg-theme-danger/10 p-1 rounded-theme text-theme-text/40 hover:text-theme-danger transition-colors" title="<?= h(_t('delete')) ?>">
+        <button type="button" @click="if(!item.label || confirm(window.grindsTranslations?.confirm_delete || 'Are you sure?')) block.data.items.splice(i, 1)" class="top-2 right-2 absolute hover:bg-theme-danger/10 p-1 rounded-theme text-theme-text/40 hover:text-theme-danger transition-colors" title="<?= h(_t('delete')) ?>">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-x-mark"></use>
           </svg>

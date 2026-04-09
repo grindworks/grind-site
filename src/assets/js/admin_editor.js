@@ -27,10 +27,15 @@ document.addEventListener('alpine:init', () => {
     isDirty: false,
     isSubmitting: false,
     isUploading: false,
+    isOffline: !navigator.onLine,
     draftKey: '',
     isComposing: false,
     lastAutoSaved: null,
     draftTimeout: null,
+
+    // Global drag & drop state
+    globalDragCount: 0,
+    isGlobalDragging: false,
 
     // History state
     history: [],
@@ -58,6 +63,161 @@ document.addEventListener('alpine:init', () => {
      */
     generateId() {
       return Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
+    },
+
+    /**
+     * Handle global drag enter
+     */
+    handleGlobalDragEnter(e) {
+      // 1. Check if the dragged items contain files (not DOM elements/blocks)
+      const hasFiles = e.dataTransfer && e.dataTransfer.types && Array.from(e.dataTransfer.types).includes('Files');
+
+      // If it's just a block being reordered inside the editor, ignore it.
+      if (!hasFiles || this.draggingIndex !== null) return;
+
+      this.globalDragCount++;
+      // Prevent conflict with existing block dropzones
+      const isOverBlockDropzone = e.target.closest('[x-data*="isDragging: false"]');
+      if (!isOverBlockDropzone) {
+        this.isGlobalDragging = true;
+      }
+    },
+
+    /**
+     * Handle global drag leave
+     */
+    handleGlobalDragLeave(e) {
+      if (this.draggingIndex !== null) return; // Ignore if reordering blocks
+
+      this.globalDragCount--;
+      // Ensure it doesn't drop below 0
+      if (this.globalDragCount <= 0) {
+        this.globalDragCount = 0;
+        this.isGlobalDragging = false;
+      }
+    },
+
+    /**
+     * Handle global drop (Auto-create image blocks)
+     */
+    async handleGlobalDrop(e) {
+      this.globalDragCount = 0;
+      this.isGlobalDragging = false;
+
+      if (!e.dataTransfer || !e.dataTransfer.files || e.dataTransfer.files.length === 0) return;
+
+      // Extract only image files
+      const files = Array.from(e.dataTransfer.files).filter((f) => f.type.startsWith('image/'));
+      if (files.length === 0) return;
+
+      this.isUploading = true;
+      for (const file of files) {
+        const previewUrl = URL.createObjectURL(file);
+        const newBlock = {
+          id: this.generateId(),
+          type: 'image',
+          data: { url: previewUrl },
+          collapsed: false,
+          _isUploading: true,
+        };
+        this.blocks.push(newBlock);
+        const newIndex = this.blocks.length - 1;
+        const mockEvent = { target: { files: [file], value: '' } };
+        await this.uploadImage(mockEvent, newIndex, 'url');
+        this.blocks[newIndex]._isUploading = false;
+        URL.revokeObjectURL(previewUrl);
+      }
+      this.isUploading = false;
+    },
+
+    /**
+     * Handle block-specific drop (Auto-create image blocks at specific index)
+     * @param {DragEvent} e
+     * @param {number} targetIndex
+     */
+    async handleBlockDrop(e, targetIndex) {
+      this.globalDragCount = 0;
+      this.isGlobalDragging = false;
+
+      if (!e.dataTransfer || !e.dataTransfer.files || e.dataTransfer.files.length === 0) return;
+
+      // Extract only image files
+      const files = Array.from(e.dataTransfer.files).filter((f) => f.type.startsWith('image/'));
+      if (files.length === 0) return;
+
+      this.isUploading = true;
+      let currentIndex = targetIndex;
+      for (const file of files) {
+        const previewUrl = URL.createObjectURL(file);
+        const newBlock = {
+          id: this.generateId(),
+          type: 'image',
+          data: { url: previewUrl },
+          collapsed: false,
+          _isUploading: true,
+        };
+        this.blocks.splice(currentIndex, 0, newBlock);
+
+        const mockEvent = { target: { files: [file], value: '' } };
+        await this.uploadImage(mockEvent, currentIndex, 'url');
+
+        this.blocks[currentIndex]._isUploading = false;
+        URL.revokeObjectURL(previewUrl);
+        currentIndex++;
+      }
+      this.isUploading = false;
+    },
+
+    /**
+     * Preview HTML/Shortcode block
+     * @param {number} index
+     */
+    async previewHtmlBlock(index) {
+      const block = this.blocks[index];
+      if (!block || block.type !== 'html') return;
+
+      // Toggle state
+      block.previewMode = !block.previewMode;
+
+      if (block.previewMode) {
+        if (!block.data.code || block.data.code.trim() === '') {
+          block.previewHtml =
+            '<div class="opacity-50 italic text-center p-4 text-theme-text text-sm">Empty block</div>';
+          return;
+        }
+
+        // Show loading state
+        block.previewHtml =
+          '<div class="flex justify-center p-4"><svg class="w-6 h-6 text-theme-primary animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="' +
+          (window.grindsBaseUrl || '').replace(/\/$/, '') +
+          '/assets/img/sprite.svg#outline-arrow-path"></use></svg></div>';
+
+        try {
+          const res = await fetch(this.getApiUrl('preview_html.php'), {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-Requested-With': 'XMLHttpRequest',
+            },
+            body: JSON.stringify({
+              csrf_token: window.grindsCsrfToken,
+              code: block.data.code,
+            }),
+          });
+
+          if (!res.ok) throw new Error('Preview failed');
+
+          const data = await res.json();
+          if (data.success) {
+            block.previewHtml = data.html;
+          } else {
+            block.previewHtml = `<div class="text-theme-danger text-sm p-4 border border-theme-danger/30 bg-theme-danger/10 rounded">Error: ${data.error}</div>`;
+          }
+        } catch (e) {
+          block.previewHtml =
+            '<div class="text-theme-danger text-sm p-4 border border-theme-danger/30 bg-theme-danger/10 rounded">Failed to load preview.</div>';
+        }
+      }
     },
 
     /**
@@ -462,11 +622,22 @@ document.addEventListener('alpine:init', () => {
 
           // Helper to parse a table row, including inline markdown in cells
           const parseRow = (rowLine) => {
-            return rowLine
-              .trim()
-              .replace(/^\||\|$/g, '')
-              .split(/(?<!\\)\|/)
-              .map((cell) => parseInline(cell.trim().replace(/\\\|/g, '|')));
+            let cleanLine = rowLine.trim().replace(/^\||\|$/g, '');
+            let cells = [];
+            let currentCell = '';
+
+            // Safe splitting without Lookbehind regex for older Safari compatibility
+            for (let i = 0; i < cleanLine.length; i++) {
+              if (cleanLine[i] === '|' && (i === 0 || cleanLine[i - 1] !== '\\')) {
+                cells.push(currentCell);
+                currentCell = '';
+              } else {
+                currentCell += cleanLine[i];
+              }
+            }
+            cells.push(currentCell);
+
+            return cells.map((cell) => parseInline(cell.trim().replace(/\\\|/g, '|')));
           };
 
           // Process header and subsequent rows
@@ -514,10 +685,20 @@ document.addEventListener('alpine:init', () => {
 
       this.draftTimeout = setTimeout(() => {
         if (this.blocks.length > 0 || this.seoTitle || this.seoDesc) {
+          const metaData = {};
+          document.querySelectorAll('[name^="meta_data["], [name$="_url"]').forEach((el) => {
+            if (el.name) {
+              metaData[el.name] = el.type === 'checkbox' || el.type === 'radio' ? (el.checked ? '1' : '0') : el.value;
+            }
+          });
+
           const json = JSON.stringify({
             blocks: this.blocks,
             seoTitle: this.seoTitle,
             seoDesc: this.seoDesc,
+            metaData: metaData,
+            history: this.history,
+            future: this.future,
           });
           try {
             localStorage.setItem(this.draftKey, json);
@@ -839,12 +1020,12 @@ document.addEventListener('alpine:init', () => {
 
       // Handle offline/online status
       window.addEventListener('offline', () => {
-        this.isSubmitting = true;
+        this.isOffline = true;
         const msg = window.grindsTranslations?.js_offline || 'You are offline. Changes are saved locally.';
         if (typeof window.showToast === 'function') window.showToast(msg, 'warning');
       });
       window.addEventListener('online', () => {
-        this.isSubmitting = false;
+        this.isOffline = false;
         const msg = window.grindsTranslations?.js_online || 'Back online. You can now save your post.';
         if (typeof window.showToast === 'function') window.showToast(msg, 'success');
       });
@@ -980,17 +1161,27 @@ document.addEventListener('alpine:init', () => {
 
       try {
         const parsed = JSON.parse(localData);
-        if (parsed && (Array.isArray(parsed.blocks) || parsed.seoTitle || parsed.seoDesc)) {
+        if (parsed && (Array.isArray(parsed.blocks) || parsed.seoTitle || parsed.seoDesc || parsed.metaData)) {
+          const currentMetaData = {};
+          document.querySelectorAll('[name^="meta_data["], [name$="_url"]').forEach((el) => {
+            if (el.name) {
+              currentMetaData[el.name] =
+                el.type === 'checkbox' || el.type === 'radio' ? (el.checked ? '1' : '0') : el.value;
+            }
+          });
+
           // Compare server data with draft
           const currentJson = JSON.stringify({
             blocks: this.blocks,
             seoTitle: this.seoTitle,
             seoDesc: this.seoDesc,
+            metaData: currentMetaData,
           });
           const draftJson = JSON.stringify({
             blocks: parsed.blocks || [],
             seoTitle: parsed.seoTitle || '',
             seoDesc: parsed.seoDesc || '',
+            metaData: parsed.metaData || currentMetaData,
           });
 
           if (currentJson === draftJson) {
@@ -1018,6 +1209,37 @@ document.addEventListener('alpine:init', () => {
           this.blocks = parsed.blocks || [];
           if (parsed.seoTitle !== undefined) this.seoTitle = parsed.seoTitle;
           if (parsed.seoDesc !== undefined) this.seoDesc = parsed.seoDesc;
+          if (parsed.history !== undefined) this.history = parsed.history;
+          if (parsed.future !== undefined) this.future = parsed.future;
+
+          if (parsed.metaData) {
+            for (const key in parsed.metaData) {
+              const input = document.querySelector(`[name="${key}"]`);
+              if (input) {
+                if (input.type === 'checkbox' || input.type === 'radio') {
+                  input.checked = parsed.metaData[key] === '1';
+                } else {
+                  input.value = parsed.metaData[key];
+                }
+
+                input.dispatchEvent(new Event('change', { bubbles: true }));
+
+                // 画像アップローダーのプレビューを更新するトリガー
+                if (key.endsWith('_url') || key.endsWith('_url]')) {
+                  const baseKey = key
+                    .replace('_url]', '')
+                    .replace('_url', '')
+                    .replace('meta_data[', '')
+                    .replace(']', '');
+                  window.dispatchEvent(
+                    new CustomEvent(`set-meta-image-${baseKey}`, { detail: { url: parsed.metaData[key] } })
+                  );
+                }
+              }
+            }
+          }
+
+          this.lastState = JSON.stringify(this.blocks);
           this.isDirty = true;
           this.draftRecoveryOpen = false;
           // Translation applied
@@ -1428,6 +1650,7 @@ document.addEventListener('alpine:init', () => {
     async submitViaAjax(form, force = false) {
       const formData = new FormData(form);
       formData.append('ajax_mode', '1');
+      formData.set('status', this.postStatus);
       if (force) {
         formData.append('force_overwrite', '1');
       }
@@ -1506,6 +1729,8 @@ document.addEventListener('alpine:init', () => {
      * @param {number} blockIndex
      */
     handleCodeIndent(event, blockIndex) {
+      if (this.isComposing) return;
+
       const el = event.target;
       const start = el.selectionStart;
       const end = el.selectionEnd;
@@ -1614,6 +1839,14 @@ document.addEventListener('alpine:init', () => {
      */
     duplicateBlock(index) {
       const originalBlock = this.blocks[index];
+
+      if (originalBlock.type === 'password_protect') {
+        const msg =
+          window.grindsTranslations?.err_only_one_password_block || 'Password Protect block can only be added once.';
+        if (typeof window.showToast === 'function') window.showToast(msg, 'warning');
+        return;
+      }
+
       const newBlock = this.recursivelyRegenerateIds(originalBlock);
       this.blocks.splice(index + 1, 0, newBlock);
     },
@@ -1725,13 +1958,17 @@ document.addEventListener('alpine:init', () => {
           const blockEl = document.getElementById('block-wrapper-' + block.id);
           if (blockEl) {
             const textareas = blockEl.querySelectorAll('textarea');
-            textareas.forEach((ta) => {
-              // Only target textareas with auto-height behavior (identified by overflow:hidden)
-              if (ta.style.overflow === 'hidden') {
-                ta.style.height = 'auto';
-                ta.style.height = ta.scrollHeight + 'px';
-              }
-            });
+            const resizeTA = () => {
+              textareas.forEach((ta) => {
+                // Only target textareas with auto-height behavior (identified by overflow:hidden)
+                if (ta.style.overflow === 'hidden') {
+                  ta.style.height = 'auto';
+                  ta.style.height = ta.scrollHeight + 'px';
+                }
+              });
+            };
+            resizeTA();
+            setTimeout(resizeTA, 350);
           }
         });
       }
@@ -1753,12 +1990,16 @@ document.addEventListener('alpine:init', () => {
       // Recalculate textarea heights after expansion to fix collapse bug
       this.$nextTick(() => {
         const textareas = document.querySelectorAll('#post-form textarea');
-        textareas.forEach((ta) => {
-          if (ta.style.overflow === 'hidden') {
-            ta.style.height = 'auto';
-            ta.style.height = ta.scrollHeight + 'px';
-          }
-        });
+        const resizeTA = () => {
+          textareas.forEach((ta) => {
+            if (ta.style.overflow === 'hidden') {
+              ta.style.height = 'auto';
+              ta.style.height = ta.scrollHeight + 'px';
+            }
+          });
+        };
+        resizeTA();
+        setTimeout(resizeTA, 350);
       });
     },
 
@@ -2036,6 +2277,8 @@ document.addEventListener('alpine:init', () => {
 
       this.$nextTick(() => {
         textarea.focus();
+        const newCaretPos = start + replacement.length;
+        textarea.setSelectionRange(newCaretPos, newCaretPos);
       });
     },
 
@@ -2235,8 +2478,11 @@ document.addEventListener('alpine:init', () => {
       } catch (e) {
         if (e.message === 'SESSION_EXPIRED') {
           this.handleSessionExpiry();
-        } else if (window.grindsDebug) {
-          console.error('Upload error:', e);
+        } else {
+          if (window.grindsDebug) console.error('Upload error:', e);
+          const errMsg = e.message || 'Unknown error';
+          const msg = window.grindsTranslations?.js_upload_failed?.replace('%s', errMsg) || `Upload failed: ${errMsg}`;
+          if (typeof window.showToast === 'function') window.showToast(msg, 'error');
         }
       } finally {
         this.isUploading = false;
@@ -2278,6 +2524,7 @@ document.addEventListener('alpine:init', () => {
           if (result && !result.error) {
             const meta = result.metadata || {};
             successfulUploads.push({
+              id: this.generateId(),
               url: result.url,
               caption: meta.caption || '',
             });
@@ -2290,7 +2537,7 @@ document.addEventListener('alpine:init', () => {
           // Push all at once to maintain order and improve reactivity performance.
           this.blocks[blockIndex].data.images.push(...successfulUploads);
 
-          // UX改善: 追加された画像が見えるように右端へスクロール
+          // Scroll right to make newly added images visible
           this.$nextTick(() => {
             const blockEl = document.getElementById('block-wrapper-' + this.blocks[blockIndex].id);
             if (blockEl) {

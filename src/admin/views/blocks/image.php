@@ -4,7 +4,8 @@
 if (!defined('GRINDS_APP')) exit; ?>
 <div class="space-y-3 bg-theme-bg/40 p-4 border border-theme-border rounded-theme transition-colors"
   x-init="if(block.data.width === undefined) block.data.width = 100"
-  x-data="{ isUploading: false, isDragging: false, dragCount: 0 }"
+  x-data="{ isUploading: false, isDragging: false, dragCount: 0, previewWidth: block.data.width || 100 }"
+  x-effect="if (block.data.width) previewWidth = block.data.width"
   @dragenter.prevent="dragCount++; isDragging = true"
   @dragover.prevent="isDragging = true"
   @dragleave.prevent="dragCount--; if (dragCount === 0) isDragging = false"
@@ -35,13 +36,13 @@ if (!defined('GRINDS_APP')) exit; ?>
   </div>
   <!-- Preview -->
   <div x-show="block.data.url" class="relative bg-theme-bg p-2 border border-theme-border rounded-theme flex justify-center items-center">
-    <img :src="resolvePreviewUrl(block.data.url)" :style="'width: ' + block.data.width + '%;'" class="shadow-theme rounded-theme max-h-60 object-contain transition-all duration-200" @error="$el.src = <?= htmlspecialchars(json_encode(PLACEHOLDER_IMG), ENT_QUOTES) ?>">
+    <img :src="resolvePreviewUrl(block.data.url)" :style="'width: ' + previewWidth + '%;'" class="shadow-theme rounded-theme max-h-60 object-contain transition-all duration-200" @error="$el.src = <?= htmlspecialchars(json_encode(PLACEHOLDER_IMG), ENT_QUOTES) ?>">
   </div>
   <!-- Width slider -->
   <div x-show="block.data.url" class="flex items-center gap-3 px-1">
     <label class="opacity-50 font-bold text-theme-text text-[10px] whitespace-nowrap"><?= _t('lbl_image_width') ?? 'Width' ?></label>
-    <input type="range" x-model="block.data.width" min="10" max="100" step="5" class="bg-theme-border rounded-theme w-full h-2 accent-theme-primary appearance-none cursor-pointer">
-    <span class="w-12 font-mono text-[10px] text-theme-text text-right"><span x-text="block.data.width"></span>%</span>
+    <input type="range" x-model="block.data.width" @input="previewWidth = $event.target.value" min="10" max="100" step="5" class="bg-theme-border rounded-theme w-full h-2 accent-theme-primary appearance-none cursor-pointer">
+    <span class="w-12 font-mono text-[10px] text-theme-text text-right"><span x-text="previewWidth"></span>%</span>
   </div>
   <!-- Caption input -->
   <input type="text" x-model="block.data.caption" :id="'block-' + block.id + '-caption'" class="w-full text-xs text-center transition-colors form-control-sm" placeholder="<?= _t('ph_caption') ?>">

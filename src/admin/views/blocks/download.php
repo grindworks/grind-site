@@ -35,9 +35,9 @@ if (!defined('GRINDS_APP'))
       <button type="button" @click="openMediaLibrary(index, null, 'url')"
         class="inline-flex items-center gap-1 px-3 py-1 text-xs cursor-pointer btn-secondary">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-arrow-up-tray"></use>
+          <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-document-text"></use>
         </svg>
-        <?= _t('select_file') ?>
+        <?= _t('btn_select_library') ?>
       </button>
       <label class="inline-flex items-center gap-1 px-3 py-1 text-xs cursor-pointer btn-secondary"
         :class="{'opacity-50 cursor-not-allowed': isUploading}">

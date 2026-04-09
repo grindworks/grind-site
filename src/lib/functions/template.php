@@ -61,7 +61,11 @@ if (!function_exists('grinds_get_link_attributes')) {
     }
 }
 
-/** Format date string. */
+/**
+ * Format date string and return it.
+ * Note: Unlike other `the_*` functions, this function returns the value instead of echoing it,
+ * making it a flexible formatter for any given date string.
+ */
 if (!function_exists('the_date')) {
     function the_date($dateStr, $format = null)
     {
@@ -975,6 +979,19 @@ if (!function_exists('grinds_admin_bar')) {
 
         global $pageData;
 
+        // Get queue count for Virtual Publish Queue
+        $queueCount = 0;
+        if ($isAdmin) {
+            try {
+                $stmtQueue = App::db()->query("SELECT COUNT(*) FROM ssg_queue WHERE status = 'pending' OR status = 'processing'");
+                if ($stmtQueue) {
+                    $queueCount = (int)$stmtQueue->fetchColumn();
+                }
+            } catch (Exception $e) {
+                // Table might not exist yet
+            }
+        }
+
         // Admin Bar Skin Logic (Modern Glass)
         $barAccent = '#3b82f6';
         $barBg = '#ffffff';
@@ -1292,6 +1309,17 @@ if (!function_exists('grinds_admin_bar')) {
                         </a>
                     <?php
                     endif; ?>
+
+                    <!-- Virtual Publish Queue Indicator -->
+                    <?php if ($isAdmin): ?>
+                        <div x-data="{ queueCount: <?= $queueCount ?> }" @update-publish-queue.window="queueCount = $event.detail.remaining" x-show="queueCount > 0" x-transition.opacity.duration.300ms class="grinds-bar-badge" style="<?= $queueCount > 0 ? '' : 'display:none;' ?>">
+                            <svg class="w-3 h-3 animate-spin text-theme-warning" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-arrow-path"></use>
+                            </svg>
+                            <span class="grinds-hide-mobile" style="color: #92400e;"><?= _t('ssg_building') ?></span>
+                            <span style="font-weight:bold; font-family:monospace; color: #92400e;" x-text="queueCount"><?= $queueCount ?></span>
+                        </div>
+                    <?php endif; ?>
                 </div>
 
                 <?php if ($isAdmin): ?>

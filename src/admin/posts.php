@@ -21,6 +21,10 @@ $post = [];
 
 // Define types
 $allowed_types = ['post', 'page', 'template'];
+$cpts = function_exists('grinds_get_theme_post_types') ? grinds_get_theme_post_types() : [];
+foreach ($cpts as $cptSlug => $cptData) {
+  $allowed_types[] = $cptSlug;
+}
 
 // Check permissions
 if (!current_user_can('manage_posts')) {
@@ -72,7 +76,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
       redirect('admin/' . grinds_get_current_list_url());
     } catch (Exception $e) {
-      $error = $e->getMessage();
+      $error = _t($e->getMessage());
     }
   }
 
@@ -148,7 +152,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           json_response(['success' => false, 'error' => $e->getMessage()]);
         }
       } else {
-        $error = $isConflict ? _t('err_post_conflict') : $e->getMessage();
+        $error = $isConflict ? _t('err_post_conflict') : _t($e->getMessage());
       }
     }
   }
@@ -166,7 +170,10 @@ if ($action === 'list') {
     'page' => _t('type_page'),
     'template' => _t('btn_template')
   ];
-  $page_title = $type_labels[$current_type];
+  foreach ($cpts as $cptSlug => $cptData) {
+    $type_labels[$cptSlug] = function_exists('_t') && isset($cptData['label']) ? _t($cptData['label']) : ($cptData['label'] ?? ucfirst($cptSlug));
+  }
+  $page_title = $type_labels[$current_type] ?? ucfirst($current_type);
 
   $limit = (int)Routing::getString($params, 'limit', '20');
   if ($limit > 100)
@@ -249,6 +256,10 @@ else {
   $post = [];
   $currentTags = '';
 
+  if ($action === 'new') {
+    $post['type'] = Routing::getString($params, 'type', 'post');
+  }
+
   if ($action === 'edit' && $id) {
     $repo = new PostRepository($pdo);
     $posts = $repo->fetch(['ids' => [$id], 'status' => 'any']);
@@ -282,5 +293,11 @@ else {
   $content = ob_get_clean();
 }
 
-$current_page = 'posts';
+$post_type_for_menu = $current_type ?? ($post['type'] ?? '');
+if (isset($cpts[$post_type_for_menu])) {
+  $current_page = 'cpt_' . $post_type_for_menu;
+} else {
+  $current_page = 'posts';
+}
+
 require_once __DIR__ . '/layout/loader.php';

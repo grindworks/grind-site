@@ -173,20 +173,29 @@ if (!isset($myUser)) {
               </div>
               <ul class="mt-2 text-[10px] space-y-1" x-show="pass.length > 0" x-cloak>
                 <li class="flex items-center gap-1 transition-colors" :class="reqLength ? 'text-theme-success' : 'text-theme-danger'">
-                  <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" :d="reqLength ? 'M5 13l4 4L19 7' : 'M6 18L18 6M6 6l12 12'" />
+                  <svg x-show="reqLength" class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-check"></use>
+                  </svg>
+                  <svg x-show="!reqLength" class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" x-cloak>
+                    <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-x-mark"></use>
                   </svg>
                   8+ Characters
                 </li>
                 <li class="flex items-center gap-1 transition-colors" :class="reqLetter ? 'text-theme-success' : 'text-theme-danger'">
-                  <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" :d="reqLetter ? 'M5 13l4 4L19 7' : 'M6 18L18 6M6 6l12 12'" />
+                  <svg x-show="reqLetter" class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-check"></use>
+                  </svg>
+                  <svg x-show="!reqLetter" class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" x-cloak>
+                    <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-x-mark"></use>
                   </svg>
                   Includes Letter
                 </li>
                 <li class="flex items-center gap-1 transition-colors" :class="reqNumber ? 'text-theme-success' : 'text-theme-danger'">
-                  <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" :d="reqNumber ? 'M5 13l4 4L19 7' : 'M6 18L18 6M6 6l12 12'" />
+                  <svg x-show="reqNumber" class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-check"></use>
+                  </svg>
+                  <svg x-show="!reqNumber" class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" x-cloak>
+                    <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-x-mark"></use>
                   </svg>
                   Includes Number
                 </li>

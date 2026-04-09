@@ -4,6 +4,11 @@
  * Initialize public-facing scripts.
  */
 
+// Remove PHP version exposure header early in the lifecycle
+if (!headers_sent()) {
+    header_remove('X-Powered-By');
+}
+
 if (!defined('GRINDS_APP')) {
     define('GRINDS_APP', true);
 }

@@ -41,8 +41,7 @@ if (!isset($skin) || !is_array($skin)) {
 </script>
 <script src="<?= grinds_asset_url('assets/js/media_manager.js') ?>"></script>
 
-<div class="flex flex-col gap-4 mb-6" x-data="{ ...mediaManager(), dragCount: 0 }" x-init="init()"
-  x-effect="window.toggleScrollLock(detailModalOpen)"
+<div class="flex flex-col gap-4 mb-6" x-data="{ ...mediaManager(), dragCount: 0 }" x-init="init(); $watch('detailModalOpen', val => window.toggleScrollLock(val));"
   @dragenter.prevent="dragCount++; isDragging = true"
   @dragleave.prevent="dragCount--; if (dragCount === 0) isDragging = false"
   @dragover.prevent=""
@@ -103,7 +102,7 @@ if (!isset($skin) || !is_array($skin)) {
               @keydown.backspace="if(searchInput === '' && searchKeywords.length > 0) removeSearchKeyword(searchKeywords.length - 1)"
               @input.debounce.500ms="search()"
               class="flex-1 bg-transparent p-1 border-none outline-none min-w-[200px] h-6 text-theme-text text-xs placeholder-theme-text/40"
-              placeholder="<?= _t('ph_search_media_extended') ?? '検索 (ファイル名, タイトル, Alt, タグ...)' ?>">
+              placeholder="<?= _t('ph_search_media_extended') ?? 'Search (Filename, Title, Alt, Tags...)' ?>">
           </div>
         </div>
 

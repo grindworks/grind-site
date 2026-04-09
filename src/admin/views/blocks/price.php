@@ -12,7 +12,7 @@ $price_styles = $block_config['library']['design']['items']['price']['styles'] ?
     <template x-for="(item, i) in block.data.items" :key="item.id">
       <div class="bg-theme-bg/40 p-4 pr-8 border rounded-theme transition-all" :class="item.recommend ? styles.recommend.class : styles.normal.class">
         <!-- Delete plan -->
-        <button type="button" @click="block.data.items.splice(i, 1)" class="top-2 right-2 absolute hover:bg-theme-danger/10 p-1 rounded-theme text-theme-text/40 hover:text-theme-danger transition-colors" title="<?= h(_t('delete')) ?>">
+        <button type="button" @click="if(!item.plan && !item.price && !item.features || confirm(window.grindsTranslations?.confirm_delete || 'Are you sure?')) block.data.items.splice(i, 1)" class="top-2 right-2 absolute hover:bg-theme-danger/10 p-1 rounded-theme text-theme-text/40 hover:text-theme-danger transition-colors" title="<?= h(_t('delete')) ?>">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-x-mark"></use>
           </svg>

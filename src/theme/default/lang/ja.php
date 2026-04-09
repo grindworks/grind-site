@@ -88,4 +88,20 @@ return [
     'confirm_embed_figma' => 'FigmaのURLを検出しました。埋め込みブロックに変換しますか？',
     'presentation_not_found' => 'プレゼンテーションのコンテンツが見つかりません。',
     'Go Back' => '戻る',
+
+    'Custom Fields' => 'カスタムフィールド',
+    // Custom Fields
+    'Post Details' => '記事の詳細',
+    'Price' => '価格',
+    'Event Date' => 'イベント開催日',
+    'Product Type' => '製品タイプ',
+    'Cover Image' => 'カバー画像',
+    'Physical' => '物理的な製品',
+    'Digital' => 'デジタルコンテンツ',
+    'Service' => 'サービス',
+    'Featured Product' => 'おすすめ商品',
+    'min read' => '分で読めます',
+    'Author Note' => '著者メモ',
+    'This article contains promotional links.' => 'この記事はプロモーションを含みます。',
+    'View Sponsored Link' => 'スポンサーリンクを見る',
 ];

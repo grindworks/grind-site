@@ -66,9 +66,7 @@
   "sidebar_mode": "light",
   "nav_style": "block",
   "media_bg_css": "checker_light",
-  "effects": [
-    "input_mono"
-  ],
+  "effects": ["input_mono"],
   "ai_paste": {
     "title": "INSERT DISK",
     "description": "Please insert markdown floppy disk.",

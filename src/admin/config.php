@@ -26,6 +26,18 @@ function get_admin_menu()
     'icon'  => 'outline-document-text'
   ];
 
+  // Add Custom Post Types (CPT) dynamically
+  if (function_exists('grinds_get_theme_post_types')) {
+    $cpts = grinds_get_theme_post_types();
+    foreach ($cpts as $slug => $cpt) {
+      $menu['cpt_' . $slug] = [
+        'label' => function_exists('_t') && isset($cpt['label']) ? _t($cpt['label']) : ($cpt['label'] ?? ucfirst($slug)),
+        'url'   => 'posts.php?type=' . urlencode($slug),
+        'icon'  => $cpt['icon'] ?? 'outline-document-text'
+      ];
+    }
+  }
+
   // Add media
   $menu['media'] = [
     'label' => _t('title_media_library'),

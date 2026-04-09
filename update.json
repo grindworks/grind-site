@@ -1,7 +1,7 @@
 {
-  "version": "1.5.0",
-  "release_date": "2026-04-06",
-  "message": "Add Amazon Affiliate, Enterprise Security suite, Media Usage tracking, and Pagination improvements",
-  "download_url": "https://github.com/grindworks/grind-site/releases/download/v1.5.0/grindsite-v1.5.0.zip",
-  "sha256": "914873883d19a79c62cb54228bf8d9f4e1121992d5b268584ef5617d21021a74"
+  "version": "1.6.0",
+  "release_date": "2026-04-09",
+  "message": "Post Revisions, Advanced SSG "message": "Add Post Revisions, Virtual Publish Queue for SSG, Custom Fields via theme.json, and new Affiliate plugins" Custom Fields",
+  "download_url": "https://github.com/grindworks/grind-site/releases/download/v1.6.0/grindsite-v1.6.0.zip",
+  "sha256": "30f331d4580f906249a454ea975ee3f9e8cf94ac83a797b0f2e1a78a6c1ec4fc"
 }

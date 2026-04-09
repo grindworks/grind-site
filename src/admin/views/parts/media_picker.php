@@ -27,13 +27,15 @@ $searchPlaceholder = (function_exists('get_option') && get_option('site_lang') =
             this.loadMedia(1);
         });
 
-        const observer = new IntersectionObserver((entries) => {
-            if (entries[0].isIntersecting && this.hasMore && !this.loading) {
-                this.loadMedia(this.page + 1);
-            }
-        }, { rootMargin: '100px' });
-
         this.$nextTick(() => {
+            // Bind intersection observer root to scroll container for reliable detection
+            const container = this.$refs.scrollContainer;
+            const observer = new IntersectionObserver((entries) => {
+                if (entries[0].isIntersecting && this.hasMore && !this.loading) {
+                    this.loadMedia(this.page + 1);
+                }
+            }, { root: container, rootMargin: '100px' });
+
             if (this.$refs.loadMoreTrigger) observer.observe(this.$refs.loadMoreTrigger);
         });
     },
@@ -82,7 +84,8 @@ $searchPlaceholder = (function_exists('get_option') && get_option('site_lang') =
             </div>
         </div>
 
-        <div class="flex-1 bg-theme-bg/30 p-4 overflow-y-auto custom-scrollbar">
+        <!-- Container for modal scroll tracking -->
+        <div x-ref="scrollContainer" class="flex-1 bg-theme-bg/30 p-4 overflow-y-auto custom-scrollbar">
             <div x-show="loading && page === 1" class="flex justify-center py-10">
                 <svg class="w-8 h-8 text-theme-primary animate-spin" viewBox="0 0 24 24">
                     <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-arrow-path"></use>

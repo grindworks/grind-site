@@ -4,7 +4,7 @@
 if (!defined('GRINDS_APP')) exit;
 $callout_styles = $block_config['library']['design']['items']['callout']['styles'] ?? [];
 ?>
-<div class="flex gap-3 bg-theme-bg/40 p-4 border border-theme-border rounded-theme" x-init="if(!block.data.style) block.data.style = 'info'" x-data="{ styles: <?= htmlspecialchars(json_encode($callout_styles), ENT_QUOTES) ?> }">
+<div class="flex gap-3 bg-theme-bg/40 p-4 border border-theme-border rounded-theme" x-init="if(!block.data.style) block.data.style = 'info'; if(typeof block.data.text === 'undefined') block.data.text = '';" x-data="{ styles: <?= htmlspecialchars(json_encode($callout_styles), ENT_QUOTES) ?> }">
   <!-- Style selector -->
   <div class="pt-1 shrink-0">
     <select x-model="block.data.style" class="w-20 text-xs cursor-pointer form-control-sm">

@@ -330,7 +330,6 @@ $csrf_token = generate_csrf_token();
 
                 <?php if ($edit_id): ?>
                   <input type="hidden" name="target_id" value="<?= h($edit_id) ?>">
-                  <input type="hidden" name="current_image" value="<?= h($edit_data['image_url']) ?>">
                 <?php endif; ?>
 
                 <!-- Position selector. -->
@@ -362,7 +361,7 @@ $csrf_token = generate_csrf_token();
 
                 <!-- Target Theme selector -->
                 <label class="block mb-4">
-                  <span class="block mb-2 font-bold text-theme-text text-sm"><?= _t('lbl_target_theme') ?? '対象テーマ' ?></span>
+                  <span class="block mb-2 font-bold text-theme-text text-sm"><?= _t('lbl_target_theme') ?? 'Target Theme' ?></span>
                   <select name="target_theme" class="form-control">
                     <?php foreach ($themes as $theme_key => $theme_name): ?>
                       <option value="<?= h($theme_key) ?>" <?= (($edit_data['target_theme'] ?? 'all') === $theme_key) ? 'selected' : '' ?>>

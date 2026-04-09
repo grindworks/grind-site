@@ -227,7 +227,7 @@ if (!empty($headerMenus)) {
         $isActive = grinds_is_menu_active($item['url']);
         $activeClassMobile = $isActive ? 'bg-white/10 text-white font-bold border-l-4 border-grinds-red pl-3' : 'text-gray-100 hover:bg-white/10 hover:text-white pl-4';
         ?>
-        <a href="<?= h($item['url']) ?>" class="block py-3 rounded-r-lg text-base transition-colors <?= $activeClassMobile ?>" <?= $item['external'] ? 'target="_blank" rel="noopener"' : '' ?>>
+        <a href="<?= h($item['url']) ?>" @click="mobileOpen = false" class="block py-3 rounded-r-lg text-base transition-colors <?= $activeClassMobile ?>" <?= $item['external'] ? 'target="_blank" rel="noopener"' : '' ?>>
           <?= h($item['label']) ?>
         </a>
       <?php endforeach; ?>

@@ -2,7 +2,7 @@
 
 /** Search Box Block View */
 if (!defined('GRINDS_APP')) exit; ?>
-<div class="flex items-center gap-3 bg-theme-bg/40 p-4 border border-theme-border rounded-theme">
+<div class="flex items-center gap-3 bg-theme-bg/40 p-4 border border-theme-border rounded-theme" x-init="if(typeof block.data.placeholder === 'undefined') block.data.placeholder = ''">
   <!-- Search icon -->
   <div class="opacity-50 text-theme-text shrink-0">
     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

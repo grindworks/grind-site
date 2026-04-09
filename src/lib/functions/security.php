@@ -11,7 +11,8 @@ if (!defined('GRINDS_APP'))
 if (!function_exists('h')) {
     function h($s)
     {
-        return htmlspecialchars((string)$s, ENT_QUOTES, 'UTF-8');
+        // 第4引数を false にすることで、既にエスケープされている文字（&amp;など）の二重エスケープを防ぐ
+        return htmlspecialchars((string)$s, ENT_QUOTES | ENT_HTML5, 'UTF-8', false);
     }
 }
 
@@ -369,7 +370,7 @@ if (!function_exists('grinds_validate_content_security')) {
                 if (isset($block['data']) && is_array($block['data'])) {
                     array_walk_recursive($block['data'], function ($value, $key) use ($type) {
                         if (!is_string($value)) return;
-                        if ($type === 'code' && $key === 'code') return;
+                        if (in_array($type, ['code', 'math']) && $key === 'code') return;
                         _grinds_validate_string_security($value);
                     });
                 }
@@ -393,7 +394,7 @@ if (!function_exists('_grinds_validate_string_security')) {
         if (preg_match('/(javascript:|vbscript:|data:text\/html)/i', $checkStr) || preg_match('/\bon[a-z]+\s*=/i', $checkStr)) {
             throw new Exception(function_exists('_t') ? _t('err_security_malicious_code') : 'Security Error: Malicious code detected.');
         }
-        if (preg_match_all('/<\s*(iframe|script)\b[^>]*src\s*=\s*["\']([^"\']+)["\'][^>]*>/i', $checkStr, $matches, PREG_SET_ORDER)) {
+        if (preg_match_all('/<\s*(iframe|script)\b[^>]*+src\s*=\s*["\']([^"\']+)["\'][^>]*+>/i', $checkStr, $matches, PREG_SET_ORDER)) {
             foreach ($matches as $match) {
                 $tag = strtolower($match[1]);
                 $src = $match[2];
@@ -402,7 +403,7 @@ if (!function_exists('_grinds_validate_string_security')) {
                 }
             }
         }
-        if (preg_match('/<\s*script\b(?![^>]*\bsrc\s*=)/i', $checkStr)) {
+        if (preg_match('/<\s*script\b(?![^>]*+\bsrc\s*=)/i', $checkStr)) {
             throw new Exception(function_exists('_t') ? _t('err_security_malicious_code') : 'Security Error: Inline scripts are not allowed.');
         }
     }
@@ -450,7 +451,7 @@ if (!function_exists('grinds_sanitize_post_content_array')) {
                     array_walk_recursive($block['data'], function (&$value, $key) use ($type) {
                         if (!is_string($value)) return;
 
-                        if ($type === 'code' && $key === 'code') return;
+                        if (in_array($type, ['code', 'math']) && $key === 'code') return;
 
                         if (in_array($key, ['url', 'image', 'thumbnail', 'link', 'citeUrl', 'href', 'src'])) {
                             $value = strip_tags($value);

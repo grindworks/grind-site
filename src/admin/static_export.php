@@ -142,6 +142,10 @@ ob_start();
               <span class="font-bold text-theme-warning shrink-0">•</span>
               <span><?= _t('ssg_limit_js_img') ?></span>
             </li>
+            <li class="flex gap-3 opacity-90 text-theme-text text-sm">
+              <span class="font-bold text-theme-warning shrink-0">•</span>
+              <span><?= _t('ssg_limit_warning') ?></span>
+            </li>
           </ul>
         </div>
 
@@ -257,10 +261,10 @@ ob_start();
           </label>
 
           <!-- Diff export -->
-          <label class="relative flex items-start hover:shadow-theme p-4 border-2 rounded-theme transition-all cursor-pointer"
+          <label class="relative flex items-start hover:shadow-theme p-4 border-2 rounded-theme transition-all"
             :class="[
               config.mode === 'diff' ? 'border-theme-primary bg-theme-primary/5' : 'border-theme-border bg-theme-bg/30',
-              <?= $lastExport ? 'false' : 'true' ?> ? 'opacity-50 cursor-not-allowed bg-theme-bg' : ''
+              <?= $lastExport ? 'false' : 'true' ?> ? 'opacity-50 cursor-not-allowed bg-theme-bg' : 'cursor-pointer'
             ]">
             <div class="flex items-center h-5">
               <input type="radio" name="export_mode" value="diff" x-model="config.mode" class="border-theme-border focus:ring-theme-primary w-5 h-5 text-theme-primary form-radio" <?= $lastExport ? '' : 'disabled' ?>>
@@ -349,7 +353,7 @@ ob_start();
   <!-- Success modal -->
   <template x-teleport="body">
     <div x-show="downloadUrl" class="z-50 fixed inset-0 flex justify-center items-center p-4" style="display: none;" x-cloak>
-      <div class="fixed inset-0 skin-modal-overlay backdrop-blur-sm transition-opacity" @click="downloadUrl = null"></div>
+      <div class="fixed inset-0 skin-modal-overlay backdrop-blur-sm transition-opacity" @click="closeModal()"></div>
       <div class="z-10 relative bg-theme-surface shadow-theme p-8 border border-theme-border rounded-theme w-full max-w-md text-center max-h-[90vh] overflow-y-auto custom-scrollbar transition-all transform">
         <div class="flex justify-center items-center bg-theme-success/10 mx-auto mb-6 rounded-full ring-8 ring-theme-success/5 w-16 h-16 text-theme-success animate-bounce">
           <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -389,7 +393,7 @@ ob_start();
           </svg>
           <span x-text='isDownloading ? "Downloading..." : <?= json_encode(_t("ssg_btn_download"), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>'></span>
         </button>
-        <button @click="downloadUrl = null" class="opacity-40 hover:opacity-100 font-bold text-theme-text text-sm hover:underline transition-all"><?= _t('ssg_btn_close') ?></button>
+        <button @click="closeModal()" class="opacity-40 hover:opacity-100 font-bold text-theme-text text-sm hover:underline transition-all"><?= _t('ssg_btn_close') ?></button>
       </div>
     </div>
   </template>
@@ -406,15 +410,15 @@ ob_start();
       buildId: null,
       isDownloading: false,
       config: {
-        baseUrl: <?= json_encode($savedBaseUrl) ?>,
-        formEndpoint: <?= json_encode($savedFormEndpoint) ?>,
-        mode: <?= json_encode(Routing::getString($_GET, 'mode', ($lastExport ? 'diff' : 'full'))) ?>,
-        searchScope: <?= json_encode($savedSearchScope) ?>,
+        baseUrl: <?= json_encode($savedBaseUrl, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>,
+        formEndpoint: <?= json_encode($savedFormEndpoint, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>,
+        mode: <?= json_encode(Routing::getString($_GET, 'mode', ($lastExport ? 'diff' : 'full')), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>,
+        searchScope: <?= json_encode($savedSearchScope, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>,
         maxResults: <?= (int)$savedMaxResults ?>,
         searchChunkSize: <?= (int)$savedSearchChunkSize ?>
       },
       // Load translations
-      trans: <?= json_encode($jsTrans, JSON_UNESCAPED_UNICODE) ?>,
+      trans: <?= json_encode($jsTrans, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>,
 
       async startExport() {
         if (this.processing) return;
@@ -447,7 +451,8 @@ ob_start();
 
           // Generate pages
           let current = 0;
-          const batchSize = 10;
+          // Reduce batch size to prevent FastCGI timeouts on heavy pages
+          const batchSize = 5;
 
           if (total > 0) {
             for (let i = 0; i < total; i += batchSize) {
@@ -561,9 +566,28 @@ ob_start();
         }, 3000);
       },
 
+      async closeModal() {
+        this.downloadUrl = null;
+        if (this.buildId) {
+          try {
+            // Send cleanup request in the background (fire-and-forget)
+            const formData = new FormData();
+            formData.append('csrf_token', <?= json_encode(generate_csrf_token(), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>);
+            formData.append('build_id', this.buildId);
+            formData.append('action', 'cleanup');
+
+            fetch((window.grindsBaseUrl || '').replace(/\/$/, '') + '/admin/api/ssg_process.php', {
+              method: 'POST',
+              body: formData,
+              keepalive: true
+            });
+          } catch (e) {}
+        }
+      },
+
       async callApi(step, data = {}) {
         const formData = new FormData();
-        formData.append('csrf_token', <?= json_encode(generate_csrf_token()) ?>);
+        formData.append('csrf_token', <?= json_encode(generate_csrf_token(), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>);
         formData.append('step', step);
 
         // Attach build ID

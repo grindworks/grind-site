@@ -18,7 +18,7 @@ $step_styles = $block_config['library']['design']['items']['step']['styles'] ?? 
       <!-- Content card -->
       <div class="relative flex-grow space-y-2 bg-theme-bg/40 mb-4 p-4 pr-8 border border-theme-border rounded-theme">
         <!-- Delete step -->
-        <button type="button" @click="block.data.items.splice(i, 1)" class="top-2 right-2 absolute hover:bg-theme-danger/10 p-1 rounded-theme text-theme-text/40 hover:text-theme-danger transition-colors" title="<?= h(_t('delete')) ?>">
+        <button type="button" @click="if(!item.title && !item.desc || confirm(window.grindsTranslations?.confirm_delete || 'Are you sure?')) block.data.items.splice(i, 1)" class="top-2 right-2 absolute hover:bg-theme-danger/10 p-1 rounded-theme text-theme-text/40 hover:text-theme-danger transition-colors" title="<?= h(_t('delete')) ?>">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-x-mark"></use>
           </svg>

@@ -203,7 +203,7 @@ class Routing
             $safeBase = preg_quote($host . $port . $path, '/');
             $flexibleBase = str_replace('\/', '(?:\\\\\/|[\/\\\\])', $safeBase);
             $boundary = '(?=[\\\\\/?"\')\s<>;,\]}&`]|\.(?!\w)|$)';
-            $pattern = '/(' . $scheme . ')?(?:\\\\*+\/){2}' . $flexibleBase . $boundary . '/i';
+            $pattern = '/(' . $scheme . ')?\\\\*+\/\\\\*+\/' . $flexibleBase . $boundary . '/i';
 
             $content = preg_replace($pattern, '{{CMS_URL}}', $content) ?? $content;
         }

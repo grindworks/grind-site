@@ -2,7 +2,7 @@
 
 /** Header Block View */
 if (!defined('GRINDS_APP')) exit; ?>
-<div class="flex items-center gap-3" x-init="if(!block.data.level) block.data.level = 'h2'">
+<div class="flex items-center gap-3" x-init="if(!block.data.level) block.data.level = 'h2'; if(typeof block.data.text === 'undefined') block.data.text = '';">
   <!-- Level selector -->
   <div class="shrink-0">
     <select x-model="block.data.level" class="font-bold text-xs cursor-pointer form-control-sm">

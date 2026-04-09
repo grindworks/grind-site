@@ -139,7 +139,7 @@ if (!class_exists('LlmsFullGenerator')) {
                 try {
                     $now = date('Y-m-d H:i:s');
                     // Fetch all posts.
-                    $sql = "SELECT p.id, p.title, p.slug, p.content, p.published_at, p.updated_at, p.description, p.hero_settings, c.name as category_name,
+                    $sql = "SELECT p.id, p.title, p.slug, p.content, p.published_at, p.updated_at, p.description, p.hero_settings, p.meta_data, c.name as category_name,
                        GROUP_CONCAT(t.name, ', ') as tags_str
                 FROM posts p
                 LEFT JOIN categories c ON p.category_id = c.id
@@ -226,6 +226,16 @@ if (!class_exists('LlmsFullGenerator')) {
                         }
                         if ($cleanDesc !== '') {
                             fwrite($fp, "- **Summary:** {$cleanDesc}\n");
+                        }
+
+                        $metaData = json_decode($row['meta_data'] ?? '{}', true);
+                        if (is_array($metaData) && !empty($metaData)) {
+                            fwrite($fp, "\n## Custom Fields\n");
+                            foreach ($metaData as $k => $v) {
+                                $valStr = is_scalar($v) ? (string)$v : json_encode($v, JSON_UNESCAPED_UNICODE);
+                                $cleanV = $this->cleanString($valStr);
+                                fwrite($fp, "- **{$k}:** {$cleanV}\n");
+                            }
                         }
                         fwrite($fp, "\n## Content\n\n");
 
@@ -439,7 +449,7 @@ if (!class_exists('LlmsFullGenerator')) {
             }
 
             // Convert heading tags to Markdown for better RAG chunking.
-            $html = preg_replace_callback('/<h([1-6])[^>]*>(.*?)<\/h\1>/is', function ($m) {
+            $html = preg_replace_callback('/<h([1-6])[^>]*+>(.*?)<\/h\1>/is', function ($m) {
                 return "\n\n" . str_repeat('#', (int)$m[1]) . ' ' . trim(strip_tags($m[2])) . "\n\n";
             }, $html) ?? $html;
 

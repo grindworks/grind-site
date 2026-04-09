@@ -2,7 +2,7 @@
 
 /** Paragraph Block View */
 if (!defined('GRINDS_APP')) exit; ?>
-<div>
+<div x-init="if(typeof block.data.text === 'undefined') block.data.text = ''">
   <!-- Toolbar -->
   <div class="flex items-center gap-1 opacity-50 focus-within:opacity-100 mb-1 pb-1 border-theme-border border-b text-theme-text transition-opacity">
     <button type="button" @click="insertTag(index, 'b')" class="hover:bg-theme-bg p-1 rounded-theme font-bold text-xs" title="<?= h(_t('fmt_bold')) ?>">B</button>

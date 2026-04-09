@@ -529,8 +529,6 @@ function _theme_generate_json_ld(string $siteName, string $pageType, string $pag
         $contentData = $pageData['post']['content_decoded'] ?? json_decode($rawContent, true);
 
         if (is_array($contentData) && !empty($contentData['blocks'])) {
-            $faqItems = [];
-            $howToSteps = [];
             $reviews = [];
             $citations = [];
             $currentRating = null;
@@ -551,31 +549,6 @@ function _theme_generate_json_ld(string $siteName, string $pageType, string $pag
                     ];
                 }
 
-                if ($bType === 'accordion' && !empty($bData['items'])) {
-                    foreach ($bData['items'] as $item) {
-                        if (!empty($item['title']) && !empty($item['content'])) {
-                            $faqItems[] = [
-                                "@type" => "Question",
-                                "name" => html_entity_decode(strip_tags($item['title']), ENT_QUOTES | ENT_HTML5, 'UTF-8'),
-                                "acceptedAnswer" => [
-                                    "@type" => "Answer",
-                                    "text" => trim(strip_tags(html_entity_decode($item['content'], ENT_QUOTES | ENT_HTML5, 'UTF-8'), '<p><br><ul><ol><li><a><h1><h2><h3><h4><h5><h6><b><i><strong><em>'))
-                                ]
-                            ];
-                        }
-                    }
-                }
-                if ($bType === 'step' && !empty($bData['items'])) {
-                    foreach ($bData['items'] as $item) {
-                        if (!empty($item['title'])) {
-                            $howToSteps[] = [
-                                "@type" => "HowToStep",
-                                "name" => html_entity_decode(strip_tags($item['title']), ENT_QUOTES | ENT_HTML5, 'UTF-8'),
-                                "text" => html_entity_decode(trim(preg_replace('/\s+/u', ' ', function_exists('grinds_extract_text_from_content') ? grinds_extract_text_from_content($item['desc'] ?? '') : strip_tags($item['desc'] ?? ''))), ENT_QUOTES | ENT_HTML5, 'UTF-8')
-                            ];
-                        }
-                    }
-                }
                 if ($bType === 'testimonial' && !empty($bData['name']) && !empty($bData['comment'])) {
                     $reviewNode = [
                         "@type" => "Review",
@@ -609,21 +582,6 @@ function _theme_generate_json_ld(string $siteName, string $pageType, string $pag
                 } else {
                     $webPageNode['review'] = $reviews;
                 }
-            }
-            if (!empty($faqItems)) {
-                $graph[] = [
-                    "@type" => "FAQPage",
-                    "isPartOf" => ["@id" => $webPageId],
-                    "mainEntity" => $faqItems
-                ];
-            }
-            if (!empty($howToSteps)) {
-                $graph[] = [
-                    "@type" => "HowTo",
-                    "isPartOf" => ["@id" => $webPageId],
-                    "name" => $pageTitle,
-                    "step" => $howToSteps
-                ];
             }
             if (!empty($citations)) {
                 $citations = array_values(array_unique($citations));
@@ -886,6 +844,19 @@ function grinds_get_header_data(array $context = []): array
         $showCanonical = false;
     }
 
+    $prevUrl = '';
+    $nextUrl = '';
+    if (isset($pageData['paginator']) && is_object($pageData['paginator'])) {
+        $currentPage = $pageData['paginator']->getPage();
+        $totalPages = $pageData['paginator']->getNumPages();
+        if ($currentPage > 1) {
+            $prevUrl = $pageData['paginator']->createUrl($currentPage - 1);
+        }
+        if ($currentPage < $totalPages) {
+            $nextUrl = $pageData['paginator']->createUrl($currentPage + 1);
+        }
+    }
+
     return [
         'siteName' => $siteName,
         'finalTitle' => $finalTitle,
@@ -901,6 +872,8 @@ function grinds_get_header_data(array $context = []): array
         'jsonLd' => $jsonLd,
         'robots' => $robotsStr,
         'htmlLang' => grinds_get_current_language(),
+        'prevUrl' => $prevUrl,
+        'nextUrl' => $nextUrl,
         // Pass through for convenience
         'pageType' => $pageType,
         'pageData' => $pageData,
@@ -955,4 +928,68 @@ function grinds_get_share_buttons($url = null, $title = null)
     }
 
     return $results;
+}
+
+/**
+ * Load custom fields definition from theme.json
+ *
+ * @param string $context 'post' or 'category'
+ * @param string|null $specificTheme Specific theme name to load from
+ * @return array
+ */
+if (!function_exists('grinds_get_theme_custom_fields')) {
+    function grinds_get_theme_custom_fields(string $context = 'post', ?string $specificTheme = null): array
+    {
+        $theme = $specificTheme ?: grinds_get_active_theme();
+        $jsonFile = ROOT_PATH . '/theme/' . $theme . '/theme.json';
+        if (file_exists($jsonFile)) {
+            $data = json_decode(file_get_contents($jsonFile), true);
+            if (isset($data['custom_fields'][$context]) && is_array($data['custom_fields'][$context])) {
+                return $data['custom_fields'][$context];
+            }
+        }
+        return [];
+    }
+}
+
+/**
+ * Load Custom Post Types definition from theme.json
+ *
+ * @return array
+ */
+if (!function_exists('grinds_get_theme_post_types')) {
+    function grinds_get_theme_post_types(): array
+    {
+        $theme = grinds_get_active_theme();
+        $jsonFile = ROOT_PATH . '/theme/' . $theme . '/theme.json';
+        if (file_exists($jsonFile)) {
+            $data = json_decode(file_get_contents($jsonFile), true);
+            if (isset($data['post_types']) && is_array($data['post_types'])) {
+                return $data['post_types'];
+            }
+        }
+        return [];
+    }
+}
+
+/**
+ * Get custom field (meta_data) value from a post or category securely.
+ *
+ * @param array $item The post or category array containing 'meta_data'
+ * @param string $key The custom field name
+ * @param mixed $default The fallback value if not found
+ * @return mixed
+ */
+if (!function_exists('get_custom_field')) {
+    function get_custom_field(array $item, string $key, $default = null)
+    {
+        if (empty($item['meta_data'])) {
+            return $default;
+        }
+        $meta = is_string($item['meta_data']) ? json_decode($item['meta_data'], true) : $item['meta_data'];
+        if (is_array($meta) && array_key_exists($key, $meta)) {
+            return $meta[$key] !== '' ? $meta[$key] : $default;
+        }
+        return $default;
+    }
 }
