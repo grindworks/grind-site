@@ -37,7 +37,7 @@ RAW_VERSION=${VERSION#v}
 TODAY=$(date +%Y-%m-%d)
 sed -i '' 's/"version": "[^"]*"/"version": "'"$RAW_VERSION"'"/' update.json
 sed -i '' 's/"release_date": "[^"]*"/"release_date": "'"$TODAY"'"/' update.json
-sed -i '' 's/"message": "[^"]*"/"message": "'"$MESSAGE"'"/' update.json
+sed -i '' 's|"message": "[^"]*"|"message": "'"$MESSAGE"'"|' update.json
 sed -i '' 's|"download_url": "[^"]*"|"download_url": "https://github.com/grindworks/grind-site/releases/download/'"$VERSION"'/grindsite-'"$VERSION"'\.zip"|' update.json
 sed -i '' 's/"sha256": "[^"]*"/"sha256": "'"$HASH"'"/' update.json
 
