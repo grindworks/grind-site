@@ -1485,7 +1485,9 @@ document.addEventListener('alpine:init', () => {
       // Remove base path
       if (url.startsWith('/') && !url.startsWith('//')) {
         if (basePath && basePath !== '/' && url.startsWith(basePath)) {
-          return url.substring(basePath.length);
+          let relative = url.substring(basePath.length);
+          if (!relative.startsWith('/')) relative = '/' + relative;
+          return relative;
         }
       }
 

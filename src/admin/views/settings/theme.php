@@ -65,7 +65,7 @@ if (!defined('GRINDS_APP'))
           </span>
           <select name="admin_layout" class="shadow-theme form-control">
             <?php foreach ($available_layouts as $key => $label): ?>
-              <option value="<?= h($key) ?>">
+              <option value="<?= h($key) ?>" <?= get_option('admin_layout', 'sidebar') === $key ? 'selected' : '' ?>>
                 <?= h($label) ?>
               </option>
             <?php

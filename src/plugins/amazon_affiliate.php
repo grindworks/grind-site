@@ -189,3 +189,23 @@ add_action('grinds_footer', function () {
     </div>
 HTML;
 });
+
+// 5. Add button to HTML block tools automatically (Hooks logic)
+// 5. HTMLブロックのツールバーに挿入ボタンを追加
+add_action('grinds_html_block_tools', function () {
+    if (!class_exists('App') || !App::user()) return;
+    $sprite_url = function_exists('grinds_asset_url') ? grinds_asset_url('assets/img/sprite.svg') : resolve_url('assets/img/sprite.svg');
+    echo <<<HTML
+      <button type="button" @click="
+        const el = document.getElementById('block-' + block.id + '-code');
+        const text = block.data.code || '';
+        block.data.code = text + (text ? '\\n' : '') + '[amazon id=\'ASIN\' title=\'商品名\']';
+        \$nextTick(() => { el.focus(); el.setSelectionRange(block.data.code.indexOf('ASIN'), block.data.code.indexOf('ASIN') + 4); });
+      " class="inline-flex items-center gap-1.5 px-2.5 py-1.5 hover:bg-theme-bg/50 border border-theme-border rounded-theme text-theme-text text-[10px] font-bold transition-colors" title="Insert Amazon Shortcode">
+        <svg class="w-3.5 h-3.5 text-theme-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <use href="{$sprite_url}#outline-shopping-bag"></use>
+        </svg>
+        Amazon
+      </button>
+HTML;
+});

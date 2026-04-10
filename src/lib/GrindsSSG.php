@@ -411,8 +411,8 @@ class GrindsSSG
         // Save extracted upload file paths to a temporary file on disk to prevent memory exhaustion
         $detectedUploadsFile = $this->rootDir . '/data/tmp/ssg_detected_uploads_' . $this->buildId . '.txt';
         $assetsFp = fopen($detectedUploadsFile, 'a');
-        // Use a safer regex without nested quantifiers to prevent Catastrophic Backtracking (ReDoS) causing 500 errors
-        $uploadPattern = '/(?:href|src|srcset|url\s*\(\s*["\']?)[^"\'\)>]*?(assets\/uploads\/[^\s"\'\)>,\?#]+)/i';
+        // Fast, ReDoS-safe regex pattern
+        $uploadPattern = '/(assets\/uploads\/[a-zA-Z0-9_\-\.\/]+)/i';
 
         foreach ($pages as $page) {
             // Prevent path traversal
@@ -422,17 +422,14 @@ class GrindsSSG
 
             $html = $this->renderPage($page, $config, $jsToolPath);
 
-            // Optimize: Extract assets during HTML generation and append to temp file to eliminate subsequent re-parsing
+            // Optimize: Extract assets during HTML generation and append to temp file
             if ($assetsFp && strpos($html, 'assets/uploads/') !== false) {
-                $oldLimit = ini_get('pcre.backtrack_limit');
-                @ini_set('pcre.backtrack_limit', '10000000');
                 if (@preg_match_all($uploadPattern, $html, $matches)) {
                     $foundPaths = array_unique($matches[1]);
                     if (!empty($foundPaths)) {
                         fwrite($assetsFp, implode("\n", $foundPaths) . "\n");
                     }
                 }
-                @ini_set('pcre.backtrack_limit', $oldLimit);
             }
 
             // Determine filename
@@ -446,7 +443,7 @@ class GrindsSSG
 
             $writeResult = file_put_contents($savePath, $html);
 
-            // Free memory immediately before any potential exception
+            // Free memory immediately
             unset($html);
 
             if ($writeResult === false) {
@@ -459,7 +456,6 @@ class GrindsSSG
             fclose($assetsFp);
         }
 
-        // Force garbage collection to keep memory clean
         if (function_exists('gc_collect_cycles')) {
             gc_collect_cycles();
         }
@@ -490,7 +486,7 @@ class GrindsSSG
         }
         $totalFiles = 0;
 
-        // Scan assets (excluding uploads directory to prevent sensitive file leaks)
+        // Scan assets (excluding uploads directory)
         $assetsScanOptions = $scanOptions;
         $assetsScanOptions['exclude_dirs'][] = 'uploads';
 
@@ -509,7 +505,7 @@ class GrindsSSG
             }
         }
 
-        // Extract explicitly used uploads from generated HTML (via temp file)
+        // Extract explicitly used uploads
         $usedUploads = [];
         try {
             $detectedUploadsFile = $this->rootDir . '/data/tmp/ssg_detected_uploads_' . $this->buildId . '.txt';
@@ -806,7 +802,6 @@ class GrindsSSG
         $timeLimit = 15;
         $isFinished = false;
 
-        // Evaluate constants outside the loop for maximum performance
         $defaultLimit = defined('SEARCH_INDEX_LIMIT') ? (int)constant('SEARCH_INDEX_LIMIT') : 300;
         $searchLimit = defined('GRINDS_SSG_SEARCH_LIMIT') ? (int)constant('GRINDS_SSG_SEARCH_LIMIT') : $defaultLimit;
 
@@ -878,7 +873,6 @@ class GrindsSSG
             }
             $offset += $batchLimit;
 
-            // Cleanup memory
             if (function_exists('gc_collect_cycles')) {
                 gc_collect_cycles();
             }
@@ -1220,26 +1214,19 @@ class GrindsSSG
 
         $liveBaseUrl = function_exists('resolve_url') ? rtrim(resolve_url('/'), '/') : '';
 
-        // Safely execute regex replacements to prevent TypeError on PCRE errors (e.g., backtrack limits from large base64 strings)
+        // Safe ReDoS-free Replacement Helpers
         $safeReplaceCallback = function ($pattern, $callback, $subject) {
             if (!is_string($subject)) return '';
-            $oldLimit = ini_get('pcre.backtrack_limit');
-            @ini_set('pcre.backtrack_limit', '10000000');
             $result = @preg_replace_callback($pattern, $callback, $subject);
-            @ini_set('pcre.backtrack_limit', $oldLimit);
             return ($result === null) ? $subject : $result;
         };
 
         $safeReplace = function ($pattern, $replacement, $subject) {
             if (!is_string($subject)) return '';
-            $oldLimit = ini_get('pcre.backtrack_limit');
-            @ini_set('pcre.backtrack_limit', '10000000');
             $result = @preg_replace($pattern, $replacement, $subject);
-            @ini_set('pcre.backtrack_limit', $oldLimit);
             return ($result === null) ? $subject : $result;
         };
 
-        // Define helper function to process URLs for SSG
         $processUrl = function ($url) use ($liveBaseUrl, $depth, $config) {
             if (strpos($url, $liveBaseUrl) === 0 || (strpos($url, '/') === 0 && strpos($url, '//') !== 0) || strpos($url, 'page=') !== false) {
                 return function_exists('Routing::toRelative') ? Routing::toRelative($url, $depth) : $url;
@@ -1251,41 +1238,50 @@ class GrindsSSG
         if (!empty($config['base_url'])) {
             $prodBaseUrl = rtrim($config['base_url'], '/');
 
-            // Replace domains in link tags (canonical, alternate, etc.)
-            $html = $safeReplaceCallback('/<link[^>]+(?:href=["\']([^"\']+)["\'])[^>]*>/i', function ($matches) use ($liveBaseUrl, $prodBaseUrl) {
+            // Replace domains in link tags (canonical, alternate, etc.) - Fast & ReDoS safe
+            $html = $safeReplaceCallback('/<link\b([^>]+)>/i', function ($matches) use ($liveBaseUrl, $prodBaseUrl) {
                 $fullTag = $matches[0];
-                $url = $matches[1];
                 if (stripos($fullTag, 'rel="canonical"') !== false || stripos($fullTag, 'rel="alternate"') !== false || stripos($fullTag, 'rel="llms-txt"') !== false) {
-                    if (strpos($url, $liveBaseUrl) === 0) {
-                        $newUrl = str_replace($liveBaseUrl, $prodBaseUrl, $url);
-                        return str_replace($url, $newUrl, $fullTag);
+                    if (preg_match('/href=["\']([^"\']+)["\']/i', $fullTag, $hrefMatch)) {
+                        $url = $hrefMatch[1];
+                        if (strpos($url, $liveBaseUrl) === 0) {
+                            $newUrl = str_replace($liveBaseUrl, $prodBaseUrl, $url);
+                            return str_replace($url, $newUrl, $fullTag);
+                        }
                     }
                 }
                 return $fullTag;
             }, $html);
 
-            // Replace domains in meta tags (og:url, og:image, twitter:image)
-            $html = $safeReplaceCallback('/<meta[^>]+(?:content=["\']([^"\']+)["\'])[^>]*>/i', function ($matches) use ($liveBaseUrl, $prodBaseUrl) {
+            // Replace domains in meta tags (og:url, og:image, twitter:image) - Fast & ReDoS safe
+            $html = $safeReplaceCallback('/<meta\b([^>]+)>/i', function ($matches) use ($liveBaseUrl, $prodBaseUrl) {
                 $fullTag = $matches[0];
-                $url = $matches[1];
                 if (stripos($fullTag, 'property="og:url"') !== false || stripos($fullTag, 'property="og:image"') !== false || stripos($fullTag, 'name="twitter:image"') !== false) {
-                    if (strpos($url, $liveBaseUrl) === 0) {
-                        $newUrl = str_replace($liveBaseUrl, $prodBaseUrl, $url);
-                        return str_replace($url, $newUrl, $fullTag);
+                    if (preg_match('/content=["\']([^"\']+)["\']/i', $fullTag, $contentMatch)) {
+                        $url = $contentMatch[1];
+                        if (strpos($url, $liveBaseUrl) === 0) {
+                            $newUrl = str_replace($liveBaseUrl, $prodBaseUrl, $url);
+                            return str_replace($url, $newUrl, $fullTag);
+                        }
                     }
                 }
                 return $fullTag;
             }, $html);
 
-            // Replace domains in JSON-LD scripts
-            $html = $safeReplaceCallback('/<script[^>]+type=["\']application\/ld\+json["\'][^>]*>(.*?)<\/script>/is', function ($matches) use ($liveBaseUrl, $prodBaseUrl) {
-                $jsonContent = str_replace($liveBaseUrl, $prodBaseUrl, $matches[1]);
-                return str_replace($matches[1], $jsonContent, $matches[0]);
+            // Replace domains in JSON-LD scripts - Fast & ReDoS safe
+            $html = $safeReplaceCallback('/<script\b([^>]*)>(.*?)<\/script>/is', function ($matches) use ($liveBaseUrl, $prodBaseUrl) {
+                $attributes = $matches[1];
+                $content = $matches[2];
+                if (stripos($attributes, 'type="application/ld+json"') !== false || stripos($attributes, "type='application/ld+json'") !== false) {
+                    $jsonContent = str_replace($liveBaseUrl, $prodBaseUrl, $content);
+                    return '<script' . $attributes . '>' . $jsonContent . '</script>';
+                }
+                return $matches[0];
             }, $html);
         }
 
         // Remove base tags
-        $html = $safeReplace('/<base[^>]*>/i', '', $html);
+        $html = $safeReplace('/<base\b[^>]*>/i', '', $html);
 
         // Replace URLs in inline styles
         $html = $safeReplaceCallback('/style=["\']([^"\']+)["\']/i', function ($matches) use ($processUrl) {
@@ -1298,7 +1294,7 @@ class GrindsSSG
         }, $html);
 
         // Convert href, src, and poster attribute paths and hide admin links
-        $html = $safeReplaceCallback('/<(a|img|script|link|video|audio|source|iframe)\s+([^>]+)>/i', function ($matches) use ($processUrl, $safeReplaceCallback) {
+        $html = $safeReplaceCallback('/<(a|img|script|link|video|audio|source|iframe)\b([^>]+)>/i', function ($matches) use ($processUrl, $safeReplaceCallback) {
             $tagName = strtolower($matches[1]);
             $attributes = $matches[2];
 
@@ -1307,7 +1303,7 @@ class GrindsSSG
                 $quote = $attrMatches[2];
                 $url = $attrMatches[3];
 
-                // Hide admin links to prevent broken layouts while keeping the tag intact
+                // Hide admin links to prevent broken layouts
                 if ($tagName === 'a' && $attrName === 'href') {
                     if (preg_match('/(admin\/(index\.php|login\.php)?$|wp-admin|dashboard)/i', $url)) {
                         return 'href="javascript:void(0);" style="display:none;"';
@@ -1340,8 +1336,8 @@ class GrindsSSG
             return 'srcset=' . $quote . implode(', ', $newParts) . $quote;
         }, $html);
 
-        // Convert form actions (handle search vs generic forms)
-        $html = $safeReplaceCallback('/<form\s+([^>]+)>/i', function ($matches) use ($processUrl, $config, $depth, $safeReplace, $safeReplaceCallback) {
+        // Convert form actions
+        $html = $safeReplaceCallback('/<form\b([^>]+)>/i', function ($matches) use ($processUrl, $config, $depth, $safeReplace) {
             $attributes = $matches[1];
             $isSearch = false;
 
@@ -1359,11 +1355,11 @@ class GrindsSSG
                 $attributes = $safeReplace('/action\s*=\s*["\'][^"\']*["\']/i', 'action="' . $config['form_endpoint'] . '"', $attributes);
                 $attributes = $safeReplace('/method\s*=\s*["\'][^"\']*["\']/i', 'method="post"', $attributes);
             } else {
-                $attributes = $safeReplaceCallback('/action\s*=\s*(["\'])([^"\']*)\1/i', function ($actMatches) use ($processUrl) {
+                $attributes = @preg_replace_callback('/action\s*=\s*(["\'])([^"\']*)\1/i', function ($actMatches) use ($processUrl) {
                     $url = $actMatches[2];
                     $processedUrl = $processUrl($url);
                     return 'action=' . $actMatches[1] . $processedUrl . $actMatches[1];
-                }, $attributes);
+                }, $attributes) ?? $attributes;
             }
 
             return '<form ' . $attributes . '>';

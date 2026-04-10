@@ -418,8 +418,7 @@ $statusLabel = strtoupper($sysStatus['status']);
               <span class="flex items-center gap-1.5 opacity-70">GrindSite
                 <span
                   class="inline-flex items-center px-1 py-px bg-theme-success/20 text-theme-success text-[9px] font-bold rounded-theme tracking-wide">PRO</span>
-                v
-                <?= h(CMS_VERSION) ?>
+                <span class="font-mono text-[10px] whitespace-nowrap">v<?= h(CMS_VERSION) ?></span>
               </span>
               <?php if (!empty($hasUpdate)): ?>
                 <a href="settings.php?tab=update"
@@ -434,8 +433,8 @@ $statusLabel = strtoupper($sysStatus['status']);
               endif; ?>
             <?php
             else: ?>
-              <span class="opacity-70">GrindSite v
-                <?= h(CMS_VERSION) ?>
+              <span class="flex items-center gap-1 opacity-70">GrindSite
+                <span class="font-mono text-[10px] whitespace-nowrap">v<?= h(CMS_VERSION) ?></span>
               </span>
               <?php if (!empty($hasUpdate)): ?>
                 <a href="https://github.com/grindworks/grind-site/releases" target="_blank"

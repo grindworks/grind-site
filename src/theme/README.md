@@ -90,13 +90,49 @@ Use `render_content()` to display post content (block editor data).
 </div>
 ```
 
+### Custom Fields (`theme.json`)
+
+You can define custom fields for your theme by creating a `theme.json` file in your theme directory.
+These fields will automatically appear in the post editor sidebar without writing any PHP code.
+
+```json
+{
+  "name": "My Custom Theme",
+  "custom_fields": [
+    {
+      "name": "hero_subtitle",
+      "label": "Hero Subtitle",
+      "type": "text",
+      "post_type": ["post", "page"]
+    },
+    {
+      "name": "header_layout",
+      "label": "Header Layout",
+      "type": "select",
+      "options": {
+        "left": "Left Aligned",
+        "center": "Centered"
+      },
+      "post_type": ["post", "page"]
+    }
+  ]
+}
+```
+
+To retrieve and display the values in your template (e.g., `single.php`), use `get_post_meta()`:
+
+```php
+<?php $subtitle = get_post_meta($post['id'], 'hero_subtitle'); ?>
+<?php if ($subtitle): ?><p><?= h($subtitle) ?></p><?php endif; ?>
+```
+
 ## 4. Building Tailwind CSS
 
 This CMS uses Tailwind CSS. To modify theme styles, use the following commands:
 
 ```bash
 # First, you must add build scripts for your new theme inside `package.json`.
-# Example: 
+# Example:
 # "build:theme:my-theme": "tailwindcss -c ./src/theme/my-theme/tailwind.config.js -i ./src/theme/my-theme/css/theme-input.css -o ./src/theme/my-theme/css/style.css --minify"
 # "watch:theme:my-theme": "tailwindcss -c ./src/theme/my-theme/tailwind.config.js -i ./src/theme/my-theme/css/theme-input.css -o ./src/theme/my-theme/css/style.css --watch"
 

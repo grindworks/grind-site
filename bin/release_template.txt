@@ -1,37 +1,39 @@
 Release title
-v1.6.0 - Post Revisions, Advanced SSG & Custom Fields
+v1.6.1 - Asynchronous Updater, CLI SSG & System Enhancements
 
 Release notes
-This major release introduces Post Revisions, advanced Static Site Generation with a Virtual Publish Queue, Custom Fields powered by `theme.json`, and new Affiliate plugins for eBay and Rakuten.
+This release introduces a robust Asynchronous Updater with Atomic Rollback, powerful CLI-based Static Site Generation (SSG), and various system enhancements.
 
 ### ✨ New Features & Enhancements
-- **Post Revisions:** Never lose your work again. Automatically saves a history of your post edits, allowing you to restore previous versions seamlessly.
-- **Custom Fields (`theme.json`):** Developers can now define custom fields directly in their theme's `theme.json` file. Create tailored editing experiences for specific post types or categories without writing PHP.
-- **Virtual Publish Queue (Advanced SSG):** Static Site Generation now features a robust background queuing system, significantly improving build reliability and performance for large sites.
-- **HTML Block Live Preview:** Added a live preview toggle for the HTML block, making it easier to embed and verify custom code, iframes, and affiliate tags directly within the editor.
-- **Markdown Export:** Export your entire site content as clean Markdown files, perfect for AI analysis, RAG pipelines, or migrating to other platforms.
-- **New Affiliate Plugins:** Expanded monetization options with new shortcode plugins for eBay (`_ebay_affiliate.php`) and Rakuten (`_rakuten_affiliate.php`).
-- **New Admin Skins:** Added two stunning new dark mode skins: "Neon Matrix" and "Obsidian Glass".
+- **Asynchronous System Updater:** The core updater has been completely rewritten. It now performs step-by-step asynchronous updates (Init, Download, Extract, Dry Run, Backup, Apply) to bypass server timeouts and memory limits.
+- **Atomic Rollback:** If an update fails during file extraction or copying, the system will automatically rollback to its previous state using the pre-update backup, ensuring your site never breaks.
+- **CLI Static Site Generation (SSG):** Added `php bin/grind.php ssg:build` command. You can now generate your entire static site via the command line, perfect for CI/CD pipelines and cron jobs.
+- **Enhanced Image Processing:** Improved file manager capabilities, including advanced image processing and AI metadata extraction.
+- **UI & Routing Improvements:** Various tweaks to the admin UI, topbar, sidebar footer, and routing core.
 
 ### 🛡️ Security & Stability
-- **Enhanced Security:** Continued hardening of core systems, including improved sanitization and validation across all new features.
-- **Bug Fixes:** Resolved various edge cases and UI quirks based on community feedback.
+- **Windows Lock Bypass:** The updater now safely handles locked files in Windows environments during updates.
+- **Memory-Safe Downloads:** Improved update package downloads using streaming to prevent memory exhaustion on small shared hosts.
+- **Enterprise-Grade Security Hardening:** Patched potential vulnerabilities including SSRF, ReDoS, and path traversals by implementing strict protocol validations, DNS rebinding protections, and memory-safe parsers.
+- **Robust Access Control:** Hardened privilege escalation checks to prevent unauthorized administrative actions.
+- **Safer Updates:** The updater now protects your `.htaccess` settings and correctly handles theme/skin updates without overwriting customizations.
 
 ---
 
 ## 🇯🇵 日本語 (Japanese)
 
-今回のメジャーリリースでは、記事のリビジョン（変更履歴）機能、バックグラウンド処理（キュー）を備えた高度な静的サイト生成（SSG）、`theme.json` で定義可能なカスタムフィールド、そして新しいアフィリエイトプラグイン（eBay、楽天）などの強力な新機能が導入されました。
+今回のリリースでは、アトミックロールバックを備えた堅牢な非同期アップデーター、CLIベースの強力な静的サイト生成（SSG）、およびさまざまなシステム強化が導入されました。
 
 ### ✨ 新機能・改善
-- **記事のリビジョン機能:** 編集のたびに履歴が自動的に保存され、過去のバージョンへシームレスに復元できるようになりました。
-- **カスタムフィールド (`theme.json`):** テーマ内の `theme.json` ファイルでカスタムフィールドを定義できるようになりました。PHPを書くことなく、投稿タイプやカテゴリに応じた専用の入力項目を作成可能です。
-- **仮想パブリッシュキュー (高度なSSG):** 静的サイト生成（SSG）にバックグラウンドキューシステムが導入され、大規模サイトにおけるビルドの安定性とパフォーマンスが大幅に向上しました。
-- **HTMLブロックのライブプレビュー:** HTMLブロックにライブプレビュートグルを追加し、カスタムコードやiframe、アフィリエイトタグの表示確認がエディタ上で直接行えるようになりました。
-- **Markdown一括エクスポート:** サイトの全コンテンツをクリーンなMarkdownファイルとしてエクスポートする機能を追加。AI分析（RAG等）や他プラットフォームへの移行に最適です。
-- **新アフィリエイトプラグイン:** eBay (`_ebay_affiliate.php`) と楽天 (`_rakuten_affiliate.php`) 向けのアフィリエイトショートコードプラグインを新たに追加し、収益化の選択肢を拡大しました。
-- **新管理画面スキン:** 美しいダークモードスキン「Neon Matrix」と「Obsidian Glass」を追加しました。
+- **非同期システムアップデーター:** コアの更新機能が完全に書き直されました。ステップバイステップの非同期更新（初期化、ダウンロード、解凍、ドライラン、バックアップ、適用）を実行し、サーバーのタイムアウトやメモリ制限を回避します。
+- **アトミックロールバック:** ファイルの展開やコピー中に更新が失敗した場合、更新前のバックアップを使用してシステムが自動的に以前の状態にロールバックし、サイトが壊れるのを防ぎます。
+- **CLI 静的サイト生成 (SSG):** `php bin/grind.php ssg:build` コマンドを追加しました。コマンドラインから静的サイト全体を生成できるようになり、CI/CD パイプラインや Cron ジョブに最適です。
+- **画像処理の強化:** 高度な画像処理や AI メタデータ抽出など、ファイルマネージャーの機能が向上しました。
+- **UIとルーティングの改善:** 管理画面の UI、トップバー、サイドバーフッター、およびルーティングコアにさまざまな調整を加えました。
 
 ### 🛡️ セキュリティと安定性
-- **セキュリティの強化:** 新機能を含むシステム全体のサニタイズとバリデーションをさらに強化しました。
-- **バグ修正:** コミュニティのフィードバックに基づき、さまざまなエッジケースやUIの細かな問題を修正しました。
+- **Windows ロック回避:** アップデーターは、更新中に Windows 環境でロックされたファイルを安全に処理できるようになりました。
+- **メモリセーフなダウンロード:** 小規模な共有ホストでのメモリ枯渇を防ぐため、ストリーミングを使用した更新パッケージのダウンロードを改善しました。
+- **エンタープライズ水準のセキュリティ強化:** SSRFやReDoS、パストラバーサルを防ぐため、厳格なプロトコル検証、DNSリバインディング保護、およびメモリセーフなパーサーを実装しました。
+- **アクセス制御の強化:** 権限昇格を防ぐためのチェックを強化し、不正な管理者操作を完全にブロックします。
+- **より安全なアップデート:** アップデーターが `.htaccess` の独自設定を保護し、テーマやスキンの更新をより正確かつ安全に処理するようになりました。

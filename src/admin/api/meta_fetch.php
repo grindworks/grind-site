@@ -4,6 +4,7 @@
  * meta_fetch.php
  *
  * Fetch Open Graph metadata from a remote URL.
+ * Hardened for Enterprise: Protection against SSRF and OOM/ReDoS attacks.
  */
 require_once __DIR__ . '/api_bootstrap.php';
 
@@ -26,6 +27,7 @@ try {
     'user_agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) GrindsCMS/1.0',
     'block_private_ip' => true
   ];
+  // SSRF & DNS Rebinding protection is handled inside grinds_fetch_url
   $html = grinds_fetch_url($url, $options);
 
 
@@ -33,60 +35,63 @@ try {
     throw new Exception("Failed to fetch URL (Security restriction, connection error, or file too large).");
   }
 
-  // Convert encoding
+  // Convert encoding safely
   $encoding = mb_detect_encoding($html, 'UTF-8, EUC-JP, SJIS, JIS', true) ?: 'UTF-8';
   if ($encoding !== 'UTF-8') {
     $html = mb_convert_encoding($html, 'UTF-8', $encoding);
   }
 
-  // Parse HTML
-  if (strlen($html) > 1024 * 1024) {
-    // Fallback to plain text extraction (if HTML is too large)
-    $title = preg_match('/<meta property="og:title" content=["\']([^"\']*)["\']/is', $html, $m) ? $m[1] : (preg_match('/<title>([^<]*)<\/title>/is', $html, $m) ? $m[1] : '');
-    $description = preg_match('/<meta property="og:description" content=["\']([^"\']*)["\']/is', $html, $m) ? $m[1] : (preg_match('/<meta name="description" content=["\']([^"\']*)["\']/is', $html, $m) ? $m[1] : '');
-    $image = preg_match('/<meta property="og:image" content=["\']([^"\']*)["\']/is', $html, $m) ? $m[1] : '';
-  } else {
-    if (!class_exists('DOMDocument')) {
-      throw new Exception("DOMDocument extension is missing.");
-    }
-
-    libxml_use_internal_errors(true);
-    $doc = new DOMDocument();
-    // Convert to HTML entities (PHP 8.2+ compatible)
-    $html = mb_encode_numericentity($html, [0x80, 0x10FFFF, 0, 0x1FFFFF], 'UTF-8');
-    @$doc->loadHTML($html, LIBXML_NOERROR | LIBXML_NOWARNING | LIBXML_NONET);
-    libxml_clear_errors();
-
-    // Extract metadata
-
-    $xpath = new DOMXPath($doc);
-
-    $title = '';
-    $description = '';
-    $image = '';
-
-    // Extract title
-    $nodes = $xpath->query('//meta[@property="og:title"]/@content');
-    if ($nodes->length > 0) $title = $nodes->item(0)->nodeValue;
-    if (empty($title)) {
-      $nodes = $xpath->query('//title');
-      if ($nodes->length > 0) $title = $nodes->item(0)->nodeValue;
-    }
-
-    // Extract description
-    $nodes = $xpath->query('//meta[@property="og:description"]/@content');
-    if ($nodes->length > 0) $description = $nodes->item(0)->nodeValue;
-    if (empty($description)) {
-      $nodes = $xpath->query('//meta[@name="description"]/@content');
-      if ($nodes->length > 0) $description = $nodes->item(0)->nodeValue;
-    }
-
-    // Extract image
-    $nodes = $xpath->query('//meta[@property="og:image"]/@content');
-    if ($nodes->length > 0) $image = $nodes->item(0)->nodeValue;
+  if (!class_exists('DOMDocument')) {
+    throw new Exception("DOMDocument extension is missing.");
   }
 
-  // Resolve relative URL for the image, regardless of the parsing method used
+  // OOM & ReDoS Protection:
+  // Meta tags are always located in the <head> section. Parsing multi-megabyte HTML files
+  // wastes CPU and exposes the system to XML/Regex bombs. We slice the first 512KB safely.
+  $htmlToParse = $html;
+  if (strlen($html) > 1024 * 512) {
+    $htmlToParse = mb_strcut($html, 0, 1024 * 512, 'UTF-8');
+  }
+
+  libxml_use_internal_errors(true);
+  $doc = new DOMDocument();
+
+  // Convert to HTML entities (PHP 8.2+ compatible) to prevent parsing warnings
+  $htmlToParse = mb_encode_numericentity($htmlToParse, [0x80, 0x10FFFF, 0, 0x1FFFFF], 'UTF-8');
+
+  // Secure load: Disable network access and warnings
+  @$doc->loadHTML($htmlToParse, LIBXML_NOERROR | LIBXML_NOWARNING | LIBXML_NONET);
+  libxml_clear_errors();
+
+  // Extract metadata
+
+  $xpath = new DOMXPath($doc);
+
+  $title = '';
+  $description = '';
+  $image = '';
+
+  // Extract title
+  $nodes = $xpath->query('//meta[@property="og:title"]/@content');
+  if ($nodes->length > 0) $title = $nodes->item(0)->nodeValue;
+  if (empty($title)) {
+    $nodes = $xpath->query('//title');
+    if ($nodes->length > 0) $title = $nodes->item(0)->nodeValue;
+  }
+
+  // Extract description
+  $nodes = $xpath->query('//meta[@property="og:description"]/@content');
+  if ($nodes->length > 0) $description = $nodes->item(0)->nodeValue;
+  if (empty($description)) {
+    $nodes = $xpath->query('//meta[@name="description"]/@content');
+    if ($nodes->length > 0) $description = $nodes->item(0)->nodeValue;
+  }
+
+  // Extract image
+  $nodes = $xpath->query('//meta[@property="og:image"]/@content');
+  if ($nodes->length > 0) $image = $nodes->item(0)->nodeValue;
+
+  // Resolve relative URL for the image
   if ($image && !preg_match('/^https?:/', $image)) {
     $parsedUrl = parse_url($url);
 

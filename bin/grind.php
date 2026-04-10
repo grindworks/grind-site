@@ -898,7 +898,7 @@ function handleMigrationCreate(string $srcPath): void
     $totalFiles = count($files);
     $processed = 0;
     foreach ($files as $filePath) {
-        $realFilePath = realpath($filePath);
+        $realFilePath = realpath((string)$filePath);
         $realUploadDir = realpath($uploadDir);
         if ($realFilePath && $realUploadDir) {
             $normRealFilePath = str_replace('\\', '/', $realFilePath);
@@ -955,12 +955,6 @@ function handleRescueFix(string $srcPath): void
         // 4. Regenerate root .htaccess
         require_once $srcPath . '/lib/htaccess_generator.php';
         $htContent = grinds_get_htaccess_content(false);
-        // Determine RewriteBase if in a subdirectory
-        $scriptDir = str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME']));
-        $scriptDir = ($scriptDir === '/' || $scriptDir === '/bin') ? '' : rtrim(str_replace('/bin', '', $scriptDir), '/');
-        if ($scriptDir !== '') {
-            $htContent = preg_replace('/^(\s*)#?\s*RewriteBase\s+.*$/m', '$1RewriteBase ' . $scriptDir . '/', $htContent);
-        }
         @file_put_contents($srcPath . '/.htaccess', $htContent);
         echo "  " . ConsoleColor::green("✓") . " Root .htaccess regenerated.\n";
 

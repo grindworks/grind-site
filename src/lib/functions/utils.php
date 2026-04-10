@@ -328,12 +328,13 @@ if (!function_exists('grinds_extract_urls')) {
                             }
                         }
                         if (is_string($value) && ($key === 'text' || $key === 'content' || $key === 'code' || $key === 'caption')) {
-                            if (preg_match_all('/(href|src)\s*=\s*["\']([^"\']+)["\']/i', $value, $matches)) {
+                            // Use possessive quantifiers (*+, ++) to prevent ReDoS on huge values
+                            if (preg_match_all('/(href|src)\s*+=\s*+["\']([^"\']++)["\']/i', $value, $matches)) {
                                 foreach ($matches[2] as $u) {
                                     if (!preg_match('/^data:/i', $u)) $urlsMap[$u] = true;
                                 }
                             }
-                            if (preg_match_all('/url\(\s*[\'"]?([^)\'"]+)[\'"]?\s*\)/i', $value, $cssMatches)) {
+                            if (preg_match_all('/url\(\s*+[\'"]?([^)\'"]++)[\'"]?\s*+\)/i', $value, $cssMatches)) {
                                 foreach ($cssMatches[1] as $u) {
                                     if (!preg_match('/^data:/i', $u)) $urlsMap[$u] = true;
                                 }
@@ -348,12 +349,12 @@ if (!function_exists('grinds_extract_urls')) {
             $finder($data['blocks'], 0);
         } elseif (is_string($content)) {
             // Check raw HTML and exclude data URIs to prevent memory bloat
-            if (preg_match_all('/(?:href|src)\s*=\s*["\']([^"\']+)["\']/i', $content, $matches)) {
+            if (preg_match_all('/(?:href|src)\s*+=\s*+["\']([^"\']++)["\']/i', $content, $matches)) {
                 foreach ($matches[1] as $u) {
                     if (!preg_match('/^data:/i', $u)) $urlsMap[$u] = true;
                 }
             }
-            if (preg_match_all('/url\(\s*[\'"]?([^)\'"]+)[\'"]?\s*\)/i', $content, $matches)) {
+            if (preg_match_all('/url\(\s*+[\'"]?([^)\'"]++)[\'"]?\s*+\)/i', $content, $matches)) {
                 foreach ($matches[1] as $u) {
                     if (!preg_match('/^data:/i', $u)) $urlsMap[$u] = true;
                 }
@@ -964,8 +965,27 @@ if (!function_exists('grinds_recursive_copy')) {
                 }
             } else {
                 $sourcePath = $item->getRealPath() ?: $item->getPathname();
-                if (!@copy($sourcePath, $target)) {
-                    throw new Exception("Failed to copy file: " . $sourcePath);
+
+                // Safe Copy & OS File Lock Workaround
+                if (file_exists($target)) {
+                    if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
+                        // Rename to a trash extension to bypass "File in use" lock on Windows
+                        $tempOld = $target . '.' . uniqid() . '.grind-del';
+                        if (@rename($target, $tempOld)) {
+                            if (!@copy($sourcePath, $target)) {
+                                @rename($tempOld, $target); // Rollback
+                                throw new Exception("Failed to copy file: " . $sourcePath);
+                            }
+                        } else {
+                            if (!@copy($sourcePath, $target)) throw new Exception("Failed to overwrite file: " . $sourcePath);
+                        }
+                    } else {
+                        // Linux/Mac: Remove first to prevent permission/ownership lock issues
+                        @unlink($target);
+                        if (!@copy($sourcePath, $target)) throw new Exception("Failed to copy file: " . $sourcePath);
+                    }
+                } else {
+                    if (!@copy($sourcePath, $target)) throw new Exception("Failed to copy file: " . $sourcePath);
                 }
             }
         }
@@ -2087,5 +2107,186 @@ if (!function_exists('grinds_ssg_replace_base_url')) {
             return rtrim($ssgBaseUrl, '/') . substr($url, strlen($originalBaseUrl));
         }
         return $url;
+    }
+}
+
+/**
+ * Download a file directly to disk using streams to prevent memory exhaustion.
+ * Includes strict SSRF protection and manual redirect following.
+ *
+ * @param string $url The URL to download from.
+ * @param string $destPath The absolute path to save the file to.
+ * @param array $options Configuration options.
+ * @return bool True on success, false on failure.
+ */
+if (!function_exists('grinds_download_file')) {
+    function grinds_download_file(string $url, string $destPath, array $options = []): bool
+    {
+        $timeout = $options['timeout'] ?? 120;
+        $maxSize = $options['max_size'] ?? 100 * 1024 * 1024; // 100MB limit
+        $userAgent = $options['user_agent'] ?? 'GrindsCMS/' . (defined('CMS_VERSION') ? CMS_VERSION : 'Unknown');
+        $verifySsl = $options['verify_ssl'] ?? true;
+        $blockPrivateIp = $options['block_private_ip'] ?? true;
+
+        // Fallback if cURL is completely missing
+        if (!function_exists('curl_init')) {
+            $contextOptions = [
+                'http' => [
+                    'timeout' => $timeout,
+                    'user_agent' => $userAgent,
+                    'follow_location' => 1,
+                    'max_redirects' => 5
+                ],
+                'ssl' => ['verify_peer' => $verifySsl, 'verify_peer_name' => $verifySsl]
+            ];
+            $context = stream_context_create($contextOptions);
+            $in = @fopen($url, 'rb', false, $context);
+            if (!$in) return false;
+            $out = @fopen($destPath, 'wb');
+            if (!$out) {
+                fclose($in);
+                return false;
+            }
+
+            $downloadedBytes = 0;
+            $success = true;
+            while (!feof($in)) {
+                $chunk = fread($in, 8192);
+                if ($chunk === false) {
+                    $success = false;
+                    break;
+                }
+                $downloadedBytes += strlen($chunk);
+                if ($downloadedBytes > $maxSize) {
+                    $success = false;
+                    break;
+                }
+                fwrite($out, $chunk);
+            }
+            fclose($in);
+            fclose($out);
+            if (!$success) @unlink($destPath);
+            return $success;
+        }
+
+        $maxRedirects = 5;
+        $currentUrl = $url;
+        $fp = @fopen($destPath, 'wb');
+        if (!$fp) return false;
+
+        $success = false;
+
+        for ($i = 0; $i <= $maxRedirects; $i++) {
+            $resolveRules = [];
+
+            // Strict SSRF Prevention: Resolve IP before requesting
+            if ($blockPrivateIp) {
+                $host = parse_url($currentUrl, PHP_URL_HOST);
+                if (!$host) break;
+
+                $ips = gethostbynamel($host);
+                if (!$ips) break;
+
+                foreach ($ips as $ip) {
+                    if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) === false) {
+                        fclose($fp);
+                        @unlink($destPath);
+                        return false; // Block private IP
+                    }
+                }
+
+                // Pin DNS to prevent TOCTOU/DNS Rebinding
+                if (isset($ips[0])) {
+                    $scheme = parse_url($currentUrl, PHP_URL_SCHEME);
+                    $port = parse_url($currentUrl, PHP_URL_PORT) ?: ($scheme === 'https' ? 443 : 80);
+                    $resolveRules[] = "{$host}:{$port}:{$ips[0]}";
+                }
+            }
+
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, $currentUrl);
+            curl_setopt($ch, CURLOPT_FILE, $fp); // Stream directly to file
+            curl_setopt($ch, CURLOPT_HEADER, false);
+            curl_setopt($ch, CURLOPT_FOLLOWLOCATION, false); // Handle redirects manually for security
+            curl_setopt($ch, CURLOPT_TIMEOUT, $timeout);
+            curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
+            curl_setopt($ch, CURLOPT_USERAGENT, $userAgent);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, $verifySsl);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, $verifySsl ? 2 : 0);
+
+            if (!empty($resolveRules)) {
+                curl_setopt($ch, CURLOPT_RESOLVE, $resolveRules);
+            }
+
+            // Restrict protocols
+            if (defined('CURLOPT_PROTOCOLS_STR')) {
+                curl_setopt($ch, CURLOPT_PROTOCOLS_STR, 'http,https');
+            } else {
+                curl_setopt($ch, CURLOPT_PROTOCOLS, CURLPROTO_HTTP | CURLPROTO_HTTPS);
+            }
+
+            // Track headers manually for redirect parsing
+            $responseHeaders = '';
+            curl_setopt($ch, CURLOPT_HEADERFUNCTION, function ($curl, $header) use (&$responseHeaders) {
+                $len = strlen($header);
+                $responseHeaders .= $header;
+                return $len;
+            });
+
+            // Enforce Max Size during stream
+            curl_setopt($ch, CURLOPT_NOPROGRESS, false);
+            curl_setopt($ch, CURLOPT_PROGRESSFUNCTION, function (...$args) use ($maxSize) {
+                $downloaded = count($args) >= 5 ? $args[2] : (count($args) >= 4 ? $args[1] : 0);
+                return ($downloaded > $maxSize) ? 1 : 0;
+            });
+
+            // Start over file pointer on redirect
+            rewind($fp);
+            ftruncate($fp, 0);
+
+            curl_exec($ch);
+            $error = curl_errno($ch);
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            curl_close($ch);
+
+            if ($error && $error !== CURLE_ABORTED_BY_CALLBACK) {
+                break;
+            }
+
+            // Handle manual redirect safely
+            if ($httpCode >= 300 && $httpCode < 400) {
+                if (preg_match('/(?:\r\n|^)Location:\s*([^\r\n]+)/i', $responseHeaders, $matches)) {
+                    $nextUrl = trim($matches[1]);
+
+                    // Resolve relative URLs
+                    if (!preg_match('/^https?:\/\//i', $nextUrl)) {
+                        $parsed = parse_url($currentUrl);
+                        if (is_array($parsed)) {
+                            $base = ($parsed['scheme'] ?? 'http') . '://' . ($parsed['host'] ?? '') . (isset($parsed['port']) ? ':' . $parsed['port'] : '');
+                            if (str_starts_with($nextUrl, '/')) {
+                                $currentUrl = $base . $nextUrl;
+                            } else {
+                                $path = str_replace('\\', '/', dirname($parsed['path'] ?? '/'));
+                                $currentUrl = $base . rtrim($path, '/') . '/' . $nextUrl;
+                            }
+                        }
+                    } else {
+                        $currentUrl = $nextUrl;
+                    }
+                    continue; // Loop to next redirect
+                }
+            }
+
+            // Success if HTTP 200 series
+            if ($httpCode >= 200 && $httpCode < 300) {
+                $success = true;
+            }
+            break;
+        }
+
+        fclose($fp);
+        if (!$success) @unlink($destPath);
+
+        return $success;
     }
 }

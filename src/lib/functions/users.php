@@ -20,11 +20,22 @@ function grinds_delete_user(PDO $pdo, int $userId, int $currentUserId)
         throw new Exception(_t('err_cannot_delete_self'));
     }
 
-    // Prevent deleting the last administrator
+    // Identify target user's role
     $stmtRole = $pdo->prepare("SELECT role FROM users WHERE id = ?");
     $stmtRole->execute([$userId]);
     $targetRole = $stmtRole->fetchColumn();
 
+    // Identify current user's role
+    $stmtCurrentRole = $pdo->prepare("SELECT role FROM users WHERE id = ?");
+    $stmtCurrentRole->execute([$currentUserId]);
+    $currentUserRole = $stmtCurrentRole->fetchColumn();
+
+    // Prevent non-admin users from deleting admin accounts (Privilege Escalation Protection)
+    if ($currentUserRole !== 'admin' && $targetRole === 'admin') {
+        throw new Exception(function_exists('_t') ? _t('err_access_denied') : 'Permission denied to delete Administrator account.');
+    }
+
+    // Prevent deleting the last administrator
     if ($targetRole === 'admin') {
         $adminCount = $pdo->query("SELECT COUNT(*) FROM users WHERE role = 'admin'")->fetchColumn();
         if ($adminCount <= 1) {

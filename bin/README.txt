@@ -17,7 +17,7 @@ These scripts are intended for use in a local development environment or via SSH
   - Database tools (optimization and search index rebuilding)
   - Backup & Recovery (create, list, and restore database snapshots)
   - Migration (generate full deployment packages)
-  - Static Site Generation (build static HTML files via CLI)
+  - Static Site Generation (build static HTML files via CLI with --full or --diff)
   - Plugin & Theme management (list and toggle status)
 
   Usage: php bin/grind.php <command>
@@ -28,6 +28,8 @@ These scripts are intended for use in a local development environment or via SSH
   $ php bin/grind.php status               # Check system status
   $ php bin/grind.php cache:clear          # Clear all caches
   $ php bin/grind.php backup:create        # Create a database backup
+  $ php bin/grind.php ssg:build            # Build static site
+  $ php bin/grind.php ssg:build --diff     # Build only changed files
 
   Important Note on Permissions:
   When running commands on a live server via SSH, generated files and caches will be owned by your SSH user.
@@ -61,7 +63,7 @@ These scripts are intended for use in a local development environment or via SSH
   - データベースツール（最適化、検索インデックスの再構築）
   - バックアップと復元（スナップショットの作成、一覧、CLIからの復旧）
   - 移行（データベースとアップロードファイルを含めた一括パッケージ作成）
-  - 静的サイト生成（CLIから静的HTMLファイルを一括ビルド）
+  - 静的サイト生成（CLIから静的HTMLファイルを一括ビルド。--full や --diff オプション対応）
   - プラグイン・テーマ管理（一覧表示、有効化・無効化の切り替え）
 
   使い方: php bin/grind.php <コマンド>
@@ -72,6 +74,8 @@ These scripts are intended for use in a local development environment or via SSH
   $ php bin/grind.php status               # システムのステータスを確認
   $ php bin/grind.php cache:clear          # キャッシュをクリア
   $ php bin/grind.php backup:create        # データベースのバックアップを作成
+  $ php bin/grind.php ssg:build            # 静的サイトをビルド
+  $ php bin/grind.php ssg:build --diff     # 変更されたファイルのみ差分ビルド
 
   パーミッションに関する重要な注意:
   SSH経由で本番サーバー上でコマンドを実行した場合、生成されたファイルの所有者はSSHユーザーになります。

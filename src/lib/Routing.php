@@ -164,7 +164,34 @@ class Routing
         }
 
         if (is_string($data)) {
-            return self::processContentUrls($data, $baseUrl);
+            $processedData = self::processContentUrls($data, $baseUrl);
+
+            if (empty(trim($processedData))) return $processedData;
+
+            if ($baseUrl === null) {
+                $baseUrl = defined('BASE_URL') ? rtrim(BASE_URL, '/') : '';
+            } else {
+                $baseUrl = rtrim($baseUrl, '/');
+            }
+
+            if ($baseUrl !== '' && stripos($processedData, $baseUrl) === 0) {
+                return '{{CMS_URL}}' . substr($processedData, strlen($baseUrl));
+            }
+
+            $parsed = parse_url($baseUrl);
+            $basePath = isset($parsed['path']) ? rtrim($parsed['path'], '/') : '';
+
+            if ($basePath !== '') {
+                if (stripos($processedData, $basePath . '/') === 0) {
+                    return '{{CMS_URL}}' . substr($processedData, strlen($basePath));
+                }
+            } else {
+                if (str_starts_with($processedData, '/') && !str_starts_with($processedData, '//')) {
+                    return '{{CMS_URL}}' . $processedData;
+                }
+            }
+
+            return $processedData;
         }
         if (is_array($data)) {
             foreach ($data as $key => $value) {

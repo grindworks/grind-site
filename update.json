@@ -1,7 +1,7 @@
 {
-  "version": "1.6.0",
-  "release_date": "2026-04-09",
-  "message": "Add Post Revisions, Virtual Publish Queue for SSG, Custom Fields via theme.json, and new Affiliate plugins",
-  "download_url": "https://github.com/grindworks/grind-site/releases/download/v1.6.0/grindsite-v1.6.0.zip",
-  "sha256": "30f331d4580f906249a454ea975ee3f9e8cf94ac83a797b0f2e1a78a6c1ec4fc"
+  "version": "1.6.1",
+  "release_date": "2026-04-10",
+  "message": "Asynchronous Updater, CLI SSG "message": "Add Post Revisions, Virtual Publish Queue for SSG, Custom Fields via theme.json, and new Affiliate plugins" System Enhancements",
+  "download_url": "https://github.com/grindworks/grind-site/releases/download/v1.6.1/grindsite-v1.6.1.zip",
+  "sha256": "8aa173b7f4b39f97aa1ccf4cc8dfab966af2990855fd2934c1cb5790d28f9a21"
 }

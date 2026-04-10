@@ -1,11 +1,11 @@
 #!/bin/bash
 
 # GrindSite Release Automation Script
-# Usage: ./bin/release.sh v1.6.0 "Post Revisions, Advanced SSG & Custom Fields"
+# Usage: ./bin/release.sh v1.6.1 "Asynchronous Updater, CLI SSG & System Enhancements"
 
 if [ -z "$1" ]; then
   echo "❌ Error: Version tag is required."
-  echo "Usage: ./bin/release.sh v1.6.0 \"Release message\""
+  echo "Usage: ./bin/release.sh v1.6.1 \"Release message\""
   exit 1
 fi
 
@@ -16,6 +16,16 @@ ZIP_FILE="grindsite-${VERSION}.zip"
 # 0. Restore install.php if it was auto-deleted during local testing
 echo "🔄 Ensuring install.php is present..."
 git restore src/install.php 2>/dev/null || true
+
+RAW_VERSION=${VERSION#v}
+
+# 0.5 Auto-bump versions in core files BEFORE committing and zipping
+echo "📝 Auto-bumping versions in core files to $RAW_VERSION..."
+sed -i '' "s/define('CMS_VERSION', '[^']*');/define('CMS_VERSION', '$RAW_VERSION');/" src/lib/info.php
+sed -i '' 's/"version": "[^"]*"/"version": "'"$RAW_VERSION"'"/' composer.json
+sed -i '' 's/"version": "[^"]*"/"version": "'"$RAW_VERSION"'"/' package.json
+sed -i '' 's/# GrindSite v.*/# GrindSite v'"$RAW_VERSION"'/' README.md
+sed -i '' 's/version-[0-9\.]*-blue\.svg/version-'"$RAW_VERSION"'-blue.svg/' README.md
 
 # 1. Commit current changes
 echo "📦 Committing changes..."
@@ -31,24 +41,18 @@ echo "✅ Created: $ZIP_FILE"
 HASH=$(shasum -a 256 "$ZIP_FILE" | awk '{print $1}')
 echo "✅ Calculated Hash: $HASH"
 
-# 4. Update update.json with new info (macOS sed syntax)
+# 4. Update update.json with Hash and release info
 echo "📝 Updating update.json..."
-RAW_VERSION=${VERSION#v}
 TODAY=$(date +%Y-%m-%d)
 sed -i '' 's/"version": "[^"]*"/"version": "'"$RAW_VERSION"'"/' update.json
 sed -i '' 's/"release_date": "[^"]*"/"release_date": "'"$TODAY"'"/' update.json
 sed -i '' 's|"message": "[^"]*"|"message": "'"$MESSAGE"'"|' update.json
-sed -i '' 's|"download_url": "[^"]*"|"download_url": "https://github.com/grindworks/grind-site/releases/download/'"$VERSION"'/grindsite-'"$VERSION"'\.zip"|' update.json
+sed -i '' 's|"download_url": "[^"]*"|"download_url": "https://github.com/grindworks/grind-site/releases/download/'"$VERSION"'/grindsite-'"$VERSION"'.zip"|' update.json
 sed -i '' 's/"sha256": "[^"]*"/"sha256": "'"$HASH"'"/' update.json
 
-# Update package.json version
-echo "📝 Updating package.json..."
-sed -i '' 's/"version": "[^"]*"/"version": "'"$RAW_VERSION"'"/' package.json
-
-# 5. Amend commit with update.json and package.json changes (keeping history clean)
+# 5. Amend commit with update.json changes (keeping history clean)
 echo "🔗 Amending commit..."
 git add update.json
-git add package.json
 git commit --amend --no-edit
 
 # 6. Tag and Push

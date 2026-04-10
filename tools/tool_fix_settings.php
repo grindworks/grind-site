@@ -269,33 +269,16 @@ try {
       @copy($rootPath . '/.htaccess', $rootPath . '/.htaccess_' . date('YmdHis') . '.bak');
     }
 
-    // Prepare RewriteBase.
-    $scriptDir = str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME']));
-    $scriptDir = ($scriptDir === '/') ? '' : rtrim($scriptDir, '/');
-
-    $rewriteBaseLine = '# RewriteBase /';
-    $act5Result = null;
-    if ($scriptDir !== '') {
-      $rewriteBaseLine = "RewriteBase " . $scriptDir . "/";
-      $act5Result = t('act_5') . " (" . h($rewriteBaseLine) . ")";
-    }
-
     // Generate .htaccess.
     if (file_exists($rootPath . '/lib/htaccess_generator.php')) {
       require_once $rootPath . '/lib/htaccess_generator.php';
       $htaccessContent = grinds_get_htaccess_content(false);
-      if ($scriptDir !== '') {
-        $htaccessContent = preg_replace('/^(\s*)#?\s*RewriteBase\s+.*$/m', '$1' . $rewriteBaseLine, $htaccessContent);
-      }
     } else {
       throw new Exception("htaccess_generator.php not found.");
     }
 
     if (@file_put_contents($rootPath . '/.htaccess', $htaccessContent)) {
       $results[] = t('act_4');
-      if ($act5Result) {
-        $results[] = $act5Result;
-      }
     }
 
     // Disable Basic Auth to fix 500 error.
@@ -470,13 +453,6 @@ try {
                   <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
                 </svg>
                 <?= h(t('act_4')) ?>
-              </div>
-              <div class="flex items-center gap-3 p-3.5 text-slate-700 text-sm">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                  stroke="currentColor" class="w-5 h-5 text-[#0f62fe] shrink-0">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                </svg>
-                <?= h(t('act_5')) ?>
               </div>
             </div>
           </div>

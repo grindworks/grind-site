@@ -1,11 +1,11 @@
-# GrindSite v1.6.0
+# GrindSite v1.6.1
 
 **The simplest CMS on earth.**
 **地球上で最もシンプルな CMS**
 
 [![PHP Version](https://img.shields.io/badge/php-8.3%2B-blue.svg)](https://www.php.net/)
 [![License](https://img.shields.io/badge/license-Commercial%2FFree-green.svg)](#-license--support-policy)
-[![Version](https://img.shields.io/badge/version-1.6.0-blue.svg)](https://github.com/grindworks/grind-site/releases)
+[![Version](https://img.shields.io/badge/version-1.6.1-blue.svg)](https://github.com/grindworks/grind-site/releases)
 
 ---
 
@@ -35,10 +35,10 @@ It requires **no database configuration (MySQL)**. Just upload the files to your
 - **Multi-Theme Support:** Comes with **Tailwind CSS** (Default) and **Bootstrap 5** themes. Easy to customize or create your own.
 - **Site Management:** Full control over Menus, Widgets, Banners, Categories, and Tags from the admin panel.
 - **Headless API & Hooks:** Built-in REST API (`/api/`) and extensible Plugin/Hook system (`/plugins/`).
-- **System Tools:** Built-in link checker, unused file detector, database optimizer, and migration exporter.
+- **System Tools:** Built-in link checker, unused file detector, database optimizer, and migration exporter. Includes a robust Asynchronous Updater with Atomic Rollback for safe updates.
 - **High Performance:** Lightweight core ensures blazing fast page loads.
 - **Portable:** Easy migration between local (MAMP/XAMPP) and production servers.
-- **Static Site Generator:** Export your site as pure HTML for ultra-fast hosting. Features a robust Virtual Publish Queue for handling large sites.
+- **Static Site Generator:** Export your site as pure HTML for ultra-fast hosting. Features a robust Virtual Publish Queue and CLI support (`php bin/grind.php ssg:build`) for CI/CD automation.
 - **Secure:** Admin panel protected by robust authentication, CSRF checks, and an optional **Two-Factor Authentication (2FA)** plugin.
 - **Enterprise Security:** Includes optional Institutional Grade plugins for Strict Session Management (anti-hijacking) and Immutable Audit Logging.
 - **Spam & DoS Protection:** Built-in lightweight Rate Limiting plugin protects your APIs and contact forms without database locks.
@@ -146,6 +146,9 @@ php bin/grind.php user:reset-password admin NewPassword123
 
 # Create a database backup
 php bin/grind.php backup:create
+
+# Build Static Site (SSG)
+php bin/grind.php ssg:build
 ```
 
 ### 🆘 Troubleshooting

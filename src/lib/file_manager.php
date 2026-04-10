@@ -1686,7 +1686,7 @@ class FileManager
      *
      * @param string $dir Directory path.
      * @param array $options Options: exclude_dirs, exclude_files, exclude_exts, include_exts, since.
-     * @return Generator List of file paths.
+     * @return \Generator<string> List of file paths.
      */
     public static function scanDirectory($dir, $options = [])
     {

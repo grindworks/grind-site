@@ -2,14 +2,14 @@
 
 /**
  * update.php
- * Renders the update interface.
+ * Renders the update interface with fully asynchronous step-by-step execution.
  */
 if (!defined('GRINDS_APP'))
   exit;
 
 // Check for updates if on update tab
 if (($init_tab ?? '') === 'update') {
-  require_once __DIR__ . '/../../../lib/updater.php';
+  require_once ROOT_PATH . '/lib/updater.php';
   $updater = new GrindsUpdater($pdo);
   $status = $updater->check();
 } else {
@@ -40,6 +40,12 @@ if (($init_tab ?? '') === 'update') {
           </svg>
         </div>
         <h3 class="mb-1 font-bold text-theme-text text-lg opacity-80"><?= _t('st_update_check_needed') ?></h3>
+
+        <div class="flex items-center gap-2 mt-2 px-4 py-2 bg-theme-surface border border-theme-border rounded-full shadow-sm text-sm">
+          <span class="opacity-60 text-theme-text font-bold"><?= _t('st_current_ver') ?></span>
+          <span class="font-mono font-bold text-theme-text">v<?= h(defined('CMS_VERSION') ? CMS_VERSION : 'Unknown') ?></span>
+        </div>
+
         <div class="mt-6">
           <button @click="isChecking = true; setTimeout(() => window.location.href = 'settings.php?tab=update', 1600)"
             class="inline-block shadow-theme px-6 py-2.5 rounded-theme font-bold text-sm transition-all btn-primary no-underline">
@@ -55,6 +61,11 @@ if (($init_tab ?? '') === 'update') {
           </svg>
         </div>
         <h3 class="mb-1 font-bold text-theme-text text-lg opacity-80"><?= _t('st_checking_updates') ?></h3>
+
+        <div class="flex items-center gap-2 mt-2 px-4 py-2 opacity-50 text-sm">
+          <span class="opacity-60 text-theme-text font-bold"><?= _t('st_current_ver') ?></span>
+          <span class="font-mono font-bold text-theme-text">v<?= h(defined('CMS_VERSION') ? CMS_VERSION : 'Unknown') ?></span>
+        </div>
       </div>
     </div>
 
@@ -125,13 +136,11 @@ if (($init_tab ?? '') === 'update') {
         </ul>
       </div>
 
-      <form method="post" class="w-full">
-        <input type="hidden" name="csrf_token" value="<?= h(generate_csrf_token()) ?>">
-        <input type="hidden" name="action" value="perform_update">
-
+      <!-- Asynchronous Update Controller -->
+      <div class="w-full" x-data="updateController()">
         <div class="mb-6 bg-theme-bg/30 p-4 sm:p-5 border border-theme-border rounded-theme">
-          <label class="flex items-start cursor-pointer group">
-            <input type="checkbox" name="skip_theme_skin" value="1" checked class="mt-0.5 bg-theme-surface border-theme-border rounded focus:ring-theme-primary/20 w-5 h-5 text-theme-primary form-checkbox shrink-0 transition-shadow">
+          <label class="flex items-start cursor-pointer group" :class="isProcessing ? 'opacity-50 pointer-events-none' : ''">
+            <input type="checkbox" x-model="skipThemeSkin" class="mt-0.5 bg-theme-surface border-theme-border rounded focus:ring-theme-primary/20 w-5 h-5 text-theme-primary form-checkbox shrink-0 transition-shadow">
             <div class="ml-3">
               <span class="block text-theme-text text-sm font-bold group-hover:text-theme-primary transition-colors"><?= _t('st_update_skip_theme_skin') ?></span>
               <span class="block mt-1.5 text-theme-text opacity-70 text-xs leading-relaxed"><?= _t('st_update_skip_theme_skin_desc') ?></span>
@@ -139,25 +148,248 @@ if (($init_tab ?? '') === 'update') {
           </label>
         </div>
 
+        <!-- Progress Modal UI (Visible during update) -->
+        <div x-show="isProcessing" x-collapse class="mb-6">
+          <div class="bg-theme-surface border border-theme-border rounded-theme p-6 shadow-theme">
+            <h4 class="font-bold text-theme-primary text-lg mb-4 flex items-center gap-2">
+              <svg class="w-5 h-5 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24" x-show="!isComplete && !hasError">
+                <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-arrow-path"></use>
+              </svg>
+              <svg class="w-5 h-5 text-theme-success" fill="none" stroke="currentColor" viewBox="0 0 24 24" x-show="isComplete" style="display:none;">
+                <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-check-circle"></use>
+              </svg>
+              <svg class="w-5 h-5 text-theme-danger" fill="none" stroke="currentColor" viewBox="0 0 24 24" x-show="hasError" style="display:none;">
+                <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-exclamation-triangle"></use>
+              </svg>
+              <span x-text="statusTitle"></span>
+            </h4>
+
+            <div class="space-y-3">
+              <template x-for="(step, index) in steps" :key="step.id">
+                <div class="flex items-center justify-between text-sm" :class="step.status === 'pending' ? 'opacity-40' : (step.status === 'active' ? 'text-theme-primary font-bold' : (step.status === 'error' ? 'text-theme-danger font-bold' : 'text-theme-success font-medium'))">
+                  <div class="flex items-center gap-2">
+                    <span x-show="step.status === 'pending'" class="w-4 h-4 rounded-full border-2 border-theme-text/40"></span>
+                    <svg x-show="step.status === 'active'" class="w-4 h-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-arrow-path"></use>
+                    </svg>
+                    <svg x-show="step.status === 'done'" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-check-circle"></use>
+                    </svg>
+                    <svg x-show="step.status === 'error'" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-x-circle"></use>
+                    </svg>
+                    <span x-text="step.label"></span>
+                  </div>
+                </div>
+              </template>
+            </div>
+
+            <div x-show="errorMessage" class="mt-4 p-3 bg-theme-danger/10 border border-theme-danger/30 text-theme-danger text-xs rounded-theme" x-text="errorMessage" style="display:none;"></div>
+          </div>
+        </div>
+
         <div class="flex flex-col sm:flex-row justify-end gap-4 items-center pt-6 border-t border-theme-border">
-          <button type="button" @click="activeTab = 'backup'"
-            class="shadow-theme px-6 py-2.5 rounded-theme w-full sm:w-auto text-sm btn-secondary flex items-center justify-center gap-2">
+          <button type="button" @click="activeTab = 'backup'" :disabled="isProcessing"
+            class="shadow-theme px-6 py-2.5 rounded-theme w-full sm:w-auto text-sm btn-secondary flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-server"></use>
             </svg>
             <?= _t('st_goto_backup') ?>
           </button>
 
-          <button type="submit"
-            onclick="return confirm(<?= htmlspecialchars(json_encode(_t('st_confirm_update')), ENT_QUOTES) ?>);"
-            class="shadow-theme px-8 py-2.5 rounded-theme w-full sm:w-auto font-bold text-sm transition-all btn-primary flex items-center justify-center gap-2">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <button type="button" @click="startUpdate()" :disabled="isProcessing || isComplete"
+            class="shadow-theme px-8 py-2.5 rounded-theme w-full sm:w-auto font-bold text-sm transition-all btn-primary flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed hover:-translate-y-0.5">
+            <svg x-show="!isProcessing && !isComplete" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-arrow-down-tray"></use>
             </svg>
-            <?= _t('st_btn_update_now') ?>
+            <svg x-show="isProcessing" x-cloak class="w-4 h-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-arrow-path"></use>
+            </svg>
+            <svg x-show="isComplete" x-cloak class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-check"></use>
+            </svg>
+            <span x-text="isComplete ? <?= htmlspecialchars(json_encode(_t('js_done') ?? 'Done!'), ENT_QUOTES) ?> : (isProcessing ? <?= htmlspecialchars(json_encode(_t('ssg_btn_generating') ?? 'Updating...'), ENT_QUOTES) ?> : <?= htmlspecialchars(json_encode(_t('st_btn_update_now')), ENT_QUOTES) ?>)"></span>
           </button>
         </div>
-      </form>
+      </div>
+
+      <script>
+        document.addEventListener('alpine:init', () => {
+          Alpine.data('updateController', () => ({
+            skipThemeSkin: true,
+            isProcessing: false,
+            isComplete: false,
+            hasError: false,
+            statusTitle: 'Preparing update...',
+            errorMessage: '',
+            sourceDir: '',
+            downloadUrl: '',
+            expectedHash: '',
+            steps: [{
+                id: 'init',
+                label: 'Initialization & Checks',
+                status: 'pending'
+              },
+              {
+                id: 'download',
+                label: 'Downloading Package',
+                status: 'pending'
+              },
+              {
+                id: 'extract',
+                label: 'Extracting Archive',
+                status: 'pending'
+              },
+              {
+                id: 'dry_run',
+                label: 'Pre-flight Permission Checks',
+                status: 'pending'
+              },
+              {
+                id: 'backup',
+                label: 'Backing Up Current Core',
+                status: 'pending'
+              },
+              {
+                id: 'apply',
+                label: 'Applying New Files',
+                status: 'pending'
+              },
+              {
+                id: 'cleanup',
+                label: 'Cleaning Up',
+                status: 'pending'
+              }
+            ],
+
+            async startUpdate() {
+              if (!confirm(<?= htmlspecialchars(json_encode(_t('st_confirm_update')), ENT_QUOTES) ?>)) return;
+
+              this.isProcessing = true;
+              this.isComplete = false;
+              this.hasError = false;
+              this.errorMessage = '';
+              this.statusTitle = 'Updating System...';
+              this.steps.forEach(s => s.status = 'pending');
+
+              // Block navigation
+              window.onbeforeunload = () => "Update in progress. Do not close this window.";
+
+              try {
+                // 1. Init
+                this.setStepStatus('init', 'active');
+                const initRes = await this.callApi('init');
+                this.downloadUrl = initRes.url;
+                this.expectedHash = initRes.sha256;
+                this.setStepStatus('init', 'done');
+
+                // 2. Download
+                this.setStepStatus('download', 'active');
+                await this.callApi('download', {
+                  url: this.downloadUrl,
+                  sha256: this.expectedHash
+                });
+                this.setStepStatus('download', 'done');
+
+                // 3. Extract
+                this.setStepStatus('extract', 'active');
+                const extractRes = await this.callApi('extract');
+                this.sourceDir = extractRes.source_dir;
+                this.setStepStatus('extract', 'done');
+
+                // 4. Dry Run (Permissions check)
+                this.setStepStatus('dry_run', 'active');
+                await this.callApi('dry_run', {
+                  source_dir: this.sourceDir,
+                  skip_theme_skin: this.skipThemeSkin ? 1 : 0
+                });
+                this.setStepStatus('dry_run', 'done');
+
+                // 5. Backup current core
+                this.setStepStatus('backup', 'active');
+                await this.callApi('backup', {
+                  source_dir: this.sourceDir,
+                  skip_theme_skin: this.skipThemeSkin ? 1 : 0
+                });
+                this.setStepStatus('backup', 'done');
+
+                // 6. Apply update
+                this.setStepStatus('apply', 'active');
+                await this.callApi('apply', {
+                  source_dir: this.sourceDir,
+                  skip_theme_skin: this.skipThemeSkin ? 1 : 0
+                });
+                this.setStepStatus('apply', 'done');
+
+                // 7. Cleanup
+                this.setStepStatus('cleanup', 'active');
+                await this.callApi('cleanup');
+                this.setStepStatus('cleanup', 'done');
+
+                this.statusTitle = <?= htmlspecialchars(json_encode(_t('msg_update_success') ?? 'Update Complete!'), ENT_QUOTES) ?>.replace('%s', initRes.version);
+                this.isComplete = true;
+
+                // Reload after success
+                setTimeout(() => {
+                  window.onbeforeunload = null;
+                  window.location.href = 'settings.php?tab=update';
+                }, 2000);
+
+              } catch (e) {
+                this.hasError = true;
+                this.statusTitle = 'Update Failed';
+                this.errorMessage = e.message;
+                // Mark active step as error
+                const activeStep = this.steps.find(s => s.status === 'active');
+                if (activeStep) activeStep.status = 'error';
+
+                // Attempt emergency cleanup
+                try {
+                  await this.callApi('cleanup');
+                } catch (err) {}
+
+                window.onbeforeunload = null;
+              }
+            },
+
+            setStepStatus(id, status) {
+              const step = this.steps.find(s => s.id === id);
+              if (step) step.status = status;
+            },
+
+            async callApi(step, data = {}) {
+              const formData = new FormData();
+              formData.append('csrf_token', '<?= h(generate_csrf_token()) ?>');
+              formData.append('step', step);
+              formData.append('data', JSON.stringify(data));
+
+              const baseUrl = (window.grindsBaseUrl || '').replace(/\/$/, '');
+              const res = await fetch(`${baseUrl}/admin/api/update_process.php`, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                  'X-Requested-With': 'XMLHttpRequest'
+                }
+              });
+
+              if (!res.ok) {
+                let msg = `Server Error (${res.status})`;
+                try {
+                  const errData = await res.json();
+                  if (errData.error) msg = errData.error;
+                } catch (e) {}
+                throw new Error(msg);
+              }
+
+              const result = await res.json();
+              if (!result.success) {
+                throw new Error(result.error || 'Unknown error');
+              }
+              return result;
+            }
+          }));
+        });
+      </script>
 
     <?php
     else: ?>

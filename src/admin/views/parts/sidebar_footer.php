@@ -72,11 +72,10 @@ if (!isset($statusDot) && isset($sysStatus)) {
                 <?= h($sysStatus['msg']) ?>
             </span>
             <?php if (in_array($licStatus, ['pro', 'agency'])): ?>
-                <span class="flex items-center gap-1 font-mono text-[10px] <?= $text_class ?>">
+                <span class="flex items-center gap-1.5 <?= $text_class ?>">
                     <span
                         class="inline-flex items-center py-0.5 px-1 bg-theme-success/20 text-theme-success text-[9px] font-bold rounded-theme tracking-wide">PRO</span>
-                    v
-                    <?= h(CMS_VERSION) ?>
+                    <span class="font-mono text-[10px] whitespace-nowrap">v<?= h(CMS_VERSION) ?></span>
                 </span>
                 <?php if (!empty($hasUpdate)): ?>
                     <a href="settings.php?tab=update" class="ml-auto text-theme-primary font-bold text-[10px] hover:underline animate-pulse" title="<?= _t('st_update_available') ?>">
@@ -85,8 +84,7 @@ if (!isset($statusDot) && isset($sysStatus)) {
                 <?php endif; ?>
             <?php
             else: ?>
-                <span class="opacity-60 font-mono text-[10px] <?= $text_class ?>">v
-                    <?= h(CMS_VERSION) ?>
+                <span class="opacity-60 font-mono text-[10px] whitespace-nowrap <?= $text_class ?>">v<?= h(CMS_VERSION) ?>
                 </span>
                 <?php if (!empty($hasUpdate)): ?>
                     <a href="https://github.com/grindworks/grind-site/releases" target="_blank" class="ml-auto text-theme-warning font-bold text-[10px] hover:underline" title="Manual Update Required">

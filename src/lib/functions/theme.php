@@ -761,6 +761,13 @@ function grinds_get_header_data(array $context = []): array
         } else {
             $ogImage = resolve_url($ogImage);
 
+            if (defined('GRINDS_IS_SSG') && GRINDS_IS_SSG && function_exists('get_option')) {
+                $ssgBase = get_option('ssg_base_url', '');
+                if (!empty($ssgBase)) {
+                    $ogImage = grinds_ssg_replace_base_url($ogImage, $ssgBase);
+                }
+            }
+
             if (!str_starts_with($ogImage, 'http') && !str_starts_with($ogImage, '//')) {
                 $scheme = (function_exists('is_ssl') && is_ssl()) ? 'https://' : 'http://';
                 $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
