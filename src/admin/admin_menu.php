@@ -1,7 +1,7 @@
 <?php
 
 /**
- * config.php
+ * admin_menu.php
  *
  * Define admin sidebar menu structure.
  */

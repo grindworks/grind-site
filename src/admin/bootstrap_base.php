@@ -17,8 +17,8 @@ if (file_exists($rootDir . '/lib/boot_check.php')) {
     require_once $rootDir . '/lib/boot_check.php';
 }
 
-// Load core configuration
-require_once __DIR__ . '/config.php';
+// Load admin menu configuration
+require_once __DIR__ . '/admin_menu.php';
 require_once $rootDir . '/lib/functions.php';
 
 // Start session (must be called before any $_SESSION access)

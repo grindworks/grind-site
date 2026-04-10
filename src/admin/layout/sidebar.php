@@ -181,6 +181,73 @@ $activeClass = 'bg-theme-primary border-theme-primary text-theme-on-primary font
         </div>
 
         <div class="flex items-center space-x-3">
+          <?php
+          $activeTheme = function_exists('get_option') ? get_option('site_theme', 'default') : 'default';
+          $themeJsonPath = defined('ROOT_PATH') ? ROOT_PATH . '/theme/' . $activeTheme . '/theme.json' : '';
+          $customPostTypes = [];
+          if ($themeJsonPath && file_exists($themeJsonPath)) {
+            $tData = json_decode(file_get_contents($themeJsonPath), true);
+            if (!empty($tData['post_types'])) {
+              foreach ($tData['post_types'] as $ptKey => $ptConfig) {
+                if ($ptKey !== 'post' && $ptKey !== 'page') {
+                  $customPostTypes[$ptKey] = $ptConfig;
+                }
+              }
+            }
+          }
+          ?>
+          <!-- Quick Create Dropdown -->
+          <div class="relative hidden sm:block" x-data="{ open: false }">
+            <button @click="open = !open" @click.outside="open = false"
+              class="flex items-center gap-1.5 hover:bg-theme-bg px-3 py-1.5 border border-transparent hover:border-theme-border rounded-theme text-theme-text/60 hover:text-theme-primary transition-all"
+              title="<?= _t('create_new') ?>">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-plus"></use>
+              </svg>
+              <span class="font-bold text-xs"><?= _t('new') ?></span>
+            </button>
+            <div x-show="open" x-transition:enter="transition ease-out duration-100"
+              x-transition:enter-start="transform opacity-0 scale-95"
+              x-transition:enter-end="transform opacity-100 scale-100"
+              x-transition:leave="transition ease-in duration-75"
+              x-transition:leave-start="transform opacity-100 scale-100"
+              x-transition:leave-end="transform opacity-0 scale-95"
+              class="right-0 z-50 absolute bg-theme-surface shadow-theme mt-2 p-2 border border-theme-border rounded-theme w-max min-w-[12rem]"
+              style="display: none;" x-cloak>
+              <a href="posts.php?action=new"
+                class="group flex items-center gap-3 px-3 py-2.5 rounded-theme text-sm font-medium whitespace-nowrap text-theme-text hover:bg-theme-bg hover:text-theme-primary transition-all duration-200">
+                <div class="flex-shrink-0 flex justify-center items-center rounded-theme w-8 h-8 bg-theme-bg text-theme-secondary group-hover:bg-theme-primary group-hover:text-theme-on-primary transition-colors">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-document-text"></use>
+                  </svg>
+                </div>
+                <span><?= _t('type_post') ?></span>
+              </a>
+              <a href="pages.php?action=new"
+                class="group flex items-center gap-3 px-3 py-2.5 rounded-theme text-sm font-medium whitespace-nowrap text-theme-text hover:bg-theme-bg hover:text-theme-primary transition-all duration-200">
+                <div class="flex-shrink-0 flex justify-center items-center rounded-theme w-8 h-8 bg-theme-bg text-theme-secondary group-hover:bg-theme-primary group-hover:text-theme-on-primary transition-colors">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-document"></use>
+                  </svg>
+                </div>
+                <span><?= _t('type_page') ?></span>
+              </a>
+              <?php foreach ($customPostTypes as $ptKey => $ptConfig):
+                $ptIcon = $ptConfig['icon'] ?? 'outline-document-text';
+                $ptLabel = $ptConfig['label'] ?? ucfirst($ptKey);
+              ?>
+                <a href="posts.php?action=new&type=<?= h($ptKey) ?>" class="group flex items-center gap-3 px-3 py-2.5 rounded-theme text-sm font-medium whitespace-nowrap text-theme-text hover:bg-theme-bg hover:text-theme-primary transition-all duration-200">
+                  <div class="flex-shrink-0 flex justify-center items-center rounded-theme w-8 h-8 bg-theme-bg text-theme-secondary group-hover:bg-theme-primary group-hover:text-theme-on-primary transition-colors">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <use href="<?= h(grinds_asset_url('assets/img/sprite.svg') . '#' . $ptIcon) ?>"></use>
+                    </svg>
+                  </div>
+                  <span><?= h($ptLabel) ?></span>
+                </a>
+              <?php endforeach; ?>
+            </div>
+          </div>
+
           <?php if (function_exists('do_action')) do_action('grinds_admin_toolbar'); ?>
           <!-- Cache clear button -->
           <?php

@@ -44,13 +44,10 @@ $backupDir   = $tmpBase . '/update_backup';
 $exclude = [
     'config.php',
     'install.php',
-    '.htaccess',
     'data',
     'assets/uploads',
     '.git',
     '.github',
-    '.gitignore',
-    '.DS_Store',
     'LICENSE.txt',
     'update.json',
     'README.md',
@@ -58,7 +55,10 @@ $exclude = [
     '.vscode',
     '.svn',
     '.hg',
-    'Thumbs.db',
+    '*.htaccess',
+    '*.gitignore',
+    '*.DS_Store',
+    '*Thumbs.db',
     '*.log',
     '.php-cs-fixer.cache'
 ];

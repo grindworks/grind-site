@@ -1,11 +1,11 @@
 #!/bin/bash
 
 # GrindSite Release Automation Script
-# Usage: ./bin/release.sh v1.6.1 "Asynchronous Updater, CLI SSG & System Enhancements"
+# Usage: ./bin/release.sh v1.6.2 "Updater Core Fixes & Custom Field UX Improvements"
 
 if [ -z "$1" ]; then
   echo "❌ Error: Version tag is required."
-  echo "Usage: ./bin/release.sh v1.6.1 \"Release message\""
+  echo "Usage: ./bin/release.sh v1.6.2 \"Release message\""
   exit 1
 fi
 
@@ -26,6 +26,7 @@ sed -i '' 's/"version": "[^"]*"/"version": "'"$RAW_VERSION"'"/' composer.json
 sed -i '' 's/"version": "[^"]*"/"version": "'"$RAW_VERSION"'"/' package.json
 sed -i '' 's/# GrindSite v.*/# GrindSite v'"$RAW_VERSION"'/' README.md
 sed -i '' 's/version-[0-9\.]*-blue\.svg/version-'"$RAW_VERSION"'-blue.svg/' README.md
+sed -i '' 's/Usage: \.\/bin\/release\.sh v[0-9\.]*/Usage: \.\/bin\/release\.sh '"$VERSION"'/' bin/release.sh
 
 # 1. Commit current changes
 echo "📦 Committing changes..."

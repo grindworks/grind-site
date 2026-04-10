@@ -73,6 +73,21 @@ $statusLabel = strtoupper($sysStatus['status']);
 
             <!-- Right-side tools -->
             <div class="hidden md:flex items-center space-x-3">
+              <?php
+              $activeTheme = function_exists('get_option') ? get_option('site_theme', 'default') : 'default';
+              $themeJsonPath = defined('ROOT_PATH') ? ROOT_PATH . '/theme/' . $activeTheme . '/theme.json' : '';
+              $customPostTypes = [];
+              if ($themeJsonPath && file_exists($themeJsonPath)) {
+                $tData = json_decode(file_get_contents($themeJsonPath), true);
+                if (!empty($tData['post_types'])) {
+                  foreach ($tData['post_types'] as $ptKey => $ptConfig) {
+                    if ($ptKey !== 'post' && $ptKey !== 'page') {
+                      $customPostTypes[$ptKey] = $ptConfig;
+                    }
+                  }
+                }
+              }
+              ?>
               <!-- Quick Create Dropdown -->
               <div class="relative" x-data="{ open: false }">
                 <button @click="open = !open" @click.outside="open = false"
@@ -117,6 +132,19 @@ $statusLabel = strtoupper($sysStatus['status']);
                       <?= _t('type_page') ?>
                     </span>
                   </a>
+                  <?php foreach ($customPostTypes as $ptKey => $ptConfig):
+                    $ptIcon = $ptConfig['icon'] ?? 'outline-document-text';
+                    $ptLabel = $ptConfig['label'] ?? ucfirst($ptKey);
+                  ?>
+                    <a href="posts.php?action=new&type=<?= h($ptKey) ?>" class="group flex items-center gap-3 px-3 py-2.5 rounded-theme text-sm font-medium whitespace-nowrap text-theme-text hover:bg-theme-bg hover:text-theme-primary transition-all duration-200">
+                      <div class="flex-shrink-0 flex justify-center items-center rounded-theme w-8 h-8 bg-theme-bg text-theme-secondary group-hover:bg-theme-primary group-hover:text-theme-on-primary transition-colors">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <use href="<?= h(grinds_asset_url('assets/img/sprite.svg') . '#' . $ptIcon) ?>"></use>
+                        </svg>
+                      </div>
+                      <span><?= h($ptLabel) ?></span>
+                    </a>
+                  <?php endforeach; ?>
                   <a href="media.php?action=upload"
                     class="group flex items-center gap-3 px-3 py-2.5 rounded-theme text-sm font-medium whitespace-nowrap text-theme-text hover:bg-theme-bg hover:text-theme-primary transition-all duration-200">
                     <div

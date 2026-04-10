@@ -1,7 +1,7 @@
 {
-  "version": "1.6.1",
+  "version": "1.6.2",
   "release_date": "2026-04-10",
-  "message": "Asynchronous Updater, CLI SSG & System Enhancements",
-  "download_url": "https://github.com/grindworks/grind-site/releases/download/v1.6.1/grindsite-v1.6.1.zip",
-  "sha256": "8aa173b7f4b39f97aa1ccf4cc8dfab966af2990855fd2934c1cb5790d28f9a21"
+  "message": "Updater Core Fixes & Custom Field UX Improvements",
+  "download_url": "https://github.com/grindworks/grind-site/releases/download/v1.6.2/grindsite-v1.6.2.zip",
+  "sha256": "17c062689bc3f45e4a961f3913c70f98821f72b42c645cc1bd0ab5650d37ae0a"
 }

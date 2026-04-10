@@ -364,7 +364,10 @@ class GrindsUpdater
 
         foreach ($exclude as $ex) {
           if ($subPath === $ex || str_starts_with($subPath, $ex . '/')) return false;
-          if (fnmatch($ex, $current->getFilename()) || fnmatch($ex, $subPath)) return false;
+          // Only apply global filename matching if the exclude rule contains a wildcard
+          if (strpbrk($ex, '*?') !== false) {
+            if (fnmatch($ex, $current->getFilename()) || fnmatch($ex, $subPath)) return false;
+          }
         }
         return true;
       }

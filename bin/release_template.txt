@@ -1,39 +1,25 @@
 Release title
-v1.6.1 - Asynchronous Updater, CLI SSG & System Enhancements
+v1.6.2 - Updater Core Fix & CPT Usability Improvements
 
 Release notes
-This release introduces a robust Asynchronous Updater with Atomic Rollback, powerful CLI-based Static Site Generation (SSG), and various system enhancements.
+This patch release addresses a critical bug in the updater core and significantly improves the usability of Custom Post Types (CPT).
 
 ### ✨ New Features & Enhancements
-- **Asynchronous System Updater:** The core updater has been completely rewritten. It now performs step-by-step asynchronous updates (Init, Download, Extract, Dry Run, Backup, Apply) to bypass server timeouts and memory limits.
-- **Atomic Rollback:** If an update fails during file extraction or copying, the system will automatically rollback to its previous state using the pre-update backup, ensuring your site never breaks.
-- **CLI Static Site Generation (SSG):** Added `php bin/grind.php ssg:build` command. You can now generate your entire static site via the command line, perfect for CI/CD pipelines and cron jobs.
-- **Enhanced Image Processing:** Improved file manager capabilities, including advanced image processing and AI metadata extraction.
-- **UI & Routing Improvements:** Various tweaks to the admin UI, topbar, sidebar footer, and routing core.
+- **CPT Quick-Create Button:** Added a "+ New" button to the admin header, allowing users to easily create their first custom post (e.g., Products, Events) even if it's not yet visible in the main sidebar. This resolves a key usability issue for new `theme.json` features.
 
 ### 🛡️ Security & Stability
-- **Windows Lock Bypass:** The updater now safely handles locked files in Windows environments during updates.
-- **Memory-Safe Downloads:** Improved update package downloads using streaming to prevent memory exhaustion on small shared hosts.
-- **Enterprise-Grade Security Hardening:** Patched potential vulnerabilities including SSRF, ReDoS, and path traversals by implementing strict protocol validations, DNS rebinding protections, and memory-safe parsers.
-- **Robust Access Control:** Hardened privilege escalation checks to prevent unauthorized administrative actions.
-- **Safer Updates:** The updater now protects your `.htaccess` settings and correctly handles theme/skin updates without overwriting customizations.
+- **Critical Updater Fix:** Fixed a core bug in the updater that incorrectly excluded files from being updated if they had the same name as a file in the root directory (e.g., `admin/config.php`). This ensures all future updates are applied correctly and completely.
+- **Improved Code Clarity:** Renamed `admin/config.php` to `admin_menu.php` to prevent future naming conflicts and improve architectural clarity.
 
 ---
 
 ## 🇯🇵 日本語 (Japanese)
 
-今回のリリースでは、アトミックロールバックを備えた堅牢な非同期アップデーター、CLIベースの強力な静的サイト生成（SSG）、およびさまざまなシステム強化が導入されました。
+このパッチリリースは、アップデーターのコアに関する重大なバグを修正し、カスタム投稿タイプ（CPT）の使いやすさを大幅に向上させます。
 
 ### ✨ 新機能・改善
-- **非同期システムアップデーター:** コアの更新機能が完全に書き直されました。ステップバイステップの非同期更新（初期化、ダウンロード、解凍、ドライラン、バックアップ、適用）を実行し、サーバーのタイムアウトやメモリ制限を回避します。
-- **アトミックロールバック:** ファイルの展開やコピー中に更新が失敗した場合、更新前のバックアップを使用してシステムが自動的に以前の状態にロールバックし、サイトが壊れるのを防ぎます。
-- **CLI 静的サイト生成 (SSG):** `php bin/grind.php ssg:build` コマンドを追加しました。コマンドラインから静的サイト全体を生成できるようになり、CI/CD パイプラインや Cron ジョブに最適です。
-- **画像処理の強化:** 高度な画像処理や AI メタデータ抽出など、ファイルマネージャーの機能が向上しました。
-- **UIとルーティングの改善:** 管理画面の UI、トップバー、サイドバーフッター、およびルーティングコアにさまざまな調整を加えました。
+- **CPTクイック作成ボタン:** 管理画面のヘッダーに「+ New」ボタンを追加しました。これにより、`theme.json`で定義したカスタム投稿タイプ（商品、イベントなど）がまだサイドバーに表示されていなくても、ユーザーは最初の1件を簡単に作成できるようになります。
 
 ### 🛡️ セキュリティと安定性
-- **Windows ロック回避:** アップデーターは、更新中に Windows 環境でロックされたファイルを安全に処理できるようになりました。
-- **メモリセーフなダウンロード:** 小規模な共有ホストでのメモリ枯渇を防ぐため、ストリーミングを使用した更新パッケージのダウンロードを改善しました。
-- **エンタープライズ水準のセキュリティ強化:** SSRFやReDoS、パストラバーサルを防ぐため、厳格なプロトコル検証、DNSリバインディング保護、およびメモリセーフなパーサーを実装しました。
-- **アクセス制御の強化:** 権限昇格を防ぐためのチェックを強化し、不正な管理者操作を完全にブロックします。
-- **より安全なアップデート:** アップデーターが `.htaccess` の独自設定を保護し、テーマやスキンの更新をより正確かつ安全に処理するようになりました。
+- **重大なアップデーターの修正:** アップデーターが、ルートディレクトリの除外ファイル（例: `config.php`）と同じ名前を持つファイルを誤って更新対象から除外してしまうコアのバグを修正しました。これにより、将来のすべてのアップデートが完全かつ正確に適用されるようになります。
+- **コードの明確性の向上:** 将来的な名前の衝突を防ぎ、アーキテクチャの明確性を向上させるため、`admin/config.php` を `admin_menu.php` にリネームしました。
