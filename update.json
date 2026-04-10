@@ -1,7 +1,7 @@
 {
   "version": "1.6.1",
   "release_date": "2026-04-10",
-  "message": "Asynchronous Updater, CLI SSG "message": "Add Post Revisions, Virtual Publish Queue for SSG, Custom Fields via theme.json, and new Affiliate plugins" System Enhancements",
+  "message": "Asynchronous Updater, CLI SSG & System Enhancements",
   "download_url": "https://github.com/grindworks/grind-site/releases/download/v1.6.1/grindsite-v1.6.1.zip",
   "sha256": "8aa173b7f4b39f97aa1ccf4cc8dfab966af2990855fd2934c1cb5790d28f9a21"
 }
