@@ -440,6 +440,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$is_locked) {
                             </span>
                         </button>
                     </div>
+                    <?php
+                    do_action('grinds_login_form');
+                    ?>
                 </form>
             <?php
             else: ?>

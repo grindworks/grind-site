@@ -387,8 +387,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if (!file_exists($htaccessPath))
           throw new Exception('.htaccess not found.');
-        if (!is_writable($htaccessPath))
-          throw new Exception('.htaccess is not writable.');
+        if (!is_writable($htaccessPath)) {
+          @chmod($htaccessPath, 0664);
+          if (!is_writable($htaccessPath)) {
+            throw new Exception('.htaccess is not writable. Please change permissions to 664 via FTP/Control Panel.');
+          }
+        }
 
         $content = file_get_contents($htaccessPath);
         if ($content === false) {
@@ -1310,34 +1314,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
         grinds_logout();
         redirect('admin/login.php');
-        break;
-
-      // Perform update
-      case 'perform_update':
-        $redirectTab = 'update';
-        // Load updater
-        require_once __DIR__ . '/../lib/updater.php';
-        $updater = new GrindsUpdater($pdo);
-        $check = $updater->check();
-        if ($check['has_update']) {
-          $zipUrl = $check['remote']['download_url'];
-          $tmpZip = ROOT_PATH . '/data/tmp/update.zip';
-          if (!is_dir(dirname($tmpZip)))
-            mkdir(dirname($tmpZip), 0755, true);
-          $zipContent = grinds_fetch_url($zipUrl, [
-            'timeout' => 30,
-            'max_size' => 20 * 1024 * 1024
-          ]);
-          if ($zipContent === false)
-            throw new Exception(_t('err_download_failed'));
-          file_put_contents($tmpZip, $zipContent);
-          if ($updater->update($tmpZip))
-            set_flash(_t('msg_update_success', $check['remote']['version']));
-          else
-            throw new Exception(_t('err_update_failed'));
-        } else {
-          throw new Exception(_t('msg_no_update_needed'));
-        }
         break;
     }
 

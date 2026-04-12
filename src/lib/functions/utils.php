@@ -233,12 +233,15 @@ if (!function_exists('grinds_extract_text_from_content')) {
                 $dom = new DOMDocument();
                 $internalErrors = libxml_use_internal_errors(true);
 
-                if (@$dom->loadHTML('<meta http-equiv="Content-Type" content="text/html; charset=utf-8">' . $s, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD)) {
+                // Pre-encode non-ASCII characters (like emojis) to numeric entities to prevent data loss during DOM parsing
+                $safeS = mb_encode_numericentity($s, [0x80, 0x10FFFF, 0, 0x1FFFFF], 'UTF-8');
+                if (@$dom->loadHTML('<meta http-equiv="Content-Type" content="text/html; charset=utf-8">' . $safeS, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD)) {
                     $xpath = new DOMXPath($dom);
                     foreach ($xpath->query('//script|//style') as $node) {
                         $node->parentNode->removeChild($node);
                     }
-                    $s = $dom->textContent;
+                    // Restore non-ASCII characters from numeric entities
+                    $s = mb_decode_numericentity($dom->textContent, [0x80, 0x10FFFF, 0, 0x1FFFFF], 'UTF-8');
                 }
                 libxml_clear_errors();
                 libxml_use_internal_errors($internalErrors);
@@ -1349,7 +1352,9 @@ if (!function_exists('grinds_sanitize_html')) {
         $internalErrors = libxml_use_internal_errors(true);
 
         try {
-            $loaded = $dom->loadHTML('<meta http-equiv="Content-Type" content="text/html; charset=utf-8"><div>' . $text . '</div>', LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
+            // Pre-encode non-ASCII characters to numeric entities to bypass DOMDocument parsing bugs (e.g., emoji loss)
+            $safeText = mb_encode_numericentity($text, [0x80, 0x10FFFF, 0, 0x1FFFFF], 'UTF-8');
+            $loaded = $dom->loadHTML('<meta http-equiv="Content-Type" content="text/html; charset=utf-8"><div>' . $safeText . '</div>', LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
 
             if (!$loaded) {
                 return strip_tags($text);
@@ -1363,7 +1368,8 @@ if (!function_exists('grinds_sanitize_html')) {
                     $output .= $dom->saveHTML($child);
                 }
 
-                return $output;
+                // Restore protected non-ASCII characters to their original UTF-8 representation
+                return mb_decode_numericentity($output, [0x80, 0x10FFFF, 0, 0x1FFFFF], 'UTF-8');
             }
 
             return strip_tags($text);

@@ -1,25 +1,31 @@
 Release title
-v1.6.2 - Updater Core Fix & CPT Usability Improvements
+v1.6.3 - Security Enhancements, Bug Fixes & UI Improvements
 
 Release notes
-This patch release addresses a critical bug in the updater core and significantly improves the usability of Custom Post Types (CPT).
+This release brings important security enhancements, bug fixes for AI exports, and minor UI improvements across the admin panel.
 
-### ✨ New Features & Enhancements
-- **CPT Quick-Create Button:** Added a "+ New" button to the admin header, allowing users to easily create their first custom post (e.g., Products, Events) even if it's not yet visible in the main sidebar. This resolves a key usability issue for new `theme.json` features.
+### ✨ Enhancements
+- **UI & UX Improvements:** Updated admin layout components (`topbar`, `sidebar`) and block editor scripts for a smoother experience.
+- **Sample Data:** Updated sample data to reflect the latest template structures.
 
 ### 🛡️ Security & Stability
-- **Critical Updater Fix:** Fixed a core bug in the updater that incorrectly excluded files from being updated if they had the same name as a file in the root directory (e.g., `admin/config.php`). This ensures all future updates are applied correctly and completely.
-- **Improved Code Clarity:** Renamed `admin/config.php` to `admin_menu.php` to prevent future naming conflicts and improve architectural clarity.
+- **Security Enhancements:** Strengthened XSS protection across various admin blocks, layouts, and plugins by enforcing strict `ENT_QUOTES | ENT_HTML5` encoding.
+- **Bug Fixes:**
+  - Fixed an issue where `{{CMS_URL}}` placeholders were not properly resolved in AI markdown exports (`llms-full.txt`) and sponsored links.
+  - Corrected a variable naming typo in the category management logic to improve code maintainability.
 
 ---
 
 ## 🇯🇵 日本語 (Japanese)
 
-このパッチリリースは、アップデーターのコアに関する重大なバグを修正し、カスタム投稿タイプ（CPT）の使いやすさを大幅に向上させます。
+このリリースでは、より厳格なXSS保護によるセキュリティ強化、AI向けエクスポート等での表示バグ修正に加え、管理画面全体にわたるUIの改善が行われています。
 
 ### ✨ 新機能・改善
-- **CPTクイック作成ボタン:** 管理画面のヘッダーに「+ New」ボタンを追加しました。これにより、`theme.json`で定義したカスタム投稿タイプ（商品、イベントなど）がまだサイドバーに表示されていなくても、ユーザーは最初の1件を簡単に作成できるようになります。
+- **UI/UXの改善:** 管理画面のレイアウト（トップバー、サイドバー）およびブロックエディタの挙動を最適化し、操作性を向上させました。
+- **サンプルデータの更新:** 最新のテンプレート構造に合わせてサンプルデータを更新しました。
 
 ### 🛡️ セキュリティと安定性
-- **重大なアップデーターの修正:** アップデーターが、ルートディレクトリの除外ファイル（例: `config.php`）と同じ名前を持つファイルを誤って更新対象から除外してしまうコアのバグを修正しました。これにより、将来のすべてのアップデートが完全かつ正確に適用されるようになります。
-- **コードの明確性の向上:** 将来的な名前の衝突を防ぎ、アーキテクチャの明確性を向上させるため、`admin/config.php` を `admin_menu.php` にリネームしました。
+- **セキュリティ強化:** 各種管理画面ブロック、レイアウト、プラグインの出力において、`ENT_QUOTES | ENT_HTML5` エンコーディングを厳格に適用し、XSS保護をさらに強化しました。
+- **バグ修正:**
+  - AI向けのMarkdown出力（`llms-full.txt`）やスポンサーリンクにおいて、`{{CMS_URL}}` プレースホルダーが正しくURLに変換（解決）されない表示バグを修正しました。
+  - カテゴリ管理ロジックの変数名のタイポを修正し、コードの保守性を向上させました。

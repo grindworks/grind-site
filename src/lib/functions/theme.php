@@ -531,6 +531,8 @@ function _theme_generate_json_ld(string $siteName, string $pageType, string $pag
         if (is_array($contentData) && !empty($contentData['blocks'])) {
             $reviews = [];
             $citations = [];
+            $faqs = [];
+            $howtos = [];
             $currentRating = null;
 
             foreach ($contentData['blocks'] as $block) {
@@ -574,6 +576,49 @@ function _theme_generate_json_ld(string $siteName, string $pageType, string $pag
                 if ($bType === 'card' && !empty($bData['url']) && filter_var($bData['url'], FILTER_VALIDATE_URL)) {
                     $citations[] = $bData['url'];
                 }
+
+                if ($bType === 'accordion' && !empty($bData['items'])) {
+                    foreach ($bData['items'] as $item) {
+                        $q = trim(function_exists('grinds_extract_text_from_content') ? grinds_extract_text_from_content($item['title'] ?? '') : strip_tags($item['title'] ?? ''));
+                        $a = trim(function_exists('grinds_extract_text_from_content') ? grinds_extract_text_from_content($item['content'] ?? '') : strip_tags($item['content'] ?? ''));
+                        if ($q !== '' && $a !== '') {
+                            $faqs[] = [
+                                "@type" => "Question",
+                                "name" => $q,
+                                "acceptedAnswer" => [
+                                    "@type" => "Answer",
+                                    "text" => $a
+                                ]
+                            ];
+                        }
+                    }
+                }
+
+                if ($bType === 'step' && !empty($bData['items'])) {
+                    $steps = [];
+                    foreach ($bData['items'] as $index => $item) {
+                        $stepTitle = trim(function_exists('grinds_extract_text_from_content') ? grinds_extract_text_from_content($item['title'] ?? '') : strip_tags($item['title'] ?? ''));
+                        $stepDesc = trim(function_exists('grinds_extract_text_from_content') ? grinds_extract_text_from_content($item['desc'] ?? '') : strip_tags($item['desc'] ?? ''));
+                        if ($stepTitle !== '') {
+                            $stepNode = [
+                                "@type" => "HowToStep",
+                                "name" => $stepTitle,
+                                "url" => $canonicalUrl . "#step-" . ($index + 1)
+                            ];
+                            if ($stepDesc !== '') {
+                                $stepNode["text"] = $stepDesc;
+                            }
+                            $steps[] = $stepNode;
+                        }
+                    }
+                    if (!empty($steps)) {
+                        $howtos[] = [
+                            "@type" => "HowTo",
+                            "name" => $pageTitle . " - " . theme_t('Guide'),
+                            "step" => $steps
+                        ];
+                    }
+                }
             }
 
             if (!empty($reviews)) {
@@ -587,6 +632,19 @@ function _theme_generate_json_ld(string $siteName, string $pageType, string $pag
                 $citations = array_values(array_unique($citations));
                 if ($pageType === 'single' && $articleIdx >= 0) {
                     $graph[$articleIdx]['citation'] = $citations;
+                }
+            }
+
+            if (!empty($faqs)) {
+                $graph[] = [
+                    "@type" => "FAQPage",
+                    "@id" => $canonicalUrl . "#faq",
+                    "mainEntity" => $faqs
+                ];
+            }
+            if (!empty($howtos)) {
+                foreach ($howtos as $howto) {
+                    $graph[] = $howto;
                 }
             }
         }

@@ -626,7 +626,7 @@ function Grinds_InstallSampleData($pdo, $lang = 'en', $siteName = 'GrindSite')
             $desc = $post['description'] ?? '';
             $thumb = $post['thumbnail'] ?? '';
             $isHideLlms = $post['is_hide_llms'] ?? 0;
-            $postType = $post['type'] ?? 'post'; // ★ typeが指定されていればそれを使う
+            $postType = $post['type'] ?? 'post'; // Use specific type if provided
 
             // Generate search text
             $searchText = grinds_generate_search_text($post['title'], $desc, $jsonContent);

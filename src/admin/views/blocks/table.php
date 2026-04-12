@@ -38,7 +38,7 @@ if (!defined('GRINDS_APP')) exit; ?>
             <td class="w-8 p-1 border border-theme-border text-center align-middle" :class="{'bg-theme-surface': block.data.withHeadings && rowIndex === 0}">
               <div class="flex flex-col items-center justify-center w-full h-full gap-1 opacity-50 hover:opacity-100 transition-opacity">
                 <!-- Move up -->
-                <button type="button" @click.prevent="if(rowIndex > 0) [block.data.content[rowIndex - 1], block.data.content[rowIndex]] = [block.data.content[rowIndex], block.data.content[rowIndex - 1]]" x-show="rowIndex > 0" class="p-1 text-theme-text hover:text-theme-primary transition-colors" title="<?= h(_t('btn_move_up') ?? 'Move Up') ?>">
+                <button type="button" @click.prevent="if(rowIndex > 0) { const item = block.data.content.splice(rowIndex, 1)[0]; block.data.content.splice(rowIndex - 1, 0, item); }" x-show="rowIndex > 0" class="p-1 text-theme-text hover:text-theme-primary transition-colors" title="<?= h(_t('btn_move_up') ?? 'Move Up') ?>">
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-chevron-up"></use>
                   </svg>
@@ -53,7 +53,7 @@ if (!defined('GRINDS_APP')) exit; ?>
                   </svg>
                 </button>
                 <!-- Move down -->
-                <button type="button" @click.prevent="if(rowIndex < block.data.content.length - 1) [block.data.content[rowIndex], block.data.content[rowIndex + 1]] = [block.data.content[rowIndex + 1], block.data.content[rowIndex]]" x-show="rowIndex < block.data.content.length - 1" class="p-1 text-theme-text hover:text-theme-primary transition-colors" title="<?= h(_t('btn_move_down') ?? 'Move Down') ?>">
+                <button type="button" @click.prevent="if(rowIndex < block.data.content.length - 1) { const item = block.data.content.splice(rowIndex, 1)[0]; block.data.content.splice(rowIndex + 1, 0, item); }" x-show="rowIndex < block.data.content.length - 1" class="p-1 text-theme-text hover:text-theme-primary transition-colors" title="<?= h(_t('btn_move_down') ?? 'Move Down') ?>">
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-chevron-down"></use>
                   </svg>
@@ -73,13 +73,13 @@ if (!defined('GRINDS_APP')) exit; ?>
                 <!-- Column Controls (visible on hover for the first row) -->
                 <div x-show="rowIndex === 0" class="absolute -top-3 left-1/2 -translate-x-1/2 z-10 flex items-center bg-theme-surface border border-theme-border rounded shadow-theme opacity-0 group-hover/cell:opacity-100 group-focus-within/cell:opacity-100 transition-opacity">
                   <!-- Move Left -->
-                  <button type="button" @click.prevent="if(colIndex > 0) block.data.content.forEach(r => [r[colIndex - 1], r[colIndex]] = [r[colIndex], r[colIndex - 1]])" x-show="colIndex > 0" class="p-1 text-theme-text hover:text-theme-primary transition-colors" title="<?= h(_t('btn_move_left') ?? 'Move Left') ?>">
+                  <button type="button" @click.prevent="if(colIndex > 0) { let newArr = [...block.data.content]; newArr.forEach(r => { const item = r.splice(colIndex, 1)[0]; r.splice(colIndex - 1, 0, item); }); block.data.content = newArr; }" x-show="colIndex > 0" class="p-1 text-theme-text hover:text-theme-primary transition-colors" title="<?= h(_t('btn_move_left') ?? 'Move Left') ?>">
                     <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-chevron-left"></use>
                     </svg>
                   </button>
                   <!-- Move Right -->
-                  <button type="button" @click.prevent="if(colIndex < block.data.content[0].length - 1) block.data.content.forEach(r => [r[colIndex], r[colIndex + 1]] = [r[colIndex + 1], r[colIndex]])" x-show="colIndex < block.data.content[0].length - 1" class="p-1 text-theme-text hover:text-theme-primary transition-colors" title="<?= h(_t('btn_move_right') ?? 'Move Right') ?>">
+                  <button type="button" @click.prevent="if(colIndex < block.data.content[0].length - 1) { let newArr = [...block.data.content]; newArr.forEach(r => { const item = r.splice(colIndex, 1)[0]; r.splice(colIndex + 1, 0, item); }); block.data.content = newArr; }" x-show="colIndex < block.data.content[0].length - 1" class="p-1 text-theme-text hover:text-theme-primary transition-colors" title="<?= h(_t('btn_move_right') ?? 'Move Right') ?>">
                     <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-chevron-right"></use>
                     </svg>

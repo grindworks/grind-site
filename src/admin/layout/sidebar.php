@@ -223,7 +223,7 @@ $activeClass = 'bg-theme-primary border-theme-primary text-theme-on-primary font
                 </div>
                 <span><?= _t('type_post') ?></span>
               </a>
-              <a href="pages.php?action=new"
+              <a href="posts.php?action=new&type=page"
                 class="group flex items-center gap-3 px-3 py-2.5 rounded-theme text-sm font-medium whitespace-nowrap text-theme-text hover:bg-theme-bg hover:text-theme-primary transition-all duration-200">
                 <div class="flex-shrink-0 flex justify-center items-center rounded-theme w-8 h-8 bg-theme-bg text-theme-secondary group-hover:bg-theme-primary group-hover:text-theme-on-primary transition-colors">
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

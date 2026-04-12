@@ -732,11 +732,8 @@ HTML;
                     $this->firstImageRendered = true;
                 }
 
-                if (isset($data['alt']) && $data['alt'] !== '') {
+                if (isset($data['alt'])) {
                     $attrs['alt'] = $data['alt'];
-                } elseif (isset($data['alt']) && $data['alt'] === '') {
-                    // Preserve empty alt attribute
-                    $attrs['alt'] = '';
                 } elseif (!empty($data['caption'])) {
                     $attrs['alt'] = $data['caption'];
                 }

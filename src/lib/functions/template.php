@@ -952,7 +952,7 @@ if (!function_exists('grinds_admin_bar')) {
         $previewData = null;
         $previewToken = $_GET['preview'] ?? '';
 
-        // 管理画面（ダッシュボードなど）の中ではアドミンバーを表示しない
+        // Do not display the admin bar inside the admin dashboard area
         $requestUri = $_SERVER['REQUEST_URI'] ?? '';
         $scriptName = $_SERVER['SCRIPT_NAME'] ?? '';
         if (str_contains($requestUri, '/admin/') || str_contains($scriptName, '/admin/')) {

@@ -1,7 +1,7 @@
 {
-  "version": "1.6.2",
-  "release_date": "2026-04-10",
-  "message": "Updater Core Fixes & Custom Field UX Improvements",
-  "download_url": "https://github.com/grindworks/grind-site/releases/download/v1.6.2/grindsite-v1.6.2.zip",
-  "sha256": "17c062689bc3f45e4a961f3913c70f98821f72b42c645cc1bd0ab5650d37ae0a"
+  "version": "1.6.3",
+  "release_date": "2026-04-12",
+  "message": "Security Enhancements, Bug Fixes & UI Improvements",
+  "download_url": "https://github.com/grindworks/grind-site/releases/download/v1.6.3/grindsite-v1.6.3.zip",
+  "sha256": "2c7974ba97af482a790c0e5b79cff8f5d2dba45f9561bc58928c6708dd95c57d"
 }

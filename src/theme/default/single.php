@@ -128,7 +128,7 @@ if (!defined('GRINDS_APP')) exit;
             <span class="inline-block border border-gray-400 text-gray-500 text-[10px] px-1.5 py-0.5 rounded-sm mr-1 font-bold leading-none tracking-wider">PR</span>
             <?= theme_t('This article contains promotional links.') ?>
           </div>
-          <a href="<?= h($postMeta['sponsored_link']) ?>" target="_blank" rel="noopener sponsored" class="inline-flex items-center text-theme-primary hover:underline font-bold text-sm">
+          <a href="<?= h(resolve_url(grinds_url_to_view($postMeta['sponsored_link']))) ?>" target="_blank" rel="noopener sponsored" class="inline-flex items-center text-theme-primary hover:underline font-bold text-sm">
             <?= theme_t('View Sponsored Link') ?>
             <svg class="w-3 h-3 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>

@@ -48,6 +48,11 @@ function _grinds_collect_media_from_posts(PDO $pdo, ?array $postIds = null, bool
     };
 
     try {
+        $selectCols = "thumbnail, hero_image, hero_settings, content, meta_data";
+        if ($collectIds) {
+            $selectCols = "id, " . $selectCols;
+        }
+
         if ($postIds !== null) {
             if (empty($postIds)) {
                 return $collectIds ? ['media' => [], 'ids' => []] : [];
@@ -56,17 +61,13 @@ function _grinds_collect_media_from_posts(PDO $pdo, ?array $postIds = null, bool
             $chunks = array_chunk($postIds, 900);
             foreach ($chunks as $chunk) {
                 $placeholders = implode(',', array_fill(0, count($chunk), '?'));
-                $stmt = $pdo->prepare("SELECT thumbnail, hero_image, hero_settings, content, meta_data FROM posts WHERE id IN ($placeholders)");
+                $stmt = $pdo->prepare("SELECT {$selectCols} FROM posts WHERE id IN ($placeholders)");
                 $stmt->execute($chunk);
                 while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
                     $processRow($row);
                 }
             }
         } else {
-            $selectCols = "thumbnail, hero_image, hero_settings, content, meta_data";
-            if ($collectIds) {
-                $selectCols = "id, " . $selectCols;
-            }
             $sql = "SELECT {$selectCols} FROM posts WHERE deleted_at IS NOT NULL";
             $params = [];
             if ($type !== null) {

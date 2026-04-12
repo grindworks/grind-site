@@ -47,8 +47,8 @@ $il_colors = $block_config['library']['design']['items']['icon_list']['colors'] 
           </svg>
         </div>
         <input type="text" x-model="block.data.items[i]" :id="'block-' + block.id + '-item-' + i" class="flex-1 bg-transparent py-1.5 border-theme-border focus:border-theme-primary border-b focus:outline-none text-theme-text text-sm placeholder-theme-text/30" placeholder="<?= _t('ph_enter_text') ?>"
-          @keydown.enter.prevent="if(!$event.isComposing) { block.data.items.splice(i+1, 0, ''); $nextTick(() => { $el.closest('.space-y-2').querySelectorAll('input[type=text]')[i+1]?.focus() }) }"
-          @keydown.backspace="if(!$event.isComposing && block.data.items[i] === '' && block.data.items.length > 1) { $event.preventDefault(); block.data.items.splice(i, 1); $nextTick(() => { $el.closest('.space-y-2').querySelectorAll('input[type=text]')[Math.max(0, i-1)]?.focus() }) }">
+          @keydown.enter.prevent="if(!$event.isComposing && !isComposing) { block.data.items.splice(i+1, 0, ''); $nextTick(() => { $el.closest('.space-y-2').querySelectorAll('input[type=text]')[i+1]?.focus() }) }"
+          @keydown.backspace="if(!$event.isComposing && !isComposing && block.data.items[i] === '' && block.data.items.length > 1) { $event.preventDefault(); block.data.items.splice(i, 1); $nextTick(() => { $el.closest('.space-y-2').querySelectorAll('input[type=text]')[Math.max(0, i-1)]?.focus() }) }">
         <!-- Remove item -->
         <button type="button" @click="block.data.items.splice(i, 1)" class="opacity-40 hover:opacity-100 mt-0.5 p-2 min-w-[40px] min-h-[40px] flex items-center justify-center text-xl text-theme-text hover:text-theme-danger transition-opacity" x-show="block.data.items.length > 1">&times;</button>
       </div>

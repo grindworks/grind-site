@@ -19,8 +19,8 @@ $proscons_styles = $block_config['library']['marketing']['items']['proscons']['s
         <div class="group/item flex items-center gap-2">
           <span class="text-theme-success">✔</span>
           <input type="text" x-model="block.data.pros_items[i]" :id="'block-' + block.id + '-pros_item-' + i" class="flex-1 border border-theme-success/30 focus:border-theme-success form-control-sm" placeholder="<?= _t('ph_pros_item') ?>"
-            @keydown.enter.prevent="if(!$event.isComposing) { block.data.pros_items.splice(i+1, 0, ''); $nextTick(() => { $el.closest('.space-y-2').querySelectorAll('input[type=text]')[i+1]?.focus() }) }"
-            @keydown.backspace="if(!$event.isComposing && block.data.pros_items[i] === '' && block.data.pros_items.length > 1) { $event.preventDefault(); block.data.pros_items.splice(i, 1); $nextTick(() => { $el.closest('.space-y-2').querySelectorAll('input[type=text]')[Math.max(0, i-1)]?.focus() }) }">
+            @keydown.enter.prevent="if(!$event.isComposing && !isComposing) { block.data.pros_items.splice(i+1, 0, ''); $nextTick(() => { $el.closest('.space-y-2').querySelectorAll('input[type=text]')[i+1]?.focus() }) }"
+            @keydown.backspace="if(!$event.isComposing && !isComposing && block.data.pros_items[i] === '' && block.data.pros_items.length > 1) { $event.preventDefault(); block.data.pros_items.splice(i, 1); $nextTick(() => { $el.closest('.space-y-2').querySelectorAll('input[type=text]')[Math.max(0, i-1)]?.focus() }) }">
           <button type="button" @click="block.data.pros_items.splice(i, 1)" class="px-1 text-theme-success/50 hover:text-theme-success transition-colors" x-show="block.data.pros_items.length > 1">&times;</button>
         </div>
       </template>
@@ -48,8 +48,8 @@ $proscons_styles = $block_config['library']['marketing']['items']['proscons']['s
         <div class="group/item flex items-center gap-2">
           <span class="text-theme-danger">✖</span>
           <input type="text" x-model="block.data.cons_items[i]" :id="'block-' + block.id + '-cons_item-' + i" class="flex-1 border border-theme-danger/30 focus:border-theme-danger form-control-sm" placeholder="<?= _t('ph_cons_item') ?>"
-            @keydown.enter.prevent="if(!$event.isComposing) { block.data.cons_items.splice(i+1, 0, ''); $nextTick(() => { $el.closest('.space-y-2').querySelectorAll('input[type=text]')[i+1]?.focus() }) }"
-            @keydown.backspace="if(!$event.isComposing && block.data.cons_items[i] === '' && block.data.cons_items.length > 1) { $event.preventDefault(); block.data.cons_items.splice(i, 1); $nextTick(() => { $el.closest('.space-y-2').querySelectorAll('input[type=text]')[Math.max(0, i-1)]?.focus() }) }">
+            @keydown.enter.prevent="if(!$event.isComposing && !isComposing) { block.data.cons_items.splice(i+1, 0, ''); $nextTick(() => { $el.closest('.space-y-2').querySelectorAll('input[type=text]')[i+1]?.focus() }) }"
+            @keydown.backspace="if(!$event.isComposing && !isComposing && block.data.cons_items[i] === '' && block.data.cons_items.length > 1) { $event.preventDefault(); block.data.cons_items.splice(i, 1); $nextTick(() => { $el.closest('.space-y-2').querySelectorAll('input[type=text]')[Math.max(0, i-1)]?.focus() }) }">
           <button type="button" @click="block.data.cons_items.splice(i, 1)" class="px-1 text-theme-danger/50 hover:text-theme-danger transition-colors" x-show="block.data.cons_items.length > 1">&times;</button>
         </div>
       </template>

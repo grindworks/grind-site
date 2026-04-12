@@ -878,8 +878,10 @@ document.addEventListener('alpine:init', () => {
 
         if ((e.metaKey || e.ctrlKey) && e.key === 's') {
           e.preventDefault();
+          if (this.isSubmitting || this.isUploading) return;
+          this.isSubmitting = true;
           const form = document.getElementById('post-form');
-          if (form && !this.isSubmitting && !this.isUploading) {
+          if (form) {
             form.requestSubmit();
           }
           return;
@@ -920,11 +922,16 @@ document.addEventListener('alpine:init', () => {
           form.addEventListener('submit', async (e) => {
             e.preventDefault();
 
+            // Ensure immediate lock even if triggered by a fast button click
+            if (!this.isSubmitting && this.isUploading) return;
+            this.isSubmitting = true;
+
             // Refresh CSRF token
             const tokenRefreshed = await this.refreshCsrfToken();
             if (!tokenRefreshed) {
               // Handle session expiry
               this.handleSessionExpiry();
+              this.isSubmitting = false;
               return;
             }
 
@@ -932,6 +939,7 @@ document.addEventListener('alpine:init', () => {
             if (this.checkSensitiveContent()) {
               const msg = window.grindsTranslations.js_warn_script_tag || 'Warning: <script> tag detected.';
               if (!confirm(msg)) {
+                this.isSubmitting = false;
                 return;
               }
             }
@@ -940,12 +948,10 @@ document.addEventListener('alpine:init', () => {
             if (this.checkAbsolutePaths()) {
               const msg = window.grindsTranslations.js_warn_absolute_path || 'Warning: Absolute paths detected.';
               if (!confirm(msg)) {
+                this.isSubmitting = false;
                 return;
               }
             }
-
-            // Set submission flag
-            this.isSubmitting = true;
 
             // Prepare JSON structure
             // Filter empty list items and remove empty blocks
@@ -1650,6 +1656,16 @@ document.addEventListener('alpine:init', () => {
      * @param {boolean} force
      */
     async submitViaAjax(form, force = false) {
+      let activeElId = null;
+      let selectionStart = null;
+      let selectionEnd = null;
+      const activeEl = document.activeElement;
+      if (activeEl && (activeEl.tagName === 'TEXTAREA' || activeEl.tagName === 'INPUT') && activeEl.id) {
+        activeElId = activeEl.id;
+        selectionStart = activeEl.selectionStart;
+        selectionEnd = activeEl.selectionEnd;
+      }
+
       const formData = new FormData(form);
       formData.append('ajax_mode', '1');
       formData.set('status', this.postStatus);
@@ -1682,11 +1698,6 @@ document.addEventListener('alpine:init', () => {
         if (data.success) {
           this.isDirty = false;
 
-          // Unfocus active element on save to prevent misfiring change events.
-          if (document.activeElement && document.activeElement.blur) {
-            document.activeElement.blur();
-          }
-
           localStorage.removeItem(this.draftKey);
           localStorage.removeItem(this.draftKey + '_time');
 
@@ -1711,6 +1722,18 @@ document.addEventListener('alpine:init', () => {
             } else {
               alert(msg);
             }
+
+            this.$nextTick(() => {
+              if (activeElId) {
+                const elToFocus = document.getElementById(activeElId);
+                if (elToFocus) {
+                  elToFocus.focus();
+                  try {
+                    elToFocus.setSelectionRange(selectionStart, selectionEnd);
+                  } catch (e) {}
+                }
+              }
+            });
           }
         } else {
           window.showToast(data.error || 'Error', 'error');
@@ -2149,7 +2172,7 @@ document.addEventListener('alpine:init', () => {
                     btn.type = 'button';
                     btn.className =
                       'w-full text-left px-3 py-2 text-xs hover:bg-theme-bg transition-colors flex justify-between items-center border-b border-theme-border/30 last:border-0';
-                    btn.innerHTML = `<span class="truncate font-medium">${p.title.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</span><span class="text-[9px] opacity-50 shrink-0 ml-2 uppercase">${p.type}</span>`;
+                    btn.innerHTML = `<span class="truncate font-medium">${this.escapeHtml(p.title)}</span><span class="text-[9px] opacity-50 shrink-0 ml-2 uppercase">${this.escapeHtml(p.type)}</span>`;
                     btn.addEventListener('click', () => {
                       input.value = p.url;
                       suggestBox.classList.add('hidden');

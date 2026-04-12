@@ -131,7 +131,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       // --- NEW: Custom Fields (Meta Data) Processing ---
       $themeForMeta = !empty($cat_theme) ? $cat_theme : null;
       $customFields = function_exists('grinds_get_theme_custom_fields') ? grinds_get_theme_custom_fields('category', $themeForMeta) : [];
-      $rawPostMetaData = $_POST['meta_data'] ?? [];
+      $rawCatMetaData = $_POST['meta_data'] ?? [];
 
       $existingMetaData = [];
       if ($target_id) {
@@ -163,10 +163,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           ]);
           $metaData[$fName] = Routing::convertToDbUrl($uploadedUrl);
         } elseif ($fType === 'checkbox') {
-          $metaData[$fName] = !empty($rawPostMetaData[$fName]) ? '1' : '0';
+          $metaData[$fName] = !empty($rawCatMetaData[$fName]) ? '1' : '0';
         } else {
-          if (isset($rawPostMetaData[$fName])) {
-            $val = strip_tags((string)$rawPostMetaData[$fName]);
+          if (isset($rawCatMetaData[$fName])) {
+            $val = strip_tags((string)$rawCatMetaData[$fName]);
             $metaData[$fName] = Routing::convertToDbUrl($val);
           }
         }

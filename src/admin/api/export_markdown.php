@@ -46,6 +46,17 @@ function grinds_blocks_to_markdown($contentJson)
         return trim(strip_tags($text));
     }
 
+    // Convert inline HTML tags to beautiful Markdown syntax
+    $htmlToMarkdown = function ($html) {
+        $md = str_replace(['<br>', '<br/>', '<br />'], "\n", $html ?? '');
+        $md = preg_replace('/<(b|strong)\b[^>]*>(.*?)<\/\1>/is', '**$2**', $md);
+        $md = preg_replace('/<(i|em)\b[^>]*>(.*?)<\/\1>/is', '*$2*', $md);
+        $md = preg_replace('/<(s|strike|del)\b[^>]*>(.*?)<\/\1>/is', '~~$2~~', $md);
+        $md = preg_replace('/<code\b[^>]*>(.*?)<\/code>/is', '`$1`', $md);
+        $md = preg_replace('/<a\b[^>]*href=["\']([^"\']+)["\'][^>]*>(.*?)<\/a>/is', '$2', $md);
+        return strip_tags($md);
+    };
+
     $md = "";
     foreach ($data['blocks'] as $block) {
         $type = $block['type'] ?? '';
@@ -61,19 +72,19 @@ function grinds_blocks_to_markdown($contentJson)
                 $levelStr = str_replace('h', '', $bData['level'] ?? '2');
                 $level = (int)$levelStr ?: 2;
                 $prefix = str_repeat('#', $level);
-                $text = strip_tags($bData['text'] ?? '');
+                $text = $htmlToMarkdown($bData['text'] ?? '');
                 $md .= "\n\n{$prefix} {$text}\n\n";
                 break;
             case 'paragraph':
-                $text = str_replace(['<br>', '<br/>'], "\n", $bData['text'] ?? '');
-                $md .= "\n\n" . strip_tags($text) . "\n\n";
+                $text = $htmlToMarkdown($bData['text'] ?? '');
+                $md .= "\n\n{$text}\n\n";
                 break;
             case 'list':
                 $style = $bData['style'] ?? 'unordered';
                 $items = $bData['items'] ?? [];
                 $md .= "\n\n";
                 foreach ($items as $idx => $item) {
-                    $itemText = strip_tags($item);
+                    $itemText = $htmlToMarkdown($item);
                     if ($style === 'ordered') {
                         $md .= ($idx + 1) . ". {$itemText}\n";
                     } else {
@@ -93,7 +104,7 @@ function grinds_blocks_to_markdown($contentJson)
                 $md .= "\n\n```{$lang}\n{$code}\n```\n\n";
                 break;
             case 'quote':
-                $text = strip_tags(str_replace(['<br>', '<br/>'], "\n", $bData['text'] ?? ''));
+                $text = $htmlToMarkdown($bData['text'] ?? '');
                 $cite = $bData['cite'] ?? '';
                 $md .= "\n\n> " . str_replace("\n", "\n> ", $text);
                 if ($cite) $md .= "\n> — {$cite}";
@@ -145,97 +156,110 @@ if (!empty($zipPassword)) {
 }
 
 try {
-    // Query all posts and pages
-    $stmt = $pdo->query("
-        SELECT p.*, c.name as category_name, c.slug as category_slug
-        FROM posts p
-        LEFT JOIN categories c ON p.category_id = c.id
-        WHERE p.deleted_at IS NULL AND p.type IN ('post', 'page')
-    ");
+    // Query all posts and pages in batches to prevent Out of Memory (OOM) crashes
+    $repo = new PostRepository($pdo);
+    $batchSize = 100;
+    $offset = 0;
 
-    $posts = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    while (true) {
+        $posts = $repo->fetch([
+            'type' => ['post', 'page'],
+            'status' => 'all' // Exclude trashed posts
+        ], $batchSize, $offset, 'p.id ASC');
 
-    if (function_exists('grinds_attach_tags')) {
-        grinds_attach_tags($posts);
-    }
-
-    foreach ($posts as $post) {
-        // Build YAML Frontmatter
-        $fm = "---\n";
-        $cleanTitleForLlm = html_entity_decode(strip_tags($post['title'] ?? ''), ENT_QUOTES | ENT_HTML5, 'UTF-8');
-        $fm .= "title: \"" . addcslashes($cleanTitleForLlm, '"\\') . "\"\n";
-        $fm .= "slug: \"{$post['slug']}\"\n";
-        $fm .= "type: \"{$post['type']}\"\n";
-        $fm .= "status: \"{$post['status']}\"\n";
-
-        $date = $post['published_at'] ?: $post['created_at'];
-        if ($date) $fm .= "date: " . date('c', strtotime($date)) . "\n";
-
-        // Add lastmod to frontmatter to convey information freshness to AI/SSG
-        $updated = $post['updated_at'] ?: $date;
-        if ($updated) $fm .= "lastmod: " . date('c', strtotime($updated)) . "\n";
-
-        if ($post['category_name']) {
-            $fm .= "category: \"{$post['category_name']}\"\n";
+        if (empty($posts)) {
+            break; // No more posts to process
         }
 
-        if (!empty($post['tags'])) {
-            $tagNames = array_column($post['tags'], 'name');
-            $fm .= "tags:\n";
-            foreach ($tagNames as $tag) {
-                $fm .= "  - \"{$tag}\"\n";
+        if (function_exists('grinds_attach_tags')) {
+            grinds_attach_tags($posts);
+        }
+
+        foreach ($posts as $post) {
+            // Build YAML Frontmatter
+            $fm = "---\n";
+            $cleanTitleForLlm = html_entity_decode(strip_tags($post['title'] ?? ''), ENT_QUOTES | ENT_HTML5, 'UTF-8');
+            $fm .= "title: \"" . addcslashes($cleanTitleForLlm, '"\\') . "\"\n";
+            $fm .= "slug: \"{$post['slug']}\"\n";
+            $fm .= "type: \"{$post['type']}\"\n";
+            $fm .= "status: \"{$post['status']}\"\n";
+
+            $date = $post['published_at'] ?: $post['created_at'];
+            if ($date) $fm .= "date: " . date('c', strtotime($date)) . "\n";
+
+            // Add lastmod to frontmatter to convey information freshness to AI/SSG
+            $updated = $post['updated_at'] ?: $date;
+            if ($updated) $fm .= "lastmod: " . date('c', strtotime($updated)) . "\n";
+
+            if ($post['category_name']) {
+                $fm .= "category: \"{$post['category_name']}\"\n";
             }
-        }
 
-        if (!empty($post['description'])) {
-            $cleanDescForLlm = html_entity_decode(strip_tags($post['description']), ENT_QUOTES | ENT_HTML5, 'UTF-8');
-            $fm .= "description: \"" . addcslashes(str_replace(["\r", "\n"], ' ', $cleanDescForLlm), '"\\') . "\"\n";
-        }
-
-        if (!empty($post['thumbnail'])) {
-            $thumbUrl = Routing::restoreViewUrl($post['thumbnail']);
-            $fm .= "image: \"{$thumbUrl}\"\n";
-        }
-
-        $metaData = json_decode($post['meta_data'] ?? '{}', true);
-        if (is_array($metaData) && !empty($metaData)) {
-            $fm .= "custom_fields:\n";
-            foreach ($metaData as $k => $v) {
-                if (!is_scalar($v)) {
-                    $v = json_encode($v, JSON_UNESCAPED_UNICODE);
+            if (!empty($post['tags'])) {
+                $tagNames = array_column($post['tags'], 'name');
+                $fm .= "tags:\n";
+                foreach ($tagNames as $tag) {
+                    $fm .= "  - \"{$tag}\"\n";
                 }
-                $vStr = (string)$v;
-                if (preg_match('/^assets\/uploads\//i', $vStr) || str_contains($vStr, '{{CMS_URL}}')) {
-                    $vStr = resolve_url(Routing::restoreViewUrl($vStr));
+            }
+
+            if (!empty($post['description'])) {
+                $cleanDescForLlm = html_entity_decode(strip_tags($post['description']), ENT_QUOTES | ENT_HTML5, 'UTF-8');
+                $fm .= "description: \"" . addcslashes(str_replace(["\r", "\n"], ' ', $cleanDescForLlm), '"\\') . "\"\n";
+            }
+
+            if (!empty($post['thumbnail'])) {
+                $thumbUrl = Routing::restoreViewUrl($post['thumbnail']);
+                $fm .= "image: \"{$thumbUrl}\"\n";
+            }
+
+            $metaData = json_decode($post['meta_data'] ?? '{}', true);
+            if (is_array($metaData) && !empty($metaData)) {
+                $fm .= "custom_fields:\n";
+                foreach ($metaData as $k => $v) {
+                    if (!is_scalar($v)) {
+                        $v = json_encode($v, JSON_UNESCAPED_UNICODE);
+                    }
+                    $vStr = (string)$v;
+                    if (preg_match('/^assets\/uploads\//i', $vStr) || str_contains($vStr, '{{CMS_URL}}')) {
+                        $vStr = resolve_url(Routing::restoreViewUrl($vStr));
+                    }
+                    $cleanV = addcslashes(html_entity_decode(strip_tags($vStr), ENT_QUOTES | ENT_HTML5, 'UTF-8'), '"\\');
+                    $fm .= "  {$k}: \"{$cleanV}\"\n";
                 }
-                $cleanV = addcslashes(html_entity_decode(strip_tags($vStr), ENT_QUOTES | ENT_HTML5, 'UTF-8'), '"\\');
-                $fm .= "  {$k}: \"{$cleanV}\"\n";
+            }
+
+            $fm .= "---\n\n";
+
+            // Convert Content
+            $contentUrlFixed = Routing::restoreViewUrl($post['content']);
+            $markdownBody = grinds_blocks_to_markdown($contentUrlFixed);
+
+            $fileContent = $fm . $markdownBody;
+
+            // Determine path in ZIP (group posts by category, and separate pages)
+            $folder = ($post['type'] === 'page') ? 'pages' : 'posts';
+            if ($post['type'] === 'post' && !empty($post['category_slug'])) {
+                $safeCat = preg_replace('/[^a-zA-Z0-9_\-]/', '_', strtolower($post['category_slug']));
+                if ($safeCat !== '') {
+                    $folder .= '/' . $safeCat;
+                }
+            }
+
+            $filename = "{$folder}/{$post['slug']}.md";
+            $zip->addFromString($filename, $fileContent);
+
+            // Apply encryption to the added file if password is set
+            if (!empty($zipPassword)) {
+                $zip->setEncryptionName($filename, ZipArchive::EM_AES_256);
             }
         }
 
-        $fm .= "---\n\n";
-
-        // Convert Content
-        $contentUrlFixed = Routing::restoreViewUrl($post['content']);
-        $markdownBody = grinds_blocks_to_markdown($contentUrlFixed);
-
-        $fileContent = $fm . $markdownBody;
-
-        // Determine path in ZIP (group posts by category, and separate pages)
-        $folder = ($post['type'] === 'page') ? 'pages' : 'posts';
-        if ($post['type'] === 'post' && !empty($post['category_slug'])) {
-            $safeCat = preg_replace('/[^a-zA-Z0-9_\-]/', '_', strtolower($post['category_slug']));
-            if ($safeCat !== '') {
-                $folder .= '/' . $safeCat;
-            }
-        }
-
-        $filename = "{$folder}/{$post['slug']}.md";
-        $zip->addFromString($filename, $fileContent);
-
-        // Apply encryption to the added file if password is set
-        if (!empty($zipPassword)) {
-            $zip->setEncryptionName($filename, ZipArchive::EM_AES_256);
+        // Free memory for the next batch
+        $offset += $batchSize;
+        unset($posts);
+        if (function_exists('gc_collect_cycles')) {
+            gc_collect_cycles();
         }
     }
 

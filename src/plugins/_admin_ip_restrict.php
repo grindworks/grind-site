@@ -72,7 +72,7 @@ add_action('grinds_init', function () {
             header('Content-Type: text/html; charset=utf-8');
             die("<div style='font-family:sans-serif; padding:50px; text-align:center; color:#333;'>
                     <h1 style='color:#e11d48;'>403 Access Denied</h1>
-                    <p>Your IP address (<strong>" . htmlspecialchars($client_ip) . "</strong>) is not allowed to access the admin area.</p>
+                    <p>Your IP address (<strong>" . htmlspecialchars($client_ip, ENT_QUOTES, 'UTF-8') . "</strong>) is not allowed to access the admin area.</p>
                  </div>");
         }
     }

@@ -233,6 +233,14 @@ if (!class_exists('LlmsFullGenerator')) {
                             fwrite($fp, "\n## Custom Fields\n");
                             foreach ($metaData as $k => $v) {
                                 $valStr = is_scalar($v) ? (string)$v : json_encode($v, JSON_UNESCAPED_UNICODE);
+                                if (str_contains($valStr, '{{CMS_URL}}')) {
+                                    if (function_exists('grinds_url_to_view') && function_exists('resolve_url')) {
+                                        $valStr = (string)resolve_url(grinds_url_to_view($valStr));
+                                        if ($this->isSsgMode && function_exists('grinds_ssg_replace_base_url')) {
+                                            $valStr = grinds_ssg_replace_base_url($valStr, $this->baseUrl);
+                                        }
+                                    }
+                                }
                                 $cleanV = $this->cleanString($valStr);
                                 fwrite($fp, "- **{$k}:** {$cleanV}\n");
                             }
@@ -455,7 +463,7 @@ if (!class_exists('LlmsFullGenerator')) {
 
             // Restore code blocks.
             foreach ($codeBlocks as $placeholder => $codeBlock) {
-                $html = str_replace($placeholder, "\n```\n" . trim($codeBlock) . "\n```\n", $html);
+                $html = str_replace($placeholder, "\n\n```\n" . trim($codeBlock) . "\n```\n\n", $html);
             }
 
             $html = preg_replace('/<\s*([a-zA-Z0-9]+)\s+>/i', '<$1>', $html) ?? $html;

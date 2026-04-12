@@ -11,7 +11,7 @@ if (!defined('GRINDS_APP'))
 if (!function_exists('h')) {
     function h($s)
     {
-        // 第4引数を false にすることで、既にエスケープされている文字（&amp;など）の二重エスケープを防ぐ
+        // Set the 4th argument to false to prevent double-escaping of already escaped characters (e.g., &amp;)
         return htmlspecialchars((string)$s, ENT_QUOTES | ENT_HTML5, 'UTF-8', false);
     }
 }
