@@ -50,4 +50,14 @@ if (!headers_sent()) {
     header("X-Frame-Options: SAMEORIGIN");
     header("Referrer-Policy: strict-origin-when-cross-origin");
     header("Permissions-Policy: geolocation=(), microphone=(), camera=(), payment=()");
+
+    // Enterprise Hardening: Send HSTS only when SSL is active to prevent lock-outs on local dev.
+    $isHttps = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || $_SERVER['SERVER_PORT'] == 443 || (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https');
+    if ((function_exists('is_ssl') && is_ssl()) || $isHttps) {
+        header("Strict-Transport-Security: max-age=31536000; includeSubDomains");
+    }
+
+    // Secure cache headers for Admin area (Prevents back-button sensitive data leak)
+    header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
+    header("Pragma: no-cache");
 }

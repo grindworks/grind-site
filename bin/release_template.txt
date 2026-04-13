@@ -1,31 +1,31 @@
 Release title
-v1.6.3 - Security Enhancements, Bug Fixes & UI Improvements
+v1.6.4 - Contact Form Settings, Editor UX Polish & Performance Updates
 
 Release notes
-This release brings important security enhancements, bug fixes for AI exports, and minor UI improvements across the admin panel.
+This release introduces customizable Contact Form Settings, a God-Tier UX improvement for the block editor, and important performance and security optimizations.
 
 ### ✨ Enhancements
-- **UI & UX Improvements:** Updated admin layout components (`topbar`, `sidebar`) and block editor scripts for a smoother experience.
-- **Sample Data:** Updated sample data to reflect the latest template structures.
+- **Contact Form Settings:** You can now fully customize the contact form directly from the admin panel! Set custom recipient emails, subject dropdown options, success messages, and auto-reply email templates. Additionally, automatic `Reply-To` header mapping is now supported, allowing you to reply directly to users from your email client.
+- **Editor UX (God-Tier):** Added the ability to paste images directly from your clipboard (e.g., screenshots) into the block editor. Images are automatically uploaded and inserted as blocks.
+- **Performance:** Optimized SVG image handling to preload metadata correctly, preventing N+1 query issues and ensuring `alt` tags are properly rendered.
 
 ### 🛡️ Security & Stability
-- **Security Enhancements:** Strengthened XSS protection across various admin blocks, layouts, and plugins by enforcing strict `ENT_QUOTES | ENT_HTML5` encoding.
+- **Security (ReDoS Prevention):** Hardened the regular expressions used in Markdown exports to prevent potential ReDoS (Regular Expression Denial of Service) attacks.
 - **Bug Fixes:**
-  - Fixed an issue where `{{CMS_URL}}` placeholders were not properly resolved in AI markdown exports (`llms-full.txt`) and sponsored links.
-  - Corrected a variable naming typo in the category management logic to improve code maintainability.
+  - Fixed an issue where custom field image previews were not properly restored when recovering from an auto-saved draft.
 
 ---
 
 ## 🇯🇵 日本語 (Japanese)
 
-このリリースでは、より厳格なXSS保護によるセキュリティ強化、AI向けエクスポート等での表示バグ修正に加え、管理画面全体にわたるUIの改善が行われています。
+このリリースでは、待望の「お問い合わせフォーム設定」機能の追加に加え、ブロックエディタの執筆体験（UX）を最高峰に引き上げる改善、およびパフォーマンスとセキュリティの最適化が行われています。
 
 ### ✨ 新機能・改善
-- **UI/UXの改善:** 管理画面のレイアウト（トップバー、サイドバー）およびブロックエディタの挙動を最適化し、操作性を向上させました。
-- **サンプルデータの更新:** 最新のテンプレート構造に合わせてサンプルデータを更新しました。
+- **お問い合わせフォーム設定の追加:** 管理画面からお問い合わせフォームを柔軟にカスタマイズできるようになりました！専用の受信先メールアドレス、件名の選択肢、送信完了メッセージ、さらにユーザーへの「自動返信メール」の件名・本文を自由に設定可能です。また、管理者宛の通知メールに `Reply-To` が自動設定されるようになり、メールソフトの「返信」ボタンで直接ユーザーへ返信できるようになりました。
+- **エディターUXの極み:** クリップボードにコピーした画像（スクリーンショットなど）を直接エディタにペーストできるようになりました。自動でアップロードされ、画像ブロックとして挿入されます。
+- **パフォーマンス最適化:** SVG画像のメタデータを適切に事前ロードするよう修正し、N+1クエリを防ぐとともに `alt` 属性が正しく出力されるように改善しました。
 
-### 🛡️ セキュリティと安定性
-- **セキュリティ強化:** 各種管理画面ブロック、レイアウト、プラグインの出力において、`ENT_QUOTES | ENT_HTML5` エンコーディングを厳格に適用し、XSS保護をさらに強化しました。
+### 🛡️ セキュリティとバグ修正
+- **セキュリティ (ReDoS対策):** Markdownエクスポート機能で使用される正規表現を強化し、PCREバックトラック制限超過（ReDoS攻撃）のリスクを排除しました。
 - **バグ修正:**
-  - AI向けのMarkdown出力（`llms-full.txt`）やスポンサーリンクにおいて、`{{CMS_URL}}` プレースホルダーが正しくURLに変換（解決）されない表示バグを修正しました。
-  - カテゴリ管理ロジックの変数名のタイポを修正し、コードの保守性を向上させました。
+  - 自動保存（ドラフト）から記事を復元する際、カスタムフィールドの画像プレビューが正しく復活しないバグを修正しました。

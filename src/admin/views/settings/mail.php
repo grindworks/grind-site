@@ -90,6 +90,47 @@ if (!defined('GRINDS_APP')) exit; ?>
       </div>
     </div>
 
+    <hr class="my-8 border-theme-border">
+
+    <div class="mb-6">
+      <h3 class="flex items-center gap-2 mb-2 font-bold text-theme-text text-lg">
+        <svg class="w-5 h-5 text-theme-info" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-envelope-open"></use>
+        </svg>
+        <?= function_exists('_t') ? (_t('Contact Form Settings') ?: 'Contact Form Settings') : 'Contact Form Settings' ?>
+      </h3>
+      <p class="opacity-60 text-theme-text text-xs leading-relaxed">
+        <?= function_exists('_t') ? (_t('Customize the frontend contact form behavior.') ?: 'Customize the frontend contact form behavior.') : 'Customize the frontend contact form behavior.' ?>
+      </p>
+    </div>
+
+    <div class="space-y-6 bg-theme-bg/30 p-5 border border-theme-border rounded-theme">
+      <label class="block">
+        <span class="block mb-2 font-bold text-theme-text text-sm"><?= function_exists('_t') ? (_t('Recipient Email') ?: 'Recipient Email') : 'Recipient Email' ?></span>
+        <input type="email" name="contact_recipient_email" value="<?= h($opt['contact_to'] ?? '') ?>" class="form-control" placeholder="<?= h($opt['smtp_admin'] ?? '') ?>">
+        <p class="opacity-60 mt-1 text-theme-text text-xs"><?= function_exists('_t') ? (_t('If empty, emails will be sent to the Admin Email above.') ?: 'If empty, emails will be sent to the Admin Email above.') : 'If empty, emails will be sent to the Admin Email above.' ?></p>
+      </label>
+
+      <label class="block">
+        <span class="block mb-2 font-bold text-theme-text text-sm"><?= function_exists('_t') ? (_t('Subject Options') ?: 'Subject Options') : 'Subject Options' ?></span>
+        <textarea name="contact_subjects" rows="3" class="form-control font-mono text-xs" placeholder="Product&#10;Recruitment&#10;Other"><?= h($opt['contact_subj'] ?? '') ?></textarea>
+        <p class="opacity-60 mt-1 text-theme-text text-xs"><?= function_exists('_t') ? (_t('Enter one subject option per line.') ?: 'Enter one subject option per line.') : 'Enter one subject option per line.' ?></p>
+      </label>
+
+      <label class="block">
+        <span class="block mb-2 font-bold text-theme-text text-sm"><?= function_exists('_t') ? (_t('Success Message') ?: 'Success Message') : 'Success Message' ?></span>
+        <textarea name="contact_success_msg" rows="3" class="form-control text-sm"><?= h($opt['contact_msg'] ?? '') ?></textarea>
+      </label>
+
+      <div class="pt-4 border-t border-theme-border">
+        <h4 class="font-bold text-theme-text text-sm mb-4"><?= function_exists('_t') ? (_t('Auto-Reply Email') ?: 'Auto-Reply Email') : 'Auto-Reply Email' ?></h4>
+        <label class="block mb-4"><span class="block mb-2 font-bold text-theme-text text-xs opacity-80"><?= function_exists('_t') ? (_t('Subject') ?: 'Subject') : 'Subject' ?></span><input type="text" name="contact_autoreply_subject" value="<?= h($opt['contact_rep_sub'] ?? '') ?>" class="form-control text-sm font-mono"></label>
+        <label class="block"><span class="block mb-2 font-bold text-theme-text text-xs opacity-80"><?= function_exists('_t') ? (_t('Message') ?: 'Message') : 'Message' ?></span><textarea name="contact_autoreply_body" rows="6" class="form-control text-sm font-mono"><?= h($opt['contact_rep_body'] ?? '') ?></textarea>
+          <p class="opacity-60 mt-2 text-theme-text text-xs"><?= function_exists('_t') ? (_t('Available variables:') ?: 'Available variables:') : 'Available variables:' ?> <code>{site_name}</code> <code>{name}</code> <code>{form_details}</code></p>
+        </label>
+      </div>
+    </div>
+
     <div class="flex sm:flex-row flex-col justify-between items-center gap-4 pt-6 border-theme-border border-t">
       <button type="submit" name="send_test_mail" value="1" :disabled="isSubmitting" class="shadow-theme px-4 py-2 rounded-theme w-full sm:w-auto text-xs font-bold transition-all disabled:opacity-70 disabled:cursor-not-allowed btn-secondary">
         <?= _t('send_test') ?>

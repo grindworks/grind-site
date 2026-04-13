@@ -337,6 +337,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
               fseek($fp, $pos);
               $buffer = fread($fp, $readSize) . $buffer;
 
+              // OOM(メモリ枯渇)対策: 改行がない巨大な行によるバッファ肥大化を防止 (上限 1MB)
+              if (strlen($buffer) > 1048576) {
+                break;
+              }
+
               if (substr_count($buffer, "\n") >= 100) {
                 break;
               }
@@ -942,7 +947,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $redirectTab = 'mail';
         $pdo->beginTransaction();
         try {
-          grinds_save_settings_from_post(['smtp_host', 'smtp_user', 'smtp_port', 'smtp_encryption', 'smtp_from', 'smtp_admin_email']);
+          grinds_save_settings_from_post(['smtp_host', 'smtp_user', 'smtp_port', 'smtp_encryption', 'smtp_from', 'smtp_admin_email', 'contact_recipient_email', 'contact_subjects', 'contact_success_msg', 'contact_autoreply_subject', 'contact_autoreply_body']);
 
           if (isset($_POST['smtp_pass']) && $_POST['smtp_pass'] !== '') {
             update_option('smtp_pass', grinds_encrypt($_POST['smtp_pass']));
@@ -953,7 +958,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           throw $e;
         }
         if (!empty($_POST['send_test_mail'])) {
-          $adminEmail = trim($_POST['smtp_admin_email'] ?? '');
+          $adminEmail = trim(is_scalar($_POST['smtp_admin_email'] ?? '') ? (string)$_POST['smtp_admin_email'] : '');
           if (empty($adminEmail) || !filter_var($adminEmail, FILTER_VALIDATE_EMAIL)) {
             set_flash(function_exists('_t') ? _t('err_invalid_parameters') . ' (Invalid Admin Email)' : 'Invalid Admin Email', 'error');
             break;
@@ -1386,6 +1391,11 @@ foreach ($settings_keys as $k) {
     $viewKey = 'smtp_admin';
   if ($k == 'smtp_encryption')
     $viewKey = 'smtp_enc';
+  if ($k == 'contact_recipient_email') $viewKey = 'contact_to';
+  if ($k == 'contact_subjects') $viewKey = 'contact_subj';
+  if ($k == 'contact_success_msg') $viewKey = 'contact_msg';
+  if ($k == 'contact_autoreply_subject') $viewKey = 'contact_rep_sub';
+  if ($k == 'contact_autoreply_body') $viewKey = 'contact_rep_body';
   if ($k == 'session_timeout')
     $viewKey = 'sess_timeout';
   if ($k == 'security_max_attempts')

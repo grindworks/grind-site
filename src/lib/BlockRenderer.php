@@ -195,7 +195,7 @@ HTML;
         $urls = [];
         if (empty($blocks) || !is_array($blocks)) return $urls;
 
-        $imgExts = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'avif'];
+        $imgExts = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'avif', 'svg'];
 
         // Uses grinds_extract_urls for robust, single-pass extraction
         $candidates = grinds_extract_urls(['blocks' => $blocks]);

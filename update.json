@@ -1,7 +1,7 @@
 {
-  "version": "1.6.3",
-  "release_date": "2026-04-12",
-  "message": "Security Enhancements, Bug Fixes & UI Improvements",
-  "download_url": "https://github.com/grindworks/grind-site/releases/download/v1.6.3/grindsite-v1.6.3.zip",
-  "sha256": "2c7974ba97af482a790c0e5b79cff8f5d2dba45f9561bc58928c6708dd95c57d"
+  "version": "1.6.4",
+  "release_date": "2026-04-13",
+  "message": "Add customizable Contact Form Settings and Editor UX improvements",
+  "download_url": "https://github.com/grindworks/grind-site/releases/download/v1.6.4/grindsite-v1.6.4.zip",
+  "sha256": "8e949515f6d8c5356035a087696592f0555d28099457cc7d355b570eeb0a4638"
 }

@@ -109,9 +109,11 @@ extract($headerData);
   <?php
   endif; ?>
 
-  <script type="application/ld+json">
-    <?= json_encode($jsonLd, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>
-  </script>
+  <?php if ($showCanonical): ?>
+    <script type="application/ld+json">
+      <?= json_encode($jsonLd, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>
+    </script>
+  <?php endif; ?>
 
   <!-- Load theme CSS with Cache Busting -->
   <?php

@@ -18,7 +18,6 @@ extract($headerData);
     <?php grinds_head(); ?>
 
     <!-- Load theme CSS -->
-    <?php $themeName = grinds_get_active_theme(); ?>
     <link rel="stylesheet" href="<?= grinds_theme_asset_url('css/style.css') ?>">
 </head>
 

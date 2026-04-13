@@ -43,7 +43,9 @@ extract($headerData);
     <link rel="next" href="<?= h($nextUrl) ?>">
   <?php endif; ?>
 
-  <meta property="og:url" content="<?= h($ogpUrl) ?>">
+  <?php if ($showCanonical): ?>
+    <meta property="og:url" content="<?= h($ogpUrl) ?>">
+  <?php endif; ?>
   <?php
   $postAuthor = '';
   if (isset($pageData['post'])) {
@@ -120,9 +122,11 @@ extract($headerData);
   <?php if (!empty($tdmReservation)): ?>
     <meta name="tdm-reservation" content="1">
   <?php endif; ?>
-  <script type="application/ld+json">
-    <?= json_encode($jsonLd, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>
-  </script>
+  <?php if ($showCanonical): ?>
+    <script type="application/ld+json">
+      <?= json_encode($jsonLd, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>
+    </script>
+  <?php endif; ?>
 
   <!-- Load theme CSS with Cache Busting -->
   <?php

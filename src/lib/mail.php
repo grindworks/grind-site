@@ -35,17 +35,21 @@ class SimpleMailer
     }
 
     /** Send email. */
-    public function send($to, $subject, $body)
+    public function send($to, $subject, $body, $replyTo = '')
     {
         $cleanFrom = str_replace(["\r", "\n"], '', $this->from);
         $cleanTo = str_replace(["\r", "\n"], '', $to);
         $cleanSubject = str_replace(["\r", "\n"], '', $subject);
+        $cleanReplyTo = str_replace(["\r", "\n"], '', $replyTo);
 
         // Fallback to PHP mail
         if (empty($this->host)) {
             $headers = "";
             if (!empty($cleanFrom)) {
                 $headers = "From: " . $cleanFrom . "\r\n";
+            }
+            if (!empty($cleanReplyTo)) {
+                $headers .= "Reply-To: {$cleanReplyTo}\r\n";
             }
             $headers .= "Content-Type: text/plain; charset=UTF-8\r\n";
             $headers .= "X-Mailer: GrindsCMS\r\n";
@@ -128,6 +132,9 @@ class SimpleMailer
         $encodedSubject = mb_encode_mimeheader($cleanSubject, 'UTF-8', 'B', "\r\n");
 
         $headers = "From: {$cleanFrom}\r\n";
+        if (!empty($cleanReplyTo)) {
+            $headers .= "Reply-To: {$cleanReplyTo}\r\n";
+        }
         $headers .= "To: <$cleanTo>\r\n";
         $headers .= "Subject: " . $encodedSubject . "\r\n";
         $headers .= "Content-Type: text/plain; charset=UTF-8\r\n";

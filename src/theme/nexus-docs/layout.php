@@ -33,8 +33,13 @@ $searchIndexJson = json_encode($searchIndex, JSON_UNESCAPED_UNICODE);
     <link rel="icon" href="<?= h(get_favicon_url()) ?>">
 
     <link rel="stylesheet" href="<?= grinds_theme_asset_url('css/style.css') ?>">
-    <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/collapse@3.x.x/dist/cdn.min.js"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <?php if (get_option('disable_external_assets') && file_exists(ROOT_PATH . '/assets/js/vendor/alpine.min.js') && file_exists(ROOT_PATH . '/assets/js/vendor/collapse.min.js')): ?>
+        <script defer src="<?= grinds_asset_url('assets/js/vendor/collapse.min.js') ?>"></script>
+        <script defer src="<?= grinds_asset_url('assets/js/vendor/alpine.min.js') ?>"></script>
+    <?php else: ?>
+        <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/collapse@3.x.x/dist/cdn.min.js"></script>
+        <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <?php endif; ?>
     <style>
         [x-cloak] {
             display: none !important;

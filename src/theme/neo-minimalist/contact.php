@@ -10,6 +10,18 @@ if (!defined('GRINDS_APP')) exit;
 // Load mail library
 require_once ROOT_PATH . '/lib/mail.php';
 
+// Load settings
+$siteName = get_option('site_name', 'GrindSite');
+$adminEmail = trim((string)get_option('smtp_admin_email'));
+$recipientEmail = trim((string)get_option('contact_recipient_email')) ?: $adminEmail;
+
+$subjectsRaw = get_option('contact_subjects', "Product\nRecruitment\nOther");
+$subjectOptions = array_filter(array_map('trim', explode("\n", $subjectsRaw)));
+
+$successMsgRaw = get_option('contact_success_msg', theme_t('Message sent successfully.'));
+$autoReplySubject = get_option('contact_autoreply_subject', '[{site_name}] Thank you for your inquiry');
+$autoReplyBody = get_option('contact_autoreply_body', "Dear {name},\n\nThank you for your inquiry. We have received the following:\n\n{form_details}\n\nWe will get back to you shortly.");
+
 // Configure form fields.
 $formFields = [
   'company' => [
@@ -44,7 +56,7 @@ $formFields = [
     'type' => 'select',
     'label' => theme_t('Subject'),
     'required' => true,
-    'options' => [theme_t('Product'), theme_t('Recruitment'), theme_t('Other')],
+    'options' => $subjectOptions,
     'width' => 'w-full',
   ],
   'message' => [
@@ -61,10 +73,9 @@ $success = '';
 $formData = [];
 
 // Check configuration and maintenance mode.
-$adminEmail = trim((string)get_option('smtp_admin_email'));
 $maintenanceMode = false;
 
-if ($adminEmail === '') {
+if ($recipientEmail === '') {
   if (!empty($_SESSION['admin_logged_in'])) {
     // Allow admin to preview form even if email is not set.
     $error = theme_t('Warning: Admin email is not set. Preview only.');
@@ -74,22 +85,34 @@ if ($adminEmail === '') {
   }
 }
 
+// 🛡️ Time trap: Record form generation time in session (tamper-proof)
+if (session_status() === PHP_SESSION_NONE && function_exists('_safe_session_start')) {
+  _safe_session_start();
+}
+if (!isset($_SESSION['contact_form_init_time']) || $_SERVER['REQUEST_METHOD'] !== 'POST') {
+  $_SESSION['contact_form_init_time'] = time();
+}
+
 // Handle POST request
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$maintenanceMode) {
   // Check CSRF token
   if (!isset($_POST['csrf_token']) || !validate_csrf_token($_POST['csrf_token'])) {
     $error = theme_t('Invalid Request.');
   }
+  // Time trap (server-side strict check)
+  elseif (isset($_SESSION['contact_form_init_time']) && (time() - $_SESSION['contact_form_init_time'] < 3)) {
+    $success = nl2br(h($successMsgRaw)); // Fake success
+  }
   // Check honeypot for spam
   elseif (!empty($_POST['website'])) {
-    $success = theme_t('Inquiry accepted. (Spam detected)');
+    $success = nl2br(h($successMsgRaw)); // Fake success
   }
   // Process form data
   else {
     // Validate and retrieve data.
     $hasError = false;
     foreach ($formFields as $key => $field) {
-      $val = trim($_POST[$key] ?? '');
+      $val = trim(Routing::getString($_POST, $key));
       $formData[$key] = $val;
 
       if (!empty($field['required']) && $val === '') {
@@ -100,6 +123,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$maintenanceMode) {
         $error = theme_t('Invalid email address.');
         $hasError = true;
       }
+
+      $formData[$key] = strip_tags($val);
     }
 
     // Check privacy policy agreement if applicable.
@@ -111,7 +136,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$maintenanceMode) {
     if (!$hasError) {
       try {
         $mailer = new SimpleMailer();
-        $siteName = get_option('site_name');
         $userName = $formData['name'] ?? 'Guest';
         $userEmail = $formData['email'] ?? '';
 
@@ -120,21 +144,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$maintenanceMode) {
         foreach ($formFields as $key => $field) {
           $label = $field['label'];
           $val = $formData[$key] ?? '';
-          $mailBody .= "[{$label}]\n{$val}\n\n";
+          $mailBody .= "【{$label}】\n{$val}\n\n";
         }
 
         // Send notification to admin
         $subject = theme_t('[%s] New Inquiry', $siteName);
         $body = theme_t('contact_admin_body') . $mailBody;
 
-        $sent = $mailer->send($adminEmail, $subject, $body);
+        $sent = $mailer->send($recipientEmail, $subject, $body, $userEmail);
 
         if ($sent) {
           if ($userEmail) {
             // Send auto-reply to user
             try {
-              $replySubject = theme_t('[%s] Thank you for your inquiry', $siteName);
-              $replyBody = theme_t('contact_reply_body', $userName) . $mailBody;
+              $replySubject = str_replace('{site_name}', $siteName, $autoReplySubject);
+              $replyBody = str_replace(
+                ['{site_name}', '{name}', '{form_details}'],
+                [$siteName, $userName, $mailBody],
+                $autoReplyBody
+              );
               $mailer->send($userEmail, $replySubject, $replyBody);
             } catch (Exception $e) {
               if (class_exists('GrindsLogger')) {
@@ -143,8 +171,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$maintenanceMode) {
             }
           }
 
-          $success = theme_t('Message sent successfully.');
+          $success = nl2br(h($successMsgRaw));
           $formData = [];
+          $_SESSION['contact_form_init_time'] = time();
         } else {
           $error = theme_t('Failed to send email. Please check server settings or try again later.');
         }
@@ -185,9 +214,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$maintenanceMode) {
     </div>
 
     <?php if ($success): ?>
-      <div class="bg-green-50 border-2 border-slate-900 shadow-sharp text-slate-900 px-6 py-8 mb-10 text-center">
-        <p class="font-heading font-extrabold text-2xl mb-2"><?= theme_t('Sent Successfully') ?></p>
-        <p class="font-medium text-slate-700"><?= h($success) ?></p>
+      <div class="bg-green-50 border-2 border-slate-900 shadow-sharp text-slate-900 px-6 py-10 mb-10 text-center">
+        <div class="flex justify-center mb-4">
+          <svg class="w-12 h-12 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+        </div>
+        <p class="text-lg font-bold text-slate-800 leading-relaxed"><?= $success ?></p>
         <a href="<?= h(resolve_url('/')) ?>" class="inline-block mt-6 neo-btn neo-btn-secondary py-2 px-6"><?= theme_t('Back to Home') ?></a>
       </div>
     <?php else: ?>
@@ -195,7 +228,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$maintenanceMode) {
       <div class="relative">
         <?php if ($error): ?>
           <div class="bg-red-50 border-2 border-slate-900 shadow-sharp text-red-700 px-6 py-4 mb-8 font-bold">
-            <?php if (!$maintenanceMode && empty($adminEmail)): ?><span>⚠️ <?= theme_t('Admin Preview') ?>:</span> <?php endif; ?>
+            <?php if (!$maintenanceMode && empty($recipientEmail)): ?><span>⚠️ <?= theme_t('Admin Preview') ?>:</span> <?php endif; ?>
             <?= h($error) ?>
           </div>
         <?php endif; ?>
@@ -257,7 +290,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$maintenanceMode) {
           </div>
 
           <div class="text-center pt-8">
-            <?php if (empty($adminEmail)): ?>
+            <?php if (empty($recipientEmail)): ?>
               <button type="button" disabled class="neo-btn neo-btn-dark opacity-50 cursor-not-allowed w-full md:w-auto px-12 py-4 text-lg">
                 <?= $maintenanceMode ? theme_t('Maintenance') : theme_t('Setup Incomplete') ?>
               </button>

@@ -87,9 +87,11 @@ extract($headerData);
   <!-- Custom CSS. -->
   <link rel="stylesheet" href="<?= grinds_asset_url('theme/' . grinds_get_active_theme() . '/css/style.css') ?>">
 
-  <script type="application/ld+json">
-    <?= json_encode($jsonLd, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>
-  </script>
+  <?php if ($showCanonical): ?>
+    <script type="application/ld+json">
+      <?= json_encode($jsonLd, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>
+    </script>
+  <?php endif; ?>
 
   <?php grinds_head(); ?>
   <style>

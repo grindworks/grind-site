@@ -95,9 +95,11 @@ if (function_exists('apply_filters')) {
         <meta name="robots" content="<?= h($robots) ?>">
     <?php
     endif; ?>
-    <script type="application/ld+json">
-        <?= json_encode($jsonLd, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>
-    </script>
+    <?php if ($showCanonical): ?>
+        <script type="application/ld+json">
+            <?= json_encode($jsonLd, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>
+        </script>
+    <?php endif; ?>
     <?php grinds_head(); ?>
     <style>
         body.preload-transitions * {

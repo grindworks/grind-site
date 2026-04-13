@@ -48,12 +48,17 @@ function grinds_blocks_to_markdown($contentJson)
 
     // Convert inline HTML tags to beautiful Markdown syntax
     $htmlToMarkdown = function ($html) {
+        $safeReplace = function ($pattern, $replacement, $subject) {
+            if (!is_string($subject)) return '';
+            $result = @preg_replace($pattern, $replacement, $subject);
+            return ($result === null) ? $subject : $result;
+        };
         $md = str_replace(['<br>', '<br/>', '<br />'], "\n", $html ?? '');
-        $md = preg_replace('/<(b|strong)\b[^>]*>(.*?)<\/\1>/is', '**$2**', $md);
-        $md = preg_replace('/<(i|em)\b[^>]*>(.*?)<\/\1>/is', '*$2*', $md);
-        $md = preg_replace('/<(s|strike|del)\b[^>]*>(.*?)<\/\1>/is', '~~$2~~', $md);
-        $md = preg_replace('/<code\b[^>]*>(.*?)<\/code>/is', '`$1`', $md);
-        $md = preg_replace('/<a\b[^>]*href=["\']([^"\']+)["\'][^>]*>(.*?)<\/a>/is', '$2', $md);
+        $md = $safeReplace('/<(b|strong)\b[^>]*>(.*?)<\/\1>/is', '**$2**', $md);
+        $md = $safeReplace('/<(i|em)\b[^>]*>(.*?)<\/\1>/is', '*$2*', $md);
+        $md = $safeReplace('/<(s|strike|del)\b[^>]*>(.*?)<\/\1>/is', '~~$2~~', $md);
+        $md = $safeReplace('/<code\b[^>]*>(.*?)<\/code>/is', '`$1`', $md);
+        $md = $safeReplace('/<a\b[^>]*href=["\']([^"\']+)["\'][^>]*>(.*?)<\/a>/is', '$2', $md);
         return strip_tags($md);
     };
 

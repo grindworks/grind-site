@@ -312,6 +312,45 @@ document.addEventListener('alpine:init', () => {
       if (['INPUT', 'TEXTAREA'].includes(e.target.tagName)) return;
 
       const clipboardData = e.clipboardData || window.clipboardData;
+
+      // クリップボードの画像ファイル（スクリーンショット等）の直接ペーストを処理
+      if (clipboardData.items) {
+        let imageFiles = [];
+        for (let i = 0; i < clipboardData.items.length; i++) {
+          if (clipboardData.items[i].type.indexOf('image') !== -1) {
+            const file = clipboardData.items[i].getAsFile();
+            if (file) imageFiles.push(file);
+          }
+        }
+
+        if (imageFiles.length > 0) {
+          e.preventDefault();
+          this.isUploading = true;
+
+          (async () => {
+            for (const file of imageFiles) {
+              const previewUrl = URL.createObjectURL(file);
+              const newBlock = {
+                id: this.generateId(),
+                type: 'image',
+                data: { url: previewUrl },
+                collapsed: false,
+                _isUploading: true,
+              };
+              this.blocks.push(newBlock);
+              const newIndex = this.blocks.length - 1;
+              this.$nextTick(() => window.scrollTo(0, document.body.scrollHeight));
+              const mockEvent = { target: { files: [file], value: '' } };
+              await this.uploadImage(mockEvent, newIndex, 'url');
+              this.blocks[newIndex]._isUploading = false;
+              URL.revokeObjectURL(previewUrl);
+            }
+            this.isUploading = false;
+          })();
+          return;
+        }
+      }
+
       const text = clipboardData.getData('text');
       if (!text) return;
 
@@ -686,7 +725,7 @@ document.addEventListener('alpine:init', () => {
       this.draftTimeout = setTimeout(() => {
         if (this.blocks.length > 0 || this.seoTitle || this.seoDesc) {
           const metaData = {};
-          document.querySelectorAll('[name^="meta_data["], [name$="_url"]').forEach((el) => {
+          document.querySelectorAll('[name^="meta_data["], [name^="meta_data_"][name$="_url"]').forEach((el) => {
             if (el.name) {
               metaData[el.name] = el.type === 'checkbox' || el.type === 'radio' ? (el.checked ? '1' : '0') : el.value;
             }
@@ -1169,7 +1208,7 @@ document.addEventListener('alpine:init', () => {
         const parsed = JSON.parse(localData);
         if (parsed && (Array.isArray(parsed.blocks) || parsed.seoTitle || parsed.seoDesc || parsed.metaData)) {
           const currentMetaData = {};
-          document.querySelectorAll('[name^="meta_data["], [name$="_url"]').forEach((el) => {
+          document.querySelectorAll('[name^="meta_data["], [name^="meta_data_"][name$="_url"]').forEach((el) => {
             if (el.name) {
               currentMetaData[el.name] =
                 el.type === 'checkbox' || el.type === 'radio' ? (el.checked ? '1' : '0') : el.value;
@@ -1233,10 +1272,10 @@ document.addEventListener('alpine:init', () => {
                 // 画像アップローダーのプレビューを更新するトリガー
                 if (key.endsWith('_url') || key.endsWith('_url]')) {
                   const baseKey = key
-                    .replace('_url]', '')
-                    .replace('_url', '')
-                    .replace('meta_data[', '')
-                    .replace(']', '');
+                    .replace(/_url\]?$/, '')
+                    .replace(/^meta_data_/, '')
+                    .replace(/^meta_data\[/, '')
+                    .replace(/\]$/, '');
                   window.dispatchEvent(
                     new CustomEvent(`set-meta-image-${baseKey}`, { detail: { url: parsed.metaData[key] } })
                   );

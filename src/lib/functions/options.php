@@ -248,6 +248,11 @@ if (!function_exists('grinds_get_default_settings')) {
             'smtp_encryption' => 'tls',
             'smtp_from' => '',
             'smtp_admin_email' => '',
+            'contact_recipient_email' => '',
+            'contact_subjects' => $isJa ? "製品について\n採用について\nその他" : "Product\nRecruitment\nOther",
+            'contact_success_msg' => $isJa ? "お問い合わせを受け付けました。\n担当者より順次ご返信いたしますので、しばらくお待ちください。" : "Your inquiry has been sent successfully.\nWe will get back to you shortly.",
+            'contact_autoreply_subject' => $isJa ? '[{site_name}] お問い合わせありがとうございます' : '[{site_name}] Thank you for your inquiry',
+            'contact_autoreply_body' => $isJa ? "{name} 様\n\nお問い合わせありがとうございます。\n以下の内容で受け付けました。\n\n{form_details}\n\n後ほど担当者よりご連絡いたします。" : "Dear {name},\n\nThank you for your inquiry. We have received the following:\n\n{form_details}\n\nWe will get back to you shortly.",
 
             // Security
             'session_timeout' => '1800',

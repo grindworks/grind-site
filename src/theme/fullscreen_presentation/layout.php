@@ -23,7 +23,9 @@ extract($ctx);
   <meta name="robots" content="<?= h($robots) ?>">
   <meta property="og:title" content="<?= h($finalTitle) ?>">
   <meta property="og:description" content="<?= h($finalDesc) ?>">
-  <meta property="og:url" content="<?= h($ogpUrl) ?>">
+  <?php if ($showCanonical): ?>
+    <meta property="og:url" content="<?= h($ogpUrl) ?>">
+  <?php endif; ?>
   <meta property="og:image" content="<?= h($ogImage) ?>">
   <?php grinds_head(); ?>
   <style>
