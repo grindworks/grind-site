@@ -47,13 +47,13 @@ $csrf_token = generate_csrf_token();
 </script>
 
 <div class="relative flex lg:flex-row flex-col gap-8"
-  x-data='{
+  x-data="{
     mobileFormOpen: <?= $edit_id ? 'true' : 'false' ?>,
-    selectedType: <?= json_encode($edit_data['type'], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS) ?>,
+    selectedType: <?= htmlspecialchars(json_encode($edit_data['type'], JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT), ENT_QUOTES, 'UTF-8') ?>,
     isSubmitting: false,
     isMobile: window.innerWidth < 1024,
     _lockedState: false
-  }'
+  }"
   @resize.window="isMobile = window.innerWidth < 1024"
   x-effect="
     const shouldLock = (mobileFormOpen && isMobile);

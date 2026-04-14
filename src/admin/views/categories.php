@@ -21,19 +21,19 @@ $csrf_token = generate_csrf_token();
 <?php include __DIR__ . '/parts/hidden_action_form.php'; ?>
 
 <div class="relative flex lg:flex-row flex-col gap-8"
-  x-data='{
+  x-data="{
     mobileFormOpen: <?= $edit_id ? 'true' : 'false' ?>,
     isSubmitting: false,
     deleteModalOpen: false,
     deleteTarget: null,
-    reassignId: "",
-    categories: <?= json_encode($jsCategories, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS) ?>,
+    reassignId: '',
+    categories: <?= htmlspecialchars(json_encode($jsCategories, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT), ENT_QUOTES, 'UTF-8') ?>,
     isMobile: window.innerWidth < 1024,
     _lockedState: false,
 
     openDeleteModal(id, count, name) {
       this.deleteTarget = { id: id, count: count, name: name };
-      this.reassignId = "";
+      this.reassignId = '';
       if (count > 0) {
         const others = this.categories.filter(c => c.id != id);
         if (others.length > 0) this.reassignId = others[0].id;
@@ -44,30 +44,30 @@ $csrf_token = generate_csrf_token();
     confirmDelete() {
       if (!this.deleteTarget) return;
 
-      const form = document.getElementById("unified-action-form");
-      const actionInput=document.getElementById("form-action-input");
+      const form = document.getElementById('unified-action-form');
+      const actionInput=document.getElementById('form-action-input');
 
-      form.querySelectorAll(".dynamic-input").forEach(el=> el.remove());
+      form.querySelectorAll('.dynamic-input').forEach(el=> el.remove());
 
-      actionInput.value = "delete";
+      actionInput.value = 'delete';
 
-      const inputId = document.createElement("input");
-      inputId.type = "hidden";
-      inputId.name = "ids[]";
+      const inputId = document.createElement('input');
+      inputId.type = 'hidden';
+      inputId.name = 'ids[]';
       inputId.value = this.deleteTarget.id;
-      inputId.className = "dynamic-input";
+      inputId.className = 'dynamic-input';
       form.appendChild(inputId);
 
-      const inputReassign = document.createElement("input");
-      inputReassign.type = "hidden";
-      inputReassign.name = "reassign_id";
+      const inputReassign = document.createElement('input');
+      inputReassign.type = 'hidden';
+      inputReassign.name = 'reassign_id';
       inputReassign.value = this.reassignId;
-      inputReassign.className = "dynamic-input";
+      inputReassign.className = 'dynamic-input';
       form.appendChild(inputReassign);
 
       form.submit();
     }
-  }'
+  }"
   @resize.window="isMobile = window.innerWidth < 1024"
   x-effect="
     const shouldLock = (mobileFormOpen && isMobile) || deleteModalOpen;
@@ -171,7 +171,7 @@ $csrf_token = generate_csrf_token();
                       </svg>
                     </span>
                   <?php else: ?>
-                    <button type="button" @click='openDeleteModal(<?= $cat['id'] ?>, <?= $count ?>, <?= json_encode($cat['name'], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS) ?>)' class="flex items-center bg-transparent p-1 border-none text-theme-danger hover:scale-110 transition cursor-pointer" title="<?= h(_t('delete')) ?>" aria-label="<?= h(_t('delete')) ?>">
+                    <button type="button" @click="openDeleteModal(<?= $cat['id'] ?>, <?= $count ?>, <?= htmlspecialchars(json_encode($cat['name'], JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT), ENT_QUOTES, 'UTF-8') ?>)" class="flex items-center bg-transparent p-1 border-none text-theme-danger hover:scale-110 transition cursor-pointer" title="<?= h(_t('delete')) ?>" aria-label="<?= h(_t('delete')) ?>">
                       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-trash"></use>
                       </svg>
@@ -247,7 +247,7 @@ $csrf_token = generate_csrf_token();
                       <?= _t('delete') ?>
                     </span>
                   <?php else: ?>
-                    <button type="button" @click='openDeleteModal(<?= $cat['id'] ?>, <?= $count ?>, <?= json_encode($cat['name'], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS) ?>)' class="flex items-center bg-transparent p-0 py-1 border-none font-bold text-theme-danger text-xs hover:underline">
+                    <button type="button" @click="openDeleteModal(<?= $cat['id'] ?>, <?= $count ?>, <?= htmlspecialchars(json_encode($cat['name'], JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT), ENT_QUOTES, 'UTF-8') ?>)" class="flex items-center bg-transparent p-0 py-1 border-none font-bold text-theme-danger text-xs hover:underline">
                       <svg class="mr-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-trash"></use>
                       </svg>

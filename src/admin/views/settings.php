@@ -91,10 +91,10 @@ if ($latestVersion && version_compare($latestVersion, CMS_VERSION, '>')) {
         <div class="flex items-center gap-3">
           <template x-if="tabs[activeTab]">
             <svg class="w-5 h-5 text-theme-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <use :href='<?= json_encode(grinds_asset_url('assets/img/sprite.svg') . '#', JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS) ?> + tabs[activeTab].icon'></use>
+              <use :href="<?= htmlspecialchars(json_encode(grinds_asset_url('assets/img/sprite.svg') . '#', JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT), ENT_QUOTES, 'UTF-8') ?> + tabs[activeTab].icon"></use>
             </svg>
           </template>
-          <span x-text='tabs[activeTab] ? tabs[activeTab].label : <?= json_encode(_t('lbl_select_option'), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS) ?>'></span>
+          <span x-text="tabs[activeTab] ? tabs[activeTab].label : <?= htmlspecialchars(json_encode(_t('lbl_select_option'), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT), ENT_QUOTES, 'UTF-8') ?>"></span>
         </div>
         <svg class="opacity-50 w-5 h-5 text-theme-text transition-transform duration-200"
           :class="mobileMenuOpen ? 'rotate-180' : ''"
@@ -123,7 +123,7 @@ if ($latestVersion && version_compare($latestVersion, CMS_VERSION, '>')) {
             <svg class="flex-shrink-0 mr-3 w-5 h-5"
               :class="activeTab === key ? 'text-theme-primary' : 'text-theme-text opacity-50'"
               fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <use :href='<?= json_encode(grinds_asset_url('assets/img/sprite.svg') . '#', JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS) ?> + tab.icon'></use>
+              <use :href="<?= htmlspecialchars(json_encode(grinds_asset_url('assets/img/sprite.svg') . '#', JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT), ENT_QUOTES, 'UTF-8') ?> + tab.icon"></use>
             </svg>
             <span x-text="tab.label"></span>
 
@@ -144,14 +144,14 @@ if ($latestVersion && version_compare($latestVersion, CMS_VERSION, '>')) {
       <nav class="hidden lg:block lg:top-6 lg:sticky flex-shrink-0 space-y-1 w-64">
         <?php foreach ($tabs as $k => $item): ?>
           <button type="button"
-            @click='changeTab(<?= json_encode($k, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS) ?>)'
-            :class='activeTab === <?= json_encode($k, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS) ?>
-            ? " bg-theme-primary text-theme-on-primary shadow-theme ring-1 ring-black/5"
-            : "text-theme-text hover:bg-theme-surface hover:text-theme-primary opacity-70 hover:opacity-100"'
-            class="group flex items-center px-4 py-3 rounded-theme w-full font-bold text-sm transition-all duration-200">
+            @click="changeTab(<?= htmlspecialchars(json_encode($k, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT), ENT_QUOTES, 'UTF-8') ?>)"
+            :class="activeTab === <?= htmlspecialchars(json_encode($k, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT), ENT_QUOTES, 'UTF-8') ?>
+          ? 'bg-theme-primary text-theme-on-primary shadow-theme ring-1 ring-black/5'
+            : 'text-theme-text hover:bg-theme-surface hover:text-theme-primary opacity-70 hover:opacity-100'"
+            class=" group flex items-center px-4 py-3 rounded-theme w-full font-bold text-sm transition-all duration-200">
 
             <svg class="flex-shrink-0 mr-3 w-5 h-5 transition-colors"
-              :class=' activeTab===<?= json_encode($k, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS) ?> ? "text-theme-on-primary" : "text-theme-text opacity-50 group-hover:text-theme-primary"'
+              :class="activeTab === <?= htmlspecialchars(json_encode($k, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT), ENT_QUOTES, 'UTF-8') ?> ? 'text-theme-on-primary' : 'text-theme-text opacity-50 group-hover:text-theme-primary'"
               fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <use href="<?= h(grinds_asset_url('assets/img/sprite.svg') . '#' . $item['icon']) ?>"></use>
             </svg>
@@ -162,7 +162,7 @@ if ($latestVersion && version_compare($latestVersion, CMS_VERSION, '>')) {
               <span class="ml-2 flex w-2 h-2 rounded-full shrink-0 animate-pulse" :class="activeTab === 'update' ? 'bg-theme-on-primary' : 'bg-theme-danger'"></span>
             <?php endif; ?>
 
-            <svg x-show=' activeTab===<?= json_encode($k, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS) ?>' class="opacity-50 ml-auto w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg x-show="activeTab === <?= htmlspecialchars(json_encode($k, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT), ENT_QUOTES, 'UTF-8') ?>" class="opacity-50 ml-auto w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-chevron-right"></use>
             </svg>
           </button>

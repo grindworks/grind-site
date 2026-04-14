@@ -196,6 +196,10 @@ class GrindsUpdater
           if ($dest) {
             stream_copy_to_stream($fpStream, $dest);
             fclose($dest);
+          } else {
+            fclose($fpStream);
+            $zip->close();
+            throw new Exception("Failed to write extracted file: " . $safeFilename);
           }
           fclose($fpStream);
         }

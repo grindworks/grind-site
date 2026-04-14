@@ -208,7 +208,7 @@ if (($init_tab ?? '') === 'update') {
             <svg x-show="isComplete" x-cloak class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-check"></use>
             </svg>
-            <span x-text="isComplete ? <?= htmlspecialchars(json_encode(_t('js_done') ?? 'Done!'), ENT_QUOTES) ?> : (isProcessing ? <?= htmlspecialchars(json_encode(_t('ssg_btn_generating') ?? 'Updating...'), ENT_QUOTES) ?> : <?= htmlspecialchars(json_encode(_t('st_btn_update_now')), ENT_QUOTES) ?>)"></span>
+            <span x-text="isComplete ? <?= htmlspecialchars(json_encode(_t('js_done') ?? 'Done!', JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT), ENT_QUOTES, 'UTF-8') ?> : (isProcessing ? <?= htmlspecialchars(json_encode(_t('ssg_btn_generating') ?? 'Updating...', JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT), ENT_QUOTES, 'UTF-8') ?> : <?= htmlspecialchars(json_encode(_t('st_btn_update_now'), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT), ENT_QUOTES, 'UTF-8') ?>)"></span>
           </button>
         </div>
       </div>
@@ -263,7 +263,7 @@ if (($init_tab ?? '') === 'update') {
             ],
 
             async startUpdate() {
-              if (!confirm(<?= htmlspecialchars(json_encode(_t('st_confirm_update')), ENT_QUOTES) ?>)) return;
+              if (!confirm(<?= json_encode(_t('st_confirm_update'), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>)) return;
 
               this.isProcessing = true;
               this.isComplete = false;
@@ -326,7 +326,7 @@ if (($init_tab ?? '') === 'update') {
                 await this.callApi('cleanup');
                 this.setStepStatus('cleanup', 'done');
 
-                this.statusTitle = <?= htmlspecialchars(json_encode(_t('msg_update_success') ?? 'Update Complete!'), ENT_QUOTES) ?>.replace('%s', initRes.version);
+                this.statusTitle = <?= json_encode(_t('msg_update_success') ?? 'Update Complete!', JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>.replace('%s', initRes.version);
                 this.isComplete = true;
 
                 // Reload after success

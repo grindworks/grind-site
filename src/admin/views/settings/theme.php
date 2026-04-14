@@ -18,7 +18,7 @@ if (!defined('GRINDS_APP'))
       selectedSkin: <?= htmlspecialchars(json_encode($opt['skin'], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT), ENT_QUOTES, 'UTF-8') ?>,
       skinDirty: false
     }"
-      @submit="if(currentTheme !== selectedTheme && !confirm(<?= htmlspecialchars(json_encode(_t('msg_theme_change_confirm')), ENT_QUOTES) ?>)) { $event.preventDefault(); } else { skinDirty = false; }">
+      @submit="if(currentTheme !== selectedTheme && !confirm(<?= htmlspecialchars(json_encode(_t('msg_theme_change_confirm'), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT), ENT_QUOTES, 'UTF-8') ?>)) { $event.preventDefault(); } else { skinDirty = false; }">
       <input type="hidden" name="csrf_token" value="<?= h(generate_csrf_token()) ?>">
       <!-- Default action for implicit submission -->
       <button type="submit" name="action" value="update_theme" class="hidden" aria-hidden="true"></button>
@@ -523,7 +523,7 @@ if (!defined('GRINDS_APP'))
 
     <form method="post"
       class="flex sm:flex-row flex-col items-end gap-5 bg-theme-bg/50 p-5 rounded-theme border border-theme-border/50 warn-on-unsaved"
-      onsubmit="return confirm(<?= htmlspecialchars(json_encode(_t('st_confirm_duplicate')), ENT_QUOTES) ?>);">
+      onsubmit="return confirm(<?= htmlspecialchars(json_encode(_t('st_confirm_duplicate'), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT), ENT_QUOTES, 'UTF-8') ?>);">
       <input type="hidden" name="csrf_token" value="<?= h(generate_csrf_token()) ?>">
       <input type="hidden" name="action" value="duplicate_theme">
 

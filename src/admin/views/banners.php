@@ -315,26 +315,26 @@ $csrf_token = generate_csrf_token();
               </div>
 
               <form method="post" enctype="multipart/form-data" class="warn-on-unsaved" x-data='{
-        type: <?= json_encode($edit_data['type'] ?? 'image', JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS) ?>,
+        type: <?= htmlspecialchars(json_encode($edit_data['type'] ?? 'image', JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT), ENT_QUOTES, 'UTF-8') ?>,
         imageWidth: <?= (int)($edit_data['image_width'] ?? 100) ?>,
         isSubmitting: false
       }' @submit.prevent="
         setTimeout(() => isSubmitting = true, 10);
         if (type === 'html') {
-          const textarea = $el.querySelector('textarea[name=\'html_code\']');
-          if (textarea && textarea.value) {
-            const encoded = btoa(encodeURIComponent(textarea.value).replace(/%([0-9A-F]{2})/g, (m, p1) => String.fromCharCode('0x' + p1)));
-            textarea.value = encoded;
-            const flag = document.createElement('input');
-            flag.type = 'hidden';
-            flag.name = 'html_code_is_base64';
-            flag.value = '1';
-            $el.appendChild(flag);
-          }
-        }
-        window.grindsBypassUnload = true;
-        $el.submit();
-      ">
+                const textarea=$el.querySelector('[name=html_code]');
+                if (textarea && textarea.value) {
+                const encoded=btoa(encodeURIComponent(textarea.value).replace(/%([0-9A-F]{2})/g, (m, p1)=> String.fromCharCode('0x' + p1)));
+                textarea.value = encoded;
+                const flag = document.createElement('input');
+                flag.type = 'hidden';
+                flag.name = 'html_code_is_base64';
+                flag.value = '1';
+                $el.appendChild(flag);
+                }
+                }
+                window.grindsBypassUnload = true;
+                $el.submit();
+                ">
                 <input type="hidden" name="csrf_token" value="<?= h(generate_csrf_token()) ?>">
                 <input type="hidden" name="action" value="save">
 
@@ -383,7 +383,7 @@ $csrf_token = generate_csrf_token();
 
                 <!-- Display condition selector. -->
                 <div class="bg-theme-bg mb-4 p-4 border border-theme-border rounded-theme"
-                  x-data='{ targetType: <?= json_encode($edit_data['target_type'], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS) ?> }'>
+                  x-data="{ targetType: <?= htmlspecialchars(json_encode($edit_data['target_type'], JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT), ENT_QUOTES, 'UTF-8') ?> }">
                   <label class="block mb-2 font-bold text-theme-text text-sm"><?= _t('lbl_display_condition') ?></label>
 
                   <select name="target_type" x-model="targetType" class="mb-3 form-control">

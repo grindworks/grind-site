@@ -2384,9 +2384,12 @@ document.addEventListener('alpine:init', () => {
      */
     addTableRow(blockIndex) {
       const block = this.blocks[blockIndex];
-      const cols = block.data.content[0].length;
-      const newRow = new Array(cols).fill('');
-      block.data.content.push(newRow);
+      if (block && block.data && Array.isArray(block.data.content) && block.data.content.length > 0) {
+        // Get the number of columns from the first row
+        const cols = block.data.content[0].length;
+        const newRow = new Array(cols).fill('');
+        block.data.content.push(newRow);
+      }
     },
 
     /**
@@ -2395,7 +2398,10 @@ document.addEventListener('alpine:init', () => {
      */
     addTableCol(blockIndex) {
       const block = this.blocks[blockIndex];
-      block.data.content.forEach((row) => row.push(''));
+      if (block && block.data && Array.isArray(block.data.content)) {
+        // Add an empty cell to the end of every existing row
+        block.data.content.forEach((row) => row.push(''));
+      }
     },
 
     /**

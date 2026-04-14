@@ -51,20 +51,28 @@ document.addEventListener('DOMContentLoaded', () => {
       };
 
       const highlightHtml = (text, keywords) => {
-        let result = escapeHtml(text || '');
-        if (!keywords || keywords.length === 0) return result;
+        if (!text) return '';
+        if (!keywords || keywords.length === 0) return escapeHtml(text);
 
         const escapeRegExp = (string) => string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-
         const sortedKeywords = keywords.slice().sort((a, b) => b.length - a.length);
         const regexPattern = sortedKeywords
           .filter((kw) => kw)
-          .map((kw) => escapeRegExp(escapeHtml(kw)))
+          .map((kw) => escapeRegExp(kw))
           .join('|');
 
-        if (regexPattern) {
-          const regex = new RegExp(`(${regexPattern})`, 'gi');
-          result = result.replace(regex, '<mark class="bg-yellow-200 text-gray-900 rounded-sm px-0.5">$1</mark>');
+        if (!regexPattern) return escapeHtml(text);
+
+        const regex = new RegExp(`(${regexPattern})`, 'gi');
+        const parts = text.split(regex);
+        let result = '';
+
+        for (let i = 0; i < parts.length; i++) {
+          if (i % 2 === 0) {
+            result += escapeHtml(parts[i]);
+          } else {
+            result += `<mark class="bg-yellow-200 text-gray-900 rounded-sm px-0.5">${escapeHtml(parts[i])}</mark>`;
+          }
         }
         return result;
       };

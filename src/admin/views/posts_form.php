@@ -250,38 +250,38 @@ $basePath = rtrim($parsedBase['path'] ?? '/', '/') . '/';
 <script src="<?= grinds_asset_url('assets/js/media_manager.js') ?>"></script>
 <script src="<?= grinds_asset_url('assets/js/admin_editor.js') ?>"></script>
 
-<div x-data='{
-    postStatus: <?= json_encode(($post['status'] ?? '') === 'published' ? 'published' : 'draft', JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>,
-    postSlug: <?= json_encode($post['slug'] ?? '', JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>,
+<div x-data="{
+    postStatus: <?= htmlspecialchars(json_encode(($post['status'] ?? '') === 'published' ? 'published' : 'draft', JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT), ENT_QUOTES, 'UTF-8') ?>,
+    postSlug: <?= htmlspecialchars(json_encode($post['slug'] ?? '', JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT), ENT_QUOTES, 'UTF-8') ?>,
     ...blockEditor(window.grindsPostContent, {
-        seoTitle: <?= json_encode($post['title'] ?? "", JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>,
-        seoDesc: <?= json_encode($post['description'] ?? "", JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>,
-        seoImage: <?= json_encode(get_media_url($post['thumbnail'] ?? ''), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>,
-        siteDomain: <?= json_encode(parse_url(BASE_URL, PHP_URL_HOST) ?? "localhost", JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>
+        seoTitle: <?= htmlspecialchars(json_encode($post['title'] ?? '', JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT), ENT_QUOTES, 'UTF-8') ?>,
+        seoDesc: <?= htmlspecialchars(json_encode($post['description'] ?? '', JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT), ENT_QUOTES, 'UTF-8') ?>,
+        seoImage: <?= htmlspecialchars(json_encode(get_media_url($post['thumbnail'] ?? ''), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT), ENT_QUOTES, 'UTF-8') ?>,
+        siteDomain: <?= htmlspecialchars(json_encode(parse_url(BASE_URL, PHP_URL_HOST) ?? 'localhost', JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT), ENT_QUOTES, 'UTF-8') ?>
     }),
     draggingIndex: null,
     dropTargetIndex: null,
     handleDragStart(index, event) {
         this.draggingIndex = index;
-        event.dataTransfer.effectAllowed = "move";
+        event.dataTransfer.effectAllowed = 'move';
     },
     handleDragOver(index) {
-        if (index === this.draggingIndex) return;
-        this.dropTargetIndex = index;
+    if (index===this.draggingIndex) return;
+    this.dropTargetIndex=index;
     },
     handleDragLeave() {
-        this.dropTargetIndex = null;
+    this.dropTargetIndex=null;
     },
     handleDrop(index) {
-        if (this.draggingIndex === null || this.draggingIndex === index) return;
-        this.moveBlockTo(this.draggingIndex, index, false);
-        this.handleDragEnd();
+    if (this.draggingIndex===null || this.draggingIndex===index) return;
+    this.moveBlockTo(this.draggingIndex, index, false);
+    this.handleDragEnd();
     },
     handleDragEnd() {
-        this.draggingIndex = null;
-        this.dropTargetIndex = null;
+    this.draggingIndex=null;
+    this.dropTargetIndex=null;
     }
-}'
+    }"
     x-init="$watch('inserterOpen', val => window.toggleScrollLock(val)); $watch('templateModalOpen', val => window.toggleScrollLock(val));"
     @dragenter.window.prevent="handleGlobalDragEnter($event)"
     @dragover.window.prevent=""
@@ -341,7 +341,7 @@ $basePath = rtrim($parsedBase['path'] ?? '/', '/') . '/';
                     <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-check"></use>
                 </svg>
             </div>
-            <span class="opacity-60 font-mono text-theme-text text-[10px] tracking-wide" x-text='<?= json_encode(_t('js_auto_saved'), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>.replace("%s", lastAutoSaved)'></span>
+            <span class="opacity-60 font-mono text-theme-text text-[10px] tracking-wide" x-text="<?= htmlspecialchars(json_encode(_t('js_auto_saved'), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT), ENT_QUOTES, 'UTF-8') ?>.replace('%s', lastAutoSaved)"></span>
         </div>
     </div>
 
@@ -427,7 +427,7 @@ $basePath = rtrim($parsedBase['path'] ?? '/', '/') . '/';
                             if (!$btn)
                                 continue;
                         ?>
-                            <button type="button" @click.prevent='addBlock(<?= json_encode($key, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>); $dispatch("announce", "Block added: " + <?= json_encode($btn['label'], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>);' class="hover:bg-theme-bg p-2 rounded-full text-theme-text hover:text-theme-primary transition-colors" title="<?= h($btn['label']) ?>" aria-label="<?= h($btn['label']) ?>">
+                            <button type="button" @click.prevent="addBlock(<?= htmlspecialchars(json_encode($key, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT), ENT_QUOTES, 'UTF-8') ?>); $dispatch('announce', 'Block added: ' + <?= htmlspecialchars(json_encode($btn['label'], JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT), ENT_QUOTES, 'UTF-8') ?>);" class="hover:bg-theme-bg p-2 rounded-full text-theme-text hover:text-theme-primary transition-colors" title="<?= h($btn['label']) ?>" aria-label="<?= h($btn['label']) ?>">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <use href="<?= h(grinds_asset_url('assets/img/sprite.svg') . '#' . $btn['icon']) ?>"></use>
                                 </svg>
@@ -538,7 +538,7 @@ $basePath = rtrim($parsedBase['path'] ?? '/', '/') . '/';
                                     ?>
 
                                     <!-- Unknown block fallback. -->
-                                    <template x-if='!<?= $jsLoadedTypes ?>.includes(block.type)'>
+                                    <template x-if="!<?= htmlspecialchars($jsLoadedTypes, ENT_QUOTES, 'UTF-8') ?>.includes(block.type)">
                                         <div class="flex items-center gap-4 bg-theme-bg/50 mt-6 p-4 border border-theme-border border-dashed rounded-theme">
                                             <div class="flex justify-center items-center bg-theme-surface border border-theme-border rounded-full w-10 h-10 text-theme-text/40">
                                                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -601,13 +601,13 @@ $basePath = rtrim($parsedBase['path'] ?? '/', '/') . '/';
                         ?> <div class="group relative flex flex-col justify-center items-center gap-3 py-16 border-2 rounded-theme text-center transition-all overflow-hidden"
                             x-data="{
                                 isSecureContext: window.isSecureContext,
-                                aiBgStart: '<?= $aiConfig['bg_start'] ?>',
-                                aiBgEnd: '<?= $aiConfig['bg_end'] ?>',
-                                aiBorder: '<?= $aiConfig['border'] ?>',
-                                aiBorderStyle: '<?= $aiConfig['border_style'] ?>',
-                                aiBorderHover: '<?= $aiConfig['border_hover'] ?>',
-                                currentBg: '<?= $aiConfig['bg_start'] ?>',
-                                currentBorder: '<?= $aiConfig['border'] ?>',
+                                aiBgStart: <?= htmlspecialchars(json_encode($aiConfig['bg_start'], JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT), ENT_QUOTES, 'UTF-8') ?>,
+                                aiBgEnd: <?= htmlspecialchars(json_encode($aiConfig['bg_end'], JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT), ENT_QUOTES, 'UTF-8') ?>,
+                                aiBorder: <?= htmlspecialchars(json_encode($aiConfig['border'], JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT), ENT_QUOTES, 'UTF-8') ?>,
+                                aiBorderStyle: <?= htmlspecialchars(json_encode($aiConfig['border_style'], JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT), ENT_QUOTES, 'UTF-8') ?>,
+                                aiBorderHover: <?= htmlspecialchars(json_encode($aiConfig['border_hover'], JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT), ENT_QUOTES, 'UTF-8') ?>,
+                                currentBg: <?= htmlspecialchars(json_encode($aiConfig['bg_start'], JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT), ENT_QUOTES, 'UTF-8') ?>,
+                                currentBorder: <?= htmlspecialchars(json_encode($aiConfig['border'], JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT), ENT_QUOTES, 'UTF-8') ?>,
                             }"
                             :class="{ 'opacity-50 cursor-not-allowed': !isSecureContext, 'cursor-pointer': isSecureContext }"
                             :title="!isSecureContext ? '<?= _t('err_https_required') ?>' : ''"
@@ -831,7 +831,7 @@ $basePath = rtrim($parsedBase['path'] ?? '/', '/') . '/';
                     <?php if ($action === 'edit'): ?>
                         <div x-show="!isStuck" x-collapse.duration.300ms>
                             <div class="mt-4 pt-4 border-theme-border border-t text-center">
-                                <button type="button" onclick='movePostToTrash(<?= json_encode($post['id'], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>)'
+                                <button type="button" onclick="movePostToTrash(<?= htmlspecialchars(json_encode($post['id'], JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT), ENT_QUOTES, 'UTF-8') ?>)"
                                     class="flex justify-center items-center gap-1 opacity-40 hover:opacity-100 mx-auto font-bold text-theme-text hover:text-theme-danger text-xs transition-all">
                                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-trash"></use>
@@ -951,7 +951,7 @@ $basePath = rtrim($parsedBase['path'] ?? '/', '/') . '/';
             <?php endif; ?>
 
             <!-- Categories and tags. -->
-            <div class="bg-theme-surface shadow-theme p-5 border border-theme-border rounded-theme" x-data='{ postType: <?= json_encode($post['type'] ?? 'post', JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?> }'>
+            <div class="bg-theme-surface shadow-theme p-5 border border-theme-border rounded-theme" x-data="{ postType: <?= htmlspecialchars(json_encode($post['type'] ?? 'post', JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT), ENT_QUOTES, 'UTF-8') ?> }">
                 <?php
                 // Function to check if a UI section is supported
                 $cpts = function_exists('grinds_get_theme_post_types') ? grinds_get_theme_post_types() : [];
@@ -1128,7 +1128,7 @@ $basePath = rtrim($parsedBase['path'] ?? '/', '/') . '/';
                         <div x-show="open" x-collapse>
                             <div class="space-y-4 mt-4">
                                 <!-- Hero image. -->
-                                <div x-data='{ previewUrl: <?= json_encode(get_media_url($post['hero_image'] ?? ''), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>, isDeleted: false }'
+                                <div x-data="{ previewUrl: <?= htmlspecialchars(json_encode(get_media_url($post['hero_image'] ?? ''), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT), ENT_QUOTES, 'UTF-8') ?>, isDeleted: false }"
                                     @set-hero-image.window="if(!$event.detail.mobile) { previewUrl = $event.detail.url; isDeleted = false; document.getElementById('hero_image_url_input').value = $event.detail.url; }">
                                     <label class="block opacity-60 mb-1 font-bold text-theme-text text-xs"><?= _t('hero_img') ?></label>
                                     <div class="mb-2 bg-checker border border-theme-border rounded-theme w-full h-32 overflow-hidden" x-show="previewUrl && !isDeleted">
@@ -1164,7 +1164,7 @@ $basePath = rtrim($parsedBase['path'] ?? '/', '/') . '/';
                                     <p x-show="isDeleted" class="mt-2 font-bold text-theme-danger text-xs"><?= _t('msg_deleted') ?></p>
                                 </div>
 
-                                <div x-data='{ previewUrl: <?= json_encode(get_media_url($heroConfig['mobile_image'] ?? ''), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>, isDeleted: false }'
+                                <div x-data="{ previewUrl: <?= htmlspecialchars(json_encode(get_media_url($heroConfig['mobile_image'] ?? ''), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT), ENT_QUOTES, 'UTF-8') ?>, isDeleted: false }"
                                     class="pt-4 border-theme-border border-t"
                                     @set-hero-image.window="if($event.detail.mobile) { previewUrl = $event.detail.url; isDeleted = false; document.getElementById('hero_image_mobile_url_input').value = $event.detail.url; }">
                                     <label class="block opacity-60 mb-1 font-bold text-theme-text text-xs">

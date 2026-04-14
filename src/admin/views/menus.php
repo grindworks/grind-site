@@ -59,11 +59,11 @@ include __DIR__ . '/parts/hidden_action_form.php';
 </script>
 
 <div class="relative flex lg:flex-row flex-col gap-8"
-  x-data='{
+  x-data="{
     mobileFormOpen: <?= $edit_id ? 'true' : 'false' ?>,
-    activeAccordion: "custom",
-    inputLabel: <?= json_encode($edit_data['label'], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS) ?>,
-    inputUrl: <?= json_encode($edit_data['url'], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS) ?>,
+    activeAccordion: 'custom',
+    inputLabel: <?= htmlspecialchars(json_encode($edit_data['label'], JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT), ENT_QUOTES, 'UTF-8') ?>,
+    inputUrl: <?= htmlspecialchars(json_encode($edit_data['url'], JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT), ENT_QUOTES, 'UTF-8') ?>,
     isSubmitting: false,
     isMobile: window.innerWidth < 1024,
     _lockedState: false,
@@ -73,10 +73,10 @@ include __DIR__ . '/parts/hidden_action_form.php';
       if(window.innerWidth < 1024) {
         this.mobileFormOpen = true;
       } else {
-        document.getElementById("menu-form-card").scrollIntoView({ behavior: "smooth", block: "center" });
+        document.getElementById('menu-form-card').scrollIntoView({ behavior: 'smooth', block: 'center' });
       }
     }
-  }'
+  }"
   @resize.window="isMobile = window.innerWidth < 1024"
   x-effect="
     const shouldLock = (mobileFormOpen && isMobile);
@@ -338,7 +338,7 @@ include __DIR__ . '/parts/hidden_action_form.php';
               <ul class="space-y-1">
                 <?php foreach ($pages_list as $p): ?>
                   <li>
-                    <button type="button" @click='fill(<?= json_encode($p['title'], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS) ?>, <?= json_encode($urlPath . $p['slug'], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS) ?>)' class="flex items-center hover:bg-theme-primary/10 px-2 py-1.5 rounded-theme w-full text-theme-text hover:text-theme-primary text-xs text-left truncate transition-colors">
+                    <button type="button" @click="fill(<?= htmlspecialchars(json_encode($p['title'], JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT), ENT_QUOTES, 'UTF-8') ?>, <?= htmlspecialchars(json_encode($urlPath . $p['slug'], JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT), ENT_QUOTES, 'UTF-8') ?>)" class="flex items-center hover:bg-theme-primary/10 px-2 py-1.5 rounded-theme w-full text-theme-text hover:text-theme-primary text-xs text-left truncate transition-colors">
                       <svg class="opacity-50 mr-2 w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-document"></use>
                       </svg>
@@ -366,7 +366,7 @@ include __DIR__ . '/parts/hidden_action_form.php';
               <ul class="space-y-1">
                 <?php foreach ($categories_list as $c): ?>
                   <li>
-                    <button type="button" @click='fill(<?= json_encode($c['name'], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS) ?>, <?= json_encode($urlPath . 'category/' . $c['slug'], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS) ?>)' class="flex items-center hover:bg-theme-primary/10 px-2 py-1.5 rounded-theme w-full text-theme-text hover:text-theme-primary text-xs text-left truncate transition-colors">
+                    <button type="button" @click="fill(<?= htmlspecialchars(json_encode($c['name'], JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT), ENT_QUOTES, 'UTF-8') ?>, <?= htmlspecialchars(json_encode($urlPath . 'category/' . $c['slug'], JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT), ENT_QUOTES, 'UTF-8') ?>)" class="flex items-center hover:bg-theme-primary/10 px-2 py-1.5 rounded-theme w-full text-theme-text hover:text-theme-primary text-xs text-left truncate transition-colors">
                       <svg class="opacity-50 mr-2 w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-folder"></use>
                       </svg>
@@ -393,7 +393,7 @@ include __DIR__ . '/parts/hidden_action_form.php';
             <?php else: ?>
               <div class="flex flex-wrap gap-2">
                 <?php foreach ($tags_list as $t): ?>
-                  <button type="button" @click='fill(<?= json_encode('#' . $t['name'], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS) ?>, <?= json_encode($urlPath . 'tag/' . $t['slug'], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS) ?>)' class="bg-theme-bg px-2 py-1 border border-theme-border hover:border-theme-primary rounded-theme text-theme-text hover:text-theme-primary text-xs transition-colors">
+                  <button type="button" @click="fill(<?= htmlspecialchars(json_encode('#' . $t['name'], JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT), ENT_QUOTES, 'UTF-8') ?>, <?= htmlspecialchars(json_encode($urlPath . 'tag/' . $t['slug'], JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT), ENT_QUOTES, 'UTF-8') ?>)" class="bg-theme-bg px-2 py-1 border border-theme-border hover:border-theme-primary rounded-theme text-theme-text hover:text-theme-primary text-xs transition-colors">
                     #<?= h($t['name']) ?>
                   </button>
                 <?php endforeach; ?>

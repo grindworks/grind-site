@@ -528,7 +528,7 @@ if (!isset($backups)) {
             </form>
 
             <form method="post"
-              onsubmit="return confirm(<?= htmlspecialchars(json_encode(_t('confirm_restore')), ENT_QUOTES) ?>);">
+              onsubmit="return confirm(<?= htmlspecialchars(json_encode(_t('confirm_restore'), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT), ENT_QUOTES, 'UTF-8') ?>);">
               <input type="hidden" name="csrf_token" value="<?= h(generate_csrf_token()) ?>">
               <input type="hidden" name="action" value="restore_backup">
               <input type="hidden" name="restore_backup" value="<?= h($bk['name']) ?>">
@@ -545,7 +545,7 @@ if (!isset($backups)) {
             </form>
 
             <form method="post"
-              onsubmit="return confirm(<?= htmlspecialchars(json_encode(_t('confirm_delete')), ENT_QUOTES) ?>);">
+              onsubmit="return confirm(<?= htmlspecialchars(json_encode(_t('confirm_delete'), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT), ENT_QUOTES, 'UTF-8') ?>);">
               <input type="hidden" name="csrf_token" value="<?= h(generate_csrf_token()) ?>">
               <input type="hidden" name="action" value="delete_backup">
               <input type="hidden" name="delete_backup" value="<?= h($bk['name']) ?>">

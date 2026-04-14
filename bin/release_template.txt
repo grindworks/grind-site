@@ -1,25 +1,27 @@
 Release title
-v1.6.5 - Dynamic Contact Form Subjects, DB Restore Fix & CLI Path Resolution
+v1.6.5 - Dynamic Contact Form Subjects, DB Restore Fix & Update Page JS Fix
 
 Release notes
-This patch release brings UX improvements to the contact form notifications, fixes a cache inconsistency issue during database restoration, and enhances the flexibility of the CLI tool.
+This patch release brings UX improvements to the contact form notifications, fixes a cache inconsistency issue during database restoration, enhances the flexibility of the CLI tool, and addresses a JS error on the update page.
 
 ### ✨ Enhancements
 - **Dynamic Contact Form Subjects:** Administrator notification emails now dynamically include the "Inquiry Type" (Subject) selected by the user in the email subject line (e.g., `[SiteName] Product Inquiry`). This makes it much easier to manage threads and prioritize emails in your inbox. (Applied to all themes).
 - **CLI Tool Flexibility:** Upgraded the path resolution logic in `bin/grind.php`. The CLI tool can now automatically detect `config.php` across various deployment structures (e.g., `public_html`, `public`, `html`, `www`), making it easier to run commands on shared hosting or VPS environments.
 
 ### 🛡️ Bug Fixes
+- **Update Page JS Error:** Fixed an issue where translations containing HTML entities caused a syntax error in Alpine.js (`Unexpected token '&'`), blocking the frontend update controller from loading.
 - **DB Restore Cache Inconsistency:** Fixed an issue where restoring a database backup via the admin panel did not clear the generated HTML page caches and system health caches, causing the frontend to display outdated or broken content immediately after a restore.
 
 ---
 
 ## 🇯🇵 日本語 (Japanese)
 
-このパッチリリースでは、お問い合わせフォームの通知メールに関するUX向上、データベース復元時のキャッシュの不整合バグの修正、およびCLIツールの利便性向上が含まれています。
+このパッチリリースでは、お問い合わせフォームの通知メールに関するUX向上、データベース復元時のキャッシュ不整合バグの修正、CLIツールの利便性向上、およびアップデート画面でのJSエラーの修正が含まれています。
 
 ### ✨ 新機能・改善
 - **お問い合わせフォームの件名動的化:** ユーザーがフォームで選択した「お問い合わせ種別（Subject）」が、管理者宛の通知メールの件名に動的に反映されるようになりました（例：`[サイト名] 製品について`）。これにより、メーラーでのスレッド管理や優先順位の判断が格段にスムーズになります。（同梱されているすべてのテーマに適用）
 - **CLIツールの柔軟性向上:** `bin/grind.php` のパス探索ロジックを強化しました。共有サーバーの `public_html` やVPSの `public`, `html` などのドキュメントルートに中身を展開する運用でも、自動的に `config.php` を見つけて起動できるようになり、実運用でのデプロイやCronのセットアップが容易になりました。
 
 ### 🛡️ バグ修正
+- **アップデート画面のJSエラー:** 翻訳テキストに含まれるHTMLエンティティが原因でAlpine.jsが構文エラー（`Unexpected token '&'`）を起こし、システム更新機能が起動しなくなる問題を修正しました。
 - **DBリストア時のキャッシュ不整合:** 管理画面からデータベースのバックアップを復元した際、生成済みのHTMLページキャッシュやシステムのヘルスチェックキャッシュがクリアされず、フロントエンドの表示が古いまま残ってしまう（または表示崩れを起こす）問題を修正しました。

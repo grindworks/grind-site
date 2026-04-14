@@ -391,7 +391,7 @@ ob_start();
           <svg x-show="isDownloading" class="w-5 h-5 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="display: none;" x-cloak>
             <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-arrow-path"></use>
           </svg>
-          <span x-text='isDownloading ? "Downloading..." : <?= json_encode(_t("ssg_btn_download"), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>'></span>
+          <span x-text="isDownloading ? 'Downloading...' : <?= htmlspecialchars(json_encode(_t('ssg_btn_download'), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT), ENT_QUOTES, 'UTF-8') ?>"></span>
         </button>
         <button @click="closeModal()" class="opacity-40 hover:opacity-100 font-bold text-theme-text text-sm hover:underline transition-all"><?= _t('ssg_btn_close') ?></button>
       </div>

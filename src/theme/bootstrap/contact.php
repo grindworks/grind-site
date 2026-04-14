@@ -155,7 +155,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$maintenanceMode) {
                 [$siteName, $userName, $mailBody],
                 $autoReplyBody
               );
-              $mailer->send($userEmail, $replySubject, $replyBody);
+              $mailer->send($userEmail, $replySubject, $replyBody, $recipientEmail);
             } catch (Exception $e) {
             }
           }

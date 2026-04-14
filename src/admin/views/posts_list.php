@@ -82,7 +82,7 @@ $csrf_token = generate_csrf_token();
         </div>
       <?php else: ?>
         <div class="hidden lg:block">
-          <form method="post" onsubmit='return confirm(<?= json_encode(_t('confirm_empty_trash'), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS) ?>);'>
+          <form method="post" onsubmit="return confirm(<?= htmlspecialchars(json_encode(_t('confirm_empty_trash'), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT), ENT_QUOTES, 'UTF-8') ?>);">
             <input type="hidden" name="csrf_token" value="<?= h(generate_csrf_token()) ?>">
             <input type="hidden" name="action" value="empty_trash">
             <input type="hidden" name="type" value="<?= h($type) ?>">

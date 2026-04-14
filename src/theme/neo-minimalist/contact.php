@@ -173,7 +173,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$maintenanceMode) {
                 [$siteName, $userName, $mailBody],
                 $autoReplyBody
               );
-              $mailer->send($userEmail, $replySubject, $replyBody);
+              $mailer->send($userEmail, $replySubject, $replyBody, $recipientEmail);
             } catch (Exception $e) {
               if (class_exists('GrindsLogger')) {
                 GrindsLogger::log('Neo-minimalist contact form auto-reply error: ' . $e->getMessage(), 'WARNING');

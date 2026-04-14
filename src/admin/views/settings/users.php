@@ -126,7 +126,7 @@ if (!isset($userList)) {
                     <input type="hidden" name="action" value="delete_user">
                     <input type="hidden" name="delete_user" value="<?= $u['id'] ?>">
                     <button type="submit"
-                      onclick="return confirm(<?= htmlspecialchars(json_encode(_t('st_confirm_user_del')), ENT_QUOTES) ?>)"
+                      onclick="return confirm(<?= htmlspecialchars(json_encode(_t('st_confirm_user_del'), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT), ENT_QUOTES, 'UTF-8') ?>)"
                       class="inline-flex items-center gap-1 bg-transparent p-0 border-none font-bold text-theme-danger text-xs hover:underline cursor-pointer">
                       <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-trash"></use>
@@ -212,7 +212,7 @@ if (!isset($userList)) {
               <input type="hidden" name="action" value="delete_user">
               <input type="hidden" name="delete_user" value="<?= $u['id'] ?>">
               <button type="submit"
-                onclick="return confirm(<?= htmlspecialchars(json_encode(_t('st_confirm_user_del')), ENT_QUOTES) ?>)"
+                onclick="return confirm(<?= htmlspecialchars(json_encode(_t('st_confirm_user_del'), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT), ENT_QUOTES, 'UTF-8') ?>)"
                 class="flex items-center gap-1 bg-transparent p-0 border-none font-bold text-theme-danger text-xs hover:underline cursor-pointer">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-trash"></use>
