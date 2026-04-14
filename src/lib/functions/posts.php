@@ -1479,7 +1479,8 @@ function grinds_queue_ssg_dependencies(PDO $pdo, int $postId, string $actionType
         $urlsToQueue[] = ['url' => 'llms.txt', 'action' => 'build'];
     }
 
-    // Ensure SQLite 3.7.17 compatibility by avoiding UPSERT (ON CONFLICT)
+    // Bypass PDO rowCount() inconsistencies for SQLite by explicit checking
+    $stmtCheck  = $pdo->prepare("SELECT id FROM ssg_queue WHERE target_url = ?");
     $stmtUpdate = $pdo->prepare("UPDATE ssg_queue SET status = 'pending', action_type = ?, updated_at = CURRENT_TIMESTAMP WHERE target_url = ?");
     $stmtInsert = $pdo->prepare("INSERT INTO ssg_queue (target_url, action_type, status, updated_at) VALUES (?, ?, 'pending', CURRENT_TIMESTAMP)");
 
@@ -1489,11 +1490,14 @@ function grinds_queue_ssg_dependencies(PDO $pdo, int $postId, string $actionType
     }
     try {
         foreach ($urlsToQueue as $item) {
-            // Try to update existing record first
-            $stmtUpdate->execute([$item['action'], $item['url']]);
+            // 1. Explicitly check if the record exists
+            $stmtCheck->execute([$item['url']]);
+            $exists = $stmtCheck->fetchColumn();
 
-            // If no record was updated, insert a new one
-            if ($stmtUpdate->rowCount() === 0) {
+            // 2. Branch safely
+            if ($exists) {
+                $stmtUpdate->execute([$item['action'], $item['url']]);
+            } else {
                 $stmtInsert->execute([$item['url'], $item['action']]);
             }
         }

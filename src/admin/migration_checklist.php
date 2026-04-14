@@ -33,10 +33,7 @@ $page_title = _t('mig_check_title');
 $current_page = 'migration_check';
 
 // Translations for JS health check
-$isJa = (get_option('site_lang') === 'ja');
-$jsRewriteWarningMsg = $isJa
-    ? '⚠️ 実際の通信テストで 404/500 エラーを検知しました。.htaccess の RewriteBase のコメントアウト（#）を外してください。'
-    : '⚠️ 404/500 error detected during actual request test. Please uncomment RewriteBase in .htaccess.';
+$jsRewriteWarningMsg = _t('st_doctor_error_desc');
 
 ob_start();
 require_once __DIR__ . '/layout/toast.php';

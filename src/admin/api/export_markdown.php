@@ -54,11 +54,11 @@ function grinds_blocks_to_markdown($contentJson)
             return ($result === null) ? $subject : $result;
         };
         $md = str_replace(['<br>', '<br/>', '<br />'], "\n", $html ?? '');
-        $md = $safeReplace('/<(b|strong)\b[^>]*>(.*?)<\/\1>/is', '**$2**', $md);
-        $md = $safeReplace('/<(i|em)\b[^>]*>(.*?)<\/\1>/is', '*$2*', $md);
-        $md = $safeReplace('/<(s|strike|del)\b[^>]*>(.*?)<\/\1>/is', '~~$2~~', $md);
-        $md = $safeReplace('/<code\b[^>]*>(.*?)<\/code>/is', '`$1`', $md);
-        $md = $safeReplace('/<a\b[^>]*href=["\']([^"\']+)["\'][^>]*>(.*?)<\/a>/is', '$2', $md);
+        $md = $safeReplace('/<(b|strong)\b[^>]*+>((?:[^<]++|<(?!\/\1>))*+)<\/\1>/is', '**$2**', $md);
+        $md = $safeReplace('/<(i|em)\b[^>]*+>((?:[^<]++|<(?!\/\1>))*+)<\/\1>/is', '*$2*', $md);
+        $md = $safeReplace('/<(s|strike|del)\b[^>]*+>((?:[^<]++|<(?!\/\1>))*+)<\/\1>/is', '~~$2~~', $md);
+        $md = $safeReplace('/<code\b[^>]*+>((?:[^<]++|<(?!\/code>))*+)<\/code>/is', '`$1`', $md);
+        $md = $safeReplace('/<a\b[^>]*+href=["\']([^"\']++)["\'][^>]*+>((?:[^<]++|<(?!\/a>))*+)<\/a>/is', '$2', $md);
         return strip_tags($md);
     };
 
@@ -184,6 +184,7 @@ try {
             // Build YAML Frontmatter
             $fm = "---\n";
             $cleanTitleForLlm = html_entity_decode(strip_tags($post['title'] ?? ''), ENT_QUOTES | ENT_HTML5, 'UTF-8');
+            $cleanTitleForLlm = str_replace(["\r", "\n"], ' ', $cleanTitleForLlm);
             $fm .= "title: \"" . addcslashes($cleanTitleForLlm, '"\\') . "\"\n";
             $fm .= "slug: \"{$post['slug']}\"\n";
             $fm .= "type: \"{$post['type']}\"\n";
@@ -230,6 +231,7 @@ try {
                         $vStr = resolve_url(Routing::restoreViewUrl($vStr));
                     }
                     $cleanV = addcslashes(html_entity_decode(strip_tags($vStr), ENT_QUOTES | ENT_HTML5, 'UTF-8'), '"\\');
+                    $cleanV = str_replace(["\r", "\n"], ' ', $cleanV);
                     $fm .= "  {$k}: \"{$cleanV}\"\n";
                 }
             }

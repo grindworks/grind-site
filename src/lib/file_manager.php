@@ -451,11 +451,11 @@ class FileManager
                 $metaToSave['source'] = 'Nano Banana';
                 $metaToSave['is_ai'] = true;
             }
-            if (preg_match('/<dc:description>\s*<rdf:Alt>\s*<rdf:li[^>]*>(.*?)<\/rdf:li>/s', $xmp, $m)) {
+            if (preg_match('/<dc:description>\s*+<rdf:Alt>\s*+<rdf:li[^>]*+>((?:[^<]++|<(?!\/rdf:li>))*+)<\/rdf:li>/is', $xmp, $m)) {
                 $metaToSave['prompt'] = trim(html_entity_decode($m[1], ENT_QUOTES, 'UTF-8'));
                 $metaToSave['is_ai'] = true;
             }
-            if (preg_match('/<exif:UserComment>\s*<rdf:Alt>\s*<rdf:li[^>]*>(.*?)<\/rdf:li>/s', $xmp, $m)) {
+            if (preg_match('/<exif:UserComment>\s*+<rdf:Alt>\s*+<rdf:li[^>]*+>((?:[^<]++|<(?!\/rdf:li>))*+)<\/rdf:li>/is', $xmp, $m)) {
                 $json = json_decode(html_entity_decode($m[1], ENT_QUOTES, 'UTF-8'), true);
                 if (is_array($json)) {
                     $metaToSave['is_ai'] = true;

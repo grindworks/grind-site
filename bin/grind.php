@@ -22,11 +22,27 @@ define('GRINDS_APP', true);
 
 // --- Project Root Detection ---
 $basePath = dirname(__DIR__);
-$srcPath = $basePath . '/src';
 
-if (!file_exists($srcPath . '/config.php')) {
-    echo "\033[0;31mError: config.php not found in '{$srcPath}'.\033[0m\n";
-    echo "\033[0;33mPlease ensure GrindSite is installed and this tool is placed in the 'bin' directory at the project root.\033[0m\n";
+$possiblePaths = [
+    $basePath . '/src',          // 1. GitHubリポジトリの標準構造
+    $basePath,                   // 2. 'bin' と 'srcの中身' を同じ階層に配置した場合
+    $basePath . '/public_html',  // 3. 一般的な共有サーバー (cPanel等)
+    $basePath . '/public',       // 4. 一般的なVPS / Laravel風の構造
+    $basePath . '/html',         // 5. 一般的なLinux (Apache/Nginxのデフォルト)
+    $basePath . '/www'           // 6. その他のWebルート
+];
+
+$srcPath = null;
+foreach ($possiblePaths as $path) {
+    if (file_exists($path . '/config.php')) {
+        $srcPath = $path;
+        break;
+    }
+}
+
+if (!$srcPath) {
+    echo "\033[0;31mError: config.php not found.\033[0m\n";
+    echo "\033[0;33mPlease ensure GrindSite is installed and this tool is placed near your document root.\033[0m\n";
     exit(1);
 }
 

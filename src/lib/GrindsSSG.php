@@ -1269,7 +1269,7 @@ class GrindsSSG
             }, $html);
 
             // Replace domains in JSON-LD scripts - Fast & ReDoS safe
-            $html = $safeReplaceCallback('/<script\b([^>]*)>(.*?)<\/script>/is', function ($matches) use ($liveBaseUrl, $prodBaseUrl) {
+            $html = $safeReplaceCallback('/<script\b([^>]*+)>((?:[^<]++|<(?!\/script>))*+)<\/script>/is', function ($matches) use ($liveBaseUrl, $prodBaseUrl) {
                 $attributes = $matches[1];
                 $content = $matches[2];
                 if (stripos($attributes, 'type="application/ld+json"') !== false || stripos($attributes, "type='application/ld+json'") !== false) {
@@ -1352,7 +1352,8 @@ class GrindsSSG
                 $attributes = $safeReplace('/action\s*=\s*["\'][^"\']*["\']/i', 'action="' . $searchPath . '"', $attributes);
                 $attributes = $safeReplace('/method\s*=\s*["\'][^"\']*["\']/i', 'method="get"', $attributes);
             } elseif (!empty($config['form_endpoint'])) {
-                $attributes = $safeReplace('/action\s*=\s*["\'][^"\']*["\']/i', 'action="' . $config['form_endpoint'] . '"', $attributes);
+                $safeEndpoint = htmlspecialchars($config['form_endpoint'], ENT_QUOTES, 'UTF-8');
+                $attributes = $safeReplace('/action\s*=\s*["\'][^"\']*["\']/i', 'action="' . $safeEndpoint . '"', $attributes);
                 $attributes = $safeReplace('/method\s*=\s*["\'][^"\']*["\']/i', 'method="post"', $attributes);
             } else {
                 $attributes = @preg_replace_callback('/action\s*=\s*(["\'])([^"\']*)\1/i', function ($actMatches) use ($processUrl) {

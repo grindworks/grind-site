@@ -932,6 +932,7 @@ return [
     'chk_journal_mode' => 'DB-Journalmodus',
     'chk_fts5_support' => 'FTS5-Unterstützung (Suche)',
     'adv_install_del' => 'Bitte löschen Sie "install.php" sofort.',
+    'adv_install_report' => 'Aus Sicherheitsgründen melden Sie dies bitte umgehend dem Administrator, um es löschen zu lassen.',
     'adv_config_ro' => 'Empfohlen: Machen Sie "config.php" schreibgeschützt (444 oder 400).',
     'adv_writable' => 'Muss beschreibbar sein.',
     'adv_expose_off' => 'Empfohlen: Setzen Sie "expose_php = Off" in php.ini.',
@@ -1760,4 +1761,10 @@ return [
     'I agree to the <a href="%s" target="_blank" class="text-brand-600 underline hover:no-underline">Privacy Policy</a>' => 'Ich stimme der <a href="%s" target="_blank" class="text-brand-600 underline hover:no-underline">Datenschutzerklärung</a> zu',
     'I agree to the <a href="%s" target="_blank" class="text-corp-accent underline hover:no-underline">Privacy Policy</a>' => 'Ich stimme der <a href="%s" target="_blank" class="text-corp-accent underline hover:no-underline">Datenschutzerklärung</a> zu',
     'I agree to the <a href="%s" target="_blank" class="text-decoration-underline">Privacy Policy</a>' => 'Ich stimme der <a href="%s" target="_blank" class="text-decoration-underline">Datenschutzerklärung</a> zu',
+
+    'err_only_one_password_block' => 'Der Passwortschutz-Block kann nur einmal hinzugefügt werden.',
+    'Post Details' => 'Beitragsdetails',
+    'min read' => 'Min. Lesezeit',
+    'This article contains promotional links.' => 'Dieser Artikel enthält Werbelinks.',
+    'View Sponsored Link' => 'Gesponserten Link ansehen',
 ];

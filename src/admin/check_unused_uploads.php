@@ -248,7 +248,7 @@ $current_page = 'unused_uploads';
         <?= _t('mt_unused_uploads_caution') ?>
       </p>
       <p class="opacity-90 mt-2 text-theme-danger text-xs leading-relaxed">
-        ※ <?= _t('mt_unused_dynamic_note') ?>
+        * <?= _t('mt_unused_dynamic_note') ?>
       </p>
     </div>
 

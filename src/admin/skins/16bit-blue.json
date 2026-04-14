@@ -69,6 +69,7 @@
   "sidebar_mode": "dark",
   "nav_style": "pill",
   "texture": "grid",
+  "media_bg_css": "grid_dark",
   "effects": [
     "crt_flicker",
     "overlay_scanline",

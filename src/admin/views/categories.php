@@ -21,7 +21,6 @@ $csrf_token = generate_csrf_token();
 <?php include __DIR__ . '/parts/hidden_action_form.php'; ?>
 
 <div class="relative flex lg:flex-row flex-col gap-8"
-  x-init="if(mobileFormOpen) window.toggleScrollLock(true); $watch('mobileFormOpen', val => window.toggleScrollLock(val)); $watch('deleteModalOpen', val => window.toggleScrollLock(val));"
   x-data='{
     mobileFormOpen: <?= $edit_id ? 'true' : 'false' ?>,
     isSubmitting: false,
@@ -29,6 +28,8 @@ $csrf_token = generate_csrf_token();
     deleteTarget: null,
     reassignId: "",
     categories: <?= json_encode($jsCategories, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS) ?>,
+    isMobile: window.innerWidth < 1024,
+    _lockedState: false,
 
     openDeleteModal(id, count, name) {
       this.deleteTarget = { id: id, count: count, name: name };
@@ -40,33 +41,41 @@ $csrf_token = generate_csrf_token();
       this.deleteModalOpen = true;
     },
 
-  confirmDelete() {
-  if (!this.deleteTarget) return;
+    confirmDelete() {
+      if (!this.deleteTarget) return;
 
-  const form = document.getElementById("unified-action-form");
-  const actionInput=document.getElementById("form-action-input");
+      const form = document.getElementById("unified-action-form");
+      const actionInput=document.getElementById("form-action-input");
 
-  form.querySelectorAll(".dynamic-input").forEach(el=> el.remove());
+      form.querySelectorAll(".dynamic-input").forEach(el=> el.remove());
 
-  actionInput.value = "delete";
+      actionInput.value = "delete";
 
-  const inputId = document.createElement("input");
-  inputId.type = "hidden";
-  inputId.name = "ids[]";
-  inputId.value = this.deleteTarget.id;
-  inputId.className = "dynamic-input";
-  form.appendChild(inputId);
+      const inputId = document.createElement("input");
+      inputId.type = "hidden";
+      inputId.name = "ids[]";
+      inputId.value = this.deleteTarget.id;
+      inputId.className = "dynamic-input";
+      form.appendChild(inputId);
 
-  const inputReassign = document.createElement("input");
-  inputReassign.type = "hidden";
-  inputReassign.name = "reassign_id";
-  inputReassign.value = this.reassignId;
-  inputReassign.className = "dynamic-input";
-  form.appendChild(inputReassign);
+      const inputReassign = document.createElement("input");
+      inputReassign.type = "hidden";
+      inputReassign.name = "reassign_id";
+      inputReassign.value = this.reassignId;
+      inputReassign.className = "dynamic-input";
+      form.appendChild(inputReassign);
 
-  form.submit();
-  }
-  }'>
+      form.submit();
+    }
+  }'
+  @resize.window="isMobile = window.innerWidth < 1024"
+  x-effect="
+    const shouldLock = (mobileFormOpen && isMobile) || deleteModalOpen;
+    if (_lockedState !== shouldLock) {
+      window.toggleScrollLock(shouldLock);
+      _lockedState = shouldLock;
+    }
+  ">
 
   <!-- Mobile floating action button. -->
   <?php include __DIR__ . '/parts/fab.php'; ?>
@@ -500,5 +509,7 @@ $csrf_token = generate_csrf_token();
   </template>
 
   <script src="<?= grinds_asset_url('assets/js/admin_form_unsaved.js') ?>"></script>
+  <script src="<?= grinds_asset_url('assets/js/media_manager.js') ?>"></script>
+  <?php include __DIR__ . '/parts/media_picker.php'; ?>
 
 </div>

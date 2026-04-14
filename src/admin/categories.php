@@ -272,6 +272,15 @@ if ($edit_id) {
   }
 }
 
+// Restore input data on error
+if (!empty($error) && $_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['bulk_action'])) {
+  $edit_data['name'] = $_POST['name'] ?? $edit_data['name'];
+  $edit_data['slug'] = $_POST['slug'] ?? $edit_data['slug'];
+  $edit_data['sort_order'] = (int)($_POST['sort_order'] ?? $edit_data['sort_order']);
+  $edit_data['category_theme'] = $_POST['category_theme'] ?? $edit_data['category_theme'];
+  if (isset($metaDataJson)) $edit_data['meta_data'] = $metaDataJson;
+}
+
 // Render view
 $page_title = _t('menu_categories');
 $current_page = 'categories';

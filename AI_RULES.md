@@ -18,7 +18,7 @@
   - Redundant-looking checks are intentional fail-safes to protect data integrity and prevent security breaches (XSS, Injection, SSRF).
   - ALWAYS use prepared statements (`$pdo->prepare()`). Never interpolate variables directly into SQL.
 - **English Only Comments (Core):** Use imperative mood (e.g., `// Validate input`). NEVER use Japanese in core system code or comments.
-  - _Exception:_ Plugin files (in `src/plugins/`) and files meant for user configuration may include bilingual comments (English and Japanese) in DocBlocks and instructional inline comments to assist users.
+  - _Exception:_ Plugin files (in `src/plugins/`), `.htaccess` files, and files meant for user configuration may include bilingual comments (English and Japanese) in DocBlocks and instructional inline comments to assist users.
 - **Performance:** Favor bulk DB fetches to avoid N+1 queries. Preload metadata whenever processing arrays of files or posts.
 - **Modern PHP:** Use strict typing, type hints, return types, and PHP 8.x features (match expressions, nullsafe operators) where applicable.
 - **Security:** Use custom `h()` for escaping and `grinds_sanitize_html()` for rich text.

@@ -69,6 +69,7 @@
   "sidebar_mode": "dark",
   "nav_style": "pill",
   "texture": "milano_grid",
+  "media_bg_css": "grid_dark",
   "effects": [
     "card_glass_modern",
     "input_glow_modern",

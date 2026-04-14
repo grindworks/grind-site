@@ -47,12 +47,21 @@ $csrf_token = generate_csrf_token();
 </script>
 
 <div class="relative flex lg:flex-row flex-col gap-8"
-  x-init="if(mobileFormOpen) window.toggleScrollLock(true); $watch('mobileFormOpen', val => window.toggleScrollLock(val));"
   x-data='{
     mobileFormOpen: <?= $edit_id ? 'true' : 'false' ?>,
     selectedType: <?= json_encode($edit_data['type'], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS) ?>,
-    isSubmitting: false
-  }'>
+    isSubmitting: false,
+    isMobile: window.innerWidth < 1024,
+    _lockedState: false
+  }'
+  @resize.window="isMobile = window.innerWidth < 1024"
+  x-effect="
+    const shouldLock = (mobileFormOpen && isMobile);
+    if (_lockedState !== shouldLock) {
+      window.toggleScrollLock(shouldLock);
+      _lockedState = shouldLock;
+    }
+  ">
 
   <!-- Mobile floating action button. -->
   <?php include __DIR__ . '/parts/fab.php'; ?>
@@ -297,6 +306,7 @@ $csrf_token = generate_csrf_token();
             $el.appendChild(flag);
           }
         }
+        window.grindsBypassUnload = true;
         $el.submit();
       ">
         <input type="hidden" name="csrf_token" value="<?= h(generate_csrf_token()) ?>">

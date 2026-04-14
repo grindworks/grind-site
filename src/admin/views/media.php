@@ -338,7 +338,7 @@ if (!isset($skin) || !is_array($skin)) {
       <p x-show="uploadProgressPercent > 0" class="mt-1 font-bold text-theme-primary text-xs" x-text="uploadProgressPercent + '%'"></p>
 
       <p class="opacity-60 mt-4 text-theme-text text-sm" x-text="trans.uploading_wait"></p>
-      <p class="opacity-40 mt-1 text-[10px] text-theme-text"><?= _t('msg_upload_may_take_time') ?? '※ Depending on your environment, it may take a few minutes.' ?></p>
+      <p class="opacity-40 mt-1 text-[10px] text-theme-text"><?= _t('msg_upload_may_take_time') ?? '* Depending on your environment, it may take a few minutes.' ?></p>
     </div>
 
     <!-- Grid View Area -->

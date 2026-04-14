@@ -53,7 +53,19 @@ window.ToastManager = {
 
     div.className = `pointer-events-auto w-max min-w-[300px] max-w-sm bg-theme-surface border-l-4 ${borderColor} shadow-theme rounded-r-theme p-4 flex items-start ring-1 ring-theme-border transition-all duration-500 transform -translate-y-4 sm:translate-y-4 opacity-0`;
 
-    const contentHtml = opts.customHtml || `<p class="text-sm font-bold text-theme-text">${opts.message}</p>`;
+    // Escape message to prevent DOM Based XSS
+    const escapeHtml = (unsafe) => {
+      return (unsafe || '')
+        .toString()
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    };
+    const safeMessage = escapeHtml(opts.message);
+
+    const contentHtml = opts.customHtml || `<p class="text-sm font-bold text-theme-text">${safeMessage}</p>`;
 
     div.innerHTML = `
         <div class="flex-shrink-0">${iconHtml}</div>
@@ -280,9 +292,32 @@ document.addEventListener('DOMContentLoaded', () => {
         e.preventDefault();
         const submitBtn = form.querySelector('button[type="submit"], input[type="submit"]');
         if (submitBtn && !submitBtn.disabled) {
-          form.requestSubmit(submitBtn);
+          if (typeof form.requestSubmit === 'function') {
+            form.requestSubmit(submitBtn);
+          } else {
+            submitBtn.click();
+          }
         }
       }
+    }
+
+    // Global Tab key handler for monospace textareas (Code Editors)
+    if (e.key === 'Tab' && e.target.tagName === 'TEXTAREA' && e.target.classList.contains('font-mono')) {
+      // Skip global tab handling in post editor to prevent conflict with handleCodeIndent
+      if (typeof window.grindsPostContent !== 'undefined') return;
+
+      e.preventDefault();
+      const el = e.target;
+      const start = el.selectionStart;
+      const end = el.selectionEnd;
+      const val = el.value;
+
+      // Insert 2 spaces
+      el.value = val.substring(0, start) + '  ' + val.substring(end);
+      el.selectionStart = el.selectionEnd = start + 2;
+
+      // Trigger Alpine.js and unsaved changes detection
+      el.dispatchEvent(new Event('input', { bubbles: true }));
     }
   });
 });

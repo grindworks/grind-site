@@ -205,7 +205,13 @@ function _theme_generate_ogp_image(array $pageData, bool &$isFallback = false): 
         if (is_array($contentData) && !empty($contentData['blocks'])) {
             $images = BlockRenderer::extractImages($contentData['blocks']);
             if (!empty($images)) {
-                $ogImage = resolve_url($images[0]);
+                foreach ($images as $imgCandidate) {
+                    $ext = strtolower(pathinfo((string)parse_url($imgCandidate, PHP_URL_PATH), PATHINFO_EXTENSION));
+                    if ($ext !== 'svg') {
+                        $ogImage = resolve_url($imgCandidate);
+                        break;
+                    }
+                }
             }
         }
     }
@@ -279,14 +285,15 @@ function _theme_generate_json_ld(string $siteName, string $pageType, string $pag
     }
     $graph[] = $orgNode;
 
-    $rawContent = $pageData['post']['content'] ?? '{}';
-    $contentData = $pageData['post']['content_decoded'] ?? json_decode($rawContent, true);
+    $postDataObj = $pageData['post'] ?? [];
+    $rawContent = $postDataObj['content'] ?? '{}';
+    $contentData = $postDataObj['content_decoded'] ?? json_decode($rawContent, true);
 
     $extractedAuthor = is_array($contentData) && function_exists('grinds_extract_author_from_content') ? grinds_extract_author_from_content($contentData) : null;
 
-    $heroSettings = isset($pageData['post']['hero_settings_decoded'])
-        ? $pageData['post']['hero_settings_decoded']
-        : json_decode($pageData['post']['hero_settings'] ?? '{}', true);
+    $heroSettings = isset($postDataObj['hero_settings_decoded'])
+        ? $postDataObj['hero_settings_decoded']
+        : json_decode($postDataObj['hero_settings'] ?? '{}', true);
 
     $postAuthor = $extractedAuthor['name'] ?? trim($heroSettings['seo_author'] ?? '');
 

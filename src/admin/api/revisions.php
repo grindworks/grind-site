@@ -34,7 +34,24 @@ try {
 
         // Decode contents for the editor
         if (!empty($rev['content'])) {
-            $rev['content'] = json_decode(grinds_url_to_view($rev['content']), true);
+            $viewContent = grinds_url_to_view($rev['content']);
+            $decoded = json_decode($viewContent, true);
+
+            if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+                $rev['content'] = $decoded;
+            } else {
+                // Fallback for legacy raw HTML content to prevent blank editor on restore
+                $rev['content'] = [
+                    'blocks' => [
+                        [
+                            'id' => uniqid(),
+                            'type' => 'html',
+                            'data' => ['code' => $viewContent],
+                            'collapsed' => false
+                        ]
+                    ]
+                ];
+            }
         }
         if (!empty($rev['hero_settings'])) {
             $rev['hero_settings'] = json_decode(grinds_url_to_view($rev['hero_settings']), true);

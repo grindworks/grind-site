@@ -292,11 +292,13 @@ if (!function_exists('grinds_extract_text_from_content')) {
                     });
                 }
             }
-            return implode(' ', $textParts);
+            $extractedText = implode(' ', $textParts);
+            return preg_replace('/\[[a-zA-Z0-9_-]+[^\]]*\]/', '', $extractedText);
         }
 
         // Clean content as raw HTML
-        return $clean($content);
+        $extractedText = $clean($content);
+        return preg_replace('/\[[a-zA-Z0-9_-]+[^\]]*\]/', '', $extractedText);
     }
 }
 

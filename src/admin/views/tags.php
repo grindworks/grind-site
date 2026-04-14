@@ -16,11 +16,20 @@ $csrf_token = generate_csrf_token();
 <?php include __DIR__ . '/parts/hidden_action_form.php'; ?>
 
 <div class="relative flex lg:flex-row flex-col gap-8"
-  x-init="if(mobileFormOpen) window.toggleScrollLock(true); $watch('mobileFormOpen', val => window.toggleScrollLock(val));"
   x-data="{
     mobileFormOpen: <?= $edit_id ? 'true' : 'false' ?>,
-    isSubmitting: false
-  }">
+    isSubmitting: false,
+    isMobile: window.innerWidth < 1024,
+    _lockedState: false
+  }"
+  @resize.window="isMobile = window.innerWidth < 1024"
+  x-effect="
+    const shouldLock = (mobileFormOpen && isMobile);
+    if (_lockedState !== shouldLock) {
+      window.toggleScrollLock(shouldLock);
+      _lockedState = shouldLock;
+    }
+  ">
 
   <!-- Mobile floating action button. -->
   <?php include __DIR__ . '/parts/fab.php'; ?>

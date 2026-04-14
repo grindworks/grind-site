@@ -30,7 +30,7 @@ class Paginator
 
         $this->base_path = Routing::getCurrentPath();
 
-        $allowedParams = ['q', 'sort', 'order', 'type', 'status', 'cat', 'limit'];
+        $allowedParams = ['q', 'sort', 'order', 'type', 'status', 'cat', 'limit', 'location'];
         $analysis = Routing::analyzeParams($allowedParams);
         $this->url_params = $analysis['query'];
 

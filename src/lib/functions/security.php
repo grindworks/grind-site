@@ -249,9 +249,16 @@ if (!function_exists('grinds_decrypt')) {
         // Handle v4 (AES-256-GCM)
         if (str_starts_with($data, 'ENCv4:')) {
             $payload = base64_decode(substr($data, 6));
+            if ($payload === false) return '';
+
             $cipher = 'aes-256-gcm';
             $iv_len = openssl_cipher_iv_length($cipher);
             $tag_len = 16;
+
+            if (strlen($payload) < ($iv_len + $tag_len)) {
+                return '';
+            }
+
             $iv = substr($payload, 0, $iv_len);
             $tag = substr($payload, $iv_len, $tag_len);
             $encrypted_data = substr($payload, $iv_len + $tag_len);
@@ -263,7 +270,14 @@ if (!function_exists('grinds_decrypt')) {
         // Handle v3 (Binary key - Correct AES-256)
         if (str_starts_with($data, 'ENCv3:')) {
             $payload = base64_decode(substr($data, 6));
+            if ($payload === false) return '';
+
             $iv_len = openssl_cipher_iv_length('aes-256-cbc');
+
+            if (strlen($payload) < $iv_len) {
+                return '';
+            }
+
             $iv = substr($payload, 0, $iv_len);
             $encrypted_data = substr($payload, $iv_len);
             $decrypted = openssl_decrypt($encrypted_data, 'aes-256-cbc', $key, OPENSSL_RAW_DATA, $iv);
@@ -274,7 +288,14 @@ if (!function_exists('grinds_decrypt')) {
         if (str_starts_with($data, 'ENCv2:')) {
             $hexKey = bin2hex($key);
             $payload = base64_decode(substr($data, 6));
+            if ($payload === false) return '';
+
             $iv_len = openssl_cipher_iv_length('aes-256-cbc');
+
+            if (strlen($payload) < $iv_len) {
+                return '';
+            }
+
             $iv = substr($payload, 0, $iv_len);
             $encrypted_data = substr($payload, $iv_len);
             $decrypted = openssl_decrypt($encrypted_data, 'aes-256-cbc', $hexKey, OPENSSL_RAW_DATA, $iv);
@@ -363,6 +384,10 @@ if (!function_exists('grinds_is_trusted_url')) {
 if (!function_exists('grinds_validate_content_security')) {
     function grinds_validate_content_security($content)
     {
+        if (strlen($content) > 10 * 1024 * 1024) {
+            throw new Exception(function_exists('_t') ? _t('err_security_malicious_code') : 'Security Error: Content exceeds maximum processing size.');
+        }
+
         $json = json_decode($content, true);
         if (is_array($json) && isset($json['blocks'])) {
             foreach ($json['blocks'] as $block) {

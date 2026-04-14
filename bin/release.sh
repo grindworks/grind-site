@@ -1,11 +1,11 @@
 #!/bin/bash
 
 # GrindSite Release Automation Script
-# Usage: ./bin/release.sh v1.6.4 "Update mail settings, translations and theme layouts"
+# Usage: ./bin/release.sh v1.6.5 "Enhance contact form subjects, fix DB restore cache & improve CLI path resolution"
 
 if [ -z "$1" ]; then
   echo "❌ Error: Version tag is required."
-  echo "Usage: ./bin/release.sh v1.6.4 \"Release message\""
+  echo "Usage: ./bin/release.sh v1.6.5 \"Release message\""
   exit 1
 fi
 

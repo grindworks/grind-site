@@ -497,8 +497,6 @@ function grinds_render_page($requestUrl, $options = [])
 
     grinds_load_theme_functions($activeTheme);
 
-    grinds_load_theme_functions($activeTheme);
-
     ob_start();
 
     if (isset($options['custom_content'])) {

@@ -239,6 +239,9 @@ class FrontController
           header("Location: " . $this->requestUri);
           exit;
         } else {
+          // Mitigate brute-force/timing attacks with intentional delay
+          usleep(500000);
+
           // Record failed attempt.
           $attempts = ($_SESSION['preview_attempts'] ?? 0) + 1;
           $_SESSION['preview_attempts'] = $attempts;

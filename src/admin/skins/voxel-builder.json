@@ -69,7 +69,10 @@
   "sidebar_mode": "dark",
   "nav_style": "block",
   "media_bg_css": "background-color: #c6c6c6; background-image: radial-gradient(#555555 1px, transparent 1px); background-size: 10px 10px;",
-  "effects": ["btn_uppercase", "no_radius"],
+  "effects": [
+    "btn_uppercase",
+    "no_radius"
+  ],
   "ai_paste": {
     "title": "CRAFTING TABLE",
     "description": "Place materials here",

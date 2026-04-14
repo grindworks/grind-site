@@ -40,7 +40,7 @@ if (!function_exists('check_internal_link')) {
         if (strpos($url, '<?') === 0) return ['isValid' => true];
 
         // Check external
-        if (preg_match('/^https?:\/\//', $url)) {
+        if (preg_match('/^https?:\/\//i', $url)) {
             // Check local URL
             if (defined('BASE_URL')) {
                 $baseUrl = rtrim(BASE_URL, '/');

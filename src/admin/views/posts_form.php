@@ -131,6 +131,7 @@ $js_translations = [
     'filter_docs' => _t('filter_docs'),
     'js_offline' => _t('js_offline'),
     'js_online' => _t('js_online'),
+    'err_only_one_password_block' => _t('err_only_one_password_block'),
 ];
 
 // Ensure required variables exist to prevent warnings
@@ -145,6 +146,7 @@ $jsBlockLibrary = json_encode($block_library, JSON_UNESCAPED_UNICODE | JSON_HEX_
 
 $layout_setting = get_option('admin_layout', 'sidebar');
 $toolbar_top_class = ($layout_setting === 'topbar') ? 'top-20' : 'top-4';
+$publish_box_top_class = ($layout_setting === 'topbar') ? 'lg:top-20' : 'lg:top-4';
 
 $render_context = [
     'pdo' => $pdo,
@@ -240,17 +242,21 @@ $basePath = rtrim($parsedBase['path'] ?? '/', '/') . '/';
     window.grindsEditorDebounce = <?= (int)get_option('editor_debounce_time', 1000) ?>;
     window.grindsPlaceholderImg = <?= json_encode(PLACEHOLDER_IMG) ?>;
     window.grindsUploadMax = <?= grinds_get_max_upload_size() ?>;
+
+    // Prevent accidental pull-to-refresh on mobile devices to protect unsaved content
+    document.body.classList.add('overscroll-y-none');
 </script>
 
 <script src="<?= grinds_asset_url('assets/js/media_manager.js') ?>"></script>
 <script src="<?= grinds_asset_url('assets/js/admin_editor.js') ?>"></script>
 
 <div x-data='{
+    postStatus: <?= json_encode(($post['status'] ?? '') === 'published' ? 'published' : 'draft', JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>,
+    postSlug: <?= json_encode($post['slug'] ?? '', JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>,
     ...blockEditor(window.grindsPostContent, {
         seoTitle: <?= json_encode($post['title'] ?? "", JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>,
         seoDesc: <?= json_encode($post['description'] ?? "", JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>,
         seoImage: <?= json_encode(get_media_url($post['thumbnail'] ?? ''), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>,
-        postStatus: <?= json_encode(($post['status'] ?? '') === 'published' ? 'published' : 'draft', JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>,
         siteDomain: <?= json_encode(parse_url(BASE_URL, PHP_URL_HOST) ?? "localhost", JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>
     }),
     draggingIndex: null,
@@ -322,7 +328,7 @@ $basePath = rtrim($parsedBase['path'] ?? '/', '/') . '/';
 
         <!-- Mobile-only top save button -->
         <button type="button"
-            @click="postStatus = 'published'; document.getElementById('post-form').requestSubmit();"
+            @click="if(document.getElementById('post-form').reportValidity()) { postStatus = 'published'; $nextTick(() => document.getElementById('post-form').requestSubmit()); }"
             :disabled="isSubmitting || isUploading || isOffline"
             class="lg:hidden bg-theme-primary hover:opacity-90 shadow-sm px-4 py-2 rounded-theme font-bold text-white text-xs transition transform hover:-translate-y-0.5 disabled:opacity-50">
             <?= $isFuture ? _t('action_schedule') : ($action === 'new' ? _t('action_publish') : _t('update')) ?>
@@ -364,8 +370,8 @@ $basePath = rtrim($parsedBase['path'] ?? '/', '/') . '/';
                     <label class="block mb-2 font-bold text-theme-text text-sm"><?= _t('lbl_slug') ?></label>
                     <div class="flex">
                         <span class="inline-flex items-center bg-theme-bg opacity-70 px-3 border border-theme-border border-r-0 rounded-l-theme text-theme-text text-sm"><?= h(resolve_url('/')) ?></span>
-                        <input type="text" name="slug" value="<?= h($post['slug'] ?? '') ?>"
-                            @blur="$el.value = $el.value.toLowerCase().trim().replace(/[\s_]+/g, '-').replace(/[^\p{L}\p{N}-]/gu, '').replace(/-+/g, '-').replace(/^-+|-+$/g, '')"
+                        <input type="text" name="slug" x-model="postSlug"
+                            @blur="postSlug = postSlug.toLowerCase().trim().replace(/[\s_]+/g, '-').replace(/[^\p{L}\p{N}-]/gu, '').replace(/-+/g, '-').replace(/^-+|-+$/g, '')"
                             class="rounded-l-none font-mono form-control" placeholder="<?= _t('ph_url_slug') ?>">
                     </div>
                 </div>
@@ -658,7 +664,15 @@ $basePath = rtrim($parsedBase['path'] ?? '/', '/') . '/';
         <!-- Right Column (Settings) -->
         <div class="space-y-6">
             <!-- Publish Box -->
-            <div class="bg-theme-surface shadow-theme border border-theme-border rounded-theme overflow-hidden lg:sticky lg:top-6 z-20">
+            <div class="bg-theme-surface shadow-theme border border-theme-border rounded-theme overflow-hidden lg:sticky <?= $publish_box_top_class ?> z-20 transition-all duration-500"
+                x-data="{ isStuck: false }"
+                x-init="
+                     const scroller = $el.closest('.overflow-y-auto') || document.querySelector('main') || window;
+                     scroller.addEventListener('scroll', () => {
+                         isStuck = ((scroller.scrollTop || window.scrollY || 0) > 120) && window.innerWidth >= 1024;
+                     }, { passive: true });
+                 "
+                :class="isStuck ? 'shadow-2xl ring-1 ring-theme-primary/20 bg-theme-surface/95 backdrop-blur-md' : ''">
                 <?php
                 $status = $post['status'] ?? 'new';
                 // Default (New)
@@ -686,66 +700,71 @@ $basePath = rtrim($parsedBase['path'] ?? '/', '/') . '/';
                     $stIcon = 'outline-document';
                 }
                 ?>
-                <div class="flex justify-between items-center px-5 py-4 border-theme-border border-b">
+                <div class="flex justify-between items-center border-theme-border border-b transition-all duration-300"
+                    :class="isStuck ? 'px-4 py-3 bg-theme-bg/50' : 'px-5 py-4'">
                     <div class="flex items-center gap-3">
-                        <div class="flex justify-center items-center bg-theme-bg shadow-theme border border-theme-border rounded-full w-10 h-10">
-                            <svg class="w-5 h-5 <?= $stColor ?>" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div class="flex justify-center items-center bg-theme-bg shadow-theme border border-theme-border rounded-full transition-all duration-300"
+                            :class="isStuck ? 'w-8 h-8' : 'w-10 h-10'">
+                            <svg class="transition-all duration-300 <?= $stColor ?>" :class="isStuck ? 'w-4 h-4' : 'w-5 h-5'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <use href="<?= grinds_asset_url('assets/img/sprite.svg') . '#' . $stIcon ?>"></use>
                             </svg>
                         </div>
                         <div>
-                            <div class="opacity-40 mb-1.5 font-bold text-[10px] text-theme-text uppercase leading-none tracking-wider"><?= _t('lbl_status') ?></div>
+                            <div class="opacity-40 font-bold text-[10px] text-theme-text uppercase leading-none tracking-wider transition-all duration-300"
+                                :class="isStuck ? 'mb-0.5' : 'mb-1.5'"><?= _t('lbl_status') ?></div>
                             <div class="flex items-center gap-2">
                                 <span class="w-2 h-2 rounded-full <?= $stDot ?>"></span>
-                                <span class="font-bold text-theme-text text-base leading-none"><?= $stLabel ?></span>
+                                <span class="font-bold text-theme-text leading-none transition-all duration-300"
+                                    :class="isStuck ? 'text-sm' : 'text-base'"><?= $stLabel ?></span>
                             </div>
                         </div>
                     </div>
-                    <?php if (($post['status'] ?? '') === 'published'): ?>
-                        <a href="<?= h(site_url($post['slug'])) ?>" target="_blank" class="group flex items-center gap-2 hover:bg-theme-primary shadow-theme hover:shadow-theme px-3 py-1.5 border border-theme-primary/20 rounded-full font-bold text-theme-primary hover:text-theme-on-primary text-xs transition-all">
-                            <span><?= _t('view_page') ?></span>
-                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-arrow-top-right-on-square"></use>
-                            </svg>
-                        </a>
-                    <?php
-                    endif; ?>
+                    <a x-show="postStatus === 'published'" x-cloak :href="window.grindsBaseUrl + postSlug" target="_blank" class="group flex items-center gap-2 hover:bg-theme-primary shadow-theme hover:shadow-theme border border-theme-primary/20 rounded-full font-bold text-theme-primary hover:text-theme-on-primary text-xs transition-all"
+                        :class="isStuck ? 'px-3 py-1' : 'px-3 py-1.5'">
+                        <span><?= _t('view_page') ?></span>
+                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-arrow-top-right-on-square"></use>
+                        </svg>
+                    </a>
                 </div>
 
-                <div class="space-y-5 px-5 pb-5">
+                <div class="transition-all duration-300" :class="isStuck ? 'px-4 pb-4 pt-3' : 'px-5 pb-5 pt-5'">
                     <!-- Status hidden field: Updated by buttons via JS -->
                     <input type="hidden" name="status" x-model="postStatus">
 
-                    <!-- Date Picker -->
-                    <div>
-                        <div class="flex justify-between items-center mb-1.5">
-                            <label class="opacity-70 font-bold text-theme-text text-xs"><?= _t('lbl_date') ?></label>
-                        </div>
-
-                        <div class="group relative">
-                            <input type="text" name="published_at" id="published_at"
-                                value="<?= !empty($post['published_at']) ? date('Y-m-d H:i', strtotime((string)$post['published_at'])) : date('Y-m-d H:i') ?>"
-                                class="bg-theme-bg pl-9 group-hover:border-theme-primary/50 font-mono text-sm transition-colors cursor-pointer form-control">
-                            <div class="top-1/2 left-3 absolute opacity-40 text-theme-text group-hover:text-theme-primary transition-colors -translate-y-1/2 pointer-events-none">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-calendar"></use>
-                                </svg>
+                    <!-- Date Picker (Hide smoothly when stuck) -->
+                    <div x-show="!isStuck" x-collapse.duration.300ms>
+                        <div class="mb-5">
+                            <div class="flex justify-between items-center mb-1.5">
+                                <label class="opacity-70 font-bold text-theme-text text-xs"><?= _t('lbl_date') ?></label>
                             </div>
-                        </div>
 
-                        <div id="scheduled-message" class="<?= $isFuture ? '' : 'hidden' ?> mt-2 flex items-center gap-1.5 text-xs text-theme-warning font-bold bg-theme-warning/5 p-2 rounded-theme border border-theme-warning/20">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-clock"></use>
-                            </svg>
-                            <?= _t('msg_scheduled') ?>
+                            <div class="group relative">
+                                <input type="text" name="published_at" id="published_at"
+                                    value="<?= !empty($post['published_at']) ? date('Y-m-d H:i', strtotime((string)$post['published_at'])) : date('Y-m-d H:i') ?>"
+                                    class="bg-theme-bg pl-9 group-hover:border-theme-primary/50 font-mono text-sm transition-colors cursor-pointer form-control">
+                                <div class="top-1/2 left-3 absolute opacity-40 text-theme-text group-hover:text-theme-primary transition-colors -translate-y-1/2 pointer-events-none">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-calendar"></use>
+                                    </svg>
+                                </div>
+                            </div>
+
+                            <div id="scheduled-message" class="<?= $isFuture ? '' : 'hidden' ?> mt-2 flex items-center gap-1.5 text-xs text-theme-warning font-bold bg-theme-warning/5 p-2 rounded-theme border border-theme-warning/20">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-clock"></use>
+                                </svg>
+                                <?= _t('msg_scheduled') ?>
+                            </div>
                         </div>
                     </div>
 
-                    <div class="gap-3 grid grid-cols-2">
+                    <div class="gap-3 grid grid-cols-2 mb-3">
                         <!-- Draft Button -->
-                        <button type="submit"
-                            @click="postStatus = 'draft'"
-                            class="group flex-row justify-center items-center gap-2 hover:bg-theme-text/5 px-4 py-2.5 hover:border-theme-text/20 transition-all btn-secondary"
+                        <button type="button"
+                            @click="if(document.getElementById('post-form').reportValidity()) { postStatus = 'draft'; $nextTick(() => document.getElementById('post-form').requestSubmit()); }"
+                            class="group flex-row justify-center items-center gap-2 hover:bg-theme-text/5 hover:border-theme-text/20 transition-all btn-secondary"
+                            :class="isStuck ? 'px-3 py-1.5' : 'px-4 py-2.5'"
                             :disabled="isSubmitting || isUploading || isOffline"
                             title="<?= h(_t('st_draft')) ?>">
                             <svg class="opacity-50 group-hover:opacity-100 w-4 h-4 text-theme-text transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -757,7 +776,8 @@ $basePath = rtrim($parsedBase['path'] ?? '/', '/') . '/';
                         <button type="button"
                             @click="if(document.getElementById('post-form').reportValidity()) saveDraftAndPreview()"
                             :disabled="isSaving || isSubmitting || isUploading || isOffline"
-                            class="group relative flex-row justify-center items-center gap-2 hover:bg-theme-text/5 px-4 py-2.5 hover:border-theme-text/20 overflow-hidden transition-all btn-secondary"
+                            class="group relative flex-row justify-center items-center gap-2 hover:bg-theme-text/5 hover:border-theme-text/20 overflow-hidden transition-all btn-secondary"
+                            :class="isStuck ? 'px-3 py-1.5' : 'px-4 py-2.5'"
                             title="<?= h(_t('preview')) ?>">
 
                             <div class="flex flex-row items-center gap-2" x-show="!isSaving">
@@ -776,9 +796,10 @@ $basePath = rtrim($parsedBase['path'] ?? '/', '/') . '/';
                     </div>
 
                     <!-- Main Action (Publish/Update) -->
-                    <button type="submit"
-                        @click="postStatus = 'published'"
-                        class="group relative shadow-theme py-2.5 w-full overflow-hidden transition-all btn-primary"
+                    <button type="button"
+                        @click="if(document.getElementById('post-form').reportValidity()) { postStatus = 'published'; $nextTick(() => document.getElementById('post-form').requestSubmit()); }"
+                        class="group relative shadow-theme w-full overflow-hidden transition-all btn-primary"
+                        :class="isStuck ? 'py-2' : 'py-2.5'"
                         :disabled="isSubmitting || isUploading || isOffline">
 
                         <div class="z-10 relative flex justify-center items-center gap-2 font-bold text-sm transition-opacity duration-200" :class="isSubmitting ? 'text-transparent' : ''">
@@ -808,17 +829,18 @@ $basePath = rtrim($parsedBase['path'] ?? '/', '/') . '/';
 
                     <!-- Footer Action (Delete) -->
                     <?php if ($action === 'edit'): ?>
-                        <div class="mt-2 pt-4 border-theme-border border-t text-center">
-                            <button type="button" onclick='movePostToTrash(<?= json_encode($post['id'], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>)'
-                                class="flex justify-center items-center gap-1 opacity-40 hover:opacity-100 mx-auto font-bold text-theme-text hover:text-theme-danger text-xs transition-all">
-                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-trash"></use>
-                                </svg>
-                                <?= _t('action_move_trash') ?>
-                            </button>
+                        <div x-show="!isStuck" x-collapse.duration.300ms>
+                            <div class="mt-4 pt-4 border-theme-border border-t text-center">
+                                <button type="button" onclick='movePostToTrash(<?= json_encode($post['id'], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>)'
+                                    class="flex justify-center items-center gap-1 opacity-40 hover:opacity-100 mx-auto font-bold text-theme-text hover:text-theme-danger text-xs transition-all">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-trash"></use>
+                                    </svg>
+                                    <?= _t('action_move_trash') ?>
+                                </button>
+                            </div>
                         </div>
-                    <?php
-                    endif; ?>
+                    <?php endif; ?>
                 </div>
             </div>
 
@@ -868,7 +890,6 @@ $basePath = rtrim($parsedBase['path'] ?? '/', '/') . '/';
                                                 }
                                                 input.dispatchEvent(new Event('change', { bubbles: true }));
                                             }
-                                            // 画像プレビューの更新
                                             if (document.getElementById(`meta_data_${key}_input`)) {
                                                 window.dispatchEvent(new CustomEvent(`set-meta-image-${key}`, { detail: { url: meta[key] } }));
                                             }
@@ -1464,14 +1485,14 @@ $basePath = rtrim($parsedBase['path'] ?? '/', '/') . '/';
             <?= _t('preview') ?>
         </button>
 
-        <button type="button" @click="postStatus = 'draft'; document.getElementById('post-form').requestSubmit();" :disabled="isSubmitting || isUploading || isOffline" class="flex-1 py-3 bg-theme-bg border border-theme-border text-theme-text rounded-theme font-bold text-sm flex items-center justify-center gap-1 shadow-sm transition-colors hover:bg-theme-surface disabled:opacity-50 disabled:cursor-not-allowed">
+        <button type="button" @click="if(document.getElementById('post-form').reportValidity()) { postStatus = 'draft'; $nextTick(() => document.getElementById('post-form').requestSubmit()); }" :disabled="isSubmitting || isUploading || isOffline" class="flex-1 py-3 bg-theme-bg border border-theme-border text-theme-text rounded-theme font-bold text-sm flex items-center justify-center gap-1 shadow-sm transition-colors hover:bg-theme-surface disabled:opacity-50 disabled:cursor-not-allowed">
             <svg class="w-4 h-4 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-arrow-down-on-square"></use>
             </svg>
             <?= _t('st_draft') ?>
         </button>
 
-        <button type="button" @click="postStatus = 'published'; document.getElementById('post-form').requestSubmit();" :disabled="isSubmitting || isUploading || isOffline" class="flex-1 py-3 bg-theme-primary text-theme-on-primary rounded-theme font-bold text-sm flex items-center justify-center gap-1 shadow-theme transition-all hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed">
+        <button type="button" @click="if(document.getElementById('post-form').reportValidity()) { postStatus = 'published'; $nextTick(() => document.getElementById('post-form').requestSubmit()); }" :disabled="isSubmitting || isUploading || isOffline" class="flex-1 py-3 bg-theme-primary text-theme-on-primary rounded-theme font-bold text-sm flex items-center justify-center gap-1 shadow-theme transition-all hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed">
             <?php if (($post['status'] ?? '') === 'published'): ?>
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-arrow-path"></use>

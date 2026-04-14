@@ -8,8 +8,14 @@
         <span>
             <?= _t('st_installer_present') ?>
         </span>
-        <a href="settings.php?tab=system" class="ml-2 underline hover:opacity-80 transition-opacity">
-            <?= _t('btn_delete_now') ?>
-        </a>
+        <?php if (current_user_can('manage_settings')): ?>
+            <a href="settings.php?tab=system" class="ml-2 underline hover:opacity-80 transition-opacity">
+                <?= _t('btn_delete_now') ?>
+            </a>
+        <?php else: ?>
+            <span class="ml-2 opacity-90 font-normal">
+                <?= _t('adv_install_report') ?>
+            </span>
+        <?php endif; ?>
     </div>
 <?php endif; ?>

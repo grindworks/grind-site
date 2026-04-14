@@ -65,11 +65,8 @@
   "sidebar_mode": "light",
   "nav_style": "underline",
   "texture": "paper",
-  "effects": [
-    "input_solid",
-    "btn_lift",
-    "scrollbar_custom"
-  ],
+  "media_bg_css": "checker_light",
+  "effects": ["input_solid", "btn_lift", "scrollbar_custom"],
   "ai_paste": {
     "title": "AI Paste",
     "description": "Paste Markdown from Clipboard",

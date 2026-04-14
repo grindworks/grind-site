@@ -37,6 +37,17 @@ if ($latestVersion && version_compare($latestVersion, CMS_VERSION, '>')) {
         hasUpdate: window.grindsSettingsData.hasUpdate,
 
         changeTab(key) {
+            // Check for unsaved changes before allowing tab switch
+            if (document.title.startsWith("* ")) {
+                const msg = window.grindsTranslations?.confirm_reset || "You have unsaved changes. Discard them and switch tabs?";
+                if (!confirm(msg)) {
+                    return;
+                }
+                window.grindsBypassUnload = true;
+                window.location.href = "?tab=" + key;
+                return;
+            }
+
             this.activeTab = key;
             this.mobileMenuOpen = false;
             const url = new URL(window.location);

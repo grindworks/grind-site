@@ -112,6 +112,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$maintenanceMode) {
         $hasError = true;
       }
 
+      if ($field['type'] === 'select' && $val !== '' && !in_array($val, $field['options'], true)) {
+        $error = theme_t('Invalid Request.');
+        $hasError = true;
+      }
+
       $formData[$key] = strip_tags($val);
     }
 
@@ -127,13 +132,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$maintenanceMode) {
         $userEmail = $formData['email'] ?? '';
 
         $mailBody = "";
+        $isJa = (function_exists('grinds_get_current_language') && grinds_get_current_language() === 'ja') || get_option('site_lang', 'en') === 'ja';
+        $bracketOpen = $isJa ? '【' : '[';
+        $bracketClose = $isJa ? '】' : ']';
+
         foreach ($formFields as $key => $field) {
           $label = $field['label'];
           $val = $formData[$key] ?? '';
-          $mailBody .= "【{$label}】\n{$val}\n\n";
+          $mailBody .= "{$bracketOpen}{$label}{$bracketClose}\n{$val}\n\n";
         }
 
-        $subject = theme_t('[%s] New Inquiry', $siteName);
+        $selectedSubject = $formData['subject'] ?? 'New Inquiry';
+        $subject = sprintf("[%s] %s", $siteName, $selectedSubject);
         $body = theme_t('contact_admin_body') . $mailBody;
 
         if ($mailer->send($recipientEmail, $subject, $body, $userEmail)) {

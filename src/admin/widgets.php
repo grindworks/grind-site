@@ -203,6 +203,17 @@ if ($edit_id) {
 // Fetch themes
 $themes = array_merge(['all' => _t('cond_all')], get_available_themes());
 
+// Restore input data on error
+if (!empty($error) && $_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['bulk_action']) && ($_POST['action'] ?? '') === 'save') {
+  $edit_data['type'] = $_POST['type'] ?? $edit_data['type'];
+  $edit_data['title'] = $_POST['title'] ?? $edit_data['title'];
+  $edit_data['content'] = $_POST['content'] ?? $edit_data['content'];
+  if (isset($settings)) $edit_data['settings'] = $settings;
+  $edit_data['sort_order'] = (int)($_POST['sort_order'] ?? $edit_data['sort_order']);
+  $edit_data['is_active'] = isset($_POST['is_active']) ? 1 : 0;
+  $edit_data['target_theme'] = $_POST['target_theme'] ?? $edit_data['target_theme'];
+}
+
 // Render view
 $page_title = _t('menu_widgets');
 $current_page = 'widgets';

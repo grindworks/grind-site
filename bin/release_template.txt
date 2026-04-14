@@ -1,31 +1,25 @@
 Release title
-v1.6.4 - Contact Form Settings, Editor UX Polish & Performance Updates
+v1.6.5 - Dynamic Contact Form Subjects, DB Restore Fix & CLI Path Resolution
 
 Release notes
-This release introduces customizable Contact Form Settings, a God-Tier UX improvement for the block editor, and important performance and security optimizations.
+This patch release brings UX improvements to the contact form notifications, fixes a cache inconsistency issue during database restoration, and enhances the flexibility of the CLI tool.
 
 ### ✨ Enhancements
-- **Contact Form Settings:** You can now fully customize the contact form directly from the admin panel! Set custom recipient emails, subject dropdown options, success messages, and auto-reply email templates. Additionally, automatic `Reply-To` header mapping is now supported, allowing you to reply directly to users from your email client.
-- **Editor UX (God-Tier):** Added the ability to paste images directly from your clipboard (e.g., screenshots) into the block editor. Images are automatically uploaded and inserted as blocks.
-- **Performance:** Optimized SVG image handling to preload metadata correctly, preventing N+1 query issues and ensuring `alt` tags are properly rendered.
+- **Dynamic Contact Form Subjects:** Administrator notification emails now dynamically include the "Inquiry Type" (Subject) selected by the user in the email subject line (e.g., `[SiteName] Product Inquiry`). This makes it much easier to manage threads and prioritize emails in your inbox. (Applied to all themes).
+- **CLI Tool Flexibility:** Upgraded the path resolution logic in `bin/grind.php`. The CLI tool can now automatically detect `config.php` across various deployment structures (e.g., `public_html`, `public`, `html`, `www`), making it easier to run commands on shared hosting or VPS environments.
 
-### 🛡️ Security & Stability
-- **Security (ReDoS Prevention):** Hardened the regular expressions used in Markdown exports to prevent potential ReDoS (Regular Expression Denial of Service) attacks.
-- **Bug Fixes:**
-  - Fixed an issue where custom field image previews were not properly restored when recovering from an auto-saved draft.
+### 🛡️ Bug Fixes
+- **DB Restore Cache Inconsistency:** Fixed an issue where restoring a database backup via the admin panel did not clear the generated HTML page caches and system health caches, causing the frontend to display outdated or broken content immediately after a restore.
 
 ---
 
 ## 🇯🇵 日本語 (Japanese)
 
-このリリースでは、待望の「お問い合わせフォーム設定」機能の追加に加え、ブロックエディタの執筆体験（UX）を最高峰に引き上げる改善、およびパフォーマンスとセキュリティの最適化が行われています。
+このパッチリリースでは、お問い合わせフォームの通知メールに関するUX向上、データベース復元時のキャッシュの不整合バグの修正、およびCLIツールの利便性向上が含まれています。
 
 ### ✨ 新機能・改善
-- **お問い合わせフォーム設定の追加:** 管理画面からお問い合わせフォームを柔軟にカスタマイズできるようになりました！専用の受信先メールアドレス、件名の選択肢、送信完了メッセージ、さらにユーザーへの「自動返信メール」の件名・本文を自由に設定可能です。また、管理者宛の通知メールに `Reply-To` が自動設定されるようになり、メールソフトの「返信」ボタンで直接ユーザーへ返信できるようになりました。
-- **エディターUXの極み:** クリップボードにコピーした画像（スクリーンショットなど）を直接エディタにペーストできるようになりました。自動でアップロードされ、画像ブロックとして挿入されます。
-- **パフォーマンス最適化:** SVG画像のメタデータを適切に事前ロードするよう修正し、N+1クエリを防ぐとともに `alt` 属性が正しく出力されるように改善しました。
+- **お問い合わせフォームの件名動的化:** ユーザーがフォームで選択した「お問い合わせ種別（Subject）」が、管理者宛の通知メールの件名に動的に反映されるようになりました（例：`[サイト名] 製品について`）。これにより、メーラーでのスレッド管理や優先順位の判断が格段にスムーズになります。（同梱されているすべてのテーマに適用）
+- **CLIツールの柔軟性向上:** `bin/grind.php` のパス探索ロジックを強化しました。共有サーバーの `public_html` やVPSの `public`, `html` などのドキュメントルートに中身を展開する運用でも、自動的に `config.php` を見つけて起動できるようになり、実運用でのデプロイやCronのセットアップが容易になりました。
 
-### 🛡️ セキュリティとバグ修正
-- **セキュリティ (ReDoS対策):** Markdownエクスポート機能で使用される正規表現を強化し、PCREバックトラック制限超過（ReDoS攻撃）のリスクを排除しました。
-- **バグ修正:**
-  - 自動保存（ドラフト）から記事を復元する際、カスタムフィールドの画像プレビューが正しく復活しないバグを修正しました。
+### 🛡️ バグ修正
+- **DBリストア時のキャッシュ不整合:** 管理画面からデータベースのバックアップを復元した際、生成済みのHTMLページキャッシュやシステムのヘルスチェックキャッシュがクリアされず、フロントエンドの表示が古いまま残ってしまう（または表示崩れを起こす）問題を修正しました。

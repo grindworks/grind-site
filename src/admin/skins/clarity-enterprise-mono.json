@@ -68,6 +68,7 @@
   "sidebar_mode": "light",
   "nav_style": "underline",
   "texture": "noise",
+  "media_bg_css": "checker_light",
   "effects": [
     "card_lift",
     "input_solid",

@@ -932,6 +932,7 @@ return [
     'chk_journal_mode' => 'DB Journal Mode',
     'chk_fts5_support' => 'FTS5 Support (Search)',
     'adv_install_del' => 'Please delete "install.php" immediately.',
+    'adv_install_report' => 'For security reasons, please report this to the administrator immediately to have it deleted.',
     'adv_config_ro' => 'Recommended: Make "config.php" read-only (444 or 400).',
     'adv_writable' => 'Must be writable.',
     'adv_expose_off' => 'Recommended: Set "expose_php = Off" in php.ini.',
@@ -1760,4 +1761,10 @@ return [
     'I agree to the <a href="%s" target="_blank" class="text-brand-600 underline hover:no-underline">Privacy Policy</a>' => 'I agree to the <a href="%s" target="_blank" class="text-brand-600 underline hover:no-underline">Privacy Policy</a>',
     'I agree to the <a href="%s" target="_blank" class="text-corp-accent underline hover:no-underline">Privacy Policy</a>' => 'I agree to the <a href="%s" target="_blank" class="text-corp-accent underline hover:no-underline">Privacy Policy</a>',
     'I agree to the <a href="%s" target="_blank" class="text-decoration-underline">Privacy Policy</a>' => 'I agree to the <a href="%s" target="_blank" class="text-decoration-underline">Privacy Policy</a>',
+
+    'err_only_one_password_block' => 'Password Protect block can only be added once.',
+    'Post Details' => 'Post Details',
+    'min read' => 'min read',
+    'This article contains promotional links.' => 'This article contains promotional links.',
+    'View Sponsored Link' => 'View Sponsored Link',
 ];

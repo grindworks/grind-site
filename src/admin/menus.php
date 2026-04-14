@@ -192,6 +192,15 @@ if ($edit_id && !empty($menus)) {
   }
 }
 
+// Restore input data on error
+if (!empty($error) && $_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['bulk_action']) && ($_POST['action'] ?? '') !== 'save_orders') {
+  $edit_data['label'] = $_POST['label'] ?? $edit_data['label'];
+  $edit_data['url'] = $_POST['url'] ?? $edit_data['url'];
+  $edit_data['sort_order'] = (int)($_POST['sort_order'] ?? $edit_data['sort_order']);
+  $edit_data['is_external'] = isset($_POST['is_external']) ? 1 : 0;
+  $edit_data['target_theme'] = $_POST['target_theme'] ?? $edit_data['target_theme'];
+}
+
 // Render view
 $page_title = _t('menu_menus');
 $current_page = 'menus';

@@ -337,7 +337,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
               fseek($fp, $pos);
               $buffer = fread($fp, $readSize) . $buffer;
 
-              // OOM(メモリ枯渇)対策: 改行がない巨大な行によるバッファ肥大化を防止 (上限 1MB)
+              // Prevent OOM: Break if buffer grows too large due to lack of newlines (Max 1MB)
               if (strlen($buffer) > 1048576) {
                 break;
               }
@@ -1167,6 +1167,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
               if (!$wasMaintenance && file_exists($maintenanceFile)) {
                 grinds_force_unlink($maintenanceFile);
               }
+
+              if (function_exists('clear_page_cache')) {
+                clear_page_cache();
+              }
+              if (function_exists('update_option')) {
+                update_option('grinds_dangerous_files_cache', '', false);
+              }
+              unset($_SESSION['grinds_health_report_cache']);
+
               grinds_logout();
               _safe_session_start();
               set_flash(_t('msg_restore_complete'));

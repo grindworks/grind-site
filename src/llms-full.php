@@ -457,7 +457,7 @@ if (!class_exists('LlmsFullGenerator')) {
             }
 
             // Convert heading tags to Markdown for better RAG chunking.
-            $html = preg_replace_callback('/<h([1-6])[^>]*+>(.*?)<\/h\1>/is', function ($m) {
+            $html = preg_replace_callback('/<h([1-6])[^>]*+>((?:[^<]++|<(?!\/h\1>))*+)<\/h\1>/is', function ($m) {
                 return "\n\n" . str_repeat('#', (int)$m[1]) . ' ' . trim(strip_tags($m[2])) . "\n\n";
             }, $html) ?? $html;
 
@@ -465,6 +465,9 @@ if (!class_exists('LlmsFullGenerator')) {
             foreach ($codeBlocks as $placeholder => $codeBlock) {
                 $html = str_replace($placeholder, "\n\n```\n" . trim($codeBlock) . "\n```\n\n", $html);
             }
+
+            // Decode HTML entities to maximize LLM token efficiency
+            $html = html_entity_decode($html, ENT_QUOTES | ENT_HTML5, 'UTF-8');
 
             $html = preg_replace('/<\s*([a-zA-Z0-9]+)\s+>/i', '<$1>', $html) ?? $html;
             $html = str_replace('&nbsp;', ' ', $html);

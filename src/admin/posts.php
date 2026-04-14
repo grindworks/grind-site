@@ -287,6 +287,64 @@ else {
   // Discover themes
   $available_themes = get_available_themes();
 
+  // Restore input data on error
+  if (!empty($error) && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_post_mode'])) {
+    $post['title'] = $_POST['title'] ?? ($post['title'] ?? '');
+    $post['slug'] = $_POST['slug'] ?? ($post['slug'] ?? '');
+    $post['description'] = $_POST['description'] ?? ($post['description'] ?? '');
+
+    // Restore content (Handling Base64 encoded payload for WAF bypass)
+    $contentVal = $_POST['content'] ?? '';
+    if (!empty($_POST['content_is_base64']) && $contentVal !== '') {
+      $decoded = base64_decode(str_replace(' ', '+', $contentVal));
+      if ($decoded !== false) $contentVal = $decoded;
+    }
+    $post['content'] = $contentVal;
+
+    $post['status'] = $_POST['status'] ?? ($post['status'] ?? 'draft');
+    $post['type'] = $_POST['type'] ?? ($post['type'] ?? 'post');
+    $post['category_id'] = $_POST['category_id'] ?? ($post['category_id'] ?? null);
+    $post['published_at'] = $_POST['published_at'] ?? ($post['published_at'] ?? null);
+    $post['page_theme'] = $_POST['page_theme'] ?? ($post['page_theme'] ?? '');
+    $post['show_category'] = isset($_POST['show_category']) ? 1 : 0;
+    $post['show_date'] = isset($_POST['show_date']) ? 1 : 0;
+    $post['show_share_buttons'] = isset($_POST['show_share_buttons']) ? 1 : 0;
+    $post['show_toc'] = isset($_POST['show_toc']) ? 1 : 0;
+    $post['toc_title'] = $_POST['toc_title'] ?? ($post['toc_title'] ?? '');
+    $post['is_noindex'] = isset($_POST['is_noindex']) ? 1 : 0;
+    $post['is_nofollow'] = isset($_POST['is_nofollow']) ? 1 : 0;
+    $post['is_noarchive'] = isset($_POST['is_noarchive']) ? 1 : 0;
+    $post['is_hide_rss'] = isset($_POST['is_hide_rss']) ? 1 : 0;
+    $post['is_hide_llms'] = isset($_POST['is_hide_llms']) ? 1 : 0;
+
+    if (isset($_POST['tags'])) $currentTags = $_POST['tags'];
+
+    // Restore hero settings
+    $hero = json_decode($post['hero_settings'] ?? '{}', true) ?: [];
+    $hero['layout'] = $_POST['hero_layout'] ?? ($hero['layout'] ?? 'standard');
+    $hero['title'] = $_POST['hero_title'] ?? ($hero['title'] ?? '');
+    $hero['subtext'] = $_POST['hero_subtext'] ?? ($hero['subtext'] ?? '');
+    $hero['overlay'] = isset($_POST['hero_overlay']) ? 1 : 0;
+    $hero['fixed_bg'] = isset($_POST['hero_fixed_bg']) ? 1 : 0;
+    $hero['seo_author'] = $_POST['seo_author'] ?? ($hero['seo_author'] ?? '');
+    if (isset($_POST['hero_buttons_json'])) $hero['buttons'] = json_decode($_POST['hero_buttons_json'], true) ?: [];
+    if (isset($_POST['hero_image_mobile_url'])) $hero['mobile_image'] = $_POST['hero_image_mobile_url'];
+    $post['hero_settings'] = json_encode($hero, JSON_UNESCAPED_UNICODE);
+
+    if (isset($_POST['hero_image_url'])) $post['hero_image'] = $_POST['hero_image_url'];
+    if (isset($_POST['current_thumbnail'])) $post['thumbnail'] = $_POST['current_thumbnail'];
+
+    // Restore custom fields
+    $metaData = json_decode($post['meta_data'] ?? '{}', true) ?: [];
+    if (isset($_POST['meta_data']) && is_array($_POST['meta_data'])) $metaData = array_merge($metaData, $_POST['meta_data']);
+    foreach ($_POST as $k => $v) {
+      if (str_starts_with($k, 'meta_data_') && str_ends_with($k, '_url')) {
+        $metaData[str_replace(['meta_data_', '_url'], '', $k)] = $v;
+      }
+    }
+    $post['meta_data'] = json_encode($metaData, JSON_UNESCAPED_UNICODE);
+  }
+
   ob_start();
   require_once __DIR__ . '/layout/toast.php';
   require_once __DIR__ . '/views/posts_form.php';

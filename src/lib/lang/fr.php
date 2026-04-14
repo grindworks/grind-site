@@ -932,6 +932,7 @@ return [
     'chk_journal_mode' => 'Mode Journal BD',
     'chk_fts5_support' => 'Support FTS5 (Recherche)',
     'adv_install_del' => 'Veuillez supprimer "install.php" immédiatement.',
+    'adv_install_report' => 'Pour des raisons de sécurité, veuillez le signaler immédiatement à l\'administrateur pour qu\'il le supprime.',
     'adv_config_ro' => 'Recommandé : Rendez "config.php" en lecture seule (444 ou 400).',
     'adv_writable' => 'Doit être inscriptible.',
     'adv_expose_off' => 'Recommandé : Définissez "expose_php = Off" dans php.ini.',
@@ -1760,4 +1761,10 @@ return [
     'I agree to the <a href="%s" target="_blank" class="text-brand-600 underline hover:no-underline">Privacy Policy</a>' => 'J\'accepte la <a href="%s" target="_blank" class="text-brand-600 underline hover:no-underline">politique de confidentialité</a>',
     'I agree to the <a href="%s" target="_blank" class="text-corp-accent underline hover:no-underline">Privacy Policy</a>' => 'J\'accepte la <a href="%s" target="_blank" class="text-corp-accent underline hover:no-underline">politique de confidentialité</a>',
     'I agree to the <a href="%s" target="_blank" class="text-decoration-underline">Privacy Policy</a>' => 'J\'accepte la <a href="%s" target="_blank" class="text-decoration-underline">politique de confidentialité</a>',
+
+    'err_only_one_password_block' => 'Le bloc de protection par mot de passe ne peut être ajouté qu\'une seule fois.',
+    'Post Details' => 'Détails de l\'article',
+    'min read' => 'min de lecture',
+    'This article contains promotional links.' => 'Cet article contient des liens promotionnels.',
+    'View Sponsored Link' => 'Voir le lien sponsorisé',
 ];

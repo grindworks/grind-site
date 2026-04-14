@@ -1072,7 +1072,7 @@ HTML;
                     $embedHtml = "<div class='relative w-full aspect-video rounded-theme overflow-hidden shadow-theme {$alignClass} max-w-[800px]'>
                       <iframe loading='lazy' src='" . h($embedUrl) . "' title='Figma Design' class='absolute inset-0 w-full h-full' allowfullscreen frameborder='0'></iframe>
                   </div>";
-                } elseif (preg_match('/(?:youtube\.com\/(?:(?:v|e(?:mbed)?|shorts)\/|[^\s]*?[?&]v=)|youtu\.be\/)([^"&?\\/\\s]{11})/i', $rawUrl, $matches)) {
+                } elseif (preg_match('/(?:youtube\.com\/(?:(?:v|e(?:mbed)?|shorts)\/|[^\s&?"]*+[?&]v=)|youtu\.be\/)([^"&?\\/\\s]{11})/i', $rawUrl, $matches)) {
                     $vid = h($matches[1]);
                     $embedHtml = "<div class='relative w-full aspect-video rounded-theme overflow-hidden shadow-theme bg-black {$alignClass} max-w-[800px] w-full'>
                       <iframe src='https://www.youtube-nocookie.com/embed/{$vid}?enablejsapi=1' title='YouTube Video Player' class='absolute inset-0 w-full h-full' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen loading='lazy'></iframe>

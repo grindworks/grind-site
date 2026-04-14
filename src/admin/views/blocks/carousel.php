@@ -28,7 +28,7 @@ if (!defined('GRINDS_APP')) exit; ?>
                     <!-- Action Buttons -->
                     <div class="bottom-1 right-1 absolute flex flex-col items-end gap-1 md:opacity-0 opacity-100 group-hover:opacity-100 transition-opacity z-10">
                         <!-- Delete slide -->
-                        <button type="button" @click.prevent="if(!img.url || confirm(window.grindsTranslations?.confirm_delete || 'Are you sure?')) block.data.images.splice(i, 1)" class="bg-theme-surface/90 shadow-theme p-1.5 min-w-[28px] min-h-[28px] flex items-center justify-center border border-theme-border rounded-full text-theme-danger hover:bg-theme-danger/10 transition-colors" title="<?= h(_t('delete')) ?>">
+                        <button type="button" @click.prevent="if(!img.url || confirm(window.grindsTranslations?.confirm_delete || 'Are you sure?')) { block.data.images.splice(i, 1); }" class="bg-theme-surface/90 shadow-theme p-1.5 min-w-[28px] min-h-[28px] flex items-center justify-center border border-theme-border rounded-full text-theme-danger hover:bg-theme-danger/10 transition-colors" title="<?= h(_t('delete')) ?>">
                             <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-x-mark"></use>
                             </svg>

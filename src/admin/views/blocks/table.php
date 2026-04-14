@@ -6,7 +6,6 @@ if (!defined('GRINDS_APP')) exit; ?>
   if(!block.data.content) block.data.content = [['', ''], ['', '']];
   if(block.data.withHeadings === undefined) block.data.withHeadings = true;
 
-  // 行データ（配列）に保存時に無視される隠しIDを付与してリアクティビティのバグを防ぐ
   const ensureRowId = (row) => { if (!row._id) Object.defineProperty(row, '_id', { value: generateId(), enumerable: false, writable: true }); };
   block.data.content.forEach(ensureRowId);
   $watch('block.data.content', val => val && val.forEach(ensureRowId));
@@ -29,8 +28,7 @@ if (!defined('GRINDS_APP')) exit; ?>
             @drop.prevent.stop="
               if(dragIdx !== null && dragIdx !== rowIndex) {
                   const draggedItem = block.data.content.splice(dragIdx, 1)[0];
-                  const insertPos = (dragIdx < rowIndex) ? rowIndex - 1 : rowIndex;
-                  block.data.content.splice(insertPos, 0, draggedItem);
+                  block.data.content.splice(rowIndex, 0, draggedItem);
               }
               dragIdx = null; dropIdx = null;
             ">

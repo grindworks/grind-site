@@ -252,7 +252,7 @@ ob_start();
             </div>
             <div class="ml-3">
               <span class="block font-bold text-theme-text text-sm" :class="config.mode === 'full' ? 'text-theme-primary' : ''">
-                <?= _t('ssg_mode_full') ?>（再構築）
+                <?= _t('ssg_mode_full') ?>
               </span>
               <span class="block opacity-60 mt-1 text-theme-text text-xs">
                 <?= _t('ssg_mode_full_desc') ?>
@@ -285,7 +285,7 @@ ob_start();
                   <?php $lastExportHtml = '<span class="bg-theme-bg px-1 rounded-theme font-mono">' . h($lastExportDisplay) . '</span>'; ?>
                   <?= _t('ssg_mode_diff_desc', $lastExportHtml) ?>
                 <?php else: ?>
-                  ※ <?= _t('msg_rebuild_required') ?>
+                  * <?= _t('msg_rebuild_required') ?>
                 <?php endif; ?>
               </span>
             </div>
@@ -313,7 +313,7 @@ ob_start();
               <svg x-show="!processing" class="w-5 h-5 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-play-circle"></use>
               </svg>
-              <span x-text="processing ? trans.btn_generating : (config.mode === 'full' ? trans.btn_start + '（再構築）' : trans.btn_start)"></span>
+              <span x-text="processing ? trans.btn_generating : trans.btn_start"></span>
             </button>
           </div>
         </div>

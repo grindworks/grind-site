@@ -210,6 +210,21 @@ if ($edit_id) {
   }
 }
 
+// Restore input data on error
+if (!empty($error) && $_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'save') {
+  $edit_data['position'] = $_POST['position'] ?? $edit_data['position'];
+  $edit_data['type'] = $_POST['type'] ?? $edit_data['type'];
+  $edit_data['html_code'] = $_POST['html_code'] ?? $edit_data['html_code'];
+  $edit_data['image_width'] = (int)($_POST['image_width'] ?? $edit_data['image_width']);
+  $edit_data['link_url'] = $_POST['link_url'] ?? $edit_data['link_url'];
+  if (isset($image_path) && $image_path) $edit_data['image_url'] = $image_path;
+  $edit_data['sort_order'] = (int)($_POST['sort_order'] ?? $edit_data['sort_order']);
+  $edit_data['is_active'] = isset($_POST['is_active']) ? 1 : 0;
+  $edit_data['target_type'] = $_POST['target_type'] ?? $edit_data['target_type'];
+  $edit_data['target_id'] = (int)($_POST['target_cat_id'] ?? $_POST['target_post_id'] ?? $edit_data['target_id']);
+  $edit_data['target_theme'] = $_POST['target_theme'] ?? $edit_data['target_theme'];
+}
+
 // Render view
 $page_title = _t('menu_banners');
 $current_page = 'banners';

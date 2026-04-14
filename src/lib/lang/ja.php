@@ -932,6 +932,7 @@ return [
     'chk_journal_mode' => 'DBジャーナルモード',
     'chk_fts5_support' => 'FTS5サポート (検索機能)',
     'adv_install_del' => '直ちに "install.php" を削除してください。',
+    'adv_install_report' => 'セキュリティリスクがあるため、至急管理者に報告して削除を依頼してください。',
     'adv_config_ro' => '推奨: "config.php" を書き込み不可（444または400）に設定してください。',
     'adv_writable' => '書き込み権限が必要です。',
     'adv_expose_off' => '推奨: php.ini で "expose_php = Off" に設定してください。',
@@ -1760,4 +1761,10 @@ return [
     'I agree to the <a href="%s" target="_blank" class="text-brand-600 underline hover:no-underline">Privacy Policy</a>' => '<a href="%s" target="_blank" class="text-brand-600 underline hover:no-underline">プライバシーポリシー</a>に同意する',
     'I agree to the <a href="%s" target="_blank" class="text-corp-accent underline hover:no-underline">Privacy Policy</a>' => '<a href="%s" target="_blank" class="text-corp-accent underline hover:no-underline">プライバシーポリシー</a>に同意する',
     'I agree to the <a href="%s" target="_blank" class="text-decoration-underline">Privacy Policy</a>' => '<a href="%s" target="_blank" class="text-decoration-underline">プライバシーポリシー</a>に同意する',
+
+    'err_only_one_password_block' => 'パスワード保護ブロックは1つの記事に1つしか追加できません。',
+    'Post Details' => '記事の詳細',
+    'min read' => '分で読めます',
+    'This article contains promotional links.' => 'この記事はプロモーションを含みます。',
+    'View Sponsored Link' => 'スポンサーリンクを見る',
 ];

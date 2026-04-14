@@ -252,6 +252,14 @@ if (!class_exists('SitemapGenerator')) {
           $url = $scheme . ':' . $url;
         }
         if (preg_match('/^https?:\/\//i', $url)) {
+          $parts = parse_url($url);
+          if (isset($parts['path'])) {
+            $pathSegments = explode('/', $parts['path']);
+            $encodedPath = implode('/', array_map(function ($segment) {
+              return rawurlencode(rawurldecode($segment));
+            }, $pathSegments));
+            $url = str_replace($parts['path'], $encodedPath, $url);
+          }
           return $url;
         }
       }

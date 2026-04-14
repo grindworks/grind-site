@@ -101,7 +101,11 @@ try {
     }
 
     // Scan uploads and calculate size
-    $fp = fopen($fileListPath, 'w');
+    $fp = @fopen($fileListPath, 'w');
+    if (!$fp) {
+      throw new Exception(function_exists('_t') ? _t('err_create_temp_dir_failed') : 'Failed to create temporary file for migration.');
+    }
+
     $uploadsSize = 0;
     $totalFiles = 0;
 

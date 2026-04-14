@@ -280,14 +280,11 @@ $params = Routing::getParams();
 $is_fresh_install = isset($params['installed']);
 
 // Set JS translations
-$isJa = (get_option('site_lang') === 'ja');
-$jsRewriteWarningTitle = $isJa ? '⚠️ URLリライトエラー検知' : '⚠️ URL Rewrite Error Detected';
-$jsRewriteWarningMsg = $isJa
-    ? '現在、記事ページが 404 エラーで表示できない状態になっている可能性があります。<br><code>src/.htaccess</code> を開き、<code># RewriteBase</code> の先頭の <code>#</code> を削除（コメントアウトを解除）して保存してください。'
-    : 'Articles might currently be returning 404 errors.<br>Please open <code>src/.htaccess</code> and remove the <code>#</code> at the beginning of the <code># RewriteBase</code> line to uncomment it.';
+$jsRewriteWarningTitle = _t('st_doctor_error_head');
+$jsRewriteWarningMsg = _t('st_doctor_error_desc');
 $jsDismissText = _t('btn_dismiss');
 
-$lblHourUnit = $isJa ? '時' : 'h';
+$lblHourUnit = 'h';
 
 // Calculate insights from existing data (zero additional queries)
 $peak_hour = 0;

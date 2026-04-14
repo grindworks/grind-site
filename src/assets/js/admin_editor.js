@@ -313,7 +313,7 @@ document.addEventListener('alpine:init', () => {
 
       const clipboardData = e.clipboardData || window.clipboardData;
 
-      // クリップボードの画像ファイル（スクリーンショット等）の直接ペーストを処理
+      // Handle direct pasting of image files from clipboard (e.g., screenshots)
       if (clipboardData.items) {
         let imageFiles = [];
         for (let i = 0; i < clipboardData.items.length; i++) {
@@ -921,7 +921,11 @@ document.addEventListener('alpine:init', () => {
           this.isSubmitting = true;
           const form = document.getElementById('post-form');
           if (form) {
-            form.requestSubmit();
+            if (typeof form.requestSubmit === 'function') {
+              form.requestSubmit();
+            } else {
+              form.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
+            }
           }
           return;
         }
@@ -1269,7 +1273,7 @@ document.addEventListener('alpine:init', () => {
 
                 input.dispatchEvent(new Event('change', { bubbles: true }));
 
-                // 画像アップローダーのプレビューを更新するトリガー
+                // Trigger image uploader preview update
                 if (key.endsWith('_url') || key.endsWith('_url]')) {
                   const baseKey = key
                     .replace(/_url\]?$/, '')

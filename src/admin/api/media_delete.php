@@ -67,7 +67,11 @@ try {
     $placeholders = implode(',', array_fill(0, count($chunk), '?'));
     $stmtFiles = $pdo->prepare("SELECT id, filepath FROM media WHERE id IN ($placeholders)");
     $stmtFiles->execute($chunk);
-    $filesMap += $stmtFiles->fetchAll(PDO::FETCH_KEY_PAIR);
+    // Prevent key collision data loss by assigning in loop
+    $fetched = $stmtFiles->fetchAll(PDO::FETCH_KEY_PAIR);
+    foreach ($fetched as $k => $v) {
+      $filesMap[$k] = $v;
+    }
   }
 
   // Bulk check usage if not forced

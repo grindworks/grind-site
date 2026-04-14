@@ -186,6 +186,12 @@ if ($edit_id) {
   }
 }
 
+// Restore input data on error
+if (!empty($error) && $_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['bulk_action']) && ($_POST['action'] ?? '') === 'save') {
+  $edit_data['name'] = $_POST['name'] ?? $edit_data['name'];
+  $edit_data['slug'] = $_POST['slug'] ?? $edit_data['slug'];
+}
+
 // Render view
 $page_title = _t('menu_tags');
 $current_page = 'tags';

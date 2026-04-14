@@ -59,23 +59,32 @@ include __DIR__ . '/parts/hidden_action_form.php';
 </script>
 
 <div class="relative flex lg:flex-row flex-col gap-8"
-  x-init="if(mobileFormOpen) window.toggleScrollLock(true); $watch('mobileFormOpen', val => window.toggleScrollLock(val));"
   x-data='{
-     mobileFormOpen: <?= $edit_id ? 'true' : 'false' ?>,
-     activeAccordion: "custom",
-  inputLabel: <?= json_encode($edit_data['label'], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS) ?>,
-  inputUrl: <?= json_encode($edit_data['url'], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS) ?>,
-  isSubmitting: false,
-  fill(label, url) {
-  this.inputLabel = label;
-  this.inputUrl = url;
-  if(window.innerWidth < 1024) {
-  this.mobileFormOpen = true;
-  } else {
-  document.getElementById("menu-form-card").scrollIntoView({ behavior: "smooth", block: "center" });
-  }
-  }
-  }'>
+    mobileFormOpen: <?= $edit_id ? 'true' : 'false' ?>,
+    activeAccordion: "custom",
+    inputLabel: <?= json_encode($edit_data['label'], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS) ?>,
+    inputUrl: <?= json_encode($edit_data['url'], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS) ?>,
+    isSubmitting: false,
+    isMobile: window.innerWidth < 1024,
+    _lockedState: false,
+    fill(label, url) {
+      this.inputLabel = label;
+      this.inputUrl = url;
+      if(window.innerWidth < 1024) {
+        this.mobileFormOpen = true;
+      } else {
+        document.getElementById("menu-form-card").scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+    }
+  }'
+  @resize.window="isMobile = window.innerWidth < 1024"
+  x-effect="
+    const shouldLock = (mobileFormOpen && isMobile);
+    if (_lockedState !== shouldLock) {
+      window.toggleScrollLock(shouldLock);
+      _lockedState = shouldLock;
+    }
+  ">
 
   <!-- Mobile floating action button. -->
   <?php include __DIR__ . '/parts/fab.php'; ?>
