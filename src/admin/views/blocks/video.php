@@ -6,7 +6,7 @@ if (!defined('GRINDS_APP')) exit; ?>
   <div class="flex gap-2 mb-3">
     <input type="text" x-model="block.data.url" :id="'block-' + block.id + '-url'" @blur="block.data.url = normalizeUrl(block.data.url)" class="flex-1 font-mono text-xs form-control-sm" placeholder="<?= _t('ph_video_url') ?>">
 
-    <button type="button" @click="openMediaLibrary(index, null, 'url')" class="flex items-center gap-1 px-3 py-1 text-xs btn-secondary shrink-0">
+    <button type="button" @click="openMediaLibrary(block.id, null, 'url')" class="flex items-center gap-1 px-3 py-1 text-xs btn-secondary shrink-0">
       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-film"></use>
       </svg>
@@ -21,7 +21,7 @@ if (!defined('GRINDS_APP')) exit; ?>
         <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-arrow-path"></use>
       </svg>
       <span x-text="isUploading ? '...' : '<?= _t('upload') ?>'"></span>
-      <input type="file" class="hidden" accept="video/*" @change="isUploading = true; await uploadImage($event, index, 'url'); isUploading = false" :disabled="isUploading">
+      <input type="file" class="hidden" accept="video/*" @change="isUploading = true; await uploadImage($event, block.id, 'url'); isUploading = false" :disabled="isUploading">
     </label>
   </div>
   <p class="mt-1 mb-3 text-xs opacity-70">

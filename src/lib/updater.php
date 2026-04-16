@@ -313,8 +313,17 @@ class GrindsUpdater
               if (!@copy($sourceFile, $target)) throw new Exception("Failed to overwrite: " . $relPath);
             }
           } else {
-            @unlink($target);
-            if (!@copy($sourceFile, $target)) throw new Exception("Failed to write: " . $relPath);
+            // More atomic update: copy to temp file then rename.
+            // This avoids a small window where the file is missing between unlink and copy.
+            $tempNew = $target . '.' . uniqid() . '.grind-new';
+            if (@copy($sourceFile, $tempNew)) {
+              if (!@rename($tempNew, $target)) {
+                @unlink($tempNew); // cleanup
+                throw new Exception("Failed to rename new file over old: " . $relPath);
+              }
+            } else {
+              throw new Exception("Failed to copy new file: " . $relPath);
+            }
           }
         } else {
           if (!@copy($sourceFile, $target)) throw new Exception("Failed to write: " . $relPath);

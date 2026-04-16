@@ -9,6 +9,9 @@
   - Save URLs to DB: Use `Routing::convertToDbUrl()` (`{{CMS_URL}}`).
   - Render URLs: Use `grinds_url_to_view()` or `resolve_url()`.
   - **No Environment Lock-in:** Do NOT auto-write environment-specific paths (e.g., `RewriteBase /subdir/` in `.htaccess`) during installation or runtime. The system MUST work instantly after moving files via FTP to any domain or subdirectory.
+- **SQLite JSON Compatibility:** Do NOT assume JSON1 extension is always enabled.
+  - For simple updates, provide a PHP fallback (e.g., fetch, merge in PHP, then update) if `json_patch()` is unavailable.
+  - For searching or sorting, NEVER use JSON functions (`json_extract`, etc.) in `WHERE` or `ORDER BY` clauses. Frequently queried data MUST be extracted to dedicated relational columns or tables to maintain performance and compatibility across all legacy SQLite environments.
 
 ## 2. Coding Standards & Multi-Layered Security
 

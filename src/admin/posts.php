@@ -184,7 +184,7 @@ if ($action === 'list') {
 
   // Build filters
   $filters = [
-    'type' => $current_type,
+    'type' => ($status_filter === 'trash') ? $allowed_types : $current_type,
     'status' => $status_filter ?: 'all',
     'category_id' => Routing::getString($params, 'cat') ?: null,
     'search' => Routing::getString($params, 'q') ?: null,
@@ -234,9 +234,10 @@ if ($action === 'list') {
   $filter_cats = [];
   try {
     $counts = $repo->getCountsByStatus($current_type);
-    $count_trash = $counts['trash'];
     $count_published = $counts['published'];
     $count_draft = $counts['draft'];
+
+    $count_trash = $repo->count(['status' => 'trash', 'type' => $allowed_types]);
 
     if ($status_filter !== 'trash') {
       $filter_cats = $pdo->query("SELECT * FROM categories ORDER BY sort_order ASC")->fetchAll();

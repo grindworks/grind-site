@@ -1767,4 +1767,18 @@ return [
     'min read' => '分で読めます',
     'This article contains promotional links.' => 'この記事はプロモーションを含みます。',
     'View Sponsored Link' => 'スポンサーリンクを見る',
+
+    // Additional JS strings
+    'confirm_discard_changes' => '保存されていない変更があります。破棄してタブを切り替えますか？',
+    'err_popup_blocked' => 'ポップアップがブロックされました。',
+    'msg_relogin_instruction' => "OKをクリックして新しいウィンドウでログインページを開きます。\nログイン後、ウィンドウを閉じて再度保存をお試しください。",
+    'msg_popup_blocked_instruction' => 'ダッシュボードのリンクを右クリックして新しいタブで開き、ログインした後にこの画面に戻って保存してください。',
+    'confirm_embed_canva' => 'CanvaのURLを検出しました。埋め込みブロックに変換しますか？',
+    'confirm_embed_figma' => 'FigmaのURLを検出しました。埋め込みブロックに変換しますか？',
+
+    // Theme specific strings
+    'Tags:' => 'タグ:',
+    'Tab' => 'タブ',
+    'Untitled' => '無題',
+    'Guide' => 'ガイド',
 ];

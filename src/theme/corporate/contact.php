@@ -221,7 +221,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$maintenanceMode) {
         </div>
       <?php endif; ?>
 
-      <form method="post" class="space-y-6 max-w-2xl" onsubmit="
+      <form method="post" action="?" class="space-y-6 max-w-2xl" onsubmit="
         var btn = this.querySelector('button[type=submit]');
         if(btn) {
             btn.disabled = true;
@@ -265,7 +265,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$maintenanceMode) {
         <div class="pt-4 pb-2">
           <label class="flex items-center gap-3 cursor-pointer">
             <input type="hidden" name="privacy_check" value="1">
-            <input type="checkbox" name="privacy" value="1" required class="w-5 h-5 text-corp-accent border-gray-300 rounded focus:ring-corp-accent transition bg-white">
+            <?php $privacyChecked = !empty($_POST['privacy']) ? 'checked' : ''; ?>
+            <input type="checkbox" name="privacy" value="1" required <?= $privacyChecked ?> class="w-5 h-5 text-corp-accent border-gray-300 rounded focus:ring-corp-accent transition bg-white">
             <span class="text-sm text-gray-700">
               <?= theme_t('I agree to the <a href="%s" target="_blank" class="text-corp-accent underline hover:no-underline">Privacy Policy</a>', h(resolve_url('/privacy-policy'))) ?>
             </span>

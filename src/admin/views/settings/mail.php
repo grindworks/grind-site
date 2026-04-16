@@ -97,36 +97,36 @@ if (!defined('GRINDS_APP')) exit; ?>
         <svg class="w-5 h-5 text-theme-info" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-envelope-open"></use>
         </svg>
-        <?= function_exists('_t') ? (_t('Contact Form Settings') ?: 'Contact Form Settings') : 'Contact Form Settings' ?>
+        <?= _t('Contact Form Settings') ?>
       </h3>
       <p class="opacity-60 text-theme-text text-xs leading-relaxed">
-        <?= function_exists('_t') ? (_t('Customize the frontend contact form behavior.') ?: 'Customize the frontend contact form behavior.') : 'Customize the frontend contact form behavior.' ?>
+        <?= _t('Customize the frontend contact form behavior.') ?>
       </p>
     </div>
 
     <div class="space-y-6 bg-theme-bg/30 p-5 border border-theme-border rounded-theme">
       <label class="block">
-        <span class="block mb-2 font-bold text-theme-text text-sm"><?= function_exists('_t') ? (_t('Recipient Email') ?: 'Recipient Email') : 'Recipient Email' ?></span>
+        <span class="block mb-2 font-bold text-theme-text text-sm"><?= _t('Recipient Email') ?></span>
         <input type="email" name="contact_recipient_email" value="<?= h($opt['contact_to'] ?? '') ?>" class="form-control" placeholder="<?= h($opt['smtp_admin'] ?? '') ?>">
-        <p class="opacity-60 mt-1 text-theme-text text-xs"><?= function_exists('_t') ? (_t('If empty, emails will be sent to the Admin Email above.') ?: 'If empty, emails will be sent to the Admin Email above.') : 'If empty, emails will be sent to the Admin Email above.' ?></p>
+        <p class="opacity-60 mt-1 text-theme-text text-xs"><?= _t('If empty, emails will be sent to the Admin Email above.') ?></p>
       </label>
 
       <label class="block">
-        <span class="block mb-2 font-bold text-theme-text text-sm"><?= function_exists('_t') ? (_t('Subject Options') ?: 'Subject Options') : 'Subject Options' ?></span>
+        <span class="block mb-2 font-bold text-theme-text text-sm"><?= _t('Subject Options') ?></span>
         <textarea name="contact_subjects" rows="3" class="form-control font-mono text-xs" placeholder="Product&#10;Recruitment&#10;Other"><?= h($opt['contact_subj'] ?? '') ?></textarea>
-        <p class="opacity-60 mt-1 text-theme-text text-xs"><?= function_exists('_t') ? (_t('Enter one subject option per line.') ?: 'Enter one subject option per line.') : 'Enter one subject option per line.' ?></p>
+        <p class="opacity-60 mt-1 text-theme-text text-xs"><?= _t('Enter one subject option per line.') ?></p>
       </label>
 
       <label class="block">
-        <span class="block mb-2 font-bold text-theme-text text-sm"><?= function_exists('_t') ? (_t('Success Message') ?: 'Success Message') : 'Success Message' ?></span>
+        <span class="block mb-2 font-bold text-theme-text text-sm"><?= _t('Success Message') ?></span>
         <textarea name="contact_success_msg" rows="3" class="form-control text-sm"><?= h($opt['contact_msg'] ?? '') ?></textarea>
       </label>
 
       <div class="pt-4 border-t border-theme-border">
-        <h4 class="font-bold text-theme-text text-sm mb-4"><?= function_exists('_t') ? (_t('Auto-Reply Email') ?: 'Auto-Reply Email') : 'Auto-Reply Email' ?></h4>
-        <label class="block mb-4"><span class="block mb-2 font-bold text-theme-text text-xs opacity-80"><?= function_exists('_t') ? (_t('Subject') ?: 'Subject') : 'Subject' ?></span><input type="text" name="contact_autoreply_subject" value="<?= h($opt['contact_rep_sub'] ?? '') ?>" class="form-control text-sm font-mono"></label>
-        <label class="block"><span class="block mb-2 font-bold text-theme-text text-xs opacity-80"><?= function_exists('_t') ? (_t('Message') ?: 'Message') : 'Message' ?></span><textarea name="contact_autoreply_body" rows="6" class="form-control text-sm font-mono"><?= h($opt['contact_rep_body'] ?? '') ?></textarea>
-          <p class="opacity-60 mt-2 text-theme-text text-xs"><?= function_exists('_t') ? (_t('Available variables:') ?: 'Available variables:') : 'Available variables:' ?> <code>{site_name}</code> <code>{name}</code> <code>{form_details}</code></p>
+        <h4 class="font-bold text-theme-text text-sm mb-4"><?= _t('Auto-Reply Email') ?></h4>
+        <label class="block mb-4"><span class="block mb-2 font-bold text-theme-text text-xs opacity-80"><?= _t('Subject') ?></span><input type="text" name="contact_autoreply_subject" value="<?= h($opt['contact_rep_sub'] ?? '') ?>" class="form-control text-sm font-mono"></label>
+        <label class="block"><span class="block mb-2 font-bold text-theme-text text-xs opacity-80"><?= _t('Message') ?></span><textarea name="contact_autoreply_body" rows="6" class="form-control text-sm font-mono"><?= h($opt['contact_rep_body'] ?? '') ?></textarea>
+          <p class="opacity-60 mt-2 text-theme-text text-xs"><?= _t('Available variables:') ?> <code>{site_name}</code> <code>{name}</code> <code>{form_details}</code></p>
         </label>
       </div>
     </div>

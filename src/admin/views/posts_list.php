@@ -25,6 +25,19 @@ $csrf_token = generate_csrf_token();
 <!-- Hidden form for bulk actions. -->
 <?php include __DIR__ . '/parts/hidden_action_form.php'; ?>
 
+<script>
+  window.grindsTranslations = {
+    ...(window.grindsTranslations || {}),
+    err_select_action: <?= json_encode(_t('err_select_action'), JSON_UNESCAPED_UNICODE) ?>,
+    err_select_category: <?= json_encode(_t('err_select_category'), JSON_UNESCAPED_UNICODE) ?>,
+    no_items_selected: <?= json_encode(_t('no_items_selected'), JSON_UNESCAPED_UNICODE) ?>,
+    confirm_delete: <?= json_encode(_t('confirm_delete'), JSON_UNESCAPED_UNICODE) ?>,
+    confirm_delete_post: <?= json_encode(_t('confirm_delete_post'), JSON_UNESCAPED_UNICODE) ?>,
+    confirm_delete_perm: <?= json_encode(_t('confirm_delete_perm'), JSON_UNESCAPED_UNICODE) ?>,
+    confirm_empty_trash: <?= json_encode(_t('confirm_empty_trash'), JSON_UNESCAPED_UNICODE) ?>
+  };
+</script>
+
 <!-- Mobile floating action button. -->
 <?php if (!$is_trash_view): ?>
   <?php
@@ -123,7 +136,7 @@ $csrf_token = generate_csrf_token();
       <?php endforeach; ?>
 
       <!-- Trash tab. -->
-      <a href="?type=<?= $type ?>&status=trash"
+      <a href="?status=trash"
         class="whitespace-nowrap py-3 px-4 border-b-2 font-bold text-sm transition-colors <?= $is_trash_view ? 'border-theme-danger text-theme-danger' : 'border-transparent text-theme-text opacity-40 hover:text-theme-danger hover:border-theme-danger/30' ?>">
         <svg class="inline-block mr-1 mb-0.5 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-trash"></use>

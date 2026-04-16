@@ -21,6 +21,19 @@ $extra_inputs = '<input type="hidden" name="location" value="' . h($current_loca
 include __DIR__ . '/parts/hidden_action_form.php';
 ?>
 
+<script>
+  window.grindsTranslations = {
+    ...(window.grindsTranslations || {}),
+    err_select_action: <?= json_encode(_t('err_select_action'), JSON_UNESCAPED_UNICODE) ?>,
+    err_select_category: <?= json_encode(_t('err_select_category'), JSON_UNESCAPED_UNICODE) ?>,
+    no_items_selected: <?= json_encode(_t('no_items_selected'), JSON_UNESCAPED_UNICODE) ?>,
+    confirm_delete: <?= json_encode(_t('confirm_delete'), JSON_UNESCAPED_UNICODE) ?>,
+    confirm_delete_post: <?= json_encode(_t('confirm_delete_post'), JSON_UNESCAPED_UNICODE) ?>,
+    confirm_delete_perm: <?= json_encode(_t('confirm_delete_perm'), JSON_UNESCAPED_UNICODE) ?>,
+    confirm_empty_trash: <?= json_encode(_t('confirm_empty_trash'), JSON_UNESCAPED_UNICODE) ?>
+  };
+</script>
+
 <!-- Form for saving orders -->
 <form id="save-orders-form" method="post" action="<?= h($formAction) ?>" style="display: none;">
   <input type="hidden" name="csrf_token" value="<?= h($csrf_token) ?>">

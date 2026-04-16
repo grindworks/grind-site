@@ -5,7 +5,7 @@ if (!defined('GRINDS_APP')) exit; ?>
 <div class="bg-theme-bg/40 p-4 border border-theme-border rounded-theme flex sm:flex-row flex-col gap-4">
   <div class="shrink-0 text-center mx-auto sm:mx-0" x-data="{ isUploading: false }">
     <div class="relative inline-block group">
-      <div class="w-16 h-16 rounded-full bg-theme-surface border border-theme-border overflow-hidden cursor-pointer relative" @click="openMediaLibrary(index, null, 'image')">
+      <div class="w-16 h-16 rounded-full bg-theme-surface border border-theme-border overflow-hidden cursor-pointer relative" @click="openMediaLibrary(block.id, null, 'image')">
         <img :src="resolvePreviewUrl(block.data.image)" x-show="block.data.image" class="w-full h-full object-cover">
         <div x-show="!block.data.image" class="flex items-center justify-center w-full h-full text-theme-text/20">
           <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -22,7 +22,7 @@ if (!defined('GRINDS_APP')) exit; ?>
     </div>
     <label class="block mt-1 text-[9px] text-theme-primary hover:underline cursor-pointer" :class="{'opacity-50 cursor-not-allowed': isUploading}">
       <span x-text="isUploading ? '...' : '<?= _t('upload') ?>'"></span>
-      <input type="file" class="hidden" accept="image/*" @change="isUploading = true; await uploadImage($event, index, 'image'); isUploading = false" :disabled="isUploading">
+      <input type="file" class="hidden" accept="image/*" @change="isUploading = true; await uploadImage($event, block.id, 'image'); isUploading = false" :disabled="isUploading">
     </label>
   </div>
   <div class="flex-1 space-y-2 w-full">

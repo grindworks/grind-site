@@ -212,7 +212,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$maintenanceMode) {
       </div>
     <?php endif; ?>
 
-    <form method="post" class="needs-validation" novalidate onsubmit="
+    <form method="post" action="?" class="needs-validation" novalidate onsubmit="
       var btn = this.querySelector('button[type=submit]');
       if(btn) {
           btn.disabled = true;
@@ -255,7 +255,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$maintenanceMode) {
 
       <div class="form-check mb-4 mt-2">
         <input type="hidden" name="privacy_check" value="1">
-        <input class="form-check-input" type="checkbox" name="privacy" value="1" id="privacyCheck" required>
+        <?php $privacyChecked = !empty($_POST['privacy']) ? 'checked' : ''; ?>
+        <input class="form-check-input" type="checkbox" name="privacy" value="1" id="privacyCheck" required <?= $privacyChecked ?>>
         <label class="form-check-label text-muted" for="privacyCheck">
           <?= theme_t('I agree to the <a href="%s" target="_blank" class="text-decoration-underline">Privacy Policy</a>', h(resolve_url('/privacy-policy'))) ?>
         </label>

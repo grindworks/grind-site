@@ -13,7 +13,7 @@ if (!defined('GRINDS_APP')) exit; ?>
       <!-- PDF URL -->
       <input type="text" x-model="block.data.url" :id="'block-' + block.id + '-url'" class="flex-1 font-mono text-xs form-control-sm" placeholder="<?= _t('ph_pdf_url') ?>">
       <!-- Open media library -->
-      <button type="button" @click="openMediaLibrary(index, null, 'url')" class="flex items-center gap-1 px-3 py-1 text-xs btn-secondary shrink-0">
+      <button type="button" @click="openMediaLibrary(block.id, null, 'url')" class="flex items-center gap-1 px-3 py-1 text-xs btn-secondary shrink-0">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-document"></use>
         </svg>
@@ -27,7 +27,7 @@ if (!defined('GRINDS_APP')) exit; ?>
           <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-arrow-path"></use>
         </svg>
         <span x-text="isUploading ? '...' : '<?= _t('upload') ?>'"></span>
-        <input type="file" class="hidden" accept="application/pdf" @change="isUploading = true; await uploadImage($event, index, 'url'); isUploading = false" :disabled="isUploading">
+        <input type="file" class="hidden" accept="application/pdf" @change="isUploading = true; await uploadImage($event, block.id, 'url'); isUploading = false" :disabled="isUploading">
       </label>
     </div>
   </div>

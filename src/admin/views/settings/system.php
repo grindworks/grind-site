@@ -218,7 +218,7 @@ if (!defined('GRINDS_APP')) exit; ?>
       <form method="post">
         <input type="hidden" name="csrf_token" value="<?= h(generate_csrf_token()) ?>">
         <input type="hidden" name="action" value="delete_installer">
-        <button type="submit" class="bg-theme-danger hover:opacity-90 shadow-theme px-3 py-1.5 rounded-theme font-bold text-white text-xs">
+        <button type="submit" onclick="return confirm(<?= htmlspecialchars(json_encode(_t('warning_delete_self_responsibility') ?? _t('confirm_delete')), ENT_QUOTES) ?>);" class="bg-theme-danger hover:opacity-90 shadow-theme px-3 py-1.5 rounded-theme font-bold text-white text-xs">
           <?= _t('btn_delete_now') ?>
         </button>
       </form>
@@ -530,7 +530,7 @@ if (!defined('GRINDS_APP')) exit; ?>
         <form method="post" class="shrink-0 w-full sm:w-auto">
           <input type="hidden" name="csrf_token" value="<?= h(generate_csrf_token()) ?>">
           <input type="hidden" name="action" value="reset_settings">
-          <button type="submit" onclick="return confirm(<?= htmlspecialchars(json_encode(_t('confirm_delete')), ENT_QUOTES) ?>);" class="bg-theme-surface hover:bg-theme-danger shadow-theme px-6 py-2.5 border border-theme-danger rounded-theme w-full font-bold text-theme-danger hover:text-white text-sm whitespace-nowrap transition-colors">
+          <button type="submit" onclick="return confirm(<?= htmlspecialchars(json_encode(_t('st_reset_desc') . '\n\n' . _t('confirm_continue')), ENT_QUOTES) ?>);" class="bg-theme-surface hover:bg-theme-danger shadow-theme px-6 py-2.5 border border-theme-danger rounded-theme w-full font-bold text-theme-danger hover:text-white text-sm whitespace-nowrap transition-colors">
             <?= _t('st_reset_all') ?>
           </button>
         </form>

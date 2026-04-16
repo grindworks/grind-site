@@ -15,6 +15,19 @@ $csrf_token = generate_csrf_token();
 <!-- Hidden form for bulk actions. -->
 <?php include __DIR__ . '/parts/hidden_action_form.php'; ?>
 
+<script>
+  window.grindsTranslations = {
+    ...(window.grindsTranslations || {}),
+    err_select_action: <?= json_encode(_t('err_select_action'), JSON_UNESCAPED_UNICODE) ?>,
+    err_select_category: <?= json_encode(_t('err_select_category'), JSON_UNESCAPED_UNICODE) ?>,
+    no_items_selected: <?= json_encode(_t('no_items_selected'), JSON_UNESCAPED_UNICODE) ?>,
+    confirm_delete: <?= json_encode(_t('confirm_delete'), JSON_UNESCAPED_UNICODE) ?>,
+    confirm_delete_post: <?= json_encode(_t('confirm_delete_post'), JSON_UNESCAPED_UNICODE) ?>,
+    confirm_delete_perm: <?= json_encode(_t('confirm_delete_perm'), JSON_UNESCAPED_UNICODE) ?>,
+    confirm_empty_trash: <?= json_encode(_t('confirm_empty_trash'), JSON_UNESCAPED_UNICODE) ?>
+  };
+</script>
+
 <div class="relative flex lg:flex-row flex-col gap-8"
   x-data="{
     mobileFormOpen: <?= $edit_id ? 'true' : 'false' ?>,

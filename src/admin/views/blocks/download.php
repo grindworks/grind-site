@@ -32,7 +32,7 @@ if (!defined('GRINDS_APP'))
     </div>
     <!-- Open media library -->
     <div class="flex justify-end gap-2">
-      <button type="button" @click="openMediaLibrary(index, null, 'url')"
+      <button type="button" @click="openMediaLibrary(block.id, null, 'url')"
         class="inline-flex items-center gap-1 px-3 py-1 text-xs cursor-pointer btn-secondary">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-document-text"></use>
@@ -50,7 +50,7 @@ if (!defined('GRINDS_APP'))
         </svg>
         <span x-text="isUploading ? '...' : '<?= _t('upload') ?>'"></span>
         <input type="file" class="hidden"
-          @change="isUploading = true; await uploadImage($event, index, 'url'); isUploading = false" :disabled="isUploading">
+          @change="isUploading = true; await uploadImage($event, block.id, 'url'); isUploading = false" :disabled="isUploading">
       </label>
     </div>
   </div>

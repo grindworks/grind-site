@@ -227,7 +227,7 @@ $hasHeroTitle = $hasHero && !empty($heroSettings['title']);
                 </div>
             <?php endif; ?>
 
-            <form method="post" class="space-y-10" onsubmit="
+            <form method="post" action="?" class="space-y-10" onsubmit="
               var btn = this.querySelector('button[type=submit]');
               if(btn) {
                   btn.disabled = true;
@@ -271,7 +271,8 @@ $hasHeroTitle = $hasHero && !empty($heroSettings['title']);
                 <div class="pt-4 pb-2">
                     <label class="flex items-center gap-3 cursor-pointer group">
                         <input type="hidden" name="privacy_check" value="1">
-                        <input type="checkbox" name="privacy" value="1" required class="w-5 h-5 text-black border-gray-300 focus:ring-black transition rounded-none bg-transparent">
+                        <?php $privacyChecked = !empty($_POST['privacy']) ? 'checked' : ''; ?>
+                        <input type="checkbox" name="privacy" value="1" required <?= $privacyChecked ?> class="w-5 h-5 text-black border-gray-300 focus:ring-black transition rounded-none bg-transparent">
                         <span class="text-sm text-gray-500 font-serif">
                             <?= theme_t('I agree to the <a href="%s" target="_blank" class="text-black underline hover:no-underline">Privacy Policy</a>', h(resolve_url('/privacy-policy'))) ?>
                         </span>

@@ -1,27 +1,29 @@
 Release title
-v1.6.5 - Dynamic Contact Form Subjects, DB Restore Fix & Update Page JS Fix
+v1.6.6 - License Registration Fix, Admin UI Improvements & Translation Updates
 
 Release notes
-This patch release brings UX improvements to the contact form notifications, fixes a cache inconsistency issue during database restoration, enhances the flexibility of the CLI tool, and addresses a JS error on the update page.
-
-### ✨ Enhancements
-- **Dynamic Contact Form Subjects:** Administrator notification emails now dynamically include the "Inquiry Type" (Subject) selected by the user in the email subject line (e.g., `[SiteName] Product Inquiry`). This makes it much easier to manage threads and prioritize emails in your inbox. (Applied to all themes).
-- **CLI Tool Flexibility:** Upgraded the path resolution logic in `bin/grind.php`. The CLI tool can now automatically detect `config.php` across various deployment structures (e.g., `public_html`, `public`, `html`, `www`), making it easier to run commands on shared hosting or VPS environments.
+This release primarily fixes an issue where the commercial license key could not be registered successfully. It also brings various improvements to the admin interface, enhances the contact forms across all bundled themes, and updates translation files.
 
 ### 🛡️ Bug Fixes
-- **Update Page JS Error:** Fixed an issue where translations containing HTML entities caused a syntax error in Alpine.js (`Unexpected token '&'`), blocking the frontend update controller from loading.
-- **DB Restore Cache Inconsistency:** Fixed an issue where restoring a database backup via the admin panel did not clear the generated HTML page caches and system health caches, causing the frontend to display outdated or broken content immediately after a restore.
+- **License Registration:** Fixed an issue where the license key validation and registration failed under certain conditions.
+- **System & Functions:** Minor bug fixes and logic improvements in core functions (`posts.php`, `system.php`, `theme.php`, `utils.php`).
+
+### ✨ Enhancements
+- **Admin UI & Editor Improvements:** Updated various block views and the block editor script (`admin_editor.js`) for better stability and user experience.
+- **Contact Form Updates:** Enhanced the contact form templates (`contact.php`) across all default themes (Default, Bootstrap, Corporate, Marketing, Neo-Minimalist, Photographer).
+- **Translation Updates:** Updated language files (`en.php`, `ja.php`, `de.php`, `es.php`, `fr.php`, `pt-br.php`) with new keys and improved translations.
 
 ---
 
 ## 🇯🇵 日本語 (Japanese)
 
-このパッチリリースでは、お問い合わせフォームの通知メールに関するUX向上、データベース復元時のキャッシュ不整合バグの修正、CLIツールの利便性向上、およびアップデート画面でのJSエラーの修正が含まれています。
-
-### ✨ 新機能・改善
-- **お問い合わせフォームの件名動的化:** ユーザーがフォームで選択した「お問い合わせ種別（Subject）」が、管理者宛の通知メールの件名に動的に反映されるようになりました（例：`[サイト名] 製品について`）。これにより、メーラーでのスレッド管理や優先順位の判断が格段にスムーズになります。（同梱されているすべてのテーマに適用）
-- **CLIツールの柔軟性向上:** `bin/grind.php` のパス探索ロジックを強化しました。共有サーバーの `public_html` やVPSの `public`, `html` などのドキュメントルートに中身を展開する運用でも、自動的に `config.php` を見つけて起動できるようになり、実運用でのデプロイやCronのセットアップが容易になりました。
+このリリースでは、商用ライセンスが正常に登録できない不具合の修正をメインに、管理画面UIの各種改善、全テーマのお問い合わせフォームの強化、および多言語翻訳ファイルのアップデートが含まれています。
 
 ### 🛡️ バグ修正
-- **アップデート画面のJSエラー:** 翻訳テキストに含まれるHTMLエンティティが原因でAlpine.jsが構文エラー（`Unexpected token '&'`）を起こし、システム更新機能が起動しなくなる問題を修正しました。
-- **DBリストア時のキャッシュ不整合:** 管理画面からデータベースのバックアップを復元した際、生成済みのHTMLページキャッシュやシステムのヘルスチェックキャッシュがクリアされず、フロントエンドの表示が古いまま残ってしまう（または表示崩れを起こす）問題を修正しました。
+- **ライセンス登録の修正:** 特定の環境下において、商用ライセンスキーが正常に登録・認証されない不具合を修正しました。
+- **システムとコア関数:** コア機能（`posts.php`, `system.php`, `theme.php`, `utils.php`）における軽微なバグ修正とロジックの改善を行いました。
+
+### ✨ 新機能・改善
+- **管理画面＆エディタの改善:** エディタの安定性向上とUX改善のため、各種ブロックのビューファイルおよびエディタのスクリプト(`admin_editor.js`)を更新しました。
+- **お問い合わせフォームのアップデート:** 同梱されている全テーマ（Default, Bootstrap, Corporate, Marketing, Neo-Minimalist, Photographer）のお問い合わせフォームテンプレート (`contact.php`) を改良しました。
+- **翻訳ファイルの更新:** 各国語の言語ファイル (`en.php`, `ja.php`, `de.php`, `es.php`, `fr.php`, `pt-br.php`) に新しいキーを追加し、翻訳の精度を向上させました。

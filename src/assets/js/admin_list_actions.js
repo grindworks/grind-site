@@ -164,7 +164,7 @@ function executeAction(actionOrSelector, targetId = null) {
   }
 
   if (!action) {
-    window.showToast(window.grindsTrans?.select_action || 'Please select an action.', 'warning');
+    window.showToast(window.grindsTranslations?.err_select_action || 'Please select an action.', 'warning');
     return;
   }
 
@@ -174,14 +174,24 @@ function executeAction(actionOrSelector, targetId = null) {
       'input[name="ids[]"]:checked, input.item-checkbox:checked, input.post-checkbox:checked'
     );
     if (checkboxes.length === 0) {
-      window.showToast(window.grindsTrans?.no_items || 'No items selected.', 'warning');
+      window.showToast(window.grindsTranslations?.no_items_selected || 'No items selected.', 'warning');
       return;
     }
   }
 
   // Confirm action
-  if (['delete', 'trash', 'empty_trash', 'restore'].includes(action)) {
-    if (!confirm(window.grindsTrans?.confirm_delete || 'Are you sure?')) {
+  if (['delete', 'trash', 'empty_trash'].includes(action)) {
+    let msg = window.grindsTranslations?.confirm_delete || 'Are you sure?';
+
+    if (action === 'trash') {
+      msg = window.grindsTranslations?.confirm_delete_post || 'Move to trash?';
+    } else if (action === 'delete') {
+      msg = window.grindsTranslations?.confirm_delete_perm || 'Delete permanently? This cannot be undone.';
+    } else if (action === 'empty_trash') {
+      msg = window.grindsTranslations?.confirm_empty_trash || 'Empty trash? All items will be permanently deleted.';
+    }
+
+    if (!confirm(msg)) {
       return;
     }
   }
@@ -215,7 +225,7 @@ function submitActionForm(action, targetId) {
       catInput.className = 'dynamic-input';
       form.appendChild(catInput);
     } else {
-      window.showToast(window.grindsTrans?.select_category || 'Please select a category.', 'warning');
+      window.showToast(window.grindsTranslations?.err_select_category || 'Please select a category.', 'warning');
       return;
     }
   }

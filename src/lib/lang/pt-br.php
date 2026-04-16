@@ -1767,4 +1767,18 @@ return [
     'min read' => 'min de leitura',
     'This article contains promotional links.' => 'Este artigo contém links promocionais.',
     'View Sponsored Link' => 'Ver link patrocinado',
+
+    // Additional JS strings
+    'confirm_discard_changes' => 'Você tem alterações não salvas. Descartá-las e trocar de aba?',
+    'err_popup_blocked' => 'Janela pop-up bloqueada.',
+    'msg_relogin_instruction' => "Clique em OK para abrir a página de login em uma nova janela.\nApós fazer o login, você pode fechar a janela e tentar salvar novamente.",
+    'msg_popup_blocked_instruction' => 'Por favor, clique com o botão direito no link do painel, abra em uma nova aba, faça o login e volte aqui para salvar.',
+    'confirm_embed_canva' => 'URL do Canva detectada. Converter em Bloco de Incorporação?',
+    'confirm_embed_figma' => 'URL do Figma detectada. Converter em Bloco de Incorporação?',
+
+    // Theme specific strings
+    'Tags:' => 'Tags:',
+    'Tab' => 'Aba',
+    'Untitled' => 'Sem título',
+    'Guide' => 'Guia',
 ];

@@ -41,9 +41,6 @@ if (!defined('GRINDS_APP')) exit; ?>
       <!-- Render premium license card -->
       <div class="relative mb-6 overflow-hidden rounded-theme shadow-theme border border-theme-border transition-all duration-500 hover:shadow-lg group bg-theme-surface">
 
-        <div class="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-1000 pointer-events-none z-10"
-          style="background: linear-gradient(105deg, transparent 20%, rgba(255,255,255,0.15) 25%, transparent 30%); background-size: 200% 200%; animation: shimmer 3s infinite linear;"></div>
-
         <div class="absolute -right-12 -top-12 w-48 h-48 rounded-full blur-3xl opacity-10 pointer-events-none transition-colors duration-1000 <?= $is_agency ? 'bg-theme-secondary' : 'bg-theme-primary' ?>"></div>
         <div class="absolute -left-12 -bottom-12 w-40 h-40 rounded-full blur-3xl opacity-5 pointer-events-none bg-theme-text"></div>
 
@@ -98,17 +95,22 @@ if (!defined('GRINDS_APP')) exit; ?>
               class="mt-4" style="display: none;">
               <div class="p-5 bg-theme-surface border border-theme-border rounded-theme shadow-inner">
                 <label class="block mb-2 text-xs font-bold text-theme-text opacity-70 uppercase tracking-widest"><?= _t('lic_title') ?></label>
-                <div class="relative" x-data="{ showKey: false }">
-                  <input :type="showKey ? 'text' : 'password'" name="license_key" value="<?= h(get_option('license_key')) ?>"
-                    class="font-mono text-sm tracking-widest form-control pr-12 bg-theme-bg focus:bg-theme-surface transition-colors"
-                    placeholder="<?= _t('lic_ph') ?>" autocomplete="off">
-                  <button type="button" @click="showKey = !showKey" class="absolute right-0 inset-y-0 px-4 flex items-center text-theme-text opacity-40 hover:opacity-100 hover:text-theme-primary focus:outline-none transition-colors">
-                    <svg x-show="!showKey" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-eye"></use>
-                    </svg>
-                    <svg x-show="showKey" x-cloak class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-eye-slash"></use>
-                    </svg>
+                <div class="flex flex-col sm:flex-row gap-2" x-data="{ showKey: false }">
+                  <div class="relative flex-1">
+                    <input :type="showKey ? 'text' : 'password'" name="license_key" value="<?= h(get_option('license_key')) ?>"
+                      class="font-mono text-sm tracking-widest form-control pr-12 bg-theme-bg focus:bg-theme-surface transition-colors"
+                      placeholder="<?= _t('lic_ph') ?>" autocomplete="off">
+                    <button type="button" @click="showKey = !showKey" class="absolute right-0 inset-y-0 px-4 flex items-center text-theme-text opacity-40 hover:opacity-100 hover:text-theme-primary focus:outline-none transition-colors">
+                      <svg x-show="!showKey" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-eye"></use>
+                      </svg>
+                      <svg x-show="showKey" x-cloak class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-eye-slash"></use>
+                      </svg>
+                    </button>
+                  </div>
+                  <button type="submit" class="btn-primary shadow-theme px-5 py-2.5 sm:py-0 rounded-theme font-bold text-sm whitespace-nowrap transition-all hover:scale-[1.02] shrink-0">
+                    <?= _t('lic_register_btn') ?>
                   </button>
                 </div>
                 <p class="mt-3 opacity-60 text-theme-text text-[11px] flex items-center gap-1.5">
@@ -154,17 +156,22 @@ if (!defined('GRINDS_APP')) exit; ?>
               </svg>
               <?= _t('lic_title') ?>
             </label>
-            <div class="relative" x-data="{ showKey: false }">
-              <input :type="showKey ? 'text' : 'password'" name="license_key" value="<?= h(get_option('license_key')) ?>"
-                class="font-mono text-sm tracking-wider form-control pr-12 border-theme-info/40 focus:border-theme-info focus:ring-theme-info/20 bg-theme-surface"
-                placeholder="<?= _t('lic_ph') ?>" autocomplete="off">
-              <button type="button" @click="showKey = !showKey" class="absolute right-0 inset-y-0 px-4 flex items-center text-theme-text opacity-40 hover:opacity-100 hover:text-theme-info focus:outline-none transition-colors">
-                <svg x-show="!showKey" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-eye"></use>
-                </svg>
-                <svg x-show="showKey" x-cloak class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-eye-slash"></use>
-                </svg>
+            <div class="flex flex-col sm:flex-row gap-2" x-data="{ showKey: false }">
+              <div class="relative flex-1">
+                <input :type="showKey ? 'text' : 'password'" name="license_key" value="<?= h(get_option('license_key')) ?>"
+                  class="font-mono text-sm tracking-wider form-control pr-12 border-theme-info/40 focus:border-theme-info focus:ring-theme-info/20 bg-theme-surface"
+                  placeholder="<?= _t('lic_ph') ?>" autocomplete="off">
+                <button type="button" @click="showKey = !showKey" class="absolute right-0 inset-y-0 px-4 flex items-center text-theme-text opacity-40 hover:opacity-100 hover:text-theme-info focus:outline-none transition-colors">
+                  <svg x-show="!showKey" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-eye"></use>
+                  </svg>
+                  <svg x-show="showKey" x-cloak class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-eye-slash"></use>
+                  </svg>
+                </button>
+              </div>
+              <button type="submit" class="btn-primary shadow-theme px-5 py-2.5 sm:py-0 rounded-theme font-bold text-sm whitespace-nowrap transition-all hover:scale-[1.02] shrink-0">
+                <?= _t('lic_register_btn') ?>
               </button>
             </div>
           </div>

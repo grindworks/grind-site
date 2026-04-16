@@ -27,6 +27,10 @@ if ($latestVersion && version_compare($latestVersion, CMS_VERSION, '>')) {
     tabs: <?= json_encode($tabs, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?: '{}' ?>,
     hasUpdate: <?= json_encode($hasUpdate) ?>
   };
+  window.grindsTranslations = {
+    ...(window.grindsTranslations || {}),
+    confirm_discard_changes: <?= json_encode(_t('confirm_discard_changes'), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>
+  };
 </script>
 
 <div class="w-full"
@@ -39,7 +43,7 @@ if ($latestVersion && version_compare($latestVersion, CMS_VERSION, '>')) {
         changeTab(key) {
             // Check for unsaved changes before allowing tab switch
             if (document.title.startsWith("* ")) {
-                const msg = window.grindsTranslations?.confirm_reset || "You have unsaved changes. Discard them and switch tabs?";
+                const msg = window.grindsTranslations?.confirm_discard_changes || "You have unsaved changes. Discard them and switch tabs?";
                 if (!confirm(msg)) {
                     return;
                 }

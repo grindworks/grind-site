@@ -21,7 +21,7 @@ $conv_styles = $block_config['library']['layout']['items']['conversation']['styl
     <!-- Avatar uploader -->
     <div class="text-center shrink-0">
       <div class="relative inline-block group">
-        <div class="relative bg-theme-surface border border-theme-border rounded-full w-12 h-12 overflow-hidden cursor-pointer" @click="openMediaLibrary(index, null, 'image')">
+        <div class="relative bg-theme-surface border border-theme-border rounded-full w-12 h-12 overflow-hidden cursor-pointer" @click="openMediaLibrary(block.id, null, 'image')">
           <img :src="resolvePreviewUrl(block.data.image)" x-show="block.data.image" class="w-full h-full object-cover">
           <div x-show="!block.data.image" class="flex justify-center items-center w-full h-full text-theme-text/20">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -38,7 +38,7 @@ $conv_styles = $block_config['library']['layout']['items']['conversation']['styl
       </div>
       <label class="block mt-1 text-[9px] text-theme-primary hover:underline cursor-pointer" :class="{'opacity-50 cursor-not-allowed': isUploading}">
         <span x-text="isUploading ? '...' : '<?= _t('upload') ?>'"></span>
-        <input type="file" class="hidden" accept="image/*" @change="isUploading = true; await uploadImage($event, index, 'image'); isUploading = false" :disabled="isUploading">
+        <input type="file" class="hidden" accept="image/*" @change="isUploading = true; await uploadImage($event, block.id, 'image'); isUploading = false" :disabled="isUploading">
       </label>
     </div>
 

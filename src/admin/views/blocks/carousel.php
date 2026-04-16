@@ -58,7 +58,7 @@ if (!defined('GRINDS_APP')) exit; ?>
         </template>
 
         <!-- Add from library -->
-        <button type="button" @click="openMediaLibrary(index, 'add', 'url')" class="flex flex-col justify-center items-center bg-theme-bg opacity-50 border-2 border-theme-border hover:border-theme-primary/50 border-dashed rounded-theme w-32 h-32 text-theme-text hover:text-theme-primary transition-colors shrink-0" title="<?= h(_t('btn_select_library')) ?>">
+        <button type="button" @click="openMediaLibrary(block.id, 'add', 'url')" class="flex flex-col justify-center items-center bg-theme-bg opacity-50 border-2 border-theme-border hover:border-theme-primary/50 border-dashed rounded-theme w-32 h-32 text-theme-text hover:text-theme-primary transition-colors shrink-0" title="<?= h(_t('btn_select_library')) ?>">
             <svg class="mb-1 w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-photo"></use>
             </svg>
@@ -67,7 +67,7 @@ if (!defined('GRINDS_APP')) exit; ?>
 
         <!-- Upload images -->
         <label class="flex flex-col justify-center items-center bg-theme-bg opacity-50 border-2 border-theme-border hover:border-theme-primary/50 border-dashed rounded-theme w-32 h-32 text-theme-text hover:text-theme-primary transition-colors cursor-pointer shrink-0" title="<?= h(_t('upload')) ?>" :class="{'opacity-25 cursor-not-allowed': isUploading}">
-            <input type="file" multiple accept="image/*" class="hidden" @change="isUploading = true; await uploadGalleryImages($event, index); isUploading = false" :disabled="isUploading">
+            <input type="file" multiple accept="image/*" class="hidden" @change="isUploading = true; await uploadGalleryImages($event, block.id); isUploading = false" :disabled="isUploading">
             <svg x-show="!isUploading" class="mb-1 w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-arrow-up-tray"></use>
             </svg>

@@ -132,6 +132,12 @@ $js_translations = [
     'js_offline' => _t('js_offline'),
     'js_online' => _t('js_online'),
     'err_only_one_password_block' => _t('err_only_one_password_block'),
+    'confirm_embed_canva' => _t('confirm_embed_canva'),
+    'confirm_embed_figma' => _t('confirm_embed_figma'),
+    'err_popup_blocked' => _t('err_popup_blocked'),
+    'msg_relogin_instruction' => _t('msg_relogin_instruction'),
+    'msg_popup_blocked_instruction' => _t('msg_popup_blocked_instruction'),
+    'confirm_reset' => _t('confirm_reset'),
 ];
 
 // Ensure required variables exist to prevent warnings
@@ -251,8 +257,11 @@ $basePath = rtrim($parsedBase['path'] ?? '/', '/') . '/';
 <script src="<?= grinds_asset_url('assets/js/admin_editor.js') ?>"></script>
 
 <div x-data="{
+    postType: <?= htmlspecialchars(json_encode($post['type'] ?? 'post', JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT), ENT_QUOTES, 'UTF-8') ?>,
     postStatus: <?= htmlspecialchars(json_encode(($post['status'] ?? '') === 'published' ? 'published' : 'draft', JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT), ENT_QUOTES, 'UTF-8') ?>,
     postSlug: <?= htmlspecialchars(json_encode($post['slug'] ?? '', JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT), ENT_QUOTES, 'UTF-8') ?>,
+    isFutureDate: <?= $isFuture ? 'true' : 'false' ?>,
+    isUpdateMode: <?= (($post['type'] ?? '') === 'template' ? ($action === 'edit') : (($post['status'] ?? '') === 'published')) ? 'true' : 'false' ?>,
     ...blockEditor(window.grindsPostContent, {
         seoTitle: <?= htmlspecialchars(json_encode($post['title'] ?? '', JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT), ENT_QUOTES, 'UTF-8') ?>,
         seoDesc: <?= htmlspecialchars(json_encode($post['description'] ?? '', JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT), ENT_QUOTES, 'UTF-8') ?>,
@@ -328,10 +337,10 @@ $basePath = rtrim($parsedBase['path'] ?? '/', '/') . '/';
 
         <!-- Mobile-only top save button -->
         <button type="button"
-            @click="if(document.getElementById('post-form').reportValidity()) { postStatus = 'published'; $nextTick(() => document.getElementById('post-form').requestSubmit()); }"
+            @click="if(document.getElementById('post-form').reportValidity()) { if(postType !== 'template') { postStatus = 'published'; } $nextTick(() => document.getElementById('post-form').requestSubmit()); }"
             :disabled="isSubmitting || isUploading || isOffline"
             class="lg:hidden bg-theme-primary hover:opacity-90 shadow-sm px-4 py-2 rounded-theme font-bold text-white text-xs transition transform hover:-translate-y-0.5 disabled:opacity-50">
-            <?= $isFuture ? _t('action_schedule') : ($action === 'new' ? _t('action_publish') : _t('update')) ?>
+            <span x-text="postType === 'template' ? (isUpdateMode ? '<?= h(_t('update')) ?>' : '<?= h(_t('save')) ?>') : (isFutureDate ? '<?= h(_t('action_schedule')) ?>' : (isUpdateMode ? '<?= h(_t('update')) ?>' : '<?= h(_t('action_publish')) ?>'))"></span>
         </button>
 
         <!-- Auto-save Indicator -->
@@ -719,7 +728,7 @@ $basePath = rtrim($parsedBase['path'] ?? '/', '/') . '/';
                             </div>
                         </div>
                     </div>
-                    <a x-show="postStatus === 'published'" x-cloak :href="window.grindsBaseUrl + postSlug" target="_blank" class="group flex items-center gap-2 hover:bg-theme-primary shadow-theme hover:shadow-theme border border-theme-primary/20 rounded-full font-bold text-theme-primary hover:text-theme-on-primary text-xs transition-all"
+                    <a x-show="postStatus === 'published' && postType !== 'template'" x-cloak :href="window.grindsBaseUrl + postSlug" target="_blank" class="group flex items-center gap-2 hover:bg-theme-primary shadow-theme hover:shadow-theme border border-theme-primary/20 rounded-full font-bold text-theme-primary hover:text-theme-on-primary text-xs transition-all"
                         :class="isStuck ? 'px-3 py-1' : 'px-3 py-1.5'">
                         <span><?= _t('view_page') ?></span>
                         <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -733,7 +742,7 @@ $basePath = rtrim($parsedBase['path'] ?? '/', '/') . '/';
                     <input type="hidden" name="status" x-model="postStatus">
 
                     <!-- Date Picker (Hide smoothly when stuck) -->
-                    <div x-show="!isStuck" x-collapse.duration.300ms>
+                    <div x-show="!isStuck && postType !== 'template'" x-collapse.duration.300ms>
                         <div class="mb-5">
                             <div class="flex justify-between items-center mb-1.5">
                                 <label class="opacity-70 font-bold text-theme-text text-xs"><?= _t('lbl_date') ?></label>
@@ -761,7 +770,7 @@ $basePath = rtrim($parsedBase['path'] ?? '/', '/') . '/';
 
                     <div class="gap-3 grid grid-cols-2 mb-3">
                         <!-- Draft Button -->
-                        <button type="button"
+                        <button type="button" x-show="postType !== 'template'"
                             @click="if(document.getElementById('post-form').reportValidity()) { postStatus = 'draft'; $nextTick(() => document.getElementById('post-form').requestSubmit()); }"
                             class="group flex-row justify-center items-center gap-2 hover:bg-theme-text/5 hover:border-theme-text/20 transition-all btn-secondary"
                             :class="isStuck ? 'px-3 py-1.5' : 'px-4 py-2.5'"
@@ -774,10 +783,10 @@ $basePath = rtrim($parsedBase['path'] ?? '/', '/') . '/';
                         </button>
 
                         <button type="button"
+                            :class="(postType === 'template' ? 'col-span-2 ' : '') + (isStuck ? 'px-3 py-1.5' : 'px-4 py-2.5')"
                             @click="if(document.getElementById('post-form').reportValidity()) saveDraftAndPreview()"
                             :disabled="isSaving || isSubmitting || isUploading || isOffline"
                             class="group relative flex-row justify-center items-center gap-2 hover:bg-theme-text/5 hover:border-theme-text/20 overflow-hidden transition-all btn-secondary"
-                            :class="isStuck ? 'px-3 py-1.5' : 'px-4 py-2.5'"
                             title="<?= h(_t('preview')) ?>">
 
                             <div class="flex flex-row items-center gap-2" x-show="!isSaving">
@@ -797,13 +806,19 @@ $basePath = rtrim($parsedBase['path'] ?? '/', '/') . '/';
 
                     <!-- Main Action (Publish/Update) -->
                     <button type="button"
-                        @click="if(document.getElementById('post-form').reportValidity()) { postStatus = 'published'; $nextTick(() => document.getElementById('post-form').requestSubmit()); }"
+                        @click="if(document.getElementById('post-form').reportValidity()) { if(postType !== 'template') { postStatus = 'published'; } $nextTick(() => document.getElementById('post-form').requestSubmit()); }"
                         class="group relative shadow-theme w-full overflow-hidden transition-all btn-primary"
                         :class="isStuck ? 'py-2' : 'py-2.5'"
                         :disabled="isSubmitting || isUploading || isOffline">
 
                         <div class="z-10 relative flex justify-center items-center gap-2 font-bold text-sm transition-opacity duration-200" :class="isSubmitting ? 'text-transparent' : ''">
-                            <?php if (($post['status'] ?? '') === 'published'): ?>
+                            <?php if (($post['type'] ?? '') === 'template'): ?>
+                                <input type="hidden" id="main-action-is-update" value="<?= ($action === 'edit') ? '1' : '0' ?>">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-arrow-path"></use>
+                                </svg>
+                                <span id="main-action-label"><?= ($action === 'edit') ? _t('update') : _t('save') ?></span>
+                            <?php elseif (($post['status'] ?? '') === 'published'): ?>
                                 <input type="hidden" id="main-action-is-update" value="1">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-arrow-path"></use>
@@ -872,9 +887,9 @@ $basePath = rtrim($parsedBase['path'] ?? '/', '/') . '/';
                             const data = await res.json();
                             if(data.success && data.data) {
                                 // Apply Revision Data
-                                if(data.data.title) seoTitle = data.data.title;
+                                if(data.data.title) this.seoTitle = data.data.title;
                                 if(data.data.content && data.data.content.blocks) {
-                                    blocks = data.data.content.blocks.map(b => ({...b, id: typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).substr(2, 9), collapsed: false}));
+                                    this.blocks = data.data.content.blocks.map(b => ({...b, id: typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).substr(2, 9), collapsed: false}));
                                 }
 
                                 if (data.data.meta_data) {
@@ -951,7 +966,7 @@ $basePath = rtrim($parsedBase['path'] ?? '/', '/') . '/';
             <?php endif; ?>
 
             <!-- Categories and tags. -->
-            <div class="bg-theme-surface shadow-theme p-5 border border-theme-border rounded-theme" x-data="{ postType: <?= htmlspecialchars(json_encode($post['type'] ?? 'post', JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT), ENT_QUOTES, 'UTF-8') ?> }">
+            <div class="bg-theme-surface shadow-theme p-5 border border-theme-border rounded-theme">
                 <?php
                 // Function to check if a UI section is supported
                 $cpts = function_exists('grinds_get_theme_post_types') ? grinds_get_theme_post_types() : [];
@@ -1485,25 +1500,21 @@ $basePath = rtrim($parsedBase['path'] ?? '/', '/') . '/';
             <?= _t('preview') ?>
         </button>
 
-        <button type="button" @click="if(document.getElementById('post-form').reportValidity()) { postStatus = 'draft'; $nextTick(() => document.getElementById('post-form').requestSubmit()); }" :disabled="isSubmitting || isUploading || isOffline" class="flex-1 py-3 bg-theme-bg border border-theme-border text-theme-text rounded-theme font-bold text-sm flex items-center justify-center gap-1 shadow-sm transition-colors hover:bg-theme-surface disabled:opacity-50 disabled:cursor-not-allowed">
+        <button type="button" x-show="postType !== 'template'" @click="if(document.getElementById('post-form').reportValidity()) { postStatus = 'draft'; $nextTick(() => document.getElementById('post-form').requestSubmit()); }" :disabled="isSubmitting || isUploading || isOffline" class="flex-1 py-3 bg-theme-bg border border-theme-border text-theme-text rounded-theme font-bold text-sm flex items-center justify-center gap-1 shadow-sm transition-colors hover:bg-theme-surface disabled:opacity-50 disabled:cursor-not-allowed">
             <svg class="w-4 h-4 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-arrow-down-on-square"></use>
             </svg>
             <?= _t('st_draft') ?>
         </button>
 
-        <button type="button" @click="if(document.getElementById('post-form').reportValidity()) { postStatus = 'published'; $nextTick(() => document.getElementById('post-form').requestSubmit()); }" :disabled="isSubmitting || isUploading || isOffline" class="flex-1 py-3 bg-theme-primary text-theme-on-primary rounded-theme font-bold text-sm flex items-center justify-center gap-1 shadow-theme transition-all hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed">
-            <?php if (($post['status'] ?? '') === 'published'): ?>
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-arrow-path"></use>
-                </svg>
-                <?= _t('update') ?>
-            <?php else: ?>
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-globe-alt"></use>
-                </svg>
-                <?= _t('action_publish') ?>
-            <?php endif; ?>
+        <button type="button" @click="if(document.getElementById('post-form').reportValidity()) { if(postType !== 'template') { postStatus = 'published'; } $nextTick(() => document.getElementById('post-form').requestSubmit()); }" :disabled="isSubmitting || isUploading || isOffline" class="flex-1 py-3 bg-theme-primary text-theme-on-primary rounded-theme font-bold text-sm flex items-center justify-center gap-1 shadow-theme transition-all hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed">
+            <svg x-show="isUpdateMode || postType === 'template'" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" x-cloak>
+                <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-arrow-path"></use>
+            </svg>
+            <svg x-show="!isUpdateMode && postType !== 'template'" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" x-cloak>
+                <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-globe-alt"></use>
+            </svg>
+            <span x-text="postType === 'template' ? (isUpdateMode ? '<?= h(_t('update')) ?>' : '<?= h(_t('save')) ?>') : (isFutureDate ? '<?= h(_t('action_schedule')) ?>' : (isUpdateMode ? '<?= h(_t('update')) ?>' : '<?= h(_t('action_publish')) ?>'))"></span>
         </button>
     </div>
 
@@ -1628,6 +1639,11 @@ $basePath = rtrim($parsedBase['path'] ?? '/', '/') . '/';
             window.grindsBypassUnload = true;
             const f = document.createElement('form');
             f.method = 'POST';
+
+            const typeField = document.querySelector('[name="type"]');
+            const postType = typeField ? typeField.value : 'post';
+            f.action = 'posts.php?type=' + encodeURIComponent(postType) + '&status=trash';
+
             const addInput = (name, value) => {
                 const i = document.createElement('input');
                 i.type = 'hidden';
@@ -1638,6 +1654,7 @@ $basePath = rtrim($parsedBase['path'] ?? '/', '/') . '/';
             addInput('csrf_token', window.grindsCsrfToken);
             addInput('bulk_action', 'trash');
             addInput('target_id', id);
+
             document.body.appendChild(f);
             f.submit();
         }

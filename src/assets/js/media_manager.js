@@ -251,7 +251,7 @@ window.GrindsMediaHelpers = {
     const isBulk = idList.length > 1;
     const msg = isBulk
       ? (trans.confirm_bulk_delete || 'Delete %s items?').replace('%s', idList.length)
-      : trans.confirm_delete || 'Delete?';
+      : trans.confirm_delete_media || trans.confirm_delete || 'Delete permanently?';
 
     if (!confirm(msg)) return null;
 

@@ -293,12 +293,12 @@ if (!function_exists('grinds_extract_text_from_content')) {
                 }
             }
             $extractedText = implode(' ', $textParts);
-            return preg_replace('/\[[a-zA-Z0-9_-]+[^\]]*\]/', '', $extractedText);
+            return preg_replace('/\[(?:amazon|rakuten|ebay|youtube|vimeo|tweet|instagram)\b[^\]]*\]/i', '', $extractedText);
         }
 
         // Clean content as raw HTML
         $extractedText = $clean($content);
-        return preg_replace('/\[[a-zA-Z0-9_-]+[^\]]*\]/', '', $extractedText);
+        return preg_replace('/\[(?:amazon|rakuten|ebay|youtube|vimeo|tweet|instagram)\b[^\]]*\]/i', '', $extractedText);
     }
 }
 
@@ -1335,7 +1335,18 @@ if (!function_exists('grinds_sanitize_html')) {
             'dfn',
             'ruby',
             'rt',
-            'rp'
+            'rp',
+            'svg',
+            'use',
+            'path',
+            'circle',
+            'rect',
+            'line',
+            'polyline',
+            'polygon',
+            'g',
+            'defs',
+            'symbol'
         ];
         if ($allowUnsafe) {
             $allowedTags[] = 'script';
@@ -1461,6 +1472,8 @@ if (!function_exists('_grinds_sanitize_clean_attributes')) {
             array_push($allowedAttrs, 'src', 'controls', 'autoplay', 'loop', 'muted', 'poster', 'preload');
         elseif ($tagName === 'source' || $tagName === 'track')
             array_push($allowedAttrs, 'src', 'type', 'media', 'kind', 'srclang', 'label', 'srcset', 'sizes');
+        elseif (in_array($tagName, ['svg', 'use', 'path', 'circle', 'rect', 'line', 'polyline', 'polygon', 'g', 'defs', 'symbol']))
+            array_push($allowedAttrs, 'viewbox', 'fill', 'stroke', 'stroke-width', 'stroke-linecap', 'stroke-linejoin', 'd', 'cx', 'cy', 'r', 'x', 'y', 'width', 'height', 'xmlns', 'href', 'xlink:href');
 
         if (function_exists('apply_filters')) {
             $allowedAttrs = apply_filters('grinds_allowed_html_attributes', $allowedAttrs, $tagName);
@@ -1480,7 +1493,7 @@ if (!function_exists('_grinds_sanitize_clean_attributes')) {
                     $attrsToRemove[] = $name;
                     continue;
                 }
-                if (($name === 'href' || $name === 'src') && _grinds_is_dangerous_url($val))
+                if (($name === 'href' || $name === 'src' || $name === 'xlink:href') && _grinds_is_dangerous_url($val))
                     $attrsToRemove[] = $name;
                 if ($name === 'style' && preg_match('/(expression|javascript|binding|behavior|@import)/i', $valClean))
                     $attrsToRemove[] = $name;

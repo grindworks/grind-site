@@ -7,7 +7,7 @@ if (!defined('GRINDS_APP')) exit; ?>
     <!-- Avatar uploader -->
     <div class="w-full sm:w-auto text-center shrink-0">
       <div class="relative inline-block group mx-auto">
-        <div class="relative bg-theme-surface border border-theme-border rounded-full w-20 h-20 overflow-hidden cursor-pointer" @click="openMediaLibrary(index, null, 'image')">
+        <div class="relative bg-theme-surface border border-theme-border rounded-full w-20 h-20 overflow-hidden cursor-pointer" @click="openMediaLibrary(block.id, null, 'image')">
           <img :src="resolvePreviewUrl(block.data.image)" x-show="block.data.image" class="w-full h-full object-cover" @error="$el.src = <?= htmlspecialchars(json_encode(PLACEHOLDER_IMG), ENT_QUOTES) ?>">
           <div class="absolute inset-0 flex justify-center items-center skin-modal-overlay opacity-0 group-hover:opacity-100 text-[10px] text-white transition-opacity"><?= _t('btn_change') ?></div>
           <div x-show="!block.data.image" class="flex justify-center items-center w-full h-full text-theme-text/20 text-xs"><?= _t('lbl_user') ?></div>
@@ -20,7 +20,7 @@ if (!defined('GRINDS_APP')) exit; ?>
       </div>
       <label class="block mt-1 text-[9px] text-theme-primary hover:underline cursor-pointer" :class="{'opacity-50 cursor-not-allowed': isUploading}">
         <span x-text="isUploading ? '...' : '<?= _t('upload') ?>'"></span>
-        <input type="file" class="hidden" accept="image/*" @change="isUploading = true; await uploadImage($event, index, 'image'); isUploading = false" :disabled="isUploading">
+        <input type="file" class="hidden" accept="image/*" @change="isUploading = true; await uploadImage($event, block.id, 'image'); isUploading = false" :disabled="isUploading">
       </label>
     </div>
     <!-- Content inputs -->

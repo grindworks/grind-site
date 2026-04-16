@@ -13,7 +13,7 @@ document.addEventListener('alpine:init', () => {
 
     blocks: [],
     draftRecoveryOpen: false,
-    activeMediaBlockIndex: null,
+    activeMediaBlockId: null,
     activeMediaItemIndex: null,
     activeMediaKey: 'url',
 
@@ -121,10 +121,10 @@ document.addEventListener('alpine:init', () => {
           _isUploading: true,
         };
         this.blocks.push(newBlock);
-        const newIndex = this.blocks.length - 1;
         const mockEvent = { target: { files: [file], value: '' } };
-        await this.uploadImage(mockEvent, newIndex, 'url');
-        this.blocks[newIndex]._isUploading = false;
+        await this.uploadImage(mockEvent, newBlock.id, 'url');
+        const actualIndex = this.blocks.findIndex((b) => b.id === newBlock.id);
+        if (actualIndex !== -1) this.blocks[actualIndex]._isUploading = false;
         URL.revokeObjectURL(previewUrl);
       }
       this.isUploading = false;
@@ -159,9 +159,10 @@ document.addEventListener('alpine:init', () => {
         this.blocks.splice(currentIndex, 0, newBlock);
 
         const mockEvent = { target: { files: [file], value: '' } };
-        await this.uploadImage(mockEvent, currentIndex, 'url');
+        await this.uploadImage(mockEvent, newBlock.id, 'url');
 
-        this.blocks[currentIndex]._isUploading = false;
+        const actualIndex = this.blocks.findIndex((b) => b.id === newBlock.id);
+        if (actualIndex !== -1) this.blocks[actualIndex]._isUploading = false;
         URL.revokeObjectURL(previewUrl);
         currentIndex++;
       }
@@ -211,7 +212,10 @@ document.addEventListener('alpine:init', () => {
           if (data.success) {
             block.previewHtml = data.html;
           } else {
-            block.previewHtml = `<div class="text-theme-danger text-sm p-4 border border-theme-danger/30 bg-theme-danger/10 rounded">Error: ${data.error}</div>`;
+            const errorLabel = window.grindsTranslations.error
+              ? window.grindsTranslations.error.replace('%s', data.error)
+              : `Error: ${data.error}`;
+            block.previewHtml = `<div class="text-theme-danger text-sm p-4 border border-theme-danger/30 bg-theme-danger/10 rounded">${errorLabel}</div>`;
           }
         } catch (e) {
           block.previewHtml =
@@ -338,11 +342,11 @@ document.addEventListener('alpine:init', () => {
                 _isUploading: true,
               };
               this.blocks.push(newBlock);
-              const newIndex = this.blocks.length - 1;
               this.$nextTick(() => window.scrollTo(0, document.body.scrollHeight));
               const mockEvent = { target: { files: [file], value: '' } };
-              await this.uploadImage(mockEvent, newIndex, 'url');
-              this.blocks[newIndex]._isUploading = false;
+              await this.uploadImage(mockEvent, newBlock.id, 'url');
+              const actualIndex = this.blocks.findIndex((b) => b.id === newBlock.id);
+              if (actualIndex !== -1) this.blocks[actualIndex]._isUploading = false;
               URL.revokeObjectURL(previewUrl);
             }
             this.isUploading = false;
@@ -372,11 +376,9 @@ document.addEventListener('alpine:init', () => {
           /(https?:\/\/(?:www\.)?canva\.com\/design\/[a-zA-Z0-9_-]+\/[a-zA-Z0-9_-]+\/view(?:[^\s]*))/
         );
         if (canvaMatch) {
-          let msg = window.grindsTranslations?.confirm_embed_canva;
-          if (!msg && window.grindsLang === 'ja') {
-            msg = 'CanvaのURLを検出しました。埋め込みブロックに変換しますか？';
-          }
-          if (confirm(msg || 'Canva URL detected. Convert to Embed Block?')) {
+          if (
+            confirm(window.grindsTranslations?.confirm_embed_canva || 'Canva URL detected. Convert to Embed Block?')
+          ) {
             this.addBlock('embed');
             const newBlock = this.blocks[this.blocks.length - 1];
             if (newBlock) {
@@ -395,11 +397,9 @@ document.addEventListener('alpine:init', () => {
           /(https?:\/\/(?:www\.)?figma\.com\/(?:file|proto|design|board)\/[a-zA-Z0-9]+(?:[^\s]*))/
         );
         if (figmaMatch) {
-          let msg = window.grindsTranslations?.confirm_embed_figma;
-          if (!msg && window.grindsLang === 'ja') {
-            msg = 'FigmaのURLを検出しました。埋め込みブロックに変換しますか？';
-          }
-          if (confirm(msg || 'Figma URL detected. Convert to Embed Block?')) {
+          if (
+            confirm(window.grindsTranslations?.confirm_embed_figma || 'Figma URL detected. Convert to Embed Block?')
+          ) {
             this.addBlock('embed');
             const newBlock = this.blocks[this.blocks.length - 1];
             if (newBlock) {
@@ -723,19 +723,34 @@ document.addEventListener('alpine:init', () => {
       const delay = window.grindsEditorDebounce ? parseInt(window.grindsEditorDebounce) : 1000;
 
       this.draftTimeout = setTimeout(() => {
-        if (this.blocks.length > 0 || this.seoTitle || this.seoDesc) {
-          const metaData = {};
-          document.querySelectorAll('[name^="meta_data["], [name^="meta_data_"][name$="_url"]').forEach((el) => {
-            if (el.name) {
-              metaData[el.name] = el.type === 'checkbox' || el.type === 'radio' ? (el.checked ? '1' : '0') : el.value;
+        const formDataObj = {};
+        const form = document.getElementById('post-form');
+        if (form) {
+          const fd = new FormData(form);
+          for (let [key, value] of fd.entries()) {
+            if (
+              typeof value === 'string' &&
+              !['content', 'content_is_base64', 'csrf_token', 'original_updated_at', 'original_version'].includes(key)
+            ) {
+              formDataObj[key] = value;
+            }
+          }
+          form.querySelectorAll('input[type="checkbox"]').forEach((cb) => {
+            if (
+              cb.name &&
+              !['content', 'content_is_base64', 'csrf_token', 'original_updated_at', 'original_version'].includes(
+                cb.name
+              )
+            ) {
+              formDataObj[cb.name] = cb.checked ? '1' : '0';
             }
           });
+        }
 
+        if (this.blocks.length > 0 || Object.keys(formDataObj).length > 0) {
           const json = JSON.stringify({
             blocks: this.blocks,
-            seoTitle: this.seoTitle,
-            seoDesc: this.seoDesc,
-            metaData: metaData,
+            formData: formDataObj,
             history: this.history,
             future: this.future,
           });
@@ -1126,6 +1141,7 @@ document.addEventListener('alpine:init', () => {
       const msg = window.grindsTranslations.err_session_expired || 'Session expired. Please login again.';
       const loginUrl = (window.grindsBaseUrl || '').replace(/\/$/, '') + '/admin/login.php';
       const reLoginMsg =
+        window.grindsTranslations.msg_relogin_instruction ||
         'Click OK to open the login page in a new window.\nAfter logging in, you can close the window and try saving again.';
 
       if (confirm(msg + '\n\n' + reLoginMsg)) {
@@ -1135,7 +1151,8 @@ document.addEventListener('alpine:init', () => {
           alert(
             (window.grindsTranslations.err_popup_blocked || 'Popup blocked.') +
               '\n\n' +
-              'Please right-click the dashboard link, open it in a new tab, log in, and then return here to save.'
+              (window.grindsTranslations.msg_popup_blocked_instruction ||
+                'Please right-click the dashboard link, open it in a new tab, log in, and then return here to save.')
           );
         }
         this.waitForRelogin();
@@ -1210,27 +1227,52 @@ document.addEventListener('alpine:init', () => {
 
       try {
         const parsed = JSON.parse(localData);
-        if (parsed && (Array.isArray(parsed.blocks) || parsed.seoTitle || parsed.seoDesc || parsed.metaData)) {
-          const currentMetaData = {};
-          document.querySelectorAll('[name^="meta_data["], [name^="meta_data_"][name$="_url"]').forEach((el) => {
-            if (el.name) {
-              currentMetaData[el.name] =
-                el.type === 'checkbox' || el.type === 'radio' ? (el.checked ? '1' : '0') : el.value;
+        if (
+          parsed &&
+          (Array.isArray(parsed.blocks) || parsed.formData || parsed.seoTitle || parsed.seoDesc || parsed.metaData)
+        ) {
+          const currentFormData = {};
+          const form = document.getElementById('post-form');
+          if (form) {
+            const fd = new FormData(form);
+            for (let [key, value] of fd.entries()) {
+              if (
+                typeof value === 'string' &&
+                !['content', 'content_is_base64', 'csrf_token', 'original_updated_at', 'original_version'].includes(key)
+              ) {
+                currentFormData[key] = value;
+              }
             }
-          });
+            form.querySelectorAll('input[type="checkbox"]').forEach((cb) => {
+              if (
+                cb.name &&
+                !['content', 'content_is_base64', 'csrf_token', 'original_updated_at', 'original_version'].includes(
+                  cb.name
+                )
+              ) {
+                currentFormData[cb.name] = cb.checked ? '1' : '0';
+              }
+            });
+          }
 
           // Compare server data with draft
           const currentJson = JSON.stringify({
             blocks: this.blocks,
-            seoTitle: this.seoTitle,
-            seoDesc: this.seoDesc,
-            metaData: currentMetaData,
+            formData: currentFormData,
           });
+
+          const draftFormData = parsed.formData || {};
+          if (!parsed.formData) {
+            if (parsed.seoTitle !== undefined) draftFormData['seo_title'] = parsed.seoTitle;
+            if (parsed.seoDesc !== undefined) draftFormData['seo_desc'] = parsed.seoDesc;
+            if (parsed.metaData) {
+              for (const k in parsed.metaData) draftFormData[k] = parsed.metaData[k];
+            }
+          }
+
           const draftJson = JSON.stringify({
             blocks: parsed.blocks || [],
-            seoTitle: parsed.seoTitle || '',
-            seoDesc: parsed.seoDesc || '',
-            metaData: parsed.metaData || currentMetaData,
+            formData: draftFormData,
           });
 
           if (currentJson === draftJson) {
@@ -1256,21 +1298,46 @@ document.addEventListener('alpine:init', () => {
         this.blocks = [];
         this.$nextTick(() => {
           this.blocks = parsed.blocks || [];
-          if (parsed.seoTitle !== undefined) this.seoTitle = parsed.seoTitle;
-          if (parsed.seoDesc !== undefined) this.seoDesc = parsed.seoDesc;
           if (parsed.history !== undefined) this.history = parsed.history;
           if (parsed.future !== undefined) this.future = parsed.future;
 
-          if (parsed.metaData) {
-            for (const key in parsed.metaData) {
+          let formDataToRestore = parsed.formData;
+          if (!formDataToRestore) {
+            formDataToRestore = {};
+            if (parsed.seoTitle !== undefined) {
+              formDataToRestore['seo_title'] = parsed.seoTitle;
+              this.seoTitle = parsed.seoTitle;
+            }
+            if (parsed.seoDesc !== undefined) {
+              formDataToRestore['seo_desc'] = parsed.seoDesc;
+              this.seoDesc = parsed.seoDesc;
+            }
+            if (parsed.metaData) {
+              for (const k in parsed.metaData) formDataToRestore[k] = parsed.metaData[k];
+            }
+          }
+
+          if (formDataToRestore) {
+            for (const key in formDataToRestore) {
               const input = document.querySelector(`[name="${key}"]`);
               if (input) {
                 if (input.type === 'checkbox' || input.type === 'radio') {
-                  input.checked = parsed.metaData[key] === '1';
+                  input.checked =
+                    formDataToRestore[key] === '1' ||
+                    formDataToRestore[key] === 'true' ||
+                    formDataToRestore[key] === true;
                 } else {
-                  input.value = parsed.metaData[key];
+                  input.value = formDataToRestore[key];
                 }
 
+                if (input.hasAttribute('x-model')) {
+                  const modelName = input.getAttribute('x-model');
+                  if (this[modelName] !== undefined) {
+                    this[modelName] = formDataToRestore[key];
+                  }
+                }
+
+                input.dispatchEvent(new Event('input', { bubbles: true }));
                 input.dispatchEvent(new Event('change', { bubbles: true }));
 
                 // Trigger image uploader preview update
@@ -1281,8 +1348,16 @@ document.addEventListener('alpine:init', () => {
                     .replace(/^meta_data\[/, '')
                     .replace(/\]$/, '');
                   window.dispatchEvent(
-                    new CustomEvent(`set-meta-image-${baseKey}`, { detail: { url: parsed.metaData[key] } })
+                    new CustomEvent(`set-meta-image-${baseKey}`, { detail: { url: formDataToRestore[key] } })
                   );
+                  if (key === 'hero_image_url')
+                    window.dispatchEvent(
+                      new CustomEvent('set-hero-image', { detail: { url: formDataToRestore[key], mobile: false } })
+                    );
+                  if (key === 'hero_image_mobile_url')
+                    window.dispatchEvent(
+                      new CustomEvent('set-hero-image', { detail: { url: formDataToRestore[key], mobile: true } })
+                    );
                 }
               }
             }
@@ -1303,7 +1378,7 @@ document.addEventListener('alpine:init', () => {
      * Discard local draft.
      */
     discardDraft() {
-      if (confirm(window.grindsTranslations.confirm_discard_draft || 'Discard draft?')) {
+      if (confirm(window.grindsTranslations?.confirm_discard_draft || 'Discard draft?')) {
         this.clearLocalDraft();
         this.draftRecoveryOpen = false;
       }
@@ -1459,8 +1534,8 @@ document.addEventListener('alpine:init', () => {
     resetContent() {
       if (
         !confirm(
-          window.grindsTranslations.confirm_reset ||
-            'Are you sure you want to reset all changes to the last saved state?'
+          window.grindsTranslations?.confirm_reset ||
+            'Are you sure you want to reset all changes to the last saved state? (Unsaved drafts will also be lost)'
         )
       )
         return;
@@ -1969,7 +2044,7 @@ document.addEventListener('alpine:init', () => {
           break;
       }
 
-      if (isEmpty || confirm(window.grindsTranslations.confirm_delete || 'Are you sure?')) {
+      if (isEmpty || confirm(window.grindsTranslations?.confirm_delete || 'Are you sure?')) {
         this.blocks.splice(index, 1);
       }
     },
@@ -2388,6 +2463,7 @@ document.addEventListener('alpine:init', () => {
         // Get the number of columns from the first row
         const cols = block.data.content[0].length;
         const newRow = new Array(cols).fill('');
+        Object.defineProperty(newRow, '_id', { value: this.generateId(), enumerable: false, writable: true });
         block.data.content.push(newRow);
       }
     },
@@ -2406,12 +2482,14 @@ document.addEventListener('alpine:init', () => {
 
     /**
      * Open media library modal.
-     * @param {number} index
+     * @param {string} blockId
      * @param {number|null} itemIndex
      * @param {string} key
      */
-    openMediaLibrary(index, itemIndex = null, key = 'url') {
-      const blockType = this.blocks[index].type;
+    openMediaLibrary(blockId, itemIndex = null, key = 'url') {
+      const actualIndex = this.blocks.findIndex((b) => b.id === blockId);
+      if (actualIndex === -1) return;
+      const blockType = this.blocks[actualIndex].type;
       let mediaType = 'document';
       if (key === 'url') {
         if (['image', 'gallery', 'carousel'].includes(blockType)) {
@@ -2430,7 +2508,7 @@ document.addEventListener('alpine:init', () => {
           detail: {
             type: mediaType,
             callback: (file) => {
-              this.activeMediaBlockIndex = index;
+              this.activeMediaBlockId = blockId;
               this.activeMediaItemIndex = itemIndex;
               this.activeMediaKey = key;
               this.selectMedia(file);
@@ -2466,8 +2544,10 @@ document.addEventListener('alpine:init', () => {
      * @param {object} file
      */
     selectMedia(file) {
-      if (this.activeMediaBlockIndex !== null) {
-        const block = this.blocks[this.activeMediaBlockIndex];
+      if (this.activeMediaBlockId !== null) {
+        const actualIndex = this.blocks.findIndex((b) => b.id === this.activeMediaBlockId);
+        if (actualIndex === -1) return;
+        const block = this.blocks[actualIndex];
         const targetArray = block.data.images || block.data.items;
 
         if (this.activeMediaItemIndex === 'add' && targetArray) {
@@ -2504,6 +2584,7 @@ document.addEventListener('alpine:init', () => {
           // Auto-fill metadata
           if (block.type === 'image') {
             const meta = file.metadata || {};
+            if (!block.data) block.data = {};
             if (meta.alt) block.data.alt = meta.alt;
             if (meta.caption) block.data.caption = meta.caption;
           }
@@ -2514,10 +2595,10 @@ document.addEventListener('alpine:init', () => {
     /**
      * Upload image for specific block.
      * @param {Event} event
-     * @param {number} index
+     * @param {string} blockId
      * @param {string} key
      */
-    async uploadImage(event, index, key = 'url') {
+    async uploadImage(event, blockId, key = 'url') {
       const file = event.target.files[0];
       if (!file) return;
 
@@ -2526,27 +2607,34 @@ document.addEventListener('alpine:init', () => {
       try {
         const uploadedFile = await GrindsMediaHelpers.uploadFile(file, window.grindsCsrfToken);
         if (uploadedFile) {
-          this.blocks[index].data[key] = uploadedFile.url;
+          const actualIndex = this.blocks.findIndex((b) => b.id === blockId);
+          if (actualIndex !== -1) {
+            this.blocks[actualIndex].data[key] = uploadedFile.url;
 
-          if (this.blocks[index].type === 'download' && uploadedFile.size) {
-            const size =
-              uploadedFile.size < 1024 * 1024
-                ? (uploadedFile.size / 1024).toFixed(1) + ' KB'
-                : (uploadedFile.size / (1024 * 1024)).toFixed(1) + ' MB';
-            this.blocks[index].data.fileSize = size;
-          }
+            if (this.blocks[actualIndex].type === 'download' && uploadedFile.size) {
+              const size =
+                uploadedFile.size < 1024 * 1024
+                  ? (uploadedFile.size / 1024).toFixed(1) + ' KB'
+                  : (uploadedFile.size / (1024 * 1024)).toFixed(1) + ' MB';
+              this.blocks[actualIndex].data.fileSize = size;
+            }
 
-          // Auto-fill title for audio/pdf/download
-          if (['audio', 'pdf', 'download'].includes(this.blocks[index].type) && !this.blocks[index].data.title) {
-            const meta = uploadedFile.metadata || {};
-            this.blocks[index].data.title = meta.original_name || uploadedFile.filename || '';
-          }
+            // Auto-fill title for audio/pdf/download
+            if (
+              ['audio', 'pdf', 'download'].includes(this.blocks[actualIndex].type) &&
+              !this.blocks[actualIndex].data.title
+            ) {
+              const meta = uploadedFile.metadata || {};
+              this.blocks[actualIndex].data.title = meta.original_name || uploadedFile.filename || '';
+            }
 
-          // Auto-fill metadata
-          if (this.blocks[index].type === 'image') {
-            const meta = uploadedFile.metadata || {};
-            if (meta.alt) this.blocks[index].data.alt = meta.alt;
-            if (meta.caption) this.blocks[index].data.caption = meta.caption;
+            // Auto-fill metadata
+            if (this.blocks[actualIndex].type === 'image') {
+              const meta = uploadedFile.metadata || {};
+              if (!this.blocks[actualIndex].data) this.blocks[actualIndex].data = {};
+              if (meta.alt) this.blocks[actualIndex].data.alt = meta.alt;
+              if (meta.caption) this.blocks[actualIndex].data.caption = meta.caption;
+            }
           }
         }
       } catch (e) {
@@ -2567,9 +2655,9 @@ document.addEventListener('alpine:init', () => {
     /**
      * Upload images for gallery block.
      * @param {Event} event
-     * @param {number} blockIndex
+     * @param {string} blockId
      */
-    async uploadGalleryImages(event, blockIndex) {
+    async uploadGalleryImages(event, blockId) {
       const inputFiles = event.target.files;
       if (!inputFiles || inputFiles.length === 0) return;
 
@@ -2608,19 +2696,22 @@ document.addEventListener('alpine:init', () => {
         });
 
         if (successfulUploads.length > 0) {
-          // Push all at once to maintain order and improve reactivity performance.
-          this.blocks[blockIndex].data.images.push(...successfulUploads);
+          const actualIndex = this.blocks.findIndex((b) => b.id === blockId);
+          if (actualIndex !== -1) {
+            // Push all at once to maintain order and improve reactivity performance.
+            this.blocks[actualIndex].data.images.push(...successfulUploads);
 
-          // Scroll right to make newly added images visible
-          this.$nextTick(() => {
-            const blockEl = document.getElementById('block-wrapper-' + this.blocks[blockIndex].id);
-            if (blockEl) {
-              const scrollContainer = blockEl.querySelector('.overflow-x-auto') || blockEl.querySelector('.grid');
-              if (scrollContainer) {
-                scrollContainer.scrollTo({ left: scrollContainer.scrollWidth, behavior: 'smooth' });
+            // Scroll right to make newly added images visible
+            this.$nextTick(() => {
+              const blockEl = document.getElementById('block-wrapper-' + blockId);
+              if (blockEl) {
+                const scrollContainer = blockEl.querySelector('.overflow-x-auto') || blockEl.querySelector('.grid');
+                if (scrollContainer) {
+                  scrollContainer.scrollTo({ left: scrollContainer.scrollWidth, behavior: 'smooth' });
+                }
               }
-            }
-          });
+            });
+          }
         }
 
         if (errorMessages.length > 0) {
@@ -2861,7 +2952,20 @@ document.addEventListener('DOMContentLoaded', function () {
         const statusSelect = document.getElementById('hidden_post_status');
         const msgBox = document.getElementById('scheduled-message');
         const actionLabel = document.getElementById('main-action-label');
-        if (selectedDates[0] > now) {
+
+        const typeField = document.querySelector('[name="type"]');
+        const isTemplate = typeField && typeField.value === 'template';
+
+        // Update Alpine state for mobile buttons dynamically
+        const alpineEl = document.querySelector('[x-data]');
+        if (alpineEl && alpineEl._x_dataStack) {
+          const data = alpineEl._x_dataStack.find((d) => d.isFutureDate !== undefined);
+          if (data) {
+            data.isFutureDate = selectedDates[0] > now;
+          }
+        }
+
+        if (selectedDates[0] > now && !isTemplate) {
           if (statusSelect) statusSelect.value = 'published';
           if (msgBox) msgBox.classList.remove('hidden');
           if (actionLabel) actionLabel.textContent = window.grindsTranslations.action_schedule || 'Schedule';
@@ -2871,9 +2975,16 @@ document.addEventListener('DOMContentLoaded', function () {
             const isUpdate =
               document.getElementById('main-action-is-update') &&
               document.getElementById('main-action-is-update').value === '1';
-            actionLabel.textContent = isUpdate
-              ? window.grindsTranslations.update || 'Update'
-              : window.grindsTranslations.action_publish || 'Publish';
+
+            if (isTemplate) {
+              actionLabel.textContent = isUpdate
+                ? window.grindsTranslations.update || 'Update'
+                : window.grindsTranslations.save || 'Save';
+            } else {
+              actionLabel.textContent = isUpdate
+                ? window.grindsTranslations.update || 'Update'
+                : window.grindsTranslations.action_publish || 'Publish';
+            }
           }
         }
       },

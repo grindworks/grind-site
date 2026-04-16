@@ -366,7 +366,7 @@ if (!function_exists('get_license_status')) {
         }
 
         // Verify via Polar.sh API
-        $orgId = '24e49bab-ac1d-443e-8a30-6065f872b909';
+        $orgId = '25291602-668f-4ed5-84e8-d966a5932049';
         $newStatus = 'unregistered';
         $apiSuccess = false;
 
@@ -374,7 +374,7 @@ if (!function_exists('get_license_status')) {
             return $hasValidCache ? $cache['status'] : 'unregistered';
         }
 
-        $ch = curl_init('https://api.polar.sh/v1/users/license-keys/validate');
+        $ch = curl_init('https://api.polar.sh/v1/customer-portal/license-keys/validate');
         $payload = json_encode(['key' => $key, 'organization_id' => $orgId]);
 
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -396,7 +396,10 @@ if (!function_exists('get_license_status')) {
         if ($curlError === 0 && $httpCode === 200 && $response) {
             $apiSuccess = true;
             $data = json_decode($response, true);
-            if (isset($data['status']) && in_array($data['status'], ['granted', 'active'])) {
+            if (is_array($data) && (
+                (isset($data['status']) && in_array($data['status'], ['granted', 'active', 'validated'])) ||
+                (isset($data['id']) && !isset($data['status']))
+            )) {
                 // Determine status by key prefix
                 if (str_starts_with($key, 'GRIND-AGENCY')) {
                     $newStatus = 'agency';

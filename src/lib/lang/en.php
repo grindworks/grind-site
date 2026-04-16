@@ -1767,4 +1767,18 @@ return [
     'min read' => 'min read',
     'This article contains promotional links.' => 'This article contains promotional links.',
     'View Sponsored Link' => 'View Sponsored Link',
+
+    // Additional JS strings
+    'confirm_discard_changes' => 'You have unsaved changes. Discard them and switch tabs?',
+    'err_popup_blocked' => 'Popup blocked.',
+    'msg_relogin_instruction' => "Click OK to open the login page in a new window.\nAfter logging in, you can close the window and try saving again.",
+    'msg_popup_blocked_instruction' => 'Please right-click the dashboard link, open it in a new tab, log in, and then return here to save.',
+    'confirm_embed_canva' => 'Canva URL detected. Convert to Embed Block?',
+    'confirm_embed_figma' => 'Figma URL detected. Convert to Embed Block?',
+
+    // Theme specific strings
+    'Tags:' => 'Tags:',
+    'Tab' => 'Tab',
+    'Untitled' => 'Untitled',
+    'Guide' => 'Guide',
 ];

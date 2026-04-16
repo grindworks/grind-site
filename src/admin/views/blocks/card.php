@@ -13,14 +13,14 @@ if (!defined('GRINDS_APP')) exit; ?>
   <div class="flex items-start gap-4 pt-2 border-theme-border/50 border-t">
     <!-- Image preview -->
     <div class="w-24 shrink-0">
-      <div class="group relative bg-theme-bg border border-theme-border rounded-theme aspect-square overflow-hidden cursor-pointer" @click="openMediaLibrary(index, null, 'image')">
+      <div class="group relative bg-theme-bg border border-theme-border rounded-theme aspect-square overflow-hidden cursor-pointer" @click="openMediaLibrary(block.id, null, 'image')">
         <img :src="resolvePreviewUrl(block.data.image)" x-show="block.data.image" class="w-full h-full object-cover" loading="lazy" @error="$el.src = <?= htmlspecialchars(json_encode(PLACEHOLDER_IMG), ENT_QUOTES) ?>">
         <div x-show="!block.data.image" class="flex justify-center items-center w-full h-full text-theme-text/20 text-xs"><?= _t('no_img') ?></div>
         <div class="absolute inset-0 flex justify-center items-center skin-modal-overlay opacity-0 group-hover:opacity-100 text-[9px] text-white transition"><?= _t('btn_change') ?></div>
       </div>
       <label class="block mt-1 text-center cursor-pointer" :class="{'opacity-50 cursor-not-allowed': isUploading}">
         <span class="text-[9px] text-theme-primary hover:underline" x-text="isUploading ? '...' : '<?= _t('upload') ?>'"></span>
-        <input type="file" class="hidden" accept="image/*" @change="isUploading = true; await uploadImage($event, index, 'image'); isUploading = false" :disabled="isUploading">
+        <input type="file" class="hidden" accept="image/*" @change="isUploading = true; await uploadImage($event, block.id, 'image'); isUploading = false" :disabled="isUploading">
       </label>
       <input type="text" x-model="block.data.image" :id="'block-' + block.id + '-image'" @blur="block.data.image = normalizeUrl(block.data.image)" class="mt-1 w-full text-[10px] form-control-sm" placeholder="<?= h(_t('ph_card_img')) ?>">
     </div>

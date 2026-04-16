@@ -1428,6 +1428,7 @@ function grinds_queue_ssg_dependencies(PDO $pdo, int $postId, string $actionType
     $post = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if (!$post) return;
+    if ($post['type'] === 'template') return;
 
     $urlsToQueue = [];
 

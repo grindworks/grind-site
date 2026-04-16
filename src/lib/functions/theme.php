@@ -454,8 +454,9 @@ function _theme_generate_json_ld(string $siteName, string $pageType, string $pag
         if ($pageType === 'single') {
             $plainTextContent = trim(preg_replace('/\s+/u', ' ', grinds_extract_text_from_content($rawContent)));
 
-            $lang = grinds_get_current_language();
-            $wordCount = ($lang === 'ja')
+            $lang = strtolower(grinds_get_current_language());
+            $isNonSpacedLang = in_array(substr($lang, 0, 2), ['ja', 'zh', 'ko', 'th', 'vi']);
+            $wordCount = $isNonSpacedLang
                 ? mb_strlen($plainTextContent, 'UTF-8')
                 : str_word_count($plainTextContent);
 
