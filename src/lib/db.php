@@ -311,6 +311,12 @@ function grinds_db_migrate($pdo)
   } catch (Exception $e) {
   }
 
+  // Pre-check FTS5 support OUTSIDE the transaction to prevent older SQLite versions (e.g. 3.7.x)
+  // from aborting the entire transaction when the fts5 module test throws an exception.
+  if (function_exists('grinds_is_fts5_enabled')) {
+    grinds_is_fts5_enabled();
+  }
+
   // Check schema mismatches
   if ($installed_version < $current_db_version) {
     // Begin transaction

@@ -373,7 +373,7 @@ document.addEventListener('alpine:init', () => {
       // Check for Canva URL
       if (text.includes('canva.com/design/')) {
         const canvaMatch = text.match(
-          /(https?:\/\/(?:www\.)?canva\.com\/design\/[a-zA-Z0-9_-]+\/[a-zA-Z0-9_-]+\/view(?:[^\s]*))/
+          /(https?:\/\/(?:www\.)?canva\.com\/design\/[a-zA-Z0-9_-]+\/[a-zA-Z0-9_-]+\/view[^\s]*)/
         );
         if (canvaMatch) {
           if (
@@ -393,9 +393,7 @@ document.addEventListener('alpine:init', () => {
         }
       } else if (text.includes('figma.com/')) {
         // Check for Figma URL
-        const figmaMatch = text.match(
-          /(https?:\/\/(?:www\.)?figma\.com\/(?:file|proto|design|board)\/[a-zA-Z0-9]+(?:[^\s]*))/
-        );
+        const figmaMatch = text.match(/(https?:\/\/(?:www\.)?figma\.com\/(?:file|proto|design|board)\/[^\s]+)/);
         if (figmaMatch) {
           if (
             confirm(window.grindsTranslations?.confirm_embed_figma || 'Figma URL detected. Convert to Embed Block?')
@@ -432,6 +430,13 @@ document.addEventListener('alpine:init', () => {
           this.blocks.push(...newBlocks);
           this.$nextTick(() => {
             window.scrollTo(0, document.body.scrollHeight);
+            // Recalculate heights for newly pasted long text blocks
+            document.querySelectorAll('#post-form textarea').forEach((ta) => {
+              if (ta.style.overflow === 'hidden') {
+                ta.style.height = 'auto';
+                ta.style.height = ta.scrollHeight + 'px';
+              }
+            });
           });
           return true;
         }
@@ -1092,6 +1097,22 @@ document.addEventListener('alpine:init', () => {
         this.isOffline = false;
         const msg = window.grindsTranslations?.js_online || 'Back online. You can now save your post.';
         if (typeof window.showToast === 'function') window.showToast(msg, 'success');
+      });
+
+      // Recalculate textarea heights on window resize to prevent layout issues
+      let resizeTimeout;
+      const resizeTextareas = () => {
+        document.querySelectorAll('#post-form textarea').forEach((ta) => {
+          // Only target textareas with auto-height behavior (identified by overflow:hidden)
+          if (ta.style.overflow === 'hidden') {
+            ta.style.height = 'auto';
+            ta.style.height = ta.scrollHeight + 'px';
+          }
+        });
+      };
+      window.addEventListener('resize', () => {
+        clearTimeout(resizeTimeout);
+        resizeTimeout = setTimeout(resizeTextareas, 150);
       });
     },
 
@@ -1832,6 +1853,11 @@ document.addEventListener('alpine:init', () => {
             if (data.updated_at) {
               const uInput = form.querySelector('input[name="original_updated_at"]');
               if (uInput) uInput.value = data.updated_at;
+            }
+
+            if (data.status) {
+              this.postStatus = data.status;
+              this.isUpdateMode = data.type === 'template' ? true : data.status === 'published';
             }
 
             const msg = data.message || 'Saved successfully';
@@ -2949,42 +2975,11 @@ document.addEventListener('DOMContentLoaded', function () {
       locale: lang === 'ja' ? 'ja' : 'en',
       onChange: function (selectedDates) {
         const now = new Date();
-        const statusSelect = document.getElementById('hidden_post_status');
-        const msgBox = document.getElementById('scheduled-message');
-        const actionLabel = document.getElementById('main-action-label');
-
-        const typeField = document.querySelector('[name="type"]');
-        const isTemplate = typeField && typeField.value === 'template';
-
-        // Update Alpine state for mobile buttons dynamically
         const alpineEl = document.querySelector('[x-data]');
         if (alpineEl && alpineEl._x_dataStack) {
           const data = alpineEl._x_dataStack.find((d) => d.isFutureDate !== undefined);
           if (data) {
             data.isFutureDate = selectedDates[0] > now;
-          }
-        }
-
-        if (selectedDates[0] > now && !isTemplate) {
-          if (statusSelect) statusSelect.value = 'published';
-          if (msgBox) msgBox.classList.remove('hidden');
-          if (actionLabel) actionLabel.textContent = window.grindsTranslations.action_schedule || 'Schedule';
-        } else {
-          if (msgBox) msgBox.classList.add('hidden');
-          if (actionLabel) {
-            const isUpdate =
-              document.getElementById('main-action-is-update') &&
-              document.getElementById('main-action-is-update').value === '1';
-
-            if (isTemplate) {
-              actionLabel.textContent = isUpdate
-                ? window.grindsTranslations.update || 'Update'
-                : window.grindsTranslations.save || 'Save';
-            } else {
-              actionLabel.textContent = isUpdate
-                ? window.grindsTranslations.update || 'Update'
-                : window.grindsTranslations.action_publish || 'Publish';
-            }
           }
         }
       },

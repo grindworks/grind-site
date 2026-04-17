@@ -25,14 +25,19 @@ if (!empty($headerMenus)) {
   $homeUrl = resolve_url('/');
   $navItems[] = ['label' => theme_t('home'), 'url' => $homeUrl, 'external' => false];
 
-  if (function_exists('default_get_categories')) {
-    $cats = default_get_categories();
-    foreach ($cats as $c) {
-      $navItems[] = [
-        'label' => $c['name'],
-        'url' => resolve_url('category/' . $c['slug']),
-        'external' => false
-      ];
+  global $pdo;
+  if (isset($pdo) && $pdo instanceof PDO) {
+    try {
+      $cats = $pdo->query("SELECT * FROM categories ORDER BY sort_order ASC")->fetchAll();
+      foreach ($cats as $c) {
+        $navItems[] = [
+          'label' => $c['name'],
+          'url' => resolve_url('category/' . $c['slug']),
+          'external' => false
+        ];
+      }
+    } catch (Exception $e) {
+      // ignore
     }
   }
 }
@@ -48,7 +53,7 @@ if (!empty($headerMenus)) {
       toggleSearch() {
           this.searchOpen = true;
           this.mobileOpen = false;
-          this.$refs.searchInput.focus();
+          this.$nextTick(() => this.$refs.searchInput.focus());
       },
       toggleMenu() {
           this.mobileOpen = !this.mobileOpen;

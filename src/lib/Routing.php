@@ -246,7 +246,7 @@ class Routing
 
         // 1. HTML attributes (href, src, action, data-*)
         $content = preg_replace_callback(
-            '/(href|src|action|data-[a-z-]+)\s*=\s*(["\'])([^"\']+)\2/i',
+            '/(href|src|action|data-[a-z-]+)\s*=\s*(["\'])([^"\']++)\2/i',
             function ($matches) use ($flexiblePath) {
                 $attr = $matches[1];
                 $quote = $matches[2];
@@ -266,7 +266,7 @@ class Routing
         // 2. Style attributes
         if (stripos($content, 'style') !== false) {
             $content = preg_replace_callback(
-                '/(style)\s*=\s*(?:(")([^"]*)"|(\')([^\']*)\')/i',
+                '/(style)\s*=\s*(?:(")([^"]*+)"|(\')([^\']*+)\')/i',
                 function ($matches) use ($flexiblePath) {
                     $attr = $matches[1];
                     $quote = !empty($matches[2]) ? $matches[2] : $matches[4];
@@ -294,7 +294,7 @@ class Routing
         // 3. Srcset attributes
         if (stripos($content, 'srcset') !== false) {
             $content = preg_replace_callback(
-                '/(srcset)\s*=\s*(?:(")([^"]*)"|(\')([^\']*)\')/i',
+                '/(srcset)\s*=\s*(?:(")([^"]*+)"|(\')([^\']*+)\')/i',
                 function ($matches) use ($flexiblePath) {
                     $attr = $matches[1];
                     $quote = !empty($matches[2]) ? $matches[2] : $matches[4];

@@ -2,7 +2,13 @@
 
 /** Carousel Block View */
 if (!defined('GRINDS_APP')) exit; ?>
-<div class="bg-theme-bg/40 p-4 border border-theme-border rounded-theme" x-init="if(!block.data.images) block.data.images = []; if(block.data.autoplay === undefined) block.data.autoplay = true; $watch('block.data.images', v => v && v.forEach(i => { if(!i.id) i.id = generateId() })); block.data.images.forEach(i => { if(!i.id) i.id = generateId() })" x-data="{ isUploading: false }">
+<div class="bg-theme-bg/40 p-4 border border-theme-border rounded-theme transition-colors" x-init="if(!block.data.images) block.data.images = []; if(block.data.autoplay === undefined) block.data.autoplay = true; $watch('block.data.images', v => v && v.forEach(i => { if(!i.id) i.id = generateId() })); block.data.images.forEach(i => { if(!i.id) i.id = generateId() })"
+    x-data="{ isUploading: false, isDragging: false, dragCount: 0 }"
+    @dragenter.prevent="dragCount++; isDragging = true"
+    @dragover.prevent="isDragging = true"
+    @dragleave.prevent="dragCount--; if (dragCount === 0) isDragging = false"
+    @drop.prevent="dragCount = 0; isDragging = false; if($event.dataTransfer.files.length) { isUploading = true; await uploadGalleryImages({target: {files: $event.dataTransfer.files}}, block.id); isUploading = false; }"
+    :class="{'border-theme-primary bg-theme-primary/5': isDragging}">
     <!-- Options -->
     <div class="flex justify-between items-center mb-3">
         <span class="flex items-center gap-1 opacity-70 font-bold text-theme-text text-xs">

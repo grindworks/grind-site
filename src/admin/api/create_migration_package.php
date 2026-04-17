@@ -44,10 +44,20 @@ if ($action === 'download') {
     header('Content-Type: application/zip');
     header('Content-disposition: attachment; filename=grinds_migration_' . date('Ymd_His') . '.zip');
     header('Content-Length: ' . filesize($zipFile));
+    header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
+    header('Pragma: no-cache');
+    header('Expires: 0');
 
-    // Stream output using readfile() for better performance and cleaner code
+    // Stream output using chunks to prevent memory exhaustion (OOM) on huge ZIP files
     if (function_exists('set_time_limit')) @set_time_limit(0);
-    @readfile($zipFile);
+    $handle = @fopen($zipFile, 'rb');
+    if ($handle) {
+      while (!feof($handle)) {
+        echo fread($handle, 8192);
+        flush();
+      }
+      fclose($handle);
+    }
 
     // Cleanup
     grinds_force_unlink($zipFile);

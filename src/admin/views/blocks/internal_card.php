@@ -78,7 +78,11 @@ if (!defined('GRINDS_APP'))
          this.block.data.id = String(item.id);
          this.block.data.titleCache = item.title;
          this.keyword = item.title;
-         this.searching = false;
+         // キーワード自動入力によるサジェスト再オープンを防ぐため、$nextTickで確実に閉じる
+         this.$nextTick(() => {
+             this.searching = false;
+             this.results = [];
+         });
        }
      }" x-init="init()" @click.outside="searching = false">
 

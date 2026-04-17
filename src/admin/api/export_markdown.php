@@ -23,6 +23,9 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 
 check_csrf_token();
 
+// Release session lock to prevent blocking other requests (e.g., from other tabs) during export
+session_write_close();
+
 // Relax limits for potentially heavy export operations
 if (function_exists('grinds_set_high_load_mode')) {
     grinds_set_high_load_mode();
@@ -272,17 +275,27 @@ try {
 
     $zip->close();
 
-    // Stream download
+    // Stream download safely using chunks to prevent OOM
     while (ob_get_level()) {
         ob_end_clean();
     }
     header('Content-Type: application/zip');
     header('Content-disposition: attachment; filename=' . $zipFilename);
     header('Content-Length: ' . filesize($zipPath));
+    header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
     header('Pragma: no-cache');
     header('Expires: 0');
 
-    @readfile($zipPath);
+    if (function_exists('set_time_limit')) @set_time_limit(0);
+    $handle = @fopen($zipPath, 'rb');
+    if ($handle) {
+        while (!feof($handle)) {
+            echo fread($handle, 8192);
+            flush();
+        }
+        fclose($handle);
+    }
+
     @unlink($zipPath);
     exit;
 } catch (Exception $e) {

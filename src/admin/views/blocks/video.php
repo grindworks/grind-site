@@ -2,7 +2,13 @@
 
 /** Video Block View */
 if (!defined('GRINDS_APP')) exit; ?>
-<div class="bg-theme-bg/40 p-4 border border-theme-border rounded-theme" x-init="if(block.data.autoplay === undefined) block.data.autoplay = false; if(block.data.loop === undefined) block.data.loop = false; if(block.data.muted === undefined) block.data.muted = false;" x-data="{ isUploading: false }">
+<div class="bg-theme-bg/40 p-4 border border-theme-border rounded-theme transition-colors" x-init="if(block.data.autoplay === undefined) block.data.autoplay = false; if(block.data.loop === undefined) block.data.loop = false; if(block.data.muted === undefined) block.data.muted = false;"
+  x-data="{ isUploading: false, isDragging: false, dragCount: 0 }"
+  @dragenter.prevent="dragCount++; isDragging = true"
+  @dragover.prevent="isDragging = true"
+  @dragleave.prevent="dragCount--; if (dragCount === 0) isDragging = false"
+  @drop.prevent="dragCount = 0; isDragging = false; if($event.dataTransfer.files.length) { isUploading = true; await uploadImage({target: {files: $event.dataTransfer.files}}, block.id, 'url'); isUploading = false; }"
+  :class="{'border-theme-primary bg-theme-primary/5': isDragging}">
   <div class="flex gap-2 mb-3">
     <input type="text" x-model="block.data.url" :id="'block-' + block.id + '-url'" @blur="block.data.url = normalizeUrl(block.data.url)" class="flex-1 font-mono text-xs form-control-sm" placeholder="<?= _t('ph_video_url') ?>">
 

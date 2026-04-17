@@ -585,6 +585,7 @@ return [
     'ph_unlock_msg' => 'This content is password protected.',
     'btn_unlock' => 'Unlock',
     'err_wrong_password' => 'Incorrect password.',
+    'err_password_protect_at_bottom' => 'Warning: This block is at the bottom. No content is being protected.',
 
     // Define media library strings.
     'title_media_library' => 'Media Library',

@@ -176,9 +176,10 @@ class GrindsUpdater
       }
 
       $filename = $zip->getNameIndex($i);
+      // Prevent Zip Slip & Absolute path injection
       if (str_contains($filename, '../') || str_contains($filename, '..\\')) continue;
-
-      $safeFilename = ltrim(str_replace('\\', '/', $filename), '/');
+      // Sanitize to relative path, removing absolute path prefixes (e.g., C:\, /)
+      $safeFilename = preg_replace('/^([a-zA-Z]:\\\\|\/)+/', '', str_replace('\\', '/', $filename));
       if (empty($safeFilename) || str_starts_with($safeFilename, '__MACOSX/')) continue;
 
       $target = $extractPath . '/' . $safeFilename;

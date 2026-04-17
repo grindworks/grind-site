@@ -258,7 +258,6 @@ $basePath = rtrim($parsedBase['path'] ?? '/', '/') . '/';
 
 <div x-data="{
     postType: <?= htmlspecialchars(json_encode($post['type'] ?? 'post', JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT), ENT_QUOTES, 'UTF-8') ?>,
-    postStatus: <?= htmlspecialchars(json_encode(($post['status'] ?? '') === 'published' ? 'published' : 'draft', JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT), ENT_QUOTES, 'UTF-8') ?>,
     postSlug: <?= htmlspecialchars(json_encode($post['slug'] ?? '', JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT), ENT_QUOTES, 'UTF-8') ?>,
     isFutureDate: <?= $isFuture ? 'true' : 'false' ?>,
     isUpdateMode: <?= (($post['type'] ?? '') === 'template' ? ($action === 'edit') : (($post['status'] ?? '') === 'published')) ? 'true' : 'false' ?>,
@@ -266,7 +265,8 @@ $basePath = rtrim($parsedBase['path'] ?? '/', '/') . '/';
         seoTitle: <?= htmlspecialchars(json_encode($post['title'] ?? '', JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT), ENT_QUOTES, 'UTF-8') ?>,
         seoDesc: <?= htmlspecialchars(json_encode($post['description'] ?? '', JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT), ENT_QUOTES, 'UTF-8') ?>,
         seoImage: <?= htmlspecialchars(json_encode(get_media_url($post['thumbnail'] ?? ''), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT), ENT_QUOTES, 'UTF-8') ?>,
-        siteDomain: <?= htmlspecialchars(json_encode(parse_url(BASE_URL, PHP_URL_HOST) ?? 'localhost', JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT), ENT_QUOTES, 'UTF-8') ?>
+        siteDomain: <?= htmlspecialchars(json_encode(parse_url(BASE_URL, PHP_URL_HOST) ?? 'localhost', JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT), ENT_QUOTES, 'UTF-8') ?>,
+        postStatus: <?= htmlspecialchars(json_encode(($post['status'] ?? '') === 'published' ? 'published' : 'draft', JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT), ENT_QUOTES, 'UTF-8') ?>
     }),
     draggingIndex: null,
     dropTargetIndex: null,
@@ -682,49 +682,44 @@ $basePath = rtrim($parsedBase['path'] ?? '/', '/') . '/';
                      }, { passive: true });
                  "
                 :class="isStuck ? 'shadow-2xl ring-1 ring-theme-primary/20 bg-theme-surface/95 backdrop-blur-md' : ''">
-                <?php
-                $status = $post['status'] ?? 'new';
-                // Default (New)
-                $stColor = 'text-theme-primary';
-                $stDot = 'bg-theme-primary';
-                $stLabel = _t('st_new');
-                $stIcon = 'outline-plus-circle';
-
-                if ($status === 'published') {
-                    if ($isFuture) {
-                        $stColor = 'text-theme-warning';
-                        $stDot = 'bg-theme-warning';
-                        $stLabel = _t('st_reserved');
-                        $stIcon = 'outline-clock';
-                    } else {
-                        $stColor = 'text-theme-success';
-                        $stDot = 'bg-theme-success animate-pulse';
-                        $stLabel = _t('st_published');
-                        $stIcon = 'outline-globe-alt';
-                    }
-                } elseif ($status === 'draft') {
-                    $stColor = 'text-theme-text opacity-50';
-                    $stDot = 'bg-theme-text opacity-30';
-                    $stLabel = _t('st_draft');
-                    $stIcon = 'outline-document';
-                }
-                ?>
                 <div class="flex justify-between items-center border-theme-border border-b transition-all duration-300"
                     :class="isStuck ? 'px-4 py-3 bg-theme-bg/50' : 'px-5 py-4'">
                     <div class="flex items-center gap-3">
                         <div class="flex justify-center items-center bg-theme-bg shadow-theme border border-theme-border rounded-full transition-all duration-300"
                             :class="isStuck ? 'w-8 h-8' : 'w-10 h-10'">
-                            <svg class="transition-all duration-300 <?= $stColor ?>" :class="isStuck ? 'w-4 h-4' : 'w-5 h-5'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <use href="<?= grinds_asset_url('assets/img/sprite.svg') . '#' . $stIcon ?>"></use>
+                            <!-- Published -->
+                            <svg x-show="postStatus === 'published' && !isFutureDate" class="transition-all duration-300 text-theme-success" :class="isStuck ? 'w-4 h-4' : 'w-5 h-5'" fill="none" stroke="currentColor" viewBox="0 0 24 24" x-cloak>
+                                <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-globe-alt"></use>
+                            </svg>
+                            <!-- Reserved -->
+                            <svg x-show="postStatus === 'published' && isFutureDate" class="transition-all duration-300 text-theme-warning" :class="isStuck ? 'w-4 h-4' : 'w-5 h-5'" fill="none" stroke="currentColor" viewBox="0 0 24 24" x-cloak>
+                                <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-clock"></use>
+                            </svg>
+                            <!-- Draft -->
+                            <svg x-show="postStatus === 'draft' && isUpdateMode" class="transition-all duration-300 text-theme-text opacity-50" :class="isStuck ? 'w-4 h-4' : 'w-5 h-5'" fill="none" stroke="currentColor" viewBox="0 0 24 24" x-cloak>
+                                <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-document"></use>
+                            </svg>
+                            <!-- New -->
+                            <svg x-show="postStatus !== 'published' && !isUpdateMode" class="transition-all duration-300 text-theme-primary" :class="isStuck ? 'w-4 h-4' : 'w-5 h-5'" fill="none" stroke="currentColor" viewBox="0 0 24 24" x-cloak>
+                                <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-plus-circle"></use>
                             </svg>
                         </div>
                         <div>
                             <div class="opacity-40 font-bold text-[10px] text-theme-text uppercase leading-none tracking-wider transition-all duration-300"
                                 :class="isStuck ? 'mb-0.5' : 'mb-1.5'"><?= _t('lbl_status') ?></div>
                             <div class="flex items-center gap-2">
-                                <span class="w-2 h-2 rounded-full <?= $stDot ?>"></span>
+                                <span class="w-2 h-2 rounded-full"
+                                    :class="
+                                        postStatus === 'published' ? (isFutureDate ? 'bg-theme-warning' : 'bg-theme-success animate-pulse') :
+                                        (postStatus === 'draft' ? (isUpdateMode ? 'bg-theme-text opacity-30' : 'bg-theme-primary') : 'bg-theme-primary')
+                                    "></span>
+
                                 <span class="font-bold text-theme-text leading-none transition-all duration-300"
-                                    :class="isStuck ? 'text-sm' : 'text-base'"><?= $stLabel ?></span>
+                                    :class="isStuck ? 'text-sm' : 'text-base'"
+                                    x-text="
+                                        postStatus === 'published' ? (isFutureDate ? '<?= h(_t('st_reserved')) ?>' : '<?= h(_t('st_published')) ?>') :
+                                        (postStatus === 'draft' ? (isUpdateMode ? '<?= h(_t('st_draft')) ?>' : '<?= h(_t('st_new')) ?>') : '<?= h(_t('st_new')) ?>')
+                                    "></span>
                             </div>
                         </div>
                     </div>
@@ -759,7 +754,8 @@ $basePath = rtrim($parsedBase['path'] ?? '/', '/') . '/';
                                 </div>
                             </div>
 
-                            <div id="scheduled-message" class="<?= $isFuture ? '' : 'hidden' ?> mt-2 flex items-center gap-1.5 text-xs text-theme-warning font-bold bg-theme-warning/5 p-2 rounded-theme border border-theme-warning/20">
+                            <!-- Alpine.js の x-show に変更し、フェードアニメーション (x-transition) を追加 -->
+                            <div x-show="isFutureDate" x-transition x-cloak class="mt-2 flex items-center gap-1.5 text-xs text-theme-warning font-bold bg-theme-warning/5 p-2 rounded-theme border border-theme-warning/20">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-clock"></use>
                                 </svg>
@@ -812,27 +808,16 @@ $basePath = rtrim($parsedBase['path'] ?? '/', '/') . '/';
                         :disabled="isSubmitting || isUploading || isOffline">
 
                         <div class="z-10 relative flex justify-center items-center gap-2 font-bold text-sm transition-opacity duration-200" :class="isSubmitting ? 'text-transparent' : ''">
-                            <?php if (($post['type'] ?? '') === 'template'): ?>
-                                <input type="hidden" id="main-action-is-update" value="<?= ($action === 'edit') ? '1' : '0' ?>">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-arrow-path"></use>
-                                </svg>
-                                <span id="main-action-label"><?= ($action === 'edit') ? _t('update') : _t('save') ?></span>
-                            <?php elseif (($post['status'] ?? '') === 'published'): ?>
-                                <input type="hidden" id="main-action-is-update" value="1">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-arrow-path"></use>
-                                </svg>
-                                <span id="main-action-label"><?= $isFuture ? _t('action_schedule') : _t('update') ?></span>
-                            <?php
-                            else: ?>
-                                <input type="hidden" id="main-action-is-update" value="0">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-globe-alt"></use>
-                                </svg>
-                                <span id="main-action-label"><?= $isFuture ? _t('action_schedule') : _t('action_publish') ?></span>
-                            <?php
-                            endif; ?>
+                            <input type="hidden" id="main-action-is-update" :value="isUpdateMode ? '1' : '0'">
+
+                            <svg x-show="isUpdateMode || postType === 'template'" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" x-cloak>
+                                <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-arrow-path"></use>
+                            </svg>
+                            <svg x-show="!isUpdateMode && postType !== 'template'" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" x-cloak>
+                                <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-globe-alt"></use>
+                            </svg>
+
+                            <span id="main-action-label" x-text="postType === 'template' ? (isUpdateMode ? '<?= h(_t('update')) ?>' : '<?= h(_t('save')) ?>') : (isFutureDate ? '<?= h(_t('action_schedule')) ?>' : (isUpdateMode ? '<?= h(_t('update')) ?>' : '<?= h(_t('action_publish')) ?>'))"></span>
                         </div>
 
                         <div class="absolute inset-0 flex items-center justify-center transition-opacity duration-200" :class="isSubmitting ? 'opacity-100' : 'opacity-0 pointer-events-none'">

@@ -100,7 +100,7 @@ $activeClass = 'bg-theme-primary border-theme-primary text-theme-on-primary font
 
       <!-- Search button -->
       <div class="px-4 pt-4 pb-2 shrink-0">
-        <button @click="searchOpen = true; sidebarOpen = false; reset(); $refs.searchInput.focus();"
+        <button @click="searchOpen = true; sidebarOpen = false; reset(); $nextTick(() => $refs.searchInput.focus());"
           class="group flex justify-between items-center shadow-theme px-3 py-2.5 border skin-sidebar-border rounded-theme w-full text-sm transition-colors skin-sidebar-input skin-sidebar-muted"
           title="<?= _t('search') ?>">
           <div class="flex items-center"><svg class="opacity-70 mr-3 w-4 h-4" fill="none" stroke="currentColor"

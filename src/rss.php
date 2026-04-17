@@ -347,7 +347,7 @@ if (!class_exists('RssGenerator')) {
       $html = preg_replace('/<img[^>]++src=["\']data:image\/[^"\']++["\'][^>]*+>/i', '', $html) ?? $html;
 
       // Convert relative URLs to absolute.
-      $html = preg_replace_callback('/(href|src)=["\']([^"\']+)["\']/i', function ($m) {
+      $html = preg_replace_callback('/(href|src)=["\']([^"\']++)["\']/i', function ($m) {
         $url = $m[2];
         if (preg_match('/^(https?:\/\/|\/\/|mailto:|tel:|data:|#)/i', $url)) {
           return $m[0];
@@ -366,14 +366,14 @@ if (!class_exists('RssGenerator')) {
       }, $html) ?? $html;
 
       // Convert protocol-relative URLs.
-      $html = preg_replace_callback('/(href|src)=["\']\/\/([^"\']+)["\']/i', function ($m) {
+      $html = preg_replace_callback('/(href|src)=["\']\/\/([^"\']++)["\']/i', function ($m) {
         $parsedBase = parse_url($this->serverRoot);
         $scheme = $parsedBase['scheme'] ?? 'https';
         return $m[1] . '="' . $scheme . '://' . $m[2] . '"';
       }, $html) ?? $html;
 
       // Convert srcset URLs.
-      $html = preg_replace_callback('/srcset=["\']([^"\']+)["\']/i', function ($matches) {
+      $html = preg_replace_callback('/srcset=["\']([^"\']++)["\']/i', function ($matches) {
         $srcset = preg_replace_callback('/(^|,\s*)([^\s,]+)/', function ($m) {
           $url = $m[2];
           if (preg_match('/^(https?:\/\/|\/\/|data:)/i', $url)) {

@@ -2,7 +2,13 @@
 
 /** PDF Block View */
 if (!defined('GRINDS_APP')) exit; ?>
-<div class="bg-theme-bg/40 p-4 border border-theme-border rounded-theme" x-data="{ isUploading: false }">
+<div class="bg-theme-bg/40 p-4 border border-theme-border rounded-theme transition-colors"
+  x-data="{ isUploading: false, isDragging: false, dragCount: 0 }"
+  @dragenter.prevent="dragCount++; isDragging = true"
+  @dragover.prevent="isDragging = true"
+  @dragleave.prevent="dragCount--; if (dragCount === 0) isDragging = false"
+  @drop.prevent="dragCount = 0; isDragging = false; if($event.dataTransfer.files.length) { isUploading = true; await uploadImage({target: {files: $event.dataTransfer.files}}, block.id, 'url'); isUploading = false; }"
+  :class="{'border-theme-primary bg-theme-primary/5': isDragging}">
   <div class="flex flex-col gap-3">
     <!-- Document title -->
     <div>

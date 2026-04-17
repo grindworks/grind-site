@@ -43,8 +43,13 @@ if (function_exists('get_front_banners')) {
     <?php else: ?>
       <?php
       $fCats = [];
-      if (function_exists('default_get_categories')) {
-        $fCats = default_get_categories();
+      global $pdo;
+      if (isset($pdo) && $pdo instanceof PDO) {
+        try {
+          $fCats = $pdo->query("SELECT * FROM categories ORDER BY sort_order ASC")->fetchAll();
+        } catch (Exception $e) {
+          // ignore
+        }
       }
       if (!empty($fCats)):
       ?>

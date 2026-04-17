@@ -717,6 +717,23 @@ function _theme_generate_canonical_url(string $pageType, array $pageData, string
         $currentPage = 1;
     }
 
+    // 1. Store base URL (without pagination) for OGP
+    // Prevents SNS share counts from splitting across paginated URLs like ?page=2
+    $ogpUrl = $canonicalUrl . $urlPath;
+    if (defined('GRINDS_IS_SSG') && GRINDS_IS_SSG) {
+        if ($pageType === 'home') {
+            $ogpUrl = $canonicalUrl . '/';
+        } elseif ($pageType !== 'home' && !str_ends_with($ogpUrl, '.html')) {
+            if (str_contains($ogpUrl, '?')) {
+                $parts = explode('?', $ogpUrl, 2);
+                $ogpUrl = $parts[0] . '.html?' . $parts[1];
+            } elseif (!str_ends_with($ogpUrl, '/')) {
+                $ogpUrl .= '.html';
+            }
+        }
+    }
+
+    // 2. Append pagination parameters to Canonical URL (for Googlebot)
     if (defined('GRINDS_IS_SSG') && GRINDS_IS_SSG) {
         if ($pageType === 'home' && $currentPage > 1) {
             $urlPath = '/index';
@@ -748,9 +765,6 @@ function _theme_generate_canonical_url(string $pageType, array $pageData, string
     }
 
     $showCanonical = !(defined('GRINDS_IS_SSG') && GRINDS_IS_SSG && !get_option('ssg_base_url'));
-
-    // Align og:url with canonical URL to prevent SEO signal conflicts
-    $ogpUrl = $canonicalUrl;
 
     return [$canonicalUrl, $showCanonical, $ogpUrl];
 }

@@ -174,7 +174,7 @@ $statusLabel = strtoupper($sysStatus['status']);
 
               <!-- Search box -->
               <div class="group relative"
-                @click="searchOpen = true; reset(); $refs.searchInput.focus();">
+                @click="searchOpen = true; reset(); $nextTick(() => $refs.searchInput.focus());">
                 <div
                   class="flex items-center bg-theme-bg px-3 py-1.5 border border-theme-border hover:border-theme-primary/50 rounded-theme transition-colors cursor-pointer">
                   <svg class="mr-2 w-4 h-4 text-theme-text/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -258,7 +258,7 @@ $statusLabel = strtoupper($sysStatus['status']);
 
             <!-- Mobile toggle buttons -->
             <div class="md:hidden flex items-center gap-2 -mr-2">
-              <button @click="searchOpen = true; reset(); $refs.searchInput.focus();"
+              <button @click="searchOpen = true; reset(); $nextTick(() => $refs.searchInput.focus());"
                 class="p-2 text-theme-text/60 hover:text-theme-primary" aria-label="<?= _t('search') ?>">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-magnifying-glass"></use>

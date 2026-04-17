@@ -585,6 +585,7 @@ return [
     'ph_unlock_msg' => 'Este conteúdo é protegido por senha.',
     'btn_unlock' => 'Desbloquear',
     'err_wrong_password' => 'Senha incorreta.',
+    'err_password_protect_at_bottom' => 'Aviso: Este bloco está na parte inferior. Nenhum conteúdo está sendo protegido.',
 
     // Define media library strings.
     'title_media_library' => 'Biblioteca de Mídia',

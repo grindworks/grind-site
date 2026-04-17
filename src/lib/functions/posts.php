@@ -100,9 +100,16 @@ function _grinds_collect_media_from_posts(PDO $pdo, ?array $postIds = null, bool
  */
 function grinds_empty_trash(PDO $pdo, ?string $type = null): int
 {
-    // Validate type parameter
-    if ($type !== null && !in_array($type, ['post', 'page', 'template'], true)) {
-        $type = null;
+    // Validate type parameter dynamically to support Custom Post Types
+    if ($type !== null) {
+        $allowed_types = ['post', 'page', 'template'];
+        if (function_exists('grinds_get_theme_post_types')) {
+            $cpts = grinds_get_theme_post_types();
+            $allowed_types = array_merge($allowed_types, array_keys($cpts));
+        }
+        if (!in_array($type, $allowed_types, true)) {
+            $type = null;
+        }
     }
 
     // Collect file candidates and IDs in a single query.

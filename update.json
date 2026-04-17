@@ -1,7 +1,7 @@
 {
-  "version": "1.6.6",
-  "release_date": "2026-04-16",
-  "message": "License Registration Fix, Admin UI Improvements & Translation Updates",
-  "download_url": "https://github.com/grindworks/grind-site/releases/download/v1.6.6/grindsite-v1.6.6.zip",
-  "sha256": "4b144a06552229c078d667eb3a27c93639e5323674c976bd8a3ce1aded4366b6"
+  "version": "1.6.7",
+  "release_date": "2026-04-17",
+  "message": "Core Maintenance, Translation Fixes & Skin Cleanup",
+  "download_url": "https://github.com/grindworks/grind-site/releases/download/v1.6.7/grindsite-v1.6.7.zip",
+  "sha256": "a3743a73dbc0decdad55c798d489420f78785579190cf869039e18cd2ed9d0bf"
 }

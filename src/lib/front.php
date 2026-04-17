@@ -197,17 +197,19 @@ function resolve_front_request($request_url)
     }
 
     // Preload thumbnail image metadata to prevent N+1 queries
-    if (isset($result['data']['posts']) && is_array($result['data']['posts'])) {
-        if (function_exists('grinds_preload_image_meta')) {
-            $thumbUrls = [];
+    if (function_exists('grinds_preload_image_meta')) {
+        $thumbUrls = [];
+        if (isset($result['data']['posts']) && is_array($result['data']['posts'])) {
             foreach ($result['data']['posts'] as $p) {
-                if (!empty($p['thumbnail'])) {
-                    $thumbUrls[] = $p['thumbnail'];
-                }
+                if (!empty($p['thumbnail'])) $thumbUrls[] = $p['thumbnail'];
             }
-            if (!empty($thumbUrls)) {
-                grinds_preload_image_meta(array_unique($thumbUrls));
-            }
+        } elseif (isset($result['data']['post']) && is_array($result['data']['post'])) {
+            if (!empty($result['data']['post']['thumbnail'])) $thumbUrls[] = $result['data']['post']['thumbnail'];
+            if (!empty($result['data']['post']['hero_image'])) $thumbUrls[] = $result['data']['post']['hero_image'];
+        }
+
+        if (!empty($thumbUrls)) {
+            grinds_preload_image_meta(array_unique($thumbUrls));
         }
     }
 

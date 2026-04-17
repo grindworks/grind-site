@@ -15,11 +15,22 @@ if (!defined('GRINDS_APP')) exit; ?>
         <strong class="block text-theme-warning"><?= _t('desc_password_protect_usage_warn') ?></strong>
         <strong class="block text-theme-danger"><?= _t('desc_password_protect_warn') ?></strong>
     </p>
+
+    <!-- 記事の末尾に配置された場合のリアルタイム警告 -->
+    <div x-show="index === blocks.length - 1" class="flex items-center gap-2 bg-theme-danger/10 border border-theme-danger/30 text-theme-danger text-xs p-3 rounded-theme mb-4 font-bold" x-cloak>
+        <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-exclamation-circle"></use>
+        </svg>
+        <span><?= _t('err_password_protect_at_bottom') ?></span>
+    </div>
+
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
             <label class="block opacity-70 mb-1 font-bold text-[10px] text-theme-text"><?= _t('lbl_password') ?></label>
             <div class="relative" x-data="{ show: false }">
-                <input :type="show ? 'text' : 'password'" x-model="block.data.password" :id="'block-' + block.id + '-password'" class="w-full text-xs form-control-sm font-mono pr-8" placeholder="<?= _t('ph_password') ?>">
+                <input :type="show ? 'text' : 'password'" x-model="block.data.password" :id="'block-' + block.id + '-password'"
+                    autocomplete="new-password" data-lpignore="true" data-1p-ignore="true" data-form-type="other"
+                    class="w-full text-xs form-control-sm font-mono pr-8" placeholder="<?= _t('ph_password') ?>">
                 <button type="button" @click="show = !show" class="absolute right-0 inset-y-0 px-2 flex items-center opacity-50 hover:opacity-100 focus:outline-none text-theme-text">
                     <svg x-show="!show" class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-eye"></use>

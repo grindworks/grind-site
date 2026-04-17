@@ -585,6 +585,7 @@ return [
     'ph_unlock_msg' => 'Ce contenu est protégé par un mot de passe.',
     'btn_unlock' => 'Déverrouiller',
     'err_wrong_password' => 'Mot de passe incorrect.',
+    'err_password_protect_at_bottom' => 'Avertissement : Ce bloc est en bas. Aucun contenu n\'est protégé.',
 
     // Define media library strings.
     'title_media_library' => 'Médiathèque',

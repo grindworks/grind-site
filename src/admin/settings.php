@@ -638,7 +638,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             foreach ($val as $cKey => $cVal) {
               $skinData['colors'][$cKey] = $cVal;
             }
-          } elseif (!in_array($key, ['name', 'description', 'css'], true)) {
+            // Exclude 'is_dark' and 'is_sidebar_dark' to allow auto-detection on load
+          } elseif (!in_array($key, ['name', 'description', 'css', 'is_dark', 'is_sidebar_dark'], true)) {
             $skinData[$key] = $val;
           }
         }

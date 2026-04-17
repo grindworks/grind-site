@@ -133,6 +133,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           'slug' => $finalSlug,
           'version' => $result['version'] ?? null,
           'updated_at' => $result['updated_at'] ?? null,
+          'status' => $_POST['status'] ?? 'draft',
+          'type' => $_POST['type'] ?? 'post',
           'message' => _t('msg_post_saved')
         ]);
       }

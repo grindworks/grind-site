@@ -585,6 +585,7 @@ return [
     'ph_unlock_msg' => 'このコンテンツはパスワードで保護されています。',
     'btn_unlock' => '閲覧する',
     'err_wrong_password' => 'パスワードが間違っています。',
+    'err_password_protect_at_bottom' => '警告：このブロックは一番下にあります。保護されるコンテンツがありません。',
 
     // Define media library strings.
     'title_media_library' => 'メディアライブラリ',

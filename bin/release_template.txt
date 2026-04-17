@@ -1,29 +1,29 @@
 Release title
-v1.6.6 - License Registration Fix, Admin UI Improvements & Translation Updates
+v1.6.7 - Core Maintenance, Translation Fixes & Skin Cleanup
 
 Release notes
-This release primarily fixes an issue where the commercial license key could not be registered successfully. It also brings various improvements to the admin interface, enhances the contact forms across all bundled themes, and updates translation files.
+This release focuses on internal maintenance, cleaning up unused admin skin files, fixing missing translation keys, and improving overall system stability.
 
-### 🛡️ Bug Fixes
-- **License Registration:** Fixed an issue where the license key validation and registration failed under certain conditions.
-- **System & Functions:** Minor bug fixes and logic improvements in core functions (`posts.php`, `system.php`, `theme.php`, `utils.php`).
+### 🛡️ Bug Fixes & Maintenance
+- **Translations:** Added missing translation keys for the Password Protect block across all languages (`en`, `ja`, `de`, `es`, `fr`, `pt-br`).
+- **Block Views:** Cleaned up the view template for the Password Protect block.
+- **Dependencies:** Updated internal build dependencies (`caniuse-lite` database).
 
 ### ✨ Enhancements
-- **Admin UI & Editor Improvements:** Updated various block views and the block editor script (`admin_editor.js`) for better stability and user experience.
-- **Contact Form Updates:** Enhanced the contact form templates (`contact.php`) across all default themes (Default, Bootstrap, Corporate, Marketing, Neo-Minimalist, Photographer).
-- **Translation Updates:** Updated language files (`en.php`, `ja.php`, `de.php`, `es.php`, `fr.php`, `pt-br.php`) with new keys and improved translations.
+- **Admin Skins:** Cleaned up 24 unused/deprecated admin skins to streamline the system.
+- **Core & API:** General refinements and stability improvements in core systems, API endpoints, and block editor components.
 
 ---
 
 ## 🇯🇵 日本語 (Japanese)
 
-このリリースでは、商用ライセンスが正常に登録できない不具合の修正をメインに、管理画面UIの各種改善、全テーマのお問い合わせフォームの強化、および多言語翻訳ファイルのアップデートが含まれています。
+このリリースは、内部システムのメンテナンス、未使用スキンファイルの整理、翻訳キーの追加、および全体的な安定性向上を目的としています。
 
-### 🛡️ バグ修正
-- **ライセンス登録の修正:** 特定の環境下において、商用ライセンスキーが正常に登録・認証されない不具合を修正しました。
-- **システムとコア関数:** コア機能（`posts.php`, `system.php`, `theme.php`, `utils.php`）における軽微なバグ修正とロジックの改善を行いました。
+### 🛡️ バグ修正・メンテナンス
+- **翻訳ファイルの修正:** パスワード保護ブロックに関する多言語翻訳キー (`err_password_protect_at_bottom`) の抜けを全言語で修正しました。
+- **ブロックビュー:** パスワード保護ブロックのテンプレートコードをクリーンアップしました。
+- **依存パッケージ:** 内部のビルドツール（ブラウザ対応状況データベース）を最新化しました。
 
-### ✨ 新機能・改善
-- **管理画面＆エディタの改善:** エディタの安定性向上とUX改善のため、各種ブロックのビューファイルおよびエディタのスクリプト(`admin_editor.js`)を更新しました。
-- **お問い合わせフォームのアップデート:** 同梱されている全テーマ（Default, Bootstrap, Corporate, Marketing, Neo-Minimalist, Photographer）のお問い合わせフォームテンプレート (`contact.php`) を改良しました。
-- **翻訳ファイルの更新:** 各国語の言語ファイル (`en.php`, `ja.php`, `de.php`, `es.php`, `fr.php`, `pt-br.php`) に新しいキーを追加し、翻訳の精度を向上させました。
+### ✨ 改善・新機能
+- **管理画面スキン:** システムをスッキリさせるため、未使用・非推奨のカスタムスキン（24種類）を整理・削除しました。
+- **コアシステム・API:** データベース処理、ファイルマネージャー、APIエンドポイント、および各種ブロックコンポーネントの全般的なブラッシュアップを行いました。

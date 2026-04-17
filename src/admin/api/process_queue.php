@@ -6,6 +6,9 @@
  * Virtual Publish Queue processor.
  * Processes background tasks (like SSG generation) asynchronously.
  */
+// Define SSG flag to prevent XML/TXT generators from outputting HTTP headers during background processing
+define('GRINDS_IS_SSG', true);
+
 require_once __DIR__ . '/api_bootstrap.php';
 
 // Defense in Depth: Prevent unauthenticated/CSRF requests from causing DoS

@@ -146,7 +146,7 @@ class FileManager
                 throw new Exception(_t('err_failed_create_dir'));
             }
 
-            // Prevent double extension
+            // Prevent double extension (and multi-extension vulnerabilities)
             $baseName = str_replace('.', '_', $baseName);
 
             // Sanitize filename (ASCII only to avoid NFD/NFC issues)
@@ -177,9 +177,14 @@ class FileManager
 
             // Handle duplicates
             if ($isCollision($newFilename)) {
+                $retryCount = 0;
                 $newFilename = $safeName . '-' . bin2hex(random_bytes(6)) . '.' . $ext;
                 while ($isCollision($newFilename)) {
+                    if ($retryCount >= 10) {
+                        throw new Exception('Failed to generate a unique filename.');
+                    }
                     $newFilename = $safeName . '-' . bin2hex(random_bytes(6)) . '.' . $ext;
+                    $retryCount++;
                 }
             }
 

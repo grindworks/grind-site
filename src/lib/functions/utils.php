@@ -641,8 +641,9 @@ if (!function_exists('grinds_force_unlink')) {
         if (!file_exists($path))
             return true;
 
-        if (function_exists('opcache_invalidate'))
+        if (function_exists('opcache_invalidate') && strtolower(pathinfo($path, PATHINFO_EXTENSION)) === 'php') {
             @opcache_invalidate($path, true);
+        }
 
         if (@unlink($path))
             return true;

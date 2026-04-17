@@ -585,6 +585,7 @@ return [
     'ph_unlock_msg' => 'Dieser Inhalt ist passwortgeschützt.',
     'btn_unlock' => 'Entsperren',
     'err_wrong_password' => 'Falsches Passwort.',
+    'err_password_protect_at_bottom' => 'Warnung: Dieser Block befindet sich ganz unten. Es wird kein Inhalt geschützt.',
 
     // Define media library strings.
     'title_media_library' => 'Mediathek',
