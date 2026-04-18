@@ -374,8 +374,7 @@ ob_start();
                                     ? '検索エンジンはサブディレクトリ内の robots.txt を自動検出しません。ドメインルートの robots.txt に以下を追加してください。'
                                     : 'Search engines do not automatically detect robots.txt in subdirectories. Please add the following to your domain root robots.txt:' ?>
                             </p>
-                            <code
-                                class="block bg-theme-bg mt-2 p-2 border border-theme-border rounded-theme font-mono text-[10px] select-all">Sitemap: <?= h(resolve_url('sitemap.xml')) ?></code>
+                            <code class="block bg-theme-bg mt-2 p-2 border border-theme-border rounded-theme font-mono text-[10px] select-all break-all">Sitemap: <?= h(resolve_url('sitemap.xml')) ?></code>
                         </div>
                     <?php endif; ?>
 

@@ -76,36 +76,47 @@ if (!class_exists('LlmsTxtGenerator')) {
             return $isNoIndex || $isBlockAi;
         }
 
+        public function generateToFile(string $filePath): void
+        {
+            if ($this->shouldBlockAi()) {
+                file_put_contents($filePath, "# Content Unavailable\n> This site is configured to block AI crawling or indexing.\n");
+                return;
+            }
+            $fp = fopen($filePath, 'w');
+            if ($fp !== false) {
+                $this->writeContent($fp);
+                fclose($fp);
+            }
+        }
+
+        public function generateAsString(): string
+        {
+            $fp = fopen('php://temp', 'r+');
+            $this->writeContent($fp);
+            rewind($fp);
+            $content = stream_get_contents($fp);
+            fclose($fp);
+            return $content;
+        }
+
         private function generateAndCache(): void
         {
-            $tempFile = @tempnam(dirname($this->cacheFile), 'tmp_llms_short_');
-            if ($tempFile === false) {
-                $this->sendError(500);
-                return;
-            }
-
-            $fp = fopen($tempFile, 'w');
-            if ($fp === false) {
-                $this->sendError(500);
-                return;
-            }
-
-            $this->writeContent($fp);
-            fclose($fp);
+            $content = $this->generateAsString();
 
             if (!$this->isSsgMode) {
-                if (rename($tempFile, $this->cacheFile)) {
-                    chmod($this->cacheFile, 0644);
-                } else {
-                    grinds_force_unlink($tempFile);
+                $tempFile = @tempnam(dirname($this->cacheFile), 'tmp_llms_short_');
+                if ($tempFile !== false) {
+                    file_put_contents($tempFile, $content);
+                    if (rename($tempFile, $this->cacheFile)) {
+                        chmod($this->cacheFile, 0644);
+                    } else {
+                        grinds_force_unlink($tempFile);
+                    }
                 }
-                $this->sendHeaders();
-                readfile($this->cacheFile);
-            } else {
-                $this->sendHeaders();
-                readfile($tempFile);
-                grinds_force_unlink($tempFile);
             }
+
+            $this->sendHeaders();
+            echo $content;
         }
 
         private function writeContent($fp): void
@@ -188,7 +199,11 @@ if (!class_exists('LlmsTxtGenerator')) {
                 if ($this->isSsgMode) {
                     $ssgSlug = mb_strtolower($slug, 'UTF-8');
                     if (pathinfo($ssgSlug, PATHINFO_EXTENSION) === '') $ssgSlug .= '.html';
-                    $url = $this->baseUrl !== '' ? $this->baseUrl . '/' . ltrim($ssgSlug, '/') : '/' . ltrim($ssgSlug, '/');
+
+                    $parts = explode('/', ltrim($ssgSlug, '/'));
+                    $encodedParts = array_map('rawurlencode', $parts);
+                    $encodedSlug = implode('/', $encodedParts);
+                    $url = $this->baseUrl !== '' ? $this->baseUrl . '/' . $encodedSlug : '/' . $encodedSlug;
                 } else {
                     $url = function_exists('get_permalink') ? get_permalink($slug) : ($this->baseUrl . '/' . $slug);
                     if (!is_string($url)) $url = $this->baseUrl . '/' . $slug;
@@ -261,12 +276,14 @@ if (!class_exists('LlmsTxtGenerator')) {
 }
 
 // Execute generator.
-$isSsgMode = defined('GRINDS_IS_SSG') && GRINDS_IS_SSG;
-$baseUrl = defined('BASE_URL') ? (string)BASE_URL : '';
-if ($isSsgMode && isset($ssgBaseUrl) && $ssgBaseUrl !== '') {
-    $baseUrl = $ssgBaseUrl;
-}
-$pdo = App::db();
+if (basename(__FILE__) === basename($_SERVER['SCRIPT_FILENAME'])) {
+    $isSsgMode = defined('GRINDS_IS_SSG') && GRINDS_IS_SSG;
+    $baseUrl = defined('BASE_URL') ? (string)BASE_URL : '';
+    if ($isSsgMode && isset($ssgBaseUrl) && $ssgBaseUrl !== '') {
+        $baseUrl = $ssgBaseUrl;
+    }
+    $pdo = App::db();
 
-$generator = new LlmsTxtGenerator($pdo, $baseUrl, $isSsgMode);
-$generator->run();
+    $generator = new LlmsTxtGenerator($pdo, $baseUrl, $isSsgMode);
+    $generator->run();
+}

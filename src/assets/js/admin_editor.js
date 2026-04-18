@@ -111,7 +111,8 @@ document.addEventListener('alpine:init', () => {
       if (files.length === 0) return;
 
       this.isUploading = true;
-      for (const file of files) {
+
+      const uploadTasks = files.map((file) => {
         const previewUrl = URL.createObjectURL(file);
         const newBlock = {
           id: this.generateId(),
@@ -121,12 +122,24 @@ document.addEventListener('alpine:init', () => {
           _isUploading: true,
         };
         this.blocks.push(newBlock);
-        const mockEvent = { target: { files: [file], value: '' } };
-        await this.uploadImage(mockEvent, newBlock.id, 'url');
-        const actualIndex = this.blocks.findIndex((b) => b.id === newBlock.id);
-        if (actualIndex !== -1) this.blocks[actualIndex]._isUploading = false;
-        URL.revokeObjectURL(previewUrl);
-      }
+        return { file, blockId: newBlock.id, previewUrl };
+      });
+
+      this.$nextTick(() => window.scrollTo(0, document.body.scrollHeight));
+
+      await Promise.all(
+        uploadTasks.map(async (task) => {
+          const mockEvent = { target: { files: [task.file], value: '' } };
+          await this.uploadImage(mockEvent, task.blockId, 'url');
+
+          const actualIndex = this.blocks.findIndex((b) => b.id === task.blockId);
+          if (actualIndex !== -1) {
+            this.blocks[actualIndex]._isUploading = false;
+          }
+          URL.revokeObjectURL(task.previewUrl);
+        })
+      );
+
       this.isUploading = false;
     },
 
@@ -147,7 +160,8 @@ document.addEventListener('alpine:init', () => {
 
       this.isUploading = true;
       let currentIndex = targetIndex;
-      for (const file of files) {
+
+      const uploadTasks = files.map((file) => {
         const previewUrl = URL.createObjectURL(file);
         const newBlock = {
           id: this.generateId(),
@@ -157,15 +171,23 @@ document.addEventListener('alpine:init', () => {
           _isUploading: true,
         };
         this.blocks.splice(currentIndex, 0, newBlock);
-
-        const mockEvent = { target: { files: [file], value: '' } };
-        await this.uploadImage(mockEvent, newBlock.id, 'url');
-
-        const actualIndex = this.blocks.findIndex((b) => b.id === newBlock.id);
-        if (actualIndex !== -1) this.blocks[actualIndex]._isUploading = false;
-        URL.revokeObjectURL(previewUrl);
         currentIndex++;
-      }
+        return { file, blockId: newBlock.id, previewUrl };
+      });
+
+      await Promise.all(
+        uploadTasks.map(async (task) => {
+          const mockEvent = { target: { files: [task.file], value: '' } };
+          await this.uploadImage(mockEvent, task.blockId, 'url');
+
+          const actualIndex = this.blocks.findIndex((b) => b.id === task.blockId);
+          if (actualIndex !== -1) {
+            this.blocks[actualIndex]._isUploading = false;
+          }
+          URL.revokeObjectURL(task.previewUrl);
+        })
+      );
+
       this.isUploading = false;
     },
 
@@ -332,7 +354,7 @@ document.addEventListener('alpine:init', () => {
           this.isUploading = true;
 
           (async () => {
-            for (const file of imageFiles) {
+            const uploadTasks = imageFiles.map((file) => {
               const previewUrl = URL.createObjectURL(file);
               const newBlock = {
                 id: this.generateId(),
@@ -342,13 +364,23 @@ document.addEventListener('alpine:init', () => {
                 _isUploading: true,
               };
               this.blocks.push(newBlock);
-              this.$nextTick(() => window.scrollTo(0, document.body.scrollHeight));
-              const mockEvent = { target: { files: [file], value: '' } };
-              await this.uploadImage(mockEvent, newBlock.id, 'url');
-              const actualIndex = this.blocks.findIndex((b) => b.id === newBlock.id);
-              if (actualIndex !== -1) this.blocks[actualIndex]._isUploading = false;
-              URL.revokeObjectURL(previewUrl);
-            }
+              return { file, blockId: newBlock.id, previewUrl };
+            });
+
+            this.$nextTick(() => window.scrollTo(0, document.body.scrollHeight));
+
+            await Promise.all(
+              uploadTasks.map(async (task) => {
+                const mockEvent = { target: { files: [task.file], value: '' } };
+                await this.uploadImage(mockEvent, task.blockId, 'url');
+                const actualIndex = this.blocks.findIndex((b) => b.id === task.blockId);
+                if (actualIndex !== -1) {
+                  this.blocks[actualIndex]._isUploading = false;
+                }
+                URL.revokeObjectURL(task.previewUrl);
+              })
+            );
+
             this.isUploading = false;
           })();
           return;

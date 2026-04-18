@@ -149,7 +149,7 @@ if (($init_tab ?? '') === 'update') {
         </div>
 
         <!-- Progress Modal UI (Visible during update) -->
-        <div x-show="isProcessing" x-collapse class="mb-6">
+        <div x-show="isProcessing || isComplete || hasError" x-collapse class="mb-6">
           <div class="bg-theme-surface border border-theme-border rounded-theme p-6 shadow-theme">
             <h4 class="font-bold text-theme-primary text-lg mb-4 flex items-center gap-2">
               <svg class="w-5 h-5 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24" x-show="!isComplete && !hasError">
@@ -199,7 +199,7 @@ if (($init_tab ?? '') === 'update') {
 
           <button type="button" @click="startUpdate()" :disabled="isProcessing || isComplete"
             class="shadow-theme px-8 py-2.5 rounded-theme w-full sm:w-auto font-bold text-sm transition-all btn-primary flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed hover:-translate-y-0.5">
-            <svg x-show="!isProcessing && !isComplete" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg x-show="!isProcessing && !isComplete && !hasError" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-arrow-down-tray"></use>
             </svg>
             <svg x-show="isProcessing" x-cloak class="w-4 h-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -208,7 +208,10 @@ if (($init_tab ?? '') === 'update') {
             <svg x-show="isComplete" x-cloak class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-check"></use>
             </svg>
-            <span x-text="isComplete ? <?= htmlspecialchars(json_encode(_t('js_done') ?? 'Done!', JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT), ENT_QUOTES, 'UTF-8') ?> : (isProcessing ? <?= htmlspecialchars(json_encode(_t('ssg_btn_generating') ?? 'Updating...', JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT), ENT_QUOTES, 'UTF-8') ?> : <?= htmlspecialchars(json_encode(_t('st_btn_update_now'), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT), ENT_QUOTES, 'UTF-8') ?>)"></span>
+            <svg x-show="hasError && !isProcessing" x-cloak class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-arrow-path"></use>
+            </svg>
+            <span x-text="isComplete ? <?= htmlspecialchars(json_encode(_t('js_done') ?? 'Done!', JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT), ENT_QUOTES, 'UTF-8') ?> : (isProcessing ? <?= htmlspecialchars(json_encode(_t('ssg_btn_generating') ?? 'Updating...', JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT), ENT_QUOTES, 'UTF-8') ?> : (hasError ? <?= htmlspecialchars(json_encode(_t('btn_retry') ?? 'Retry Update', JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT), ENT_QUOTES, 'UTF-8') ?> : <?= htmlspecialchars(json_encode(_t('st_btn_update_now'), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT), ENT_QUOTES, 'UTF-8') ?>))"></span>
           </button>
         </div>
       </div>
@@ -328,6 +331,7 @@ if (($init_tab ?? '') === 'update') {
 
                 this.statusTitle = <?= json_encode(_t('msg_update_success') ?? 'Update Complete!', JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>.replace('%s', initRes.version);
                 this.isComplete = true;
+                this.isProcessing = false;
 
                 // Reload after success
                 setTimeout(() => {
@@ -336,6 +340,7 @@ if (($init_tab ?? '') === 'update') {
                 }, 2000);
 
               } catch (e) {
+                this.isProcessing = false;
                 this.hasError = true;
                 this.statusTitle = 'Update Failed';
                 this.errorMessage = e.message;

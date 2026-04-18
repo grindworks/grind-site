@@ -81,16 +81,9 @@ if (!class_exists('RssGenerator')) {
       $this->generateAndCacheFeed();
     }
 
-    private function generateAndCacheFeed(): void
+    public function generateToFile(string $filePath): void
     {
-      if (!$this->isSsgMode) {
-        while (ob_get_level()) {
-          ob_end_clean();
-        }
-      }
       ob_start();
-      $this->sendHeaders();
-
       echo '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
 ?>
       <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:dc="http://purl.org/dc/elements/1.1/">
@@ -105,10 +98,45 @@ if (!class_exists('RssGenerator')) {
           <?php $this->generateFeedItems(); ?>
         </channel>
       </rss>
-<?php
-      $content = ob_get_flush();
+    <?php
+      $content = ob_get_clean();
+      file_put_contents($filePath, $content);
+    }
 
-      if (!$this->isSsgMode && $content && is_writable(dirname($this->cacheFile))) {
+    public function generateAsString(): string
+    {
+      ob_start();
+      echo '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
+    ?>
+      <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:dc="http://purl.org/dc/elements/1.1/">
+        <channel>
+          <title><?= htmlspecialchars($this->siteName, ENT_XML1, 'UTF-8') ?></title>
+          <link><?= htmlspecialchars($this->baseUrl, ENT_XML1, 'UTF-8') ?>/</link>
+          <description><?= htmlspecialchars($this->siteDesc, ENT_XML1, 'UTF-8') ?></description>
+          <language><?= htmlspecialchars($this->siteLang, ENT_XML1, 'UTF-8') ?></language>
+          <atom:link href="<?= htmlspecialchars($this->baseUrl . '/rss.xml', ENT_XML1, 'UTF-8') ?>" rel="self" type="application/rss+xml" />
+          <lastBuildDate><?= date(DATE_RSS) ?></lastBuildDate>
+          <generator>GrindSite</generator>
+          <?php $this->generateFeedItems(); ?>
+        </channel>
+      </rss>
+<?php
+      return ob_get_clean();
+    }
+
+    private function generateAndCacheFeed(): void
+    {
+      $content = $this->generateAsString();
+
+      if (!$this->isSsgMode) {
+        while (ob_get_level()) {
+          ob_end_clean();
+        }
+      }
+      $this->sendHeaders();
+      echo $content;
+
+      if (!$this->isSsgMode && $content !== '' && is_writable(dirname($this->cacheFile))) {
         $tempFile = tempnam(dirname($this->cacheFile), 'rss_');
         if ($tempFile) {
           if (file_put_contents($tempFile, $content) !== false) {
@@ -413,12 +441,14 @@ if (!class_exists('RssGenerator')) {
 }
 
 // Execute generator.
-$isSsgMode = defined('GRINDS_IS_SSG') && GRINDS_IS_SSG;
-$baseUrl = defined('BASE_URL') ? (string)BASE_URL : '';
-if ($isSsgMode && isset($ssgBaseUrl) && $ssgBaseUrl !== '') {
-  $baseUrl = $ssgBaseUrl;
-}
-$pdo = App::db();
+if (basename(__FILE__) === basename($_SERVER['SCRIPT_FILENAME'])) {
+  $isSsgMode = defined('GRINDS_IS_SSG') && GRINDS_IS_SSG;
+  $baseUrl = defined('BASE_URL') ? (string)BASE_URL : '';
+  if ($isSsgMode && isset($ssgBaseUrl) && $ssgBaseUrl !== '') {
+    $baseUrl = $ssgBaseUrl;
+  }
+  $pdo = App::db();
 
-$generator = new RssGenerator($pdo, $baseUrl, $isSsgMode);
-$generator->run();
+  $generator = new RssGenerator($pdo, $baseUrl, $isSsgMode);
+  $generator->run();
+}

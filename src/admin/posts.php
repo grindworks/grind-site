@@ -162,46 +162,46 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 // Handle list view
 if ($action === 'list') {
-  $current_type = Routing::getString($params, 'type', 'post');
-  if (!in_array($current_type, $allowed_types)) {
-    $current_type = 'post';
+  $currentType = Routing::getString($params, 'type', 'post');
+  if (!in_array($currentType, $allowed_types)) {
+    $currentType = 'post';
   }
 
-  $type_labels = [
+  $typeLabels = [
     'post' => _t('menu_posts'),
     'page' => _t('type_page'),
     'template' => _t('btn_template')
   ];
   foreach ($cpts as $cptSlug => $cptData) {
-    $type_labels[$cptSlug] = function_exists('_t') && isset($cptData['label']) ? _t($cptData['label']) : ($cptData['label'] ?? ucfirst($cptSlug));
+    $typeLabels[$cptSlug] = function_exists('_t') && isset($cptData['label']) ? _t($cptData['label']) : ($cptData['label'] ?? ucfirst($cptSlug));
   }
-  $page_title = $type_labels[$current_type] ?? ucfirst($current_type);
+  $page_title = $typeLabels[$currentType] ?? ucfirst($currentType);
 
   $limit = (int)Routing::getString($params, 'limit', '20');
   if ($limit > 100)
     $limit = 100;
   $page = (int)Routing::getString($params, 'page', '1');
 
-  $status_filter = Routing::getString($params, 'status');
+  $statusFilter = Routing::getString($params, 'status');
 
   // Build filters
   $filters = [
-    'type' => ($status_filter === 'trash') ? $allowed_types : $current_type,
-    'status' => $status_filter ?: 'all',
+    'type' => ($statusFilter === 'trash') ? $allowed_types : $currentType,
+    'status' => $statusFilter ?: 'all',
     'category_id' => Routing::getString($params, 'cat') ?: null,
     'search' => Routing::getString($params, 'q') ?: null,
   ];
 
   // Set sorting
-  $sortable_cols = ['id', 'title', 'status', 'published_at', 'updated_at', 'deleted_at', 'type'];
-  $default_sort = ($status_filter === 'trash') ? 'deleted_at' : 'updated_at';
-  $sorter = new Sorter($sortable_cols, $default_sort, 'DESC');
+  $sortableCols = ['id', 'title', 'status', 'published_at', 'updated_at', 'deleted_at', 'type'];
+  $defaultSort = ($statusFilter === 'trash') ? 'deleted_at' : 'updated_at';
+  $sorter = new Sorter($sortableCols, $defaultSort, 'DESC');
   $orderClause = $sorter->getOrderClause();
   $orderBy = str_replace('ORDER BY ', 'p.', $orderClause);
 
-  $search_q = Routing::getString($params, 'q');
-  if ($search_q !== '') {
-    $sq = grinds_prepare_search_query($pdo, $search_q);
+  $searchQ = Routing::getString($params, 'q');
+  if ($searchQ !== '') {
+    $sq = grinds_prepare_search_query($pdo, $searchQ);
     if (!empty($sq['order'])) {
       $orderBy = $sq['order'] . ', ' . $orderBy;
     }
@@ -232,17 +232,17 @@ if ($action === 'list') {
   unset($row);
 
   // Get post counts
-  $count_published = $count_draft = $count_trash = '-';
-  $filter_cats = [];
+  $countPublished = $countDraft = $countTrash = '-';
+  $filterCats = [];
   try {
-    $counts = $repo->getCountsByStatus($current_type);
-    $count_published = $counts['published'];
-    $count_draft = $counts['draft'];
+    $counts = $repo->getCountsByStatus($currentType);
+    $countPublished = $counts['published'];
+    $countDraft = $counts['draft'];
 
-    $count_trash = $repo->count(['status' => 'trash', 'type' => $allowed_types]);
+    $countTrash = $repo->count(['status' => 'trash', 'type' => $allowed_types]);
 
-    if ($status_filter !== 'trash') {
-      $filter_cats = $pdo->query("SELECT * FROM categories ORDER BY sort_order ASC")->fetchAll();
+    if ($statusFilter !== 'trash') {
+      $filterCats = $pdo->query("SELECT * FROM categories ORDER BY sort_order ASC")->fetchAll();
     }
   } catch (Exception $e) {
   }
@@ -286,6 +286,11 @@ else {
   $categories = $pdo->query("SELECT * FROM categories ORDER BY sort_order ASC")->fetchAll();
   $repoLinkable = new PostRepository($pdo);
   $linkablePages = $repoLinkable->fetch(['status' => 'published'], 100, 0, 'p.type DESC, p.created_at DESC');
+
+  $allTagsList = $pdo->query("SELECT name FROM tags ORDER BY name ASC")->fetchAll(PDO::FETCH_COLUMN);
+  if (!is_array($allTagsList)) {
+    $allTagsList = [];
+  }
 
   // Discover themes
   $available_themes = get_available_themes();
@@ -354,7 +359,7 @@ else {
   $content = ob_get_clean();
 }
 
-$post_type_for_menu = $current_type ?? ($post['type'] ?? '');
+$post_type_for_menu = $currentType ?? ($post['type'] ?? '');
 if (isset($cpts[$post_type_for_menu])) {
   $current_page = 'cpt_' . $post_type_for_menu;
 } else {

@@ -249,12 +249,12 @@ try {
     }
 
     // Reset layout.
-    $stmt = $pdo->prepare("INSERT OR REPLACE INTO settings (key, value) VALUES ('admin_layout', 'sidebar')");
+    $stmt = $pdo->prepare("INSERT OR REPLACE INTO settings (key, value, autoload) VALUES ('admin_layout', 'sidebar', 1)");
     $stmt->execute();
     $results[] = t('act_1');
 
     // Disable debug.
-    $stmt = $pdo->prepare("INSERT OR REPLACE INTO settings (key, value) VALUES ('debug_mode', '0')");
+    $stmt = $pdo->prepare("INSERT OR REPLACE INTO settings (key, value, autoload) VALUES ('debug_mode', '0', 1)");
     $stmt->execute();
     $results[] = t('act_2');
 

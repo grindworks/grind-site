@@ -113,7 +113,20 @@ class Routing
             return $path;
         }
 
-        $cleanPath = '/' . ltrim($path, '/');
+        $parsed = parse_url($path);
+        $pathPart = $parsed['path'] ?? '';
+        $queryPart = isset($parsed['query']) ? '?' . $parsed['query'] : '';
+        $fragmentPart = isset($parsed['fragment']) ? '#' . $parsed['fragment'] : '';
+
+        if ($pathPart !== '') {
+            $segments = explode('/', $pathPart);
+            $encodedSegments = array_map(function ($seg) {
+                return rawurlencode(rawurldecode($seg));
+            }, $segments);
+            $pathPart = implode('/', $encodedSegments);
+        }
+
+        $cleanPath = '/' . ltrim($pathPart . $queryPart . $fragmentPart, '/');
 
         // Prevent double prefixing if path already starts with base path
         $cleanPath = self::stripBasePath($cleanPath);
@@ -138,10 +151,13 @@ class Routing
         $lastChar  = mb_substr($trimmed, -1, 1, 'UTF-8');
 
         if (($firstChar === '{' && $lastChar === '}') || ($firstChar === '[' && $lastChar === ']')) {
-            $json = json_decode($content, true);
-            if (is_array($json)) {
-                $processed = self::recursiveUrlConvert($json, $baseUrl);
-                return json_encode($processed, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_INVALID_UTF8_IGNORE);
+            // Use json_validate to prevent expensive decoding of invalid JSON strings
+            if (json_validate($content)) {
+                $json = json_decode($content, true);
+                if (is_array($json)) {
+                    $processed = self::recursiveUrlConvert($json, $baseUrl);
+                    return json_encode($processed, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_INVALID_UTF8_IGNORE);
+                }
             }
         }
 

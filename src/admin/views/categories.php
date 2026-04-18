@@ -468,20 +468,24 @@ $csrf_token = generate_csrf_token();
             <button type="button" @click="mobileFormOpen = false" class="lg:hidden flex-1 py-2.5 rounded-theme text-sm text-center btn-secondary"><?= _t('cancel') ?></button>
           <?php endif; ?>
 
-          <button type="submit" class="flex flex-1 justify-center items-center gap-2 shadow-theme py-2.5 rounded-theme font-bold text-sm transition-all btn-primary" :disabled="isSubmitting">
-            <?php if ($edit_id): ?>
-              <svg class="w-5 h-5" :class="{'animate-spin': isSubmitting}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <button type="submit" class="group relative flex flex-1 justify-center items-center shadow-theme py-2.5 rounded-theme transition-all btn-primary overflow-hidden" :disabled="isSubmitting">
+            <div class="z-10 relative flex justify-center items-center gap-2 font-bold text-sm transition-opacity duration-200" :class="isSubmitting ? 'text-transparent' : ''">
+              <?php if ($edit_id): ?>
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-arrow-path"></use>
+                </svg>
+              <?php else: ?>
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-plus-circle"></use>
+                </svg>
+              <?php endif; ?>
+              <?= $edit_id ? _t('update') : _t('add') ?>
+            </div>
+            <div class="absolute inset-0 flex items-center justify-center transition-opacity duration-200" :class="isSubmitting ? 'opacity-100' : 'opacity-0 pointer-events-none'">
+              <svg class="w-5 h-5 animate-spin text-theme-on-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-arrow-path"></use>
               </svg>
-            <?php else: ?>
-              <svg x-show="!isSubmitting" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-plus-circle"></use>
-              </svg>
-              <svg x-show="isSubmitting" class="w-5 h-5 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="display: none;">
-                <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-arrow-path"></use>
-              </svg>
-            <?php endif; ?>
-            <?= $edit_id ? _t('update') : _t('add') ?>
+            </div>
           </button>
         </div>
       </form>

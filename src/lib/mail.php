@@ -87,7 +87,8 @@ class SimpleMailer
         stream_set_timeout($socket, 5);
 
         $this->read($socket, "220");
-        $ehloHost = explode(':', $_SERVER['HTTP_HOST'] ?? 'localhost')[0];
+        $hostFallback = function_exists('gethostname') && gethostname() ? gethostname() : 'localhost';
+        $ehloHost = explode(':', $_SERVER['HTTP_HOST'] ?? $hostFallback)[0];
         $ehloHost = preg_replace('/[^a-zA-Z0-9.-]/', '', $ehloHost);
         $this->write($socket, "EHLO " . $ehloHost);
         $this->read($socket, "250");

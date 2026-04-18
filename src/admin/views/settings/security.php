@@ -119,7 +119,8 @@ if (!defined('GRINDS_APP')) exit; ?>
         </div>
         <button type="button" @click="
             if(!user || !pass) { window.showToast(<?= htmlspecialchars(json_encode(_t('username_and_password_required'), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT), ENT_QUOTES, 'UTF-8') ?>, 'error'); return; }
-            fetch('settings.php?tab=security', {
+            const baseUrl = (window.grindsBaseUrl || '').replace(/\/$/, '');
+            fetch(`${baseUrl}/admin/settings.php?tab=security`, {
                 method: 'POST',
                 headers: {'Content-Type': 'application/x-www-form-urlencoded'},
                 body: 'action=generate_htpasswd&user=' + encodeURIComponent(user) + '&pass=' + encodeURIComponent(pass) + '&csrf_token=' + encodeURIComponent(window.grindsCsrfToken)
@@ -143,7 +144,8 @@ if (!defined('GRINDS_APP')) exit; ?>
       </div>
       <button type="button" @click="
           if(!confirm(<?= htmlspecialchars(json_encode(_t('confirm_save_htpasswd'), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT), ENT_QUOTES, 'UTF-8') ?>)) return;
-          fetch('settings.php?tab=security', {
+          const baseUrl = (window.grindsBaseUrl || '').replace(/\/$/, '');
+          fetch(`${baseUrl}/admin/settings.php?tab=security`, {
               method: 'POST',
               headers: {'Content-Type': 'application/x-www-form-urlencoded'},
               body: 'action=save_htpasswd&content=' + encodeURIComponent(result) + '&csrf_token=' + encodeURIComponent(window.grindsCsrfToken)

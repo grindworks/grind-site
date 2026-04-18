@@ -12,6 +12,70 @@
  */
 if (!defined('GRINDS_APP')) exit;
 
+// Translation helper for this plugin
+// プラグイン専用の翻訳ヘルパー関数
+if (!function_exists('grinds_amazon_t')) {
+    function grinds_amazon_t($key)
+    {
+        $lang = function_exists('get_option') ? get_option('site_lang', 'en') : 'en';
+        $texts = [
+            'en' => [
+                'invalid_asin' => '⚠️ Invalid or missing Amazon ASIN.',
+                'not_set' => '⚠️ Amazon Affiliate ID is not set. Please configure it from the header toolbar.',
+                'buy_on_amazon' => 'Buy on Amazon',
+                'modal_title' => 'Amazon Affiliate Settings',
+                'modal_desc' => 'Enter your Associate Tracking ID.<br>(e.g. <code>your_id-22</code>)',
+                'modal_usage' => 'How to use shortcodes',
+                'modal_usage_desc' => 'Enter the following in the editor (e.g. Paragraph block):',
+                'modal_usage_basic' => 'Basic:',
+                'modal_usage_title' => 'With Title:',
+                'modal_usage_region' => 'Other Region:',
+                'modal_default_region' => 'Default Store Region',
+                'cancel' => 'Cancel',
+                'save' => 'Save',
+                'insert_tooltip' => 'Insert Amazon Shortcode',
+                'insert_product' => 'Product Name'
+            ],
+            'ja' => [
+                'invalid_asin' => '⚠️ 無効な、またはASINが指定されていません。',
+                'not_set' => '⚠️ AmazonアフィリエイトIDが未設定です。ヘッダーのツールバーから設定してください。',
+                'buy_on_amazon' => 'Amazonで購入',
+                'modal_title' => 'Amazonアフィリエイト設定',
+                'modal_desc' => 'アソシエイトのトラッキングIDを入力してください。<br>（例: <code>your_id-22</code>）',
+                'modal_usage' => 'ショートコードの使い方',
+                'modal_usage_desc' => '記事のエディタ（段落ブロックなど）に以下のように入力します。',
+                'modal_usage_basic' => '基本:',
+                'modal_usage_title' => '商品名指定:',
+                'modal_usage_region' => '海外Amazon:',
+                'modal_default_region' => 'デフォルトのストア地域',
+                'cancel' => 'キャンセル',
+                'save' => '保存する',
+                'insert_tooltip' => 'Amazonショートコードを挿入',
+                'insert_product' => '商品名'
+            ],
+            'de' => [
+                'invalid_asin' => '⚠️ Ungültige oder fehlende Amazon ASIN.',
+                'not_set' => '⚠️ Amazon Affiliate ID ist nicht festgelegt. Bitte konfigurieren Sie sie in der Header-Symbolleiste.',
+                'buy_on_amazon' => 'Bei Amazon kaufen',
+                'modal_title' => 'Amazon Affiliate Einstellungen',
+                'modal_desc' => 'Geben Sie Ihre Associate Tracking ID ein.<br>(z.B. <code>your_id-21</code>)',
+                'modal_usage' => 'Wie man Shortcodes verwendet',
+                'modal_usage_desc' => 'Geben Sie Folgendes im Editor ein (z.B. Absatzblock):',
+                'modal_usage_basic' => 'Basis:',
+                'modal_usage_title' => 'Mit Titel:',
+                'modal_usage_region' => 'Andere Region:',
+                'modal_default_region' => 'Standard-Shop-Region',
+                'cancel' => 'Abbrechen',
+                'save' => 'Speichern',
+                'insert_tooltip' => 'Amazon Shortcode einfügen',
+                'insert_product' => 'Produktname'
+            ],
+        ];
+        $l = array_key_exists($lang, $texts) ? $lang : 'en';
+        return $texts[$l][$key] ?? $key;
+    }
+}
+
 // 1. Filter to expand shortcode during post content output (using grinds_the_content)
 // 1. 記事コンテンツの出力時にショートコードを展開するフィルター (grinds_the_contentを使用)
 add_filter('grinds_the_content', function ($content) {
@@ -36,8 +100,19 @@ add_filter('grinds_the_content', function ($content) {
 
         $asin = $atts['id'] ?? '';
         $title = $atts['title'] ?? 'View on Amazon';
-        $region = $atts['region'] ?? 'co.jp'; // Default to Japan
 
+        // Dynamically set the default region based on the site's language.
+        // サイトの言語設定に基づいて、デフォルトのリージョンを動的に設定します。
+        $lang = function_exists('get_option') ? get_option('site_lang', 'en') : 'en';
+        $region_map = [
+            'ja' => 'co.jp',
+            'de' => 'de',
+            'es' => 'es',
+            'fr' => 'fr',
+            'pt-br' => 'com.br',
+        ];
+        $default_region = $region_map[$lang] ?? 'com'; // Default to .com for English and others
+        $region = $atts['region'] ?? $default_region;
         // XSS Prevention: Safely escape user inputs and DB value
         // XSS対策: ユーザー入力とDB値を安全にエスケープ
         $safe_asin = htmlspecialchars(strtoupper($asin), ENT_QUOTES, 'UTF-8');
@@ -46,13 +121,15 @@ add_filter('grinds_the_content', function ($content) {
         $safe_tracking_id = htmlspecialchars($tracking_id, ENT_QUOTES, 'UTF-8');
 
         if (empty($safe_asin) || !preg_match('/^[A-Z0-9]{10}$/', $safe_asin)) {
-            return '<div class="p-4 my-4 border border-theme-warning/50 bg-theme-warning/10 text-theme-warning font-bold rounded text-sm text-center">⚠️ Invalid or missing Amazon ASIN.</div>';
+            $msg = grinds_amazon_t('invalid_asin');
+            return '<div class="p-4 my-4 border border-theme-warning/50 bg-theme-warning/10 text-theme-warning font-bold rounded text-sm text-center">' . $msg . '</div>';
         }
 
         // Display a warning to the site admin instead of generating a dummy URL if not set
         // 未設定の場合はダミーURLを生成せず、サイト管理者に警告を表示する
         if (empty($safe_tracking_id)) {
-            return '<div class="p-4 my-4 border border-theme-warning/50 bg-theme-warning/10 text-theme-warning font-bold rounded text-sm text-center">⚠️ AmazonアフィリエイトIDが未設定です。ヘッダーのツールバーから設定してください。</div>';
+            $msg = grinds_amazon_t('not_set');
+            return '<div class="p-4 my-4 border border-theme-warning/50 bg-theme-warning/10 text-theme-warning font-bold rounded text-sm text-center">' . $msg . '</div>';
         }
 
         // Generate affiliate link and image URL
@@ -62,8 +139,8 @@ add_filter('grinds_the_content', function ($content) {
         // ※ASINから簡易的に画像を取得するURL（Amazonの仕様変更により表示されない場合は適宜変更）
         $image_url = "https://images-na.ssl-images-amazon.com/images/P/{$safe_asin}.09.LZZZZZZZ.jpg";
 
-        // Determine button text based on region / リージョンに基づいてボタンテキストを変更
-        $btn_text = ($safe_region === 'co.jp') ? 'Amazonで購入' : 'Buy on Amazon';
+        // Determine button text based on language / 言語設定に基づいてボタンテキストを変更
+        $btn_text = grinds_amazon_t('buy_on_amazon');
         $sprite_url = resolve_url('assets/img/sprite.svg');
 
         // HTML to output (Card design using GrindSite Tailwind CSS classes)
@@ -111,6 +188,9 @@ add_action('grinds_init', function () {
 
         if (function_exists('update_option')) {
             update_option('amazon_tracking_id', trim($_POST['new_tracking_id']));
+            if (isset($_POST['new_amazon_region'])) {
+                update_option('amazon_default_region', trim($_POST['new_amazon_region']));
+            }
         }
         // Redirect back to the original page to reload after saving
         // 保存後に元のページへリダイレクトして再読み込み
@@ -147,8 +227,41 @@ add_action('grinds_footer', function () {
     if (!(str_contains($requestUri, '/admin/') || str_contains($scriptName, '/admin/'))) return;
 
     $tracking_id = function_exists('get_option') ? get_option('amazon_tracking_id', '') : '';
+    $default_region = function_exists('get_option') ? get_option('amazon_default_region', 'com') : 'com';
     $csrfToken = function_exists('generate_csrf_token') ? generate_csrf_token() : '';
     $sprite_url = function_exists('grinds_asset_url') ? grinds_asset_url('assets/img/sprite.svg') : resolve_url('assets/img/sprite.svg');
+
+    $t_modal_title = grinds_amazon_t('modal_title');
+    $t_modal_desc = grinds_amazon_t('modal_desc');
+    $t_modal_default_region = grinds_amazon_t('modal_default_region');
+    $t_modal_usage = grinds_amazon_t('modal_usage');
+    $t_modal_usage_desc = grinds_amazon_t('modal_usage_desc');
+    $t_modal_usage_basic = grinds_amazon_t('modal_usage_basic');
+    $t_modal_usage_title = grinds_amazon_t('modal_usage_title');
+    $t_modal_usage_region = grinds_amazon_t('modal_usage_region');
+    $t_insert_product = grinds_amazon_t('insert_product');
+    $t_cancel = grinds_amazon_t('cancel');
+    $t_save = grinds_amazon_t('save');
+
+    $regions = [
+        'com' => 'United States (.com)',
+        'co.jp' => 'Japan (.co.jp)',
+        'co.uk' => 'United Kingdom (.co.uk)',
+        'de' => 'Germany (.de)',
+        'fr' => 'France (.fr)',
+        'es' => 'Spain (.es)',
+        'it' => 'Italy (.it)',
+        'ca' => 'Canada (.ca)',
+        'com.au' => 'Australia (.com.au)',
+        'com.br' => 'Brazil (.com.br)',
+        'com.mx' => 'Mexico (.com.mx)',
+        'in' => 'India (.in)',
+    ];
+    $region_options_html = '';
+    foreach ($regions as $val => $label) {
+        $selected = ($default_region === $val) ? 'selected' : '';
+        $region_options_html .= "<option value=\"{$val}\" {$selected}>{$label}</option>";
+    }
 
     // Output settings UI utilizing Tailwind CSS and Alpine.js
     // Tailwind CSS と Alpine.js を活用した設定UIの出力
@@ -160,28 +273,35 @@ add_action('grinds_footer', function () {
                 <button type="button" @click="showAmazonModal = false" class="absolute top-4 right-4 text-theme-text opacity-50 hover:opacity-100 transition-opacity">&times;</button>
                 <h3 class="text-theme-text font-bold text-lg mb-2 flex items-center gap-2">
                     <svg class="w-5 h-5 text-theme-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="{$sprite_url}#outline-shopping-bag"></use></svg>
-                    Amazonアフィリエイト設定
+                    {$t_modal_title}
                 </h3>
                 <p class="text-theme-text opacity-70 text-xs mb-4 leading-relaxed">
-                    アソシエイトのトラッキングIDを入力してください。<br>（例: <code>your_id-22</code>）
+                    {$t_modal_desc}
                 </p>
                 <form method="POST">
                     <input type="hidden" name="csrf_token" value="{$csrfToken}">
                     <input type="hidden" name="amazon_tracking_id_action" value="1">
                     <input type="text" name="new_tracking_id" value="{$tracking_id}" placeholder="your_id-22" class="w-full px-3 py-2 bg-theme-bg border border-theme-border rounded text-theme-text text-sm mb-4 focus:ring-2 focus:ring-theme-primary focus:outline-none font-mono" required>
 
+                    <div class="mb-4">
+                        <label class="block opacity-70 mb-1 font-bold text-theme-text text-[10px]">{$t_modal_default_region}</label>
+                        <select name="new_amazon_region" class="w-full px-3 py-2 bg-theme-bg border border-theme-border rounded text-theme-text text-sm focus:ring-2 focus:ring-theme-primary focus:outline-none cursor-pointer">
+                            {$region_options_html}
+                        </select>
+                    </div>
+
                     <div class="bg-theme-bg/50 border border-theme-border rounded-lg p-4 mb-6 text-xs text-theme-text leading-relaxed">
-                        <p class="font-bold mb-2 flex items-center gap-1"><svg class="w-4 h-4 text-theme-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="{$sprite_url}#outline-information-circle"></use></svg> ショートコードの使い方</p>
-                        <p class="mb-2 opacity-80">記事のエディタ（段落ブロックなど）に以下のように入力します。</p>
+                        <p class="font-bold mb-2 flex items-center gap-1"><svg class="w-4 h-4 text-theme-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="{$sprite_url}#outline-information-circle"></use></svg> {$t_modal_usage}</p>
+                        <p class="mb-2 opacity-80">{$t_modal_usage_desc}</p>
                         <ul class="space-y-2 font-mono text-[11px] bg-theme-surface p-3 rounded border border-theme-border/50">
-                            <li><span class="opacity-50 inline-block w-20">基本:</span><code class="text-theme-text font-bold">[amazon id="ASIN"]</code></li>
-                            <li><span class="opacity-50 inline-block w-20">商品名指定:</span><code class="text-theme-text font-bold">[amazon id="ASIN" title="商品名"]</code></li>
-                            <li><span class="opacity-50 inline-block w-20">海外Amazon:</span><code class="text-theme-text font-bold">[amazon id="ASIN" title="商品名" region="com"]</code></li>
+                            <li><span class="opacity-50 inline-block w-20">{$t_modal_usage_basic}</span><code class="text-theme-text font-bold">[amazon id="ASIN"]</code></li>
+                            <li><span class="opacity-50 inline-block w-20">{$t_modal_usage_title}</span><code class="text-theme-text font-bold">[amazon id="ASIN" title="{$t_insert_product}"]</code></li>
+                            <li><span class="opacity-50 inline-block w-20">{$t_modal_usage_region}</span><code class="text-theme-text font-bold">[amazon id="ASIN" title="{$t_insert_product}" region="com"]</code></li>
                         </ul>
                     </div>
                     <div class="flex justify-end gap-2">
-                        <button type="button" @click="showAmazonModal = false" class="px-4 py-2 border border-theme-border text-theme-text rounded text-xs font-bold hover:bg-theme-bg transition-colors">キャンセル</button>
-                        <button type="submit" class="px-4 py-2 bg-theme-primary text-theme-on-primary rounded text-xs font-bold hover:opacity-90 transition-opacity">保存する</button>
+                        <button type="button" @click="showAmazonModal = false" class="px-4 py-2 border border-theme-border text-theme-text rounded text-xs font-bold hover:bg-theme-bg transition-colors">{$t_cancel}</button>
+                        <button type="submit" class="px-4 py-2 bg-theme-primary text-theme-on-primary rounded text-xs font-bold hover:opacity-90 transition-opacity">{$t_save}</button>
                     </div>
                 </form>
             </div>
@@ -195,13 +315,17 @@ HTML;
 add_action('grinds_html_block_tools', function () {
     if (!class_exists('App') || !App::user()) return;
     $sprite_url = function_exists('grinds_asset_url') ? grinds_asset_url('assets/img/sprite.svg') : resolve_url('assets/img/sprite.svg');
+
+    $t_insert_tooltip = grinds_amazon_t('insert_tooltip');
+    $t_insert_product = grinds_amazon_t('insert_product');
+
     echo <<<HTML
       <button type="button" @click="
         const el = document.getElementById('block-' + block.id + '-code');
         const text = block.data.code || '';
-        block.data.code = text + (text ? '\\n' : '') + '[amazon id=\'ASIN\' title=\'商品名\']';
+        block.data.code = text + (text ? '\\n' : '') + '[amazon id=\'ASIN\' title=\'{$t_insert_product}\']';
         \$nextTick(() => { el.focus(); el.setSelectionRange(block.data.code.indexOf('ASIN'), block.data.code.indexOf('ASIN') + 4); });
-      " class="inline-flex items-center gap-1.5 px-2.5 py-1.5 hover:bg-theme-bg/50 border border-theme-border rounded-theme text-theme-text text-[10px] font-bold transition-colors" title="Insert Amazon Shortcode">
+      " class="inline-flex items-center gap-1.5 px-2.5 py-1.5 hover:bg-theme-bg/50 border border-theme-border rounded-theme text-theme-text text-[10px] font-bold transition-colors" title="{$t_insert_tooltip}">
         <svg class="w-3.5 h-3.5 text-theme-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <use href="{$sprite_url}#outline-shopping-bag"></use>
         </svg>

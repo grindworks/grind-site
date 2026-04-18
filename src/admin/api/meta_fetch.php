@@ -38,7 +38,11 @@ try {
   // Convert encoding safely
   $encoding = mb_detect_encoding($html, 'UTF-8, EUC-JP, SJIS, JIS', true) ?: 'UTF-8';
   if ($encoding !== 'UTF-8') {
-    $html = mb_convert_encoding($html, 'UTF-8', $encoding);
+    $convertedHtml = @mb_convert_encoding($html, 'UTF-8', $encoding);
+    // Fallback to original html if conversion fails to prevent passing false to DOMDocument
+    if ($convertedHtml !== false) {
+      $html = $convertedHtml;
+    }
   }
 
   if (!class_exists('DOMDocument')) {

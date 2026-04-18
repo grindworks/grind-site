@@ -597,10 +597,18 @@ document.addEventListener('alpine:init', () => {
      * @param {string} tag
      */
     addTag(tag) {
-      tag = tag || this.tagInput.trim();
-      if (tag) {
+      const val = tag || this.tagInput.trim();
+      if (val) {
         if (!Array.isArray(this.metaForm.tags)) this.metaForm.tags = [];
-        if (!this.metaForm.tags.includes(tag)) this.metaForm.tags.push(tag);
+
+        // Split by comma or Japanese comma (読点) to match post editor behavior
+        val.split(/[,、]/).forEach((t) => {
+          const clean = t.trim();
+          if (clean && !this.metaForm.tags.includes(clean)) {
+            this.metaForm.tags.push(clean);
+          }
+        });
+
         this.tagInput = '';
         this.showTagSuggestions = false;
       }

@@ -73,252 +73,238 @@ ob_start();
     </div>
   <?php else: ?>
 
-    <!-- Info section -->
-    <div class="bg-theme-surface shadow-theme p-8 border border-theme-border rounded-theme">
-      <div class="gap-10 grid grid-cols-1 lg:grid-cols-2">
+    <!-- Main Layout: 2 Columns -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-        <!-- Description -->
-        <div>
-          <h3 class="flex items-center gap-2 mb-4 font-bold text-theme-text text-lg">
-            <svg class="w-5 h-5 text-theme-info" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <!-- Left Column: Primary Actions & Settings -->
+      <div class="lg:col-span-2 space-y-6">
+
+        <!-- 1. Export Mode & Execution Card (Primary Focus) -->
+        <div class="bg-theme-surface shadow-theme border border-theme-primary/30 rounded-theme overflow-hidden">
+          <div class="bg-theme-primary/5 p-6 border-b border-theme-primary/20">
+            <h3 class="flex items-center gap-2 font-bold text-theme-primary text-lg">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-rocket-launch"></use>
+              </svg>
+              <?= _t('ssg_mode_title') ?>
+            </h3>
+          </div>
+
+          <div class="p-6 space-y-4">
+            <!-- Diff export (Recommended) -->
+            <label class="relative flex items-start p-5 border-2 rounded-theme transition-all cursor-pointer group"
+              :class="[
+                config.mode === 'diff' ? 'border-theme-primary bg-theme-primary/5 ring-1 ring-theme-primary' : 'border-theme-border bg-theme-surface hover:border-theme-primary/50',
+                <?= $lastExport ? 'false' : 'true' ?> ? 'opacity-50 cursor-not-allowed bg-theme-bg' : ''
+              ]">
+              <div class="flex items-center h-6">
+                <input type="radio" name="export_mode" value="diff" x-model="config.mode" class="border-theme-border w-5 h-5 text-theme-primary form-radio focus:ring-0" <?= $lastExport ? '' : 'disabled' ?>>
+              </div>
+              <div class="ml-4 flex-1">
+                <div class="flex items-center justify-between">
+                  <span class="font-bold text-base transition-colors" :class="config.mode === 'diff' ? 'text-theme-primary' : 'text-theme-text group-hover:text-theme-primary'">
+                    <?= _t('ssg_mode_diff') ?>
+                  </span>
+                  <?php if ($lastExport): ?>
+                    <span class="bg-theme-success/10 px-2 py-1 border border-theme-success/20 rounded font-bold text-[10px] text-theme-success uppercase tracking-wider"><?= _t('ready') ?></span>
+                  <?php else: ?>
+                    <span class="bg-theme-bg opacity-70 px-2 py-1 border border-theme-border rounded text-[10px] uppercase tracking-wider"><?= _t('ssg_first_run') ?></span>
+                  <?php endif; ?>
+                </div>
+                <span class="block opacity-70 mt-1.5 text-theme-text text-xs leading-relaxed">
+                  <?php if ($lastExport): ?>
+                    <?php $lastExportHtml = '<span class="bg-theme-bg px-1.5 py-0.5 rounded border border-theme-border font-mono text-[11px]">' . h($lastExportDisplay) . '</span>'; ?>
+                    <?= _t('ssg_mode_diff_desc', $lastExportHtml) ?>
+                  <?php else: ?>
+                    <span class="text-theme-danger font-bold">* <?= _t('msg_rebuild_required') ?></span>
+                  <?php endif; ?>
+                </span>
+              </div>
+            </label>
+
+            <!-- Full export -->
+            <label class="relative flex items-start p-5 border-2 rounded-theme transition-all cursor-pointer group"
+              :class="config.mode === 'full' ? 'border-theme-primary bg-theme-primary/5 ring-1 ring-theme-primary' : 'border-theme-border bg-theme-surface hover:border-theme-primary/50'">
+              <div class="flex items-center h-6">
+                <input type="radio" name="export_mode" value="full" x-model="config.mode" class="border-theme-border w-5 h-5 text-theme-primary form-radio focus:ring-0">
+              </div>
+              <div class="ml-4">
+                <span class="block font-bold text-base transition-colors" :class="config.mode === 'full' ? 'text-theme-primary' : 'text-theme-text group-hover:text-theme-primary'">
+                  <?= _t('ssg_mode_full') ?>
+                </span>
+                <span class="block opacity-70 mt-1 text-theme-text text-xs leading-relaxed">
+                  <?= _t('ssg_mode_full_desc') ?>
+                </span>
+              </div>
+            </label>
+
+            <div class="opacity-60 pt-2 text-theme-text text-[11px] flex items-center gap-1.5">
+              <svg class="w-4 h-4 text-theme-info" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-information-circle"></use>
+              </svg>
+              <?= _t('ssg_diff_notice') ?>
+            </div>
+          </div>
+
+          <div class="p-6 bg-theme-bg/30 border-t border-theme-border flex justify-end">
+            <button @click="startExport()" :disabled="processing" class="group relative flex items-center justify-center gap-2 shadow-theme px-10 py-3.5 rounded-theme font-bold text-base transition-all btn-primary overflow-hidden w-full sm:w-auto transform hover:-translate-y-0.5 disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none">
+              <div class="flex items-center gap-2 transition-opacity duration-200" :class="processing ? 'opacity-0' : 'opacity-100'">
+                <svg class="w-5 h-5 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-arrow-down-tray"></use>
+                </svg>
+                <span><?= _t('ssg_btn_start') ?></span>
+              </div>
+              <div class="absolute inset-0 flex items-center justify-center gap-2 transition-opacity duration-200" :class="processing ? 'opacity-100' : 'opacity-0 pointer-events-none'">
+                <svg class="w-5 h-5 animate-spin text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-arrow-path"></use>
+                </svg>
+                <span><?= _t('ssg_btn_generating') ?></span>
+              </div>
+            </button>
+          </div>
+        </div>
+
+        <!-- 2. Advanced Settings (Accordion) -->
+        <div class="bg-theme-surface shadow-theme border border-theme-border rounded-theme overflow-hidden" x-data="{ openSettings: false }">
+          <button type="button" @click="openSettings = !openSettings" class="w-full flex items-center justify-between p-5 bg-theme-bg/50 hover:bg-theme-bg transition-colors focus:outline-none">
+            <h3 class="flex items-center gap-2 font-bold text-theme-text text-sm">
+              <svg class="w-4 h-4 text-theme-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-adjustments-horizontal"></use>
+              </svg>
+              <?= _t('ssg_config_title') ?>
+            </h3>
+            <svg class="w-5 h-5 text-theme-text opacity-50 transition-transform duration-300" :class="openSettings ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-chevron-down"></use>
+            </svg>
+          </button>
+
+          <div x-show="openSettings" x-collapse class="border-t border-theme-border p-6 bg-theme-surface" style="display: none;" x-cloak>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <!-- URL & Form -->
+              <div class="space-y-6">
+                <div>
+                  <label class="block mb-1.5 font-bold text-theme-text text-xs uppercase tracking-wider"><?= _t('ssg_label_url') ?></label>
+                  <div class="relative">
+                    <span class="top-1/2 left-3 absolute opacity-40 text-theme-text -translate-y-1/2"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-link"></use>
+                      </svg></span>
+                    <input type="url" x-model="config.baseUrl" class="pl-9 text-sm form-control" placeholder="https://example.com">
+                  </div>
+                  <p class="opacity-60 mt-1.5 text-theme-text text-[10px] leading-tight"><?= _t('ssg_desc_url') ?></p>
+                </div>
+                <div>
+                  <label class="block mb-1.5 font-bold text-theme-text text-xs uppercase tracking-wider"><?= _t('ssg_label_form') ?></label>
+                  <div class="relative">
+                    <span class="top-1/2 left-3 absolute opacity-40 text-theme-text -translate-y-1/2"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-envelope"></use>
+                      </svg></span>
+                    <input type="url" x-model="config.formEndpoint" class="pl-9 text-sm form-control" placeholder="https://formspree.io/f/...">
+                  </div>
+                  <p class="opacity-60 mt-1.5 text-theme-text text-[10px] leading-tight"><?= _t('ssg_desc_form') ?></p>
+                </div>
+              </div>
+
+              <!-- Search Settings -->
+              <div class="space-y-6">
+                <div>
+                  <label class="block mb-1.5 font-bold text-theme-text text-xs uppercase tracking-wider"><?= _t('ssg_label_search_scope') ?></label>
+                  <select x-model="config.searchScope" class="text-sm form-control cursor-pointer">
+                    <option value="title_body"><?= _t('ssg_scope_title_body') ?></option>
+                    <option value="title_only"><?= _t('ssg_scope_title_only') ?></option>
+                  </select>
+                  <p class="opacity-60 mt-1.5 text-theme-text text-[10px] leading-tight"><?= _t('ssg_desc_search_scope') ?></p>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                  <div>
+                    <label class="block mb-1.5 font-bold text-theme-text text-xs uppercase tracking-wider"><?= _t('ssg_label_max_results') ?></label>
+                    <input type="number" x-model="config.maxResults" class="text-sm form-control" placeholder="1000">
+                  </div>
+                  <div>
+                    <label class="block mb-1.5 font-bold text-theme-text text-xs uppercase tracking-wider"><?= _t('ssg_label_chunk_size') ?></label>
+                    <input type="number" x-model="config.searchChunkSize" class="text-sm form-control" placeholder="500">
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Right Column: Info & Limitations -->
+      <div class="space-y-6">
+
+        <!-- Benefits Card -->
+        <div class="bg-theme-surface shadow-theme border border-theme-border rounded-theme p-5">
+          <h3 class="flex items-center gap-2 mb-4 font-bold text-theme-text text-sm">
+            <svg class="w-4 h-4 text-theme-info" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-information-circle"></use>
             </svg>
             <?= _t('ssg_about_title') ?>
           </h3>
-          <p class="opacity-80 mb-8 text-theme-text text-sm leading-relaxed">
+          <p class="opacity-80 mb-5 text-theme-text text-xs leading-relaxed">
             <?= _t('ssg_intro') ?>
           </p>
-
-          <div class="gap-4 grid grid-cols-3">
-            <div class="bg-theme-bg p-3 border border-theme-border rounded-theme text-center">
-              <div class="flex justify-center mb-2 text-theme-success">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div class="space-y-3">
+            <div class="flex items-center gap-3 bg-theme-bg/50 p-2.5 rounded-theme border border-theme-border/50">
+              <div class="bg-theme-success/10 p-1.5 rounded-full text-theme-success shrink-0">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-bolt"></use>
                 </svg>
               </div>
-              <p class="font-bold text-theme-text text-xs"><?= _t('ssg_feat_fast') ?></p>
+              <span class="font-bold text-theme-text text-xs"><?= _t('ssg_feat_fast') ?></span>
             </div>
-            <div class="bg-theme-bg p-3 border border-theme-border rounded-theme text-center">
-              <div class="flex justify-center mb-2 text-theme-success">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="flex items-center gap-3 bg-theme-bg/50 p-2.5 rounded-theme border border-theme-border/50">
+              <div class="bg-theme-success/10 p-1.5 rounded-full text-theme-success shrink-0">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-check"></use>
                 </svg>
               </div>
-              <p class="font-bold text-theme-text text-xs"><?= _t('ssg_feat_portable') ?></p>
+              <span class="font-bold text-theme-text text-xs"><?= _t('ssg_feat_portable') ?></span>
             </div>
-            <div class="bg-theme-bg p-3 border border-theme-border rounded-theme text-center">
-              <div class="flex justify-center mb-2 text-theme-success">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="flex items-center gap-3 bg-theme-bg/50 p-2.5 rounded-theme border border-theme-border/50">
+              <div class="bg-theme-success/10 p-1.5 rounded-full text-theme-success shrink-0">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-circle-stack"></use>
                 </svg>
               </div>
-              <p class="font-bold text-theme-text text-xs"><?= _t('ssg_feat_nodb') ?></p>
+              <span class="font-bold text-theme-text text-xs"><?= _t('ssg_feat_nodb') ?></span>
             </div>
           </div>
         </div>
 
-        <!-- Limitations -->
-        <div class="bg-theme-warning/5 p-6 border border-theme-warning/20 rounded-theme">
-          <h4 class="flex items-center gap-2 mb-4 font-bold text-theme-warning">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <!-- Limitations Card -->
+        <div class="bg-theme-warning/10 border border-theme-warning/30 rounded-theme p-5">
+          <h4 class="flex items-center gap-2 mb-3 font-bold text-theme-warning text-sm">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-exclamation-triangle"></use>
             </svg>
             <?= _t('ssg_limit_title') ?>
           </h4>
-          <ul class="space-y-4">
-            <li class="flex gap-3 opacity-90 text-theme-text text-sm">
-              <span class="font-bold text-theme-warning shrink-0">•</span>
+          <ul class="space-y-2">
+            <li class="flex items-start gap-2 opacity-90 text-theme-warning text-xs leading-relaxed">
+              <span class="font-bold mt-0.5">•</span>
               <span><?= _t('ssg_limit_search') ?></span>
             </li>
-            <li class="flex gap-3 opacity-90 text-theme-text text-sm">
-              <span class="font-bold text-theme-warning shrink-0">•</span>
+            <li class="flex items-start gap-2 opacity-90 text-theme-warning text-xs leading-relaxed">
+              <span class="font-bold mt-0.5">•</span>
               <span><?= _t('ssg_limit_form') ?></span>
             </li>
-            <li class="flex gap-3 opacity-90 text-theme-text text-sm">
-              <span class="font-bold text-theme-warning shrink-0">•</span>
+            <li class="flex items-start gap-2 opacity-90 text-theme-warning text-xs leading-relaxed">
+              <span class="font-bold mt-0.5">•</span>
               <span><?= _t('ssg_limit_link') ?></span>
             </li>
-            <li class="flex gap-3 opacity-90 text-theme-text text-sm">
-              <span class="font-bold text-theme-warning shrink-0">•</span>
+            <li class="flex items-start gap-2 opacity-90 text-theme-warning text-xs leading-relaxed">
+              <span class="font-bold mt-0.5">•</span>
               <span><?= _t('ssg_limit_js_img') ?></span>
             </li>
-            <li class="flex gap-3 opacity-90 text-theme-text text-sm">
-              <span class="font-bold text-theme-warning shrink-0">•</span>
-              <span><?= _t('ssg_limit_warning') ?></span>
-            </li>
           </ul>
+          <div class="mt-4 pt-3 border-t border-theme-warning/20 opacity-90 text-theme-danger text-[10px] leading-relaxed">
+            <?= _t('ssg_limit_warning') ?>
+          </div>
         </div>
 
       </div>
-    </div>
-
-    <!-- Configuration -->
-    <div class="gap-6 grid grid-cols-1 lg:grid-cols-2">
-
-      <!-- Basic settings -->
-      <div class="bg-theme-surface shadow-theme p-6 border border-theme-border rounded-theme">
-        <h3 class="flex items-center gap-2 mb-6 font-bold text-theme-text text-lg">
-          <svg class="w-5 h-5 text-theme-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-adjustments-horizontal"></use>
-          </svg>
-          <?= _t('ssg_config_title') ?>
-        </h3>
-
-        <div class="space-y-6">
-          <div>
-            <label class="block mb-2 font-bold text-theme-text text-sm">
-              <?= _t('ssg_label_url') ?>
-            </label>
-            <div class="relative">
-              <span class="top-1/2 left-3 absolute opacity-40 text-theme-text -translate-y-1/2">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-link"></use>
-                </svg>
-              </span>
-              <input type="url" x-model="config.baseUrl" class="pl-10 form-control" placeholder="https://example.com">
-            </div>
-            <p class="opacity-60 mt-2 ml-1 text-theme-text text-xs">
-              <?= _t('ssg_desc_url') ?>
-            </p>
-          </div>
-
-          <div>
-            <label class="block mb-2 font-bold text-theme-text text-sm">
-              <?= _t('ssg_label_form') ?>
-            </label>
-            <div class="relative">
-              <span class="top-1/2 left-3 absolute opacity-40 text-theme-text -translate-y-1/2">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-envelope"></use>
-                </svg>
-              </span>
-              <input type="url" x-model="config.formEndpoint" class="pl-10 form-control" placeholder="https://formspree.io/f/...">
-            </div>
-            <p class="opacity-60 mt-1 ml-1 text-theme-text text-xs">
-              <?= _t('ssg_desc_form') ?>
-            </p>
-          </div>
-
-          <div>
-            <label class="block mb-2 font-bold text-theme-text text-sm">
-              <?= _t('ssg_label_search_scope') ?>
-            </label>
-            <select x-model="config.searchScope" class="form-control">
-              <option value="title_body"><?= _t('ssg_scope_title_body') ?></option>
-              <option value="title_only"><?= _t('ssg_scope_title_only') ?></option>
-            </select>
-            <p class="opacity-60 mt-1 ml-1 text-theme-text text-xs">
-              <?= _t('ssg_desc_search_scope') ?>
-            </p>
-          </div>
-
-          <div>
-            <label class="block mb-2 font-bold text-theme-text text-sm">
-              <?= _t('ssg_label_max_results') ?>
-            </label>
-            <input type="number" x-model="config.maxResults" class="form-control" placeholder="1000">
-            <p class="opacity-60 mt-1 ml-1 text-theme-text text-xs">
-              <?= _t('ssg_desc_max_results') ?>
-            </p>
-          </div>
-
-          <div>
-            <label class="block mb-2 font-bold text-theme-text text-sm">
-              <?= _t('ssg_label_chunk_size') ?>
-            </label>
-            <input type="number" x-model="config.searchChunkSize" class="form-control" placeholder="500">
-            <p class="opacity-60 mt-1 ml-1 text-theme-text text-xs">
-              <?= _t('ssg_desc_chunk_size') ?>
-            </p>
-          </div>
-        </div>
-      </div>
-
-      <!-- Export mode -->
-      <div class="flex flex-col bg-theme-surface shadow-theme p-6 border border-theme-border rounded-theme">
-        <h3 class="flex items-center gap-2 mb-6 font-bold text-theme-text text-lg">
-          <svg class="w-5 h-5 text-theme-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-arrow-path"></use>
-          </svg>
-          <?= _t('ssg_mode_title') ?>
-        </h3>
-
-        <div class="flex flex-col flex-1 gap-4">
-          <!-- Full export -->
-          <label class="relative flex items-start hover:shadow-theme p-4 border-2 rounded-theme transition-all cursor-pointer"
-            :class="config.mode === 'full' ? 'border-theme-primary bg-theme-primary/5' : 'border-theme-border bg-theme-bg/30'">
-            <div class="flex items-center h-5">
-              <input type="radio" name="export_mode" value="full" x-model="config.mode" class="border-theme-border focus:ring-theme-primary w-5 h-5 text-theme-primary form-radio">
-            </div>
-            <div class="ml-3">
-              <span class="block font-bold text-theme-text text-sm" :class="config.mode === 'full' ? 'text-theme-primary' : ''">
-                <?= _t('ssg_mode_full') ?>
-              </span>
-              <span class="block opacity-60 mt-1 text-theme-text text-xs">
-                <?= _t('ssg_mode_full_desc') ?>
-              </span>
-            </div>
-          </label>
-
-          <!-- Diff export -->
-          <label class="relative flex items-start hover:shadow-theme p-4 border-2 rounded-theme transition-all"
-            :class="[
-              config.mode === 'diff' ? 'border-theme-primary bg-theme-primary/5' : 'border-theme-border bg-theme-bg/30',
-              <?= $lastExport ? 'false' : 'true' ?> ? 'opacity-50 cursor-not-allowed bg-theme-bg' : 'cursor-pointer'
-            ]">
-            <div class="flex items-center h-5">
-              <input type="radio" name="export_mode" value="diff" x-model="config.mode" class="border-theme-border focus:ring-theme-primary w-5 h-5 text-theme-primary form-radio" <?= $lastExport ? '' : 'disabled' ?>>
-            </div>
-            <div class="ml-3">
-              <div class="flex items-center gap-2">
-                <span class="block font-bold text-theme-text text-sm" :class="config.mode === 'diff' ? 'text-theme-primary' : ''">
-                  <?= _t('ssg_mode_diff') ?>
-                </span>
-                <?php if ($lastExport): ?>
-                  <span class="bg-theme-success/10 px-1.5 py-0.5 border border-theme-success/20 rounded font-bold text-[10px] text-theme-success"><?= _t('ready') ?></span>
-                <?php else: ?>
-                  <span class="bg-theme-bg opacity-70 px-1.5 py-0.5 border border-theme-border rounded-theme text-[10px]"><?= _t('ssg_first_run') ?></span>
-                <?php endif; ?>
-              </div>
-              <span class="block opacity-60 mt-1 text-theme-text text-xs">
-                <?php if ($lastExport): ?>
-                  <?php $lastExportHtml = '<span class="bg-theme-bg px-1 rounded-theme font-mono">' . h($lastExportDisplay) . '</span>'; ?>
-                  <?= _t('ssg_mode_diff_desc', $lastExportHtml) ?>
-                <?php else: ?>
-                  * <?= _t('msg_rebuild_required') ?>
-                <?php endif; ?>
-              </span>
-            </div>
-          </label>
-        </div>
-
-        <div class="mt-6 pt-6 border-theme-border border-t">
-          <div class="flex justify-between items-center">
-            <div class="opacity-60 pr-4 text-theme-text text-xs">
-              <template x-if="config.mode === 'diff'">
-                <span class="flex items-center gap-1">
-                  <svg class="w-3 h-3 text-theme-info" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-information-circle"></use>
-                  </svg>
-                  <?= _t('ssg_diff_notice') ?>
-                </span>
-              </template>
-            </div>
-            <button @click="startExport()" :disabled="processing" class="group flex items-center gap-2 disabled:opacity-50 shadow-theme px-6 py-2.5 font-bold transition-all disabled:cursor-not-allowed btn-primary shrink-0">
-              <span class="relative flex w-3 h-3" x-show="processing">
-                <svg x-show="processing" x-cloak class="w-4 h-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-arrow-path"></use>
-                </svg>
-              </span>
-              <svg x-show="!processing" class="w-5 h-5 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-play-circle"></use>
-              </svg>
-              <span x-text="processing ? trans.btn_generating : trans.btn_start"></span>
-            </button>
-          </div>
-        </div>
-      </div>
-
     </div>
 
   <?php endif; ?>
@@ -629,4 +615,3 @@ ob_start();
 <?php
 $content = ob_get_clean();
 require_once __DIR__ . '/layout/loader.php';
-?>

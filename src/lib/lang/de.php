@@ -1315,7 +1315,7 @@ return [
     'ssg_limit_form' => 'Formulare: Standard-PHP-Formulare werden nicht funktionieren.',
     'ssg_limit_link' => 'Links: Werden automatisch in relative Pfade konvertiert.',
     'ssg_limit_js_img' => 'Dynamische Assets: Bilder, die dynamisch über JavaScript (z. B. im benutzerdefinierten HTML) geladen werden, werden möglicherweise nicht exportiert.',
-    'ssg_limit_warning' => '<strong class="text-theme-danger">Achtung:</strong> Um eine Serverüberlastung (500 Error) zu vermeiden, <strong>führen Sie Exporte nicht nacheinander aus und laden Sie die Seite während der Verarbeitung nicht neu.</strong>',
+    'ssg_limit_warning' => '<strong class="text-theme-danger">Achtung: Um eine Serverüberlastung (500 Error) zu vermeiden, führen Sie Exporte nicht nacheinander aus und laden Sie die Seite während der Verarbeitung nicht neu.</strong>',
     'ssg_label_url' => 'Ziel-URL (Optional)',
     'ssg_desc_url' => 'Wird für `canonical`-Tags und `sitemap.xml` verwendet. Wenn leer, werden Links in <strong>relative Pfade</strong> konvertiert (auf lokaler Festplatte ausführbar).',
     'ssg_label_form' => 'Formular-Endpunkt (Optional)',
@@ -1561,6 +1561,7 @@ return [
     'mig_btn_clear' => 'Leeren',
     'mig_msg_rewrite_ok' => '.htaccess-Konfiguration ist korrekt.',
     'mig_msg_rewrite_fail' => '.htaccess-Konfigurationsabweichung erkannt.',
+    'mig_notice_rewrite' => '* Hinweis: Sobald dies korrigiert wurde, müssen Sie es erneut konfigurieren (oder die .htaccess manuell bearbeiten), wenn Sie die Website in Zukunft in ein anderes Verzeichnis oder auf einen anderen Server verschieben.',
     'mig_btn_run_all' => 'Alle empfohlenen Aufgaben ausführen',
     'mig_confirm_run_all' => "Alle empfohlenen Wartungsaufgaben ausführen (.htaccess-Prüfung, DB-Optimierung, Index-Rebuild, Cache leeren)?\n* Link-Reparatur ist NICHT inbegriffen.",
     'mig_manual_check' => 'MANUELLE PRÜFUNG',
@@ -1782,4 +1783,5 @@ return [
     'Tab' => 'Tab',
     'Untitled' => 'Unbenannt',
     'Guide' => 'Anleitung',
+    'btn_retry' => 'Update wiederholen',
 ];

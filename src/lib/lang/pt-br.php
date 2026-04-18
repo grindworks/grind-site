@@ -1315,7 +1315,7 @@ return [
     'ssg_limit_form' => 'Formulários: Formulários PHP padrão não funcionarão.',
     'ssg_limit_link' => 'Links: Convertidos automaticamente em caminhos relativos.',
     'ssg_limit_js_img' => 'Ativos Dinâmicos: Imagens carregadas dinamicamente via JavaScript (ex. em HTML Personalizado) podem não ser exportadas.',
-    'ssg_limit_warning' => '<strong class="text-theme-danger">Aviso:</strong> Para evitar a sobrecarga do servidor (Erro 500), <strong>não execute exportações consecutivamente nem recarregue a página durante o processamento.</strong>',
+    'ssg_limit_warning' => '<strong class="text-theme-danger">Aviso: Para evitar a sobrecarga do servidor (Erro 500), não execute exportações consecutivamente nem recarregue a página durante o processamento.</strong>',
     'ssg_label_url' => 'URL de Destino (Opcional)',
     'ssg_desc_url' => 'Usado para as tags `canonical` e `sitemap.xml`. Se deixado em branco, os links serão convertidos em <strong>caminhos relativos</strong> (podem ser reproduzidos no disco local).',
     'ssg_label_form' => 'Endpoint do Formulário (Opcional)',
@@ -1561,6 +1561,7 @@ return [
     'mig_btn_clear' => 'Esvaziar',
     'mig_msg_rewrite_ok' => 'As diretrizes do arquivo .htaccess estão corretas.',
     'mig_msg_rewrite_fail' => 'Identificada uma incompatibilidade na configuração do .htaccess.',
+    'mig_notice_rewrite' => '* Nota: Depois de corrigido, você precisará reconfigurar (ou editar manualmente o .htaccess) novamente se mover o site para outro diretório ou servidor no futuro.',
     'mig_btn_run_all' => 'Aplicar Todas as Ações Recomendadas',
     'mig_confirm_run_all' => "Deseja iniciar as atividades de manutenção (Checar .htaccess, Otimizar o BD, Refazer o Índice, Esvaziar o Cache)?\n* A alteração de links NÃO será iniciada em conjunto.",
     'mig_manual_check' => 'TESTE MANUAL',
@@ -1782,4 +1783,5 @@ return [
     'Tab' => 'Aba',
     'Untitled' => 'Sem título',
     'Guide' => 'Guia',
+    'btn_retry' => 'Tentar novamente a atualização',
 ];

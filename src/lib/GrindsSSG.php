@@ -146,14 +146,23 @@ class GrindsSSG
 
         // Special handling for dynamic feeds
         if (in_array($cleanPath, ['sitemap.xml', 'rss.xml', 'robots.txt', 'llms.txt', 'llms-full.txt'])) {
-            ob_start();
             $ssgBaseUrl = rtrim($this->config['base_url'] ?? '', '/');
-            $script = str_replace('.xml', '.php', str_replace('.txt', '.php', $cleanPath));
-            if (file_exists($this->rootDir . '/' . $script)) {
-                include $this->rootDir . '/' . $script;
+            if ($cleanPath === 'sitemap.xml') {
+                require_once $this->rootDir . '/sitemap.php';
+                (new SitemapGenerator($this->pdo, $ssgBaseUrl, true))->generateToFile($filePath);
+            } elseif ($cleanPath === 'rss.xml') {
+                require_once $this->rootDir . '/rss.php';
+                (new RssGenerator($this->pdo, $ssgBaseUrl, true))->generateToFile($filePath);
+            } elseif ($cleanPath === 'robots.txt') {
+                require_once $this->rootDir . '/robots.php';
+                (new RobotsGenerator($ssgBaseUrl, true))->generateToFile($filePath);
+            } elseif ($cleanPath === 'llms.txt') {
+                require_once $this->rootDir . '/llms.php';
+                (new LlmsTxtGenerator($this->pdo, $ssgBaseUrl, true))->generateToFile($filePath);
+            } elseif ($cleanPath === 'llms-full.txt') {
+                require_once $this->rootDir . '/llms-full.php';
+                (new LlmsFullGenerator($this->pdo, $ssgBaseUrl, true))->generateToFile($filePath);
             }
-            $content = ob_get_clean();
-            file_put_contents($filePath, $content);
             return true;
         }
 
@@ -772,6 +781,14 @@ class GrindsSSG
 
     private function stepGenerateAssets($data = [])
     {
+        // Relax limits for intensive feed generation to prevent 500 timeout errors
+        if (function_exists('grinds_set_high_load_mode')) {
+            grinds_set_high_load_mode();
+        } else {
+            @ini_set('memory_limit', '512M');
+            if (function_exists('set_time_limit')) @set_time_limit(0);
+        }
+
         $config = $this->config;
         $searchScope = $config['search_scope'] ?? 'title_body';
         $offset = isset($data['search_offset']) ? (int)$data['search_offset'] : 0;
@@ -945,35 +962,34 @@ class GrindsSSG
         $html = $this->renderPage($searchPage, $config, $jsToolPath, $searchContent);
         file_put_contents($this->exportDir . '/search.html', $html);
 
-        // Generate static feeds (sitemap, rss, robots, llms)
+        // Generate static feeds (sitemap, rss, robots, llms) using direct class invocation safely
         if (!empty($this->config['base_url'])) {
             $ssgBaseUrl = rtrim($this->config['base_url'], '/');
-            ob_start();
-            include $this->rootDir . '/sitemap.php';
-            $sitemap = ob_get_clean();
-            if (!empty($sitemap)) file_put_contents($this->exportDir . '/sitemap.xml', $sitemap);
 
-            ob_start();
-            include $this->rootDir . '/rss.php';
-            $rssContent = ob_get_clean();
-            if (!empty($rssContent)) file_put_contents($this->exportDir . '/rss.xml', $rssContent);
+            require_once $this->rootDir . '/sitemap.php';
+            $sitemapGen = new SitemapGenerator($this->pdo, $ssgBaseUrl, true);
+            $sitemapGen->generateToFile($this->exportDir . '/sitemap.xml');
+
+            require_once $this->rootDir . '/rss.php';
+            $rssGen = new RssGenerator($this->pdo, $ssgBaseUrl, true);
+            $rssGen->generateToFile($this->exportDir . '/rss.xml');
         }
 
-        ob_start();
         $ssgBaseUrl = $this->config['base_url'] ?? '';
-        include $this->rootDir . '/robots.php';
-        file_put_contents($this->exportDir . '/robots.txt', ob_get_clean());
+        require_once $this->rootDir . '/robots.php';
+        $robotsGen = new RobotsGenerator($ssgBaseUrl, true);
+        $robotsGen->generateToFile($this->exportDir . '/robots.txt');
 
         $noIndex = function_exists('get_option') ? get_option('site_noindex') : false;
         $blockAi = function_exists('get_option') ? get_option('site_block_ai') : false;
         if (!$noIndex && !$blockAi) {
-            ob_start();
-            include $this->rootDir . '/llms.php';
-            file_put_contents($this->exportDir . '/llms.txt', ob_get_clean());
+            require_once $this->rootDir . '/llms.php';
+            $llmsGen = new LlmsTxtGenerator($this->pdo, $ssgBaseUrl, true);
+            $llmsGen->generateToFile($this->exportDir . '/llms.txt');
 
-            ob_start();
-            include $this->rootDir . '/llms-full.php';
-            file_put_contents($this->exportDir . '/llms-full.txt', ob_get_clean());
+            require_once $this->rootDir . '/llms-full.php';
+            $llmsFullGen = new LlmsFullGenerator($this->pdo, $ssgBaseUrl, true);
+            $llmsFullGen->generateToFile($this->exportDir . '/llms-full.txt');
         }
 
         return ['success' => true];

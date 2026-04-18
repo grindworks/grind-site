@@ -16,12 +16,14 @@ if (!defined('GRINDS_APP')) exit; ?>
         <strong class="block text-theme-danger"><?= _t('desc_password_protect_warn') ?></strong>
     </p>
 
-    <!-- 記事の末尾に配置された場合のリアルタイム警告 -->
-    <div x-show="index === blocks.length - 1" class="flex items-center gap-2 bg-theme-danger/10 border border-theme-danger/30 text-theme-danger text-xs p-3 rounded-theme mb-4 font-bold" x-cloak>
-        <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-exclamation-circle"></use>
-        </svg>
-        <span><?= _t('err_password_protect_at_bottom') ?></span>
+    <!-- Real-time warning when placed at the bottom of the article -->
+    <div x-show="index === blocks.length - 1" x-collapse x-cloak>
+        <div class="flex items-center gap-2 bg-theme-danger/10 border border-theme-danger/30 text-theme-danger text-xs p-3 rounded-theme mb-4 font-bold">
+            <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-exclamation-circle"></use>
+            </svg>
+            <span><?= _t('err_password_protect_at_bottom') ?></span>
+        </div>
     </div>
 
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">

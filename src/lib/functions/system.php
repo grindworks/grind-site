@@ -1206,8 +1206,8 @@ if (!function_exists('grinds_clear_specific_cache')) {
 function grinds_prepare_migration_config(string $configContent, string $newDbName): string
 {
     $safeDbName = addcslashes($newDbName, "'\\");
-    $patternFile = '/^.*define\s*\(\s*[\'"]DB_FILE[\'"]\s*,.*?\)\s*;/m';
-    $patternFilename = '/^.*define\s*\(\s*[\'"]DB_FILENAME[\'"]\s*,.*?\)\s*;/m';
+    $patternFile = '/^[ \t]*define\s*\(\s*[\'"]DB_FILE[\'"]\s*,.*?\)\s*;/m';
+    $patternFilename = '/^[ \t]*define\s*\(\s*[\'"]DB_FILENAME[\'"]\s*,.*?\)\s*;/m';
     $replacementFilename = "if (!defined('DB_FILENAME')) define('DB_FILENAME', '" . $safeDbName . "');";
     $replacementFile = "if (!defined('DB_FILE')) define('DB_FILE', __DIR__ . '/data/' . DB_FILENAME);";
 

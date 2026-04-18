@@ -652,6 +652,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           if (str_starts_with($postKey, 'custom_skin_')) {
             $key = str_replace('custom_skin_', '', $postKey);
 
+            if ($key === 'font_family') {
+              $key = 'font';
+            }
+
             if (in_array($key, $colorDefKeys, true)) {
               $cKey = $key; // Keep underscore consistently
               if (!isset($skinData['colors'])) $skinData['colors'] = [];
@@ -1123,6 +1127,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       case 'restore_backup':
         $redirectTab = 'backup';
         $file = basename(Routing::getString($_POST, 'restore_backup'));
+
+        // Ensure the file has a valid .db extension
+        if (strtolower(pathinfo($file, PATHINFO_EXTENSION)) !== 'db') {
+          throw new Exception(_t('err_file_not_found') . ' (Invalid file type)');
+        }
+
         $source = $backup_dir . $file;
         $dest = DB_FILE;
         $maintenanceFile = ROOT_PATH . '/.maintenance';
@@ -1157,6 +1167,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
               throw new Exception(_t('err_restore_failed') . ' (Failed to extract backup)');
             }
 
+            // Also copy associated WAL and SHM files if they exist (Fallback backup support)
+            $tempDestWal = $dest . '-wal.tmp';
+            $tempDestShm = $dest . '-shm.tmp';
+            $hasWalBackup = file_exists($source . '-wal');
+            $hasShmBackup = file_exists($source . '-shm');
+
+            if ($hasWalBackup) @copy($source . '-wal', $tempDestWal);
+            if ($hasShmBackup) @copy($source . '-shm', $tempDestShm);
+
             // 2. Replace production DB (try rename, fallback to copy)
             $restored = @rename($tempDest, $dest);
             if (!$restored) {
@@ -1165,6 +1184,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             @unlink($tempDest);
 
             if ($restored) {
+              // Restore WAL and SHM safely if they were included in the backup
+              if ($hasWalBackup) {
+                if (!@rename($tempDestWal, $dest . '-wal')) @copy($tempDestWal, $dest . '-wal');
+                @unlink($tempDestWal);
+              }
+              if ($hasShmBackup) {
+                if (!@rename($tempDestShm, $dest . '-shm')) @copy($tempDestShm, $dest . '-shm');
+                @unlink($tempDestShm);
+              }
+
               if (!$wasMaintenance && file_exists($maintenanceFile)) {
                 grinds_force_unlink($maintenanceFile);
               }
@@ -1186,6 +1215,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
               if (file_exists($dest . '.bak')) {
                 @copy($dest . '.bak', $dest);
               }
+              @unlink($tempDestWal);
+              @unlink($tempDestShm);
               throw new Exception(_t('err_restore_failed'));
             }
           } catch (Exception $e) {

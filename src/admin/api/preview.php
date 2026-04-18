@@ -44,8 +44,14 @@ try {
       $mime = $finfo->file($_FILES[$key]['tmp_name']);
       if (strpos($mime, 'image/') === 0) {
         // Get safe extension
-        if ($mime === 'image/svg+xml' && !current_user_can('manage_settings')) {
-          throw new Exception('SVG uploads are restricted to Administrators.');
+        if ($mime === 'image/svg+xml') {
+          if (!current_user_can('manage_settings')) {
+            throw new Exception('SVG uploads are restricted to Administrators.');
+          }
+          $svgContent = @file_get_contents($_FILES[$key]['tmp_name']);
+          if ($svgContent !== false && (preg_match('/<\s*\/?\s*(script|iframe|object|embed)\b/i', $svgContent) || preg_match('/\bon[a-z]+\s*=/i', $svgContent))) {
+            throw new Exception('Security Error: Malicious code detected in SVG.');
+          }
         }
 
         $safeExt = match ($mime) {
@@ -162,6 +168,15 @@ try {
         $finfo = new finfo(FILEINFO_MIME_TYPE);
         $mime = $finfo->file($_FILES[$uploadFieldName]['tmp_name']);
         if (strpos($mime, 'image/') === 0) {
+          if ($mime === 'image/svg+xml') {
+            if (!current_user_can('manage_settings')) {
+              throw new Exception('SVG uploads are restricted to Administrators.');
+            }
+            $svgContent = @file_get_contents($_FILES[$uploadFieldName]['tmp_name']);
+            if ($svgContent !== false && (preg_match('/<\s*\/?\s*(script|iframe|object|embed)\b/i', $svgContent) || preg_match('/\bon[a-z]+\s*=/i', $svgContent))) {
+              throw new Exception('Security Error: Malicious code detected in SVG.');
+            }
+          }
           $safeExt = match ($mime) {
             'image/jpeg' => 'jpg',
             'image/png'  => 'png',

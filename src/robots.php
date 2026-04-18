@@ -122,6 +122,16 @@ if (!class_exists('RobotsGenerator')) {
             }
         }
 
+        public function generateToFile(string $filePath): void
+        {
+            file_put_contents($filePath, $this->generateContent());
+        }
+
+        public function generateAsString(): string
+        {
+            return $this->generateContent();
+        }
+
         private function generateContent(): string
         {
             $lines = [];
@@ -194,11 +204,13 @@ if (!class_exists('RobotsGenerator')) {
 }
 
 // Execute generator.
-$isSsgMode = defined('GRINDS_IS_SSG') && GRINDS_IS_SSG;
-$baseUrl = defined('BASE_URL') ? (string)BASE_URL : '';
+if (basename(__FILE__) === basename($_SERVER['SCRIPT_FILENAME'])) {
+    $isSsgMode = defined('GRINDS_IS_SSG') && GRINDS_IS_SSG;
+    $baseUrl = defined('BASE_URL') ? (string)BASE_URL : '';
 
-if ($isSsgMode && isset($ssgBaseUrl) && $ssgBaseUrl !== '') {
-    $baseUrl = (string)$ssgBaseUrl;
+    if ($isSsgMode && isset($ssgBaseUrl) && $ssgBaseUrl !== '') {
+        $baseUrl = (string)$ssgBaseUrl;
+    }
+
+    (new RobotsGenerator($baseUrl, $isSsgMode))->run();
 }
-
-(new RobotsGenerator($baseUrl, $isSsgMode))->run();

@@ -5,6 +5,8 @@
  *
  * Exports all posts and pages as Markdown files with YAML frontmatter.
  * Perfect for migrating to Astro, Hugo, Gatsby, or other Headless setups.
+ *
+ * [Refactored to Asynchronous Chunk Architecture to prevent OOM/Timeouts]
  */
 
 // Use the API bootstrap to enforce authentication and CSRF checks
@@ -12,29 +14,22 @@ require_once __DIR__ . '/api_bootstrap.php';
 
 // Ensure the user has permission to manage tools (export data)
 if (!current_user_can('manage_tools')) {
-    http_response_code(403);
-    exit('Access Denied: You do not have permission to export data.');
+    $action = $_POST['action'] ?? $_GET['action'] ?? '';
+    if ($action === 'download') {
+        while (ob_get_level()) ob_end_clean();
+        http_response_code(403);
+        exit('Access Denied: You do not have permission to export data.');
+    }
+    json_response(['success' => false, 'error' => 'Permission denied'], 403);
 }
 
+// Reject any direct accesses that are not valid POST calls
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    http_response_code(405);
-    exit('Method Not Allowed');
+    json_response(['success' => false, 'error' => 'Method Not Allowed'], 405);
 }
 
 check_csrf_token();
-
-// Release session lock to prevent blocking other requests (e.g., from other tabs) during export
-session_write_close();
-
-// Relax limits for potentially heavy export operations
-if (function_exists('grinds_set_high_load_mode')) {
-    grinds_set_high_load_mode();
-}
-
-if (!class_exists('ZipArchive')) {
-    grinds_render_error_page('Missing Extension', 'Error: PHP Zip extension is required for exporting.', '500 System Error', 500);
-    exit;
-}
+session_write_close(); // Prevent session locking during export
 
 /**
  * Helper to safely convert GrindSite JSON blocks to clean Markdown.
@@ -124,6 +119,61 @@ function grinds_blocks_to_markdown($contentJson)
             case 'html':
                 $md .= "\n\n" . ($bData['code'] ?? '') . "\n\n";
                 break;
+            case 'table':
+                if (!empty($bData['content']) && is_array($bData['content'])) {
+                    $md .= "\n\n";
+                    foreach ($bData['content'] as $rIdx => $row) {
+                        $md .= "|";
+                        foreach ($row as $cell) {
+                            $cellText = str_replace('|', '&#124;', $htmlToMarkdown($cell ?? ''));
+                            $md .= " {$cellText} |";
+                        }
+                        $md .= "\n";
+                        // ヘッダー行の区切り線を追加
+                        if ($rIdx === 0 && !empty($bData['withHeadings'])) {
+                            $md .= "|";
+                            foreach ($row as $cell) {
+                                $md .= "---|";
+                            }
+                            $md .= "\n";
+                        }
+                    }
+                    $md .= "\n\n";
+                }
+                break;
+            case 'proscons':
+                $pTitle = $htmlToMarkdown($bData['pros_title'] ?? 'Pros');
+                $cTitle = $htmlToMarkdown($bData['cons_title'] ?? 'Cons');
+                $md .= "\n\n### {$pTitle}\n";
+                foreach ($bData['pros_items'] ?? [] as $item) {
+                    if (trim($item)) $md .= "- [x] " . $htmlToMarkdown($item) . "\n";
+                }
+                $md .= "\n### {$cTitle}\n";
+                foreach ($bData['cons_items'] ?? [] as $item) {
+                    if (trim($item)) $md .= "- [ ] " . $htmlToMarkdown($item) . "\n";
+                }
+                $md .= "\n\n";
+                break;
+            case 'step':
+                $md .= "\n\n";
+                foreach ($bData['items'] ?? [] as $idx => $item) {
+                    $stepTitle = $htmlToMarkdown($item['title'] ?? '');
+                    $stepDesc = $htmlToMarkdown($item['desc'] ?? '');
+                    $md .= "#### Step " . ($idx + 1) . ": {$stepTitle}\n";
+                    if ($stepDesc) $md .= "{$stepDesc}\n";
+                    $md .= "\n";
+                }
+                $md .= "\n";
+                break;
+            case 'accordion':
+                $md .= "\n\n";
+                foreach ($bData['items'] ?? [] as $item) {
+                    $q = $htmlToMarkdown($item['title'] ?? '');
+                    $a = $htmlToMarkdown($item['content'] ?? '');
+                    $md .= "**Q. {$q}**\n\n> A. " . str_replace("\n", "\n> ", $a) . "\n\n";
+                }
+                $md .= "\n";
+                break;
             default:
                 // For complex blocks, try to extract plain text as fallback
                 $fallback = '';
@@ -142,47 +192,123 @@ function grinds_blocks_to_markdown($contentJson)
     return preg_replace("/\n{3,}/", "\n\n", trim($md));
 }
 
-// Create temporary ZIP file
+// Prepare ZIP file paths securely tied to the user's session
+$uid = substr(hash('sha256', session_id() . ($_SESSION['user_id'] ?? '')), 0, 16);
 $tmpDir = ROOT_PATH . '/data/tmp';
 if (!is_dir($tmpDir)) @mkdir($tmpDir, 0775, true);
-$zipFilename = 'grinds_markdown_export_' . date('Ymd_His') . '.zip';
+$zipFilename = "markdown_export_{$uid}.zip";
 $zipPath = $tmpDir . '/' . $zipFilename;
 
-$zip = new ZipArchive();
-if ($zip->open($zipPath, ZipArchive::CREATE | ZipArchive::OVERWRITE) !== TRUE) {
-    http_response_code(500);
-    exit('Failed to create ZIP archive.');
+// Handle file download request
+$action = $_POST['action'] ?? $_GET['action'] ?? '';
+if ($action === 'download') {
+    if (file_exists($zipPath)) {
+        while (ob_get_level()) ob_end_clean();
+        header('Content-Type: application/zip');
+        header('Content-disposition: attachment; filename=grinds_markdown_export_' . date('Ymd_His') . '.zip');
+        header('Content-Length: ' . filesize($zipPath));
+        header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
+        header('Pragma: no-cache');
+        header('Expires: 0');
+
+        if (function_exists('set_time_limit')) @set_time_limit(0);
+        $handle = @fopen($zipPath, 'rb');
+        if ($handle) {
+            while (!feof($handle)) {
+                echo fread($handle, 8192);
+                flush();
+            }
+            fclose($handle);
+        }
+        // Delete temp file after download completes
+        @unlink($zipPath);
+        exit;
+    } else {
+        while (ob_get_level()) ob_end_clean();
+        http_response_code(404);
+        exit('File not found');
+    }
 }
 
-// Setup ZIP Encryption (AES-256)
-$zipPassword = '';
-if (function_exists('get_option')) {
-    $zipPassword = get_option('backup_zip_password', '');
+if (function_exists('grinds_set_high_load_mode')) {
+    grinds_set_high_load_mode();
 }
-if (!empty($zipPassword)) {
-    $zip->setPassword($zipPassword);
+
+if (!class_exists('ZipArchive')) {
+    json_response(['success' => false, 'error' => 'PHP Zip extension is required.'], 500);
 }
+
+// Ensure Database Connection is active
+$pdo = App::db();
+if (!$pdo) {
+    json_response(['success' => false, 'error' => 'Database connection failed.'], 500);
+}
+
+$step = $_POST['step'] ?? 'init';
+$currentCsrfToken = $_SESSION['csrf_token'] ?? '';
+$data = json_decode($_POST['data'] ?? '{}', true) ?: [];
 
 try {
-    // Query all posts and pages in batches to prevent Out of Memory (OOM) crashes
-    $repo = new PostRepository($pdo);
-    $batchSize = 100;
-    $offset = 0;
+    if ($step === 'init') {
+        // Cleanup old exports to prevent disk space buildup
+        foreach (glob($tmpDir . '/markdown_export_*.zip') as $f) {
+            if (is_file($f) && filemtime($f) < time() - 3600) {
+                @unlink($f);
+            }
+        }
+        if (file_exists($zipPath)) {
+            @unlink($zipPath);
+        }
 
-    while (true) {
+        // Get total posts to process
+        $repo = new PostRepository($pdo);
+        $total = $repo->count([
+            'type' => ['post', 'page'],
+            'status' => 'all'
+        ]);
+
+        json_response([
+            'success' => true,
+            'total_posts' => $total,
+            'csrf_token' => $currentCsrfToken
+        ]);
+    } elseif ($step === 'process_batch') {
+        $offset = (int)($data['offset'] ?? 0);
+        $batchSize = 50; // 50 posts per chunk for stability
+
+        $repo = new PostRepository($pdo);
         $posts = $repo->fetch([
             'type' => ['post', 'page'],
-            'status' => 'all' // Exclude trashed posts
+            'status' => 'all'
         ], $batchSize, $offset, 'p.id ASC');
 
         if (empty($posts)) {
-            break; // No more posts to process
+            json_response([
+                'success' => true,
+                'processed' => 0,
+                'next_offset' => $offset,
+                'done' => true,
+                'csrf_token' => $currentCsrfToken
+            ]);
         }
 
+        // Preload tags to avoid N+1 queries
         if (function_exists('grinds_attach_tags')) {
             grinds_attach_tags($posts);
         }
 
+        $zip = new ZipArchive();
+        // ★ FIX: 追加で作成する場合は CREATE 指定が必須 (空のZIPがない場合のエラー回避)
+        if ($zip->open($zipPath, ZipArchive::CREATE) !== TRUE) {
+            throw new Exception("Cannot open zip file.");
+        }
+
+        $zipPassword = function_exists('get_option') ? get_option('backup_zip_password', '') : '';
+        if ($zipPassword !== '') {
+            $zip->setPassword($zipPassword);
+        }
+
+        $count = 0;
         foreach ($posts as $post) {
             // Build YAML Frontmatter
             $fm = "---\n";
@@ -196,11 +322,10 @@ try {
             $date = $post['published_at'] ?: $post['created_at'];
             if ($date) $fm .= "date: " . date('c', strtotime($date)) . "\n";
 
-            // Add lastmod to frontmatter to convey information freshness to AI/SSG
             $updated = $post['updated_at'] ?: $date;
             if ($updated) $fm .= "lastmod: " . date('c', strtotime($updated)) . "\n";
 
-            if ($post['category_name']) {
+            if (!empty($post['category_name'])) {
                 $fm .= "category: \"{$post['category_name']}\"\n";
             }
 
@@ -241,7 +366,7 @@ try {
 
             $fm .= "---\n\n";
 
-            // Convert Content
+            // Convert Content blocks into Markdown
             $contentUrlFixed = Routing::restoreViewUrl($post['content']);
             $markdownBody = grinds_blocks_to_markdown($contentUrlFixed);
 
@@ -259,48 +384,38 @@ try {
             $filename = "{$folder}/{$post['slug']}.md";
             $zip->addFromString($filename, $fileContent);
 
-            // Apply encryption to the added file if password is set
-            if (!empty($zipPassword)) {
+            if (!empty($zipPassword) && method_exists($zip, 'setEncryptionName')) {
                 $zip->setEncryptionName($filename, ZipArchive::EM_AES_256);
             }
+            $count++;
         }
 
-        // Free memory for the next batch
-        $offset += $batchSize;
-        unset($posts);
+        $zip->close(); // Write chunk to disk
+
         if (function_exists('gc_collect_cycles')) {
             gc_collect_cycles();
         }
+
+        json_response([
+            'success' => true,
+            'processed' => $count,
+            'next_offset' => $offset + $count,
+            'done' => ($count < $batchSize),
+            'csrf_token' => $currentCsrfToken
+        ]);
+    } elseif ($step === 'finalize') {
+        json_response([
+            'success' => true,
+            'url' => 'api/export_markdown.php?action=download&csrf_token=' . $currentCsrfToken,
+            'csrf_token' => $currentCsrfToken
+        ]);
+    } else {
+        throw new Exception("Unknown step.");
     }
-
-    $zip->close();
-
-    // Stream download safely using chunks to prevent OOM
-    while (ob_get_level()) {
-        ob_end_clean();
-    }
-    header('Content-Type: application/zip');
-    header('Content-disposition: attachment; filename=' . $zipFilename);
-    header('Content-Length: ' . filesize($zipPath));
-    header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
-    header('Pragma: no-cache');
-    header('Expires: 0');
-
-    if (function_exists('set_time_limit')) @set_time_limit(0);
-    $handle = @fopen($zipPath, 'rb');
-    if ($handle) {
-        while (!feof($handle)) {
-            echo fread($handle, 8192);
-            flush();
-        }
-        fclose($handle);
-    }
-
-    @unlink($zipPath);
-    exit;
-} catch (Exception $e) {
-    if ($zip) $zip->close();
-    if (file_exists($zipPath)) @unlink($zipPath);
-    grinds_render_error_page('Export Failed', $e->getMessage(), '500 System Error', 500);
-    exit;
+} catch (Throwable $e) {
+    // Catch Throwable explicitly to prevent fatal errors bypassing the JSON output
+    json_response([
+        'success' => false,
+        'error' => $e->getMessage() . ' (Line: ' . $e->getLine() . ')'
+    ], 500);
 }

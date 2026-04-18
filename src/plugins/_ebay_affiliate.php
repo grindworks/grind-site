@@ -14,6 +14,51 @@
  */
 if (!defined('GRINDS_APP')) exit;
 
+// Translation helper for this plugin
+if (!function_exists('grinds_ebay_t')) {
+    function grinds_ebay_t($key)
+    {
+        $lang = function_exists('get_option') ? get_option('site_lang', 'en') : 'en';
+        $texts = [
+            'en' => [
+                'not_set' => '⚠️ eBay Campaign ID is not set. Please configure it in the admin toolbar.',
+                'invalid_url' => '⚠️ eBay Product URL is missing or invalid.',
+                'buy_on_ebay' => 'Buy on eBay',
+                'modal_title' => 'eBay Affiliate Settings',
+                'modal_desc' => 'Enter your eBay Partner Network Campaign ID.<br>（e.g., <code>5338000000</code>）',
+                'modal_usage' => 'How to use shortcode',
+                'cancel' => 'Cancel',
+                'save' => 'Save',
+                'insert_tooltip' => 'Insert eBay Shortcode',
+            ],
+            'ja' => [
+                'not_set' => '⚠️ eBayキャンペーンIDが未設定です。管理ツールバーから設定してください。',
+                'invalid_url' => '⚠️ eBay商品URLが未設定または不正な形式です。',
+                'buy_on_ebay' => 'eBayで購入',
+                'modal_title' => 'eBayアフィリエイト設定',
+                'modal_desc' => 'eBay Partner NetworkのキャンペーンIDを入力してください。<br>（例: <code>5338000000</code>）',
+                'modal_usage' => 'ショートコードの使い方',
+                'cancel' => 'キャンセル',
+                'save' => '保存する',
+                'insert_tooltip' => 'eBayショートコードを挿入',
+            ],
+            'de' => [
+                'not_set' => '⚠️ eBay-Kampagnen-ID ist nicht festgelegt. Bitte konfigurieren Sie sie in der Admin-Symbolleiste.',
+                'invalid_url' => '⚠️ eBay-Produkt-URL fehlt oder ist ungültig.',
+                'buy_on_ebay' => 'Bei eBay kaufen',
+                'modal_title' => 'eBay Affiliate Einstellungen',
+                'modal_desc' => 'Geben Sie Ihre eBay Partner Network Kampagnen-ID ein.<br>(z.B. <code>5338000000</code>)',
+                'modal_usage' => 'Wie man Shortcodes verwendet',
+                'cancel' => 'Abbrechen',
+                'save' => 'Speichern',
+                'insert_tooltip' => 'eBay Shortcode einfügen',
+            ],
+        ];
+        $l = array_key_exists($lang, $texts) ? $lang : 'en';
+        return $texts[$l][$key] ?? $key;
+    }
+}
+
 // 1. Filter to expand shortcode during post content output
 add_filter('grinds_the_content', function ($content) {
     if (!str_contains($content, '[ebay ')) {
@@ -45,10 +90,12 @@ add_filter('grinds_the_content', function ($content) {
 
         // Display warnings to the admin if required data is missing
         if (empty($safe_camp_id)) {
-            return '<div class="p-4 my-4 border border-theme-warning/50 bg-theme-warning/10 text-theme-warning font-bold rounded text-sm text-center">⚠️ eBay Campaign ID is not set. Please configure it in the admin toolbar.</div>';
+            $msg = grinds_ebay_t('not_set');
+            return '<div class="p-4 my-4 border border-theme-warning/50 bg-theme-warning/10 text-theme-warning font-bold rounded text-sm text-center">' . $msg . '</div>';
         }
         if (empty($safe_url)) {
-            return '<div class="p-4 my-4 border border-theme-warning/50 bg-theme-warning/10 text-theme-warning font-bold rounded text-sm text-center">⚠️ eBay Product URL is missing or invalid.</div>';
+            $msg = grinds_ebay_t('invalid_url');
+            return '<div class="p-4 my-4 border border-theme-warning/50 bg-theme-warning/10 text-theme-warning font-bold rounded text-sm text-center">' . $msg . '</div>';
         }
 
         // Generate eBay affiliate link dynamically using eBay Partner Network (Rover) format
@@ -82,7 +129,7 @@ add_filter('grinds_the_content', function ($content) {
             <div class="flex flex-wrap justify-center sm:justify-start gap-3">
                 <a href="{$affiliate_url}" target="_blank" rel="noopener noreferrer external" class="inline-flex items-center justify-center text-white font-bold text-xs sm:text-sm px-6 py-2 sm:py-2.5 rounded-full shadow-sm hover:opacity-90 transition-opacity no-underline w-full sm:w-auto" style="background-color: {$ebay_color};">
                     <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="{$sprite_url}#outline-shopping-bag"></use></svg>
-                    Buy on eBay
+                    ' . grinds_ebay_t('buy_on_ebay') . '
                 </a>
             </div>
         </div>
@@ -127,6 +174,12 @@ add_action('grinds_footer', function () {
     $csrfToken = function_exists('generate_csrf_token') ? generate_csrf_token() : '';
     $sprite_url = function_exists('grinds_asset_url') ? grinds_asset_url('assets/img/sprite.svg') : resolve_url('assets/img/sprite.svg');
 
+    $t_modal_title = grinds_ebay_t('modal_title');
+    $t_modal_desc = grinds_ebay_t('modal_desc');
+    $t_modal_usage = grinds_ebay_t('modal_usage');
+    $t_cancel = grinds_ebay_t('cancel');
+    $t_save = grinds_ebay_t('save');
+
     echo <<<HTML
     <div x-data="{ showEbayModal: false }" @open-ebay-modal.window="showEbayModal = true" @keydown.escape.window="showEbayModal = false">
         <div x-show="showEbayModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/80 backdrop-blur-sm transition-opacity" x-cloak>
@@ -134,10 +187,10 @@ add_action('grinds_footer', function () {
                 <button type="button" @click="showEbayModal = false" class="absolute top-4 right-4 text-theme-text opacity-50 hover:opacity-100 transition-opacity">&times;</button>
                 <h3 class="text-theme-text font-bold text-lg mb-2 flex items-center gap-2">
                     <svg class="w-5 h-5 text-theme-info" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="{$sprite_url}#outline-shopping-bag"></use></svg>
-                    eBay Affiliate Settings
+                    {$t_modal_title}
                 </h3>
                 <p class="text-theme-text opacity-70 text-xs mb-4 leading-relaxed">
-                    Enter your eBay Partner Network Campaign ID.<br>（e.g., <code>5338000000</code>）
+                    {$t_modal_desc}
                 </p>
                 <form method="POST">
                     <input type="hidden" name="csrf_token" value="{$csrfToken}">
@@ -145,12 +198,12 @@ add_action('grinds_footer', function () {
                     <input type="text" name="new_ebay_id" value="{$camp_id}" placeholder="5338000000" class="w-full px-3 py-2 bg-theme-bg border border-theme-border rounded text-theme-text text-sm mb-4 focus:ring-2 focus:ring-theme-primary focus:outline-none font-mono" required>
 
                     <div class="bg-theme-bg/50 border border-theme-border rounded-lg p-4 mb-6 text-xs text-theme-text leading-relaxed">
-                        <p class="font-bold mb-2 flex items-center gap-1"><svg class="w-4 h-4 text-theme-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="{$sprite_url}#outline-information-circle"></use></svg> How to use shortcode</p>
+                        <p class="font-bold mb-2 flex items-center gap-1"><svg class="w-4 h-4 text-theme-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="{$sprite_url}#outline-information-circle"></use></svg> {$t_modal_usage}</p>
                         <div class="font-mono text-[11px] bg-theme-surface p-3 rounded border border-theme-border/50 break-all font-bold text-theme-text">[ebay url="Product URL" title="Product Name" image="Image URL"]</div>
                     </div>
                     <div class="flex justify-end gap-2">
-                        <button type="button" @click="showEbayModal = false" class="px-4 py-2 border border-theme-border text-theme-text rounded text-xs font-bold hover:bg-theme-bg transition-colors">Cancel</button>
-                        <button type="submit" class="px-4 py-2 bg-theme-primary text-theme-on-primary rounded text-xs font-bold hover:opacity-90 transition-opacity">Save</button>
+                        <button type="button" @click="showEbayModal = false" class="px-4 py-2 border border-theme-border text-theme-text rounded text-xs font-bold hover:bg-theme-bg transition-colors">{$t_cancel}</button>
+                        <button type="submit" class="px-4 py-2 bg-theme-primary text-theme-on-primary rounded text-xs font-bold hover:opacity-90 transition-opacity">{$t_save}</button>
                     </div>
                 </form>
             </div>
@@ -163,13 +216,14 @@ HTML;
 add_action('grinds_html_block_tools', function () {
     if (!class_exists('App') || !App::user()) return;
     $sprite_url = function_exists('grinds_asset_url') ? grinds_asset_url('assets/img/sprite.svg') : resolve_url('assets/img/sprite.svg');
+    $t_insert_tooltip = grinds_ebay_t('insert_tooltip');
     echo <<<HTML
       <button type="button" @click="
         const el = document.getElementById('block-' + block.id + '-code');
         const text = block.data.code || '';
         block.data.code = text + (text ? '\\n' : '') + '[ebay url=\'URL\' title=\'Name\' image=\'IMG_URL\']';
         \$nextTick(() => { el.focus(); el.setSelectionRange(block.data.code.indexOf('URL'), block.data.code.indexOf('URL') + 3); });
-      " class="inline-flex items-center gap-1.5 px-2.5 py-1.5 hover:bg-theme-bg/50 border border-theme-border rounded-theme text-theme-text text-[10px] font-bold transition-colors" title="Insert eBay Shortcode">
+      " class="inline-flex items-center gap-1.5 px-2.5 py-1.5 hover:bg-theme-bg/50 border border-theme-border rounded-theme text-theme-text text-[10px] font-bold transition-colors" title="{$t_insert_tooltip}">
         <svg class="w-3.5 h-3.5 text-theme-info" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <use href="{$sprite_url}#outline-shopping-bag"></use>
         </svg>

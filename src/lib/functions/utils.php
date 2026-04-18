@@ -218,6 +218,12 @@ if (!function_exists('grinds_extract_text_from_content')) {
                 return '';
             }
 
+            // Fix: Prevent OOM (Out Of Memory) when parsing extremely large HTML documents.
+            // 2MB (approx. 2 million characters) is more than enough for text extraction.
+            if (strlen($s) > 2 * 1024 * 1024) {
+                $s = mb_strcut($s, 0, 2 * 1024 * 1024, 'UTF-8');
+            }
+
             // Collapse whitespace and return if no tags left
             if (!str_contains($s, '<')) {
                 return trim(preg_replace('/\s+/u', ' ', html_entity_decode($s, ENT_QUOTES | ENT_HTML5, 'UTF-8')));
@@ -264,7 +270,7 @@ if (!function_exists('grinds_extract_text_from_content')) {
             foreach ($data['blocks'] as $block) {
                 // Exclude noisy block types for search and excerpts
                 $type = $block['type'] ?? '';
-                if (in_array($type, ['html', 'map', 'embed'])) {
+                if (in_array($type, ['map', 'embed'])) {
                     continue;
                 }
 
@@ -798,6 +804,11 @@ if (!function_exists('grinds_db_snapshot')) {
 
                     $pdo_backup->exec("COMMIT;");
                 } catch (Exception $fallback_e) {
+                    try {
+                        $pdo_backup->exec("ROLLBACK;");
+                    } catch (Exception $rollback_e) {
+                        // Ignore rollback errors
+                    }
                     throw new Exception("VACUUM INTO failed: " . $e->getMessage() . " AND Fallback failed: " . $fallback_e->getMessage());
                 }
             }
@@ -840,12 +851,21 @@ if (!function_exists('grinds_rotate_backups')) {
         if (count($backups) <= $limit)
             return;
 
-        rsort($backups);
+        // Sort backups accurately by file modification time instead of string path
+        usort($backups, function ($a, $b) {
+            $timeA = file_exists($a) ? filemtime($a) : 0;
+            $timeB = file_exists($b) ? filemtime($b) : 0;
+            return $timeB <=> $timeA; // Descending order (newest first)
+        });
+
         $filesToDelete = array_slice($backups, $limit);
 
         foreach ($filesToDelete as $f) {
             if (is_file($f)) {
                 grinds_force_unlink($f);
+                // Also delete associated WAL/SHM files if they exist (from fallback backups)
+                if (file_exists($f . '-wal')) grinds_force_unlink($f . '-wal');
+                if (file_exists($f . '-shm')) grinds_force_unlink($f . '-shm');
             }
         }
     }
@@ -1645,12 +1665,20 @@ if (!function_exists('grinds_get_or_create_tags')) {
             if ($name === '')
                 continue;
 
-            $slug = function_exists('generate_slug') ? generate_slug($name, null, 'tag-') : sanitize_slug($name);
-            if (empty($slug))
-                $slug = 'tag-' . uniqid();
+            $baseSlug = function_exists('generate_slug') ? generate_slug($name, null, 'tag-') : sanitize_slug($name);
+            if (empty($baseSlug))
+                $baseSlug = 'tag-' . uniqid();
 
-            if (in_array(strtolower($slug), $reserved_slugs)) {
-                $slug .= '-tag';
+            if (in_array(strtolower($baseSlug), $reserved_slugs)) {
+                $baseSlug .= '-tag';
+            }
+
+            $slug = $baseSlug;
+            $counter = 1;
+            // Ensure unique slug for different tag names within the current batch
+            while (isset($slugMap[$slug]) && $slugMap[$slug] !== $name) {
+                $slug = $baseSlug . '-' . $counter;
+                $counter++;
             }
 
             if (!isset($slugMap[$slug])) {

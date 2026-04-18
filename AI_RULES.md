@@ -22,6 +22,9 @@
   - ALWAYS use prepared statements (`$pdo->prepare()`). Never interpolate variables directly into SQL.
 - **English Only Comments (Core):** Use imperative mood (e.g., `// Validate input`). NEVER use Japanese in core system code or comments.
   - _Exception:_ Plugin files (in `src/plugins/`), `.htaccess` files, and files meant for user configuration may include bilingual comments (English and Japanese) in DocBlocks and instructional inline comments to assist users.
+- **Translation Keys (i18n):**
+  - **Core/Admin:** Use snake_case logical keys (e.g., `btn_save_changes`, `st_general_desc`).
+  - **Theme/Frontend:** MUST use natural English phrases (WordPress-like) as keys (e.g., `Read More`, `Back to Home`). This is intentional to ensure a zero learning curve for end-users developing their own themes.
 - **Performance:** Favor bulk DB fetches to avoid N+1 queries. Preload metadata whenever processing arrays of files or posts.
 - **Modern PHP:** Use strict typing, type hints, return types, and PHP 8.x features (match expressions, nullsafe operators) where applicable.
 - **Security:** Use custom `h()` for escaping and `grinds_sanitize_html()` for rich text.

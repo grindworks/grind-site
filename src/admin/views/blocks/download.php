@@ -25,7 +25,7 @@ if (!defined('GRINDS_APP'))
         <label class="block opacity-50 mb-1 font-bold text-[10px] text-theme-text">
           <?= _t('lbl_file_url') ?>
         </label>
-        <input type="text" x-model="block.data.url" :id="'block-' + block.id + '-url'" class="w-full font-mono text-xs form-control-sm"
+        <input type="text" x-model="block.data.url" :id="'block-' + block.id + '-url'" @blur="block.data.url = normalizeUrl(block.data.url)" class="w-full font-mono text-xs form-control-sm"
           placeholder="<?= _t('ph_url_example') ?>">
       </div>
       <div class="space-y-1">

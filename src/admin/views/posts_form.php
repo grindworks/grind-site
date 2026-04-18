@@ -143,6 +143,7 @@ $js_translations = [
 // Ensure required variables exist to prevent warnings
 $linkablePages = $linkablePages ?? [];
 $categories = $categories ?? [];
+$allTagsList = $allTagsList ?? [];
 
 // Limit preloaded pages to 20 to reduce payload size.
 // Full search is handled via API (post_search.php).
@@ -888,6 +889,7 @@ $basePath = rtrim($parsedBase['path'] ?? '/', '/') . '/';
                                                 } else {
                                                     input.value = meta[key];
                                                 }
+                                                input.dispatchEvent(new Event('input', { bubbles: true }));
                                                 input.dispatchEvent(new Event('change', { bubbles: true }));
                                             }
                                             if (document.getElementById(`meta_data_${key}_input`)) {
@@ -896,6 +898,47 @@ $basePath = rtrim($parsedBase['path'] ?? '/', '/') . '/';
                                         }
                                     } catch (e) {
                                         console.error('Failed to parse meta_data from revision', e);
+                                    }
+                                }
+
+                                if (data.data.hero_settings) {
+                                    try {
+                                        const hs = typeof data.data.hero_settings === 'string' ? JSON.parse(data.data.hero_settings) : data.data.hero_settings;
+
+                                        const setVal = (name, val) => {
+                                            const el = document.querySelector(`[name='${name}']`);
+                                            if (el) {
+                                                if (el.type === 'checkbox') {
+                                                    el.checked = (val == 1 || val == true);
+                                                } else {
+                                                    el.value = val || '';
+                                                }
+                                                el.dispatchEvent(new Event('input', { bubbles: true }));
+                                                el.dispatchEvent(new Event('change', { bubbles: true }));
+                                            }
+                                        };
+
+                                        // ヒーロー設定の各入力欄へ過去のデータをセット
+                                        setVal('hero_title', hs.title);
+                                        setVal('hero_subtext', hs.subtext);
+                                        setVal('hero_layout', hs.layout);
+                                        setVal('hero_overlay', hs.overlay);
+                                        setVal('hero_fixed_bg', hs.fixed_bg);
+                                        setVal('seo_author', hs.seo_author);
+
+                                        // モバイル用画像の復元（プレビューにも反映させるためカスタムイベントを発火）
+                                        if (hs.mobile_image) {
+                                            window.dispatchEvent(new CustomEvent('set-hero-image', { detail: { url: hs.mobile_image, mobile: true } }));
+                                        } else {
+                                            const mobileImgInput = document.getElementById('hero_image_mobile_url_input');
+                                            if (mobileImgInput) mobileImgInput.value = '';
+                                        }
+
+                                        // ヒーローボタンの復元（上で追加したリスナーに向けて発火）
+                                        window.dispatchEvent(new CustomEvent('restore-hero-buttons', { detail: hs.buttons }));
+
+                                    } catch (e) {
+                                        console.error('Failed to parse hero_settings from revision', e);
                                     }
                                 }
 
@@ -1242,7 +1285,8 @@ $basePath = rtrim($parsedBase['path'] ?? '/', '/') . '/';
 
                                 <!-- Hero button settings. -->
                                 <div class="mt-2 pt-4 border-theme-border border-t"
-                                    x-data="heroSettings">
+                                    x-data="heroSettings"
+                                    @restore-hero-buttons.window="buttons = $event.detail || []">
 
                                     <div class="flex justify-between items-center opacity-70 mb-2 font-bold text-theme-text text-xs">
                                         <span><?= _t('hero_cta') ?></span>

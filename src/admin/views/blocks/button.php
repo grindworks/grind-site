@@ -6,7 +6,8 @@ if (!defined('GRINDS_APP')) exit;
 // Load color configuration
 $btn_colors = $block_config['library']['design']['items']['button']['colors'] ?? [];
 ?>
-<div class="flex items-start gap-3 bg-theme-bg/40 p-4 border border-theme-border rounded-theme"
+<div class="flex items-start gap-3 bg-theme-bg/40 p-4 border border-theme-border rounded-theme relative transition-all"
+  :class="{ 'z-50 ring-1 ring-theme-primary': searching }"
   x-init="if(!block.data.color) block.data.color = 'primary'; if(block.data.external === undefined) block.data.external = true"
   x-data="{
     colors: <?= htmlspecialchars(json_encode($btn_colors), ENT_QUOTES) ?>,

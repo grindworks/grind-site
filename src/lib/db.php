@@ -270,6 +270,13 @@ function grinds_is_fts5_enabled()
       return $is_enabled = true; // Assume enabled if DB is not available, to avoid false positives
     }
 
+    // Pre-check SQLite version before executing FTS5 checks.
+    // FTS5 was introduced in SQLite 3.9.0.
+    $version = $pdo->query('SELECT sqlite_version()')->fetchColumn();
+    if (version_compare($version, '3.9.0', '<')) {
+      return $is_enabled = false;
+    }
+
     // Fast check: Use PRAGMA compile_options (Modern, no I/O)
     $stmt = $pdo->query("PRAGMA compile_options");
     if ($stmt) {

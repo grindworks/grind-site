@@ -7,13 +7,13 @@
  */
 if (!defined('GRINDS_APP')) exit;
 
-$type = $current_type ?? 'post';
-$status_filter = $_GET['status'] ?? '';
-$is_trash_view = ($status_filter === 'trash');
+$type = $currentType ?? 'post';
+$statusFilter = $_GET['status'] ?? '';
+$isTrashView = ($statusFilter === 'trash');
 
 // Load skin to get draft color
 $skin = require __DIR__ . '/../load_skin.php';
-$draft_bg_color = $skin['colors']['status_draft'] ?? '#f3f4f6';
+$draftBgColor = $skin['colors']['status_draft'] ?? '#f3f4f6';
 
 $formAction = 'posts.php';
 if (!empty($_SERVER['QUERY_STRING'])) {
@@ -39,7 +39,7 @@ $csrf_token = generate_csrf_token();
 </script>
 
 <!-- Mobile floating action button. -->
-<?php if (!$is_trash_view): ?>
+<?php if (!$isTrashView): ?>
   <?php
   $href = "posts.php?action=new&type=" . h($type);
   include __DIR__ . '/parts/fab.php';
@@ -54,7 +54,7 @@ $csrf_token = generate_csrf_token();
         <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-document-text"></use>
       </svg>
       <?= _t('menu_posts') ?>
-      <?php if ($is_trash_view): ?>
+      <?php if ($isTrashView): ?>
         <span class="bg-theme-danger/10 px-2 py-0.5 border border-theme-danger/20 rounded-theme text-theme-danger text-sm"><?= _t('st_trash') ?></span>
       <?php endif; ?>
     </h2>
@@ -64,7 +64,7 @@ $csrf_token = generate_csrf_token();
       <!-- Search form. -->
       <form method="get" action="posts.php" class="hidden sm:block relative">
         <input type="hidden" name="type" value="<?= h($type) ?>">
-        <?php if ($status_filter): ?><input type="hidden" name="status" value="<?= h($status_filter) ?>"><?php endif; ?>
+        <?php if ($statusFilter): ?><input type="hidden" name="status" value="<?= h($statusFilter) ?>"><?php endif; ?>
 
         <input type="text" name="q" value="<?= h($_GET['q'] ?? '') ?>" placeholder="<?= _t('search') ?>"
           class="bg-theme-bg pl-8 border-theme-border w-32 focus:w-48 text-theme-text text-xs transition-all form-control-sm">
@@ -75,7 +75,7 @@ $csrf_token = generate_csrf_token();
 
       <?php include __DIR__ . '/parts/limit_selector.php'; ?>
 
-      <?php if (!$is_trash_view): ?>
+      <?php if (!$isTrashView): ?>
         <div class="hidden lg:block">
           <?php if ($type === 'template'): ?>
             <a href="posts.php?action=new&type=template" class="flex items-center gap-2 shadow-theme px-4 py-2 rounded-theme font-bold text-xs btn-secondary">
@@ -99,7 +99,7 @@ $csrf_token = generate_csrf_token();
             <input type="hidden" name="csrf_token" value="<?= h(generate_csrf_token()) ?>">
             <input type="hidden" name="action" value="empty_trash">
             <input type="hidden" name="type" value="<?= h($type) ?>">
-            <button type="submit" class="flex items-center gap-2 bg-theme-danger hover:opacity-90 disabled:hover:opacity-50 shadow-theme px-6 py-2.5 rounded-theme font-bold text-white text-xs sm:text-sm transition-all disabled:cursor-not-allowed" <?= $count_trash == 0 ? 'disabled' : '' ?>>
+            <button type="submit" class="flex items-center gap-2 bg-theme-danger hover:opacity-90 disabled:hover:opacity-50 shadow-theme px-6 py-2.5 rounded-theme font-bold text-white text-xs sm:text-sm transition-all disabled:cursor-not-allowed" <?= $countTrash == 0 ? 'disabled' : '' ?>>
               <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-trash"></use>
               </svg>
@@ -127,7 +127,7 @@ $csrf_token = generate_csrf_token();
         ];
       }
       foreach ($tabs as $k => $label):
-        $isActive = ($type === $k && !$is_trash_view);
+        $isActive = ($type === $k && !$isTrashView);
       ?>
         <a href="?type=<?= $k ?>"
           class="whitespace-nowrap py-3 px-4 border-b-2 font-bold text-sm transition-colors <?= $isActive ? 'border-theme-primary text-theme-primary' : 'border-transparent text-theme-text opacity-60 hover:text-theme-text hover:border-theme-border' ?>">
@@ -137,11 +137,11 @@ $csrf_token = generate_csrf_token();
 
       <!-- Trash tab. -->
       <a href="?status=trash"
-        class="whitespace-nowrap py-3 px-4 border-b-2 font-bold text-sm transition-colors <?= $is_trash_view ? 'border-theme-danger text-theme-danger' : 'border-transparent text-theme-text opacity-40 hover:text-theme-danger hover:border-theme-danger/30' ?>">
+        class="whitespace-nowrap py-3 px-4 border-b-2 font-bold text-sm transition-colors <?= $isTrashView ? 'border-theme-danger text-theme-danger' : 'border-transparent text-theme-text opacity-40 hover:text-theme-danger hover:border-theme-danger/30' ?>">
         <svg class="inline-block mr-1 mb-0.5 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-trash"></use>
         </svg>
-        <?= _t('st_trash') ?> (<?= $count_trash ?>)
+        <?= _t('st_trash') ?> (<?= $countTrash ?>)
       </a>
     </nav>
   </div>
@@ -150,7 +150,7 @@ $csrf_token = generate_csrf_token();
   <div class="sm:hidden mb-2">
     <form method="get" action="posts.php" class="relative">
       <input type="hidden" name="type" value="<?= h($type) ?>">
-      <?php if ($status_filter): ?><input type="hidden" name="status" value="<?= h($status_filter) ?>"><?php endif; ?>
+      <?php if ($statusFilter): ?><input type="hidden" name="status" value="<?= h($statusFilter) ?>"><?php endif; ?>
       <input type="text" name="q" value="<?= h($_GET['q'] ?? '') ?>" placeholder="<?= _t('search') ?>"
         class="bg-theme-bg pl-8 border-theme-border w-full text-theme-text text-xs form-control-sm">
       <svg class="top-1/2 left-2.5 absolute opacity-50 w-3.5 h-3.5 text-theme-text -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -159,13 +159,13 @@ $csrf_token = generate_csrf_token();
     </form>
   </div>
 
-  <?php if ($type !== 'template' && !$is_trash_view): ?>
+  <?php if ($type !== 'template' && !$isTrashView): ?>
     <div class="flex gap-3 pb-1 overflow-x-auto text-xs no-scrollbar">
       <span class="inline-flex items-center bg-theme-success/10 px-2 py-1 border border-theme-success/20 rounded-theme text-theme-success whitespace-nowrap">
-        <span class="mr-1 font-bold"><?= _t('st_published') ?>:</span> <?= $count_published ?>
+        <span class="mr-1 font-bold"><?= _t('st_published') ?>:</span> <?= $countPublished ?>
       </span>
       <span class="inline-flex items-center bg-theme-text/10 px-2 py-1 border border-theme-border rounded-theme text-theme-text whitespace-nowrap">
-        <span class="mr-1 font-bold"><?= _t('st_draft') ?>:</span> <?= $count_draft ?>
+        <span class="mr-1 font-bold"><?= _t('st_draft') ?>:</span> <?= $countDraft ?>
       </span>
     </div>
   <?php endif; ?>
@@ -179,7 +179,7 @@ $csrf_token = generate_csrf_token();
     <div class="flex flex-wrap items-center gap-2 w-full lg:w-auto">
       <select id="bulk-action-selector" x-model="bulkAction" class="w-48 cursor-pointer form-control-sm">
         <option value=""><?= _t('lbl_bulk_actions') ?></option>
-        <?php if ($is_trash_view): ?>
+        <?php if ($isTrashView): ?>
           <option value="restore"><?= _t('action_restore') ?></option>
           <option value="delete"><?= _t('action_delete_perm') ?></option>
         <?php else: ?>
@@ -195,7 +195,7 @@ $csrf_token = generate_csrf_token();
       <!-- Category selector. -->
       <select id="bulk-category-selector" class="slide-in-from-left-2 w-48 animate-in duration-200 cursor-pointer form-control-sm fade-in" x-show="bulkAction === 'change_category'" style="display: none;">
         <option value=""><?= _t('lbl_select_category') ?></option>
-        <?php foreach ($filter_cats as $fc): ?>
+        <?php foreach ($filterCats as $fc): ?>
           <option value="<?= $fc['id'] ?>"><?= h($fc['name']) ?></option>
         <?php endforeach; ?>
       </select>
@@ -205,11 +205,11 @@ $csrf_token = generate_csrf_token();
       </button>
     </div>
 
-    <?php if ($type === 'post' && !$is_trash_view): ?>
+    <?php if ($type === 'post' && !$isTrashView): ?>
       <div class="flex gap-2 w-full lg:w-auto overflow-x-auto">
         <select onchange="applyFilter('cat', this.value)" class="w-full lg:w-48 cursor-pointer form-control-sm">
           <option value=""><?= _t('lbl_category') ?>: <?= _t('all') ?></option>
-          <?php foreach ($filter_cats as $fc): ?>
+          <?php foreach ($filterCats as $fc): ?>
             <option value="<?= $fc['id'] ?>" <?= (isset($_GET['cat']) && $_GET['cat'] == $fc['id']) ? 'selected' : '' ?>><?= h($fc['name']) ?></option>
           <?php endforeach; ?>
         </select>
@@ -243,7 +243,7 @@ $csrf_token = generate_csrf_token();
         <tr class="bg-theme-bg/50 border-theme-border border-b font-bold text-theme-text/60 text-xs text-left uppercase tracking-wider">
           <th class="px-6 py-4 w-10"><input type="checkbox" id="select-all" class="bg-theme-bg border-theme-border rounded-sm focus:ring-0 w-5 h-5 text-theme-primary form-checkbox"></th>
           <?php $sorter->renderTh('title', _t('col_title')); ?>
-          <?php if ($type !== 'template' || $is_trash_view): ?><th class="px-6 py-4"><?= _t('lbl_category') ?> / <?= _t('col_type') ?></th><?php endif; ?>
+          <?php if ($type !== 'template' || $isTrashView): ?><th class="px-6 py-4"><?= _t('lbl_category') ?> / <?= _t('col_type') ?></th><?php endif; ?>
           <?php if ($type !== 'template'): ?><?php $sorter->renderTh('status', _t('col_status'), 'hidden lg:table-cell'); ?><?php endif; ?>
           <?php $sorter->renderTh('updated_at', _t('col_date'), 'hidden lg:table-cell'); ?>
           <th class="px-6 py-4 text-right whitespace-nowrap"><?= _t('col_action') ?></th>
@@ -255,7 +255,7 @@ $csrf_token = generate_csrf_token();
           $isFuture = $row['is_future'];
           $catName = $row['cat_name'];
         ?>
-          <tr class="group hover:bg-theme-bg/50 transition-colors" <?= ($row['status'] === 'draft') ? 'style="background-color:' . h($draft_bg_color) . '"' : '' ?>>
+          <tr class="group hover:bg-theme-bg/50 transition-colors" <?= ($row['status'] === 'draft') ? 'style="background-color:' . h($draftBgColor) . '"' : '' ?>>
             <td class="px-6 py-4">
               <input type="checkbox" name="ids[]" value="<?= $row['id'] ?>" class="bg-theme-bg border-theme-border rounded-sm focus:ring-0 w-5 h-5 text-theme-primary post-checkbox form-checkbox">
             </td>
@@ -271,7 +271,7 @@ $csrf_token = generate_csrf_token();
                   <?php endif; ?>
                 <?php endif; ?>
                 <div>
-                  <?php if ($is_trash_view): ?>
+                  <?php if ($isTrashView): ?>
                     <span class="opacity-70 font-bold text-theme-text break-words line-clamp-2" title="<?= h($row['title']) ?>"><?= h($row['title']) ?></span>
                   <?php else: ?>
                     <a href="posts.php?action=edit&id=<?= $row['id'] ?>" class="font-bold text-theme-text hover:text-theme-primary break-words line-clamp-2 transition-colors" title="<?= h($row['title']) ?>"><?= h($row['title']) ?></a>
@@ -280,10 +280,10 @@ $csrf_token = generate_csrf_token();
               </div>
             </td>
 
-            <?php if ($type !== 'template' || $is_trash_view): ?>
+            <?php if ($type !== 'template' || $isTrashView): ?>
               <td class="opacity-80 px-6 py-4 min-w-[120px] max-w-[200px] text-theme-text text-sm">
                 <div class="flex flex-wrap gap-1">
-                  <?php if ($is_trash_view): ?>
+                  <?php if ($isTrashView): ?>
                     <span class="text-[10px] px-1.5 py-0.5 rounded-theme border font-bold <?= $row['post_type_class'] ?>"><?= $row['post_type_label'] ?></span>
                   <?php endif; ?>
 
@@ -296,7 +296,7 @@ $csrf_token = generate_csrf_token();
               </td>
               <?php if ($type !== 'template'): ?>
                 <td class="hidden lg:table-cell px-6 py-4 text-sm whitespace-nowrap">
-                  <?php if ($is_trash_view): ?>
+                  <?php if ($isTrashView): ?>
                     <span class="bg-theme-danger/10 border-theme-danger/20 text-theme-danger badge"><?= _t('st_trash') ?></span>
                   <?php elseif ($isPublished && $isFuture): ?>
                     <span class="badge badge-warning"><?= _t('st_reserved') ?></span>
@@ -309,7 +309,7 @@ $csrf_token = generate_csrf_token();
               <?php endif; ?>
               <td class="hidden lg:table-cell opacity-70 px-6 py-4 font-mono text-theme-text text-xs whitespace-nowrap">
                 <?php
-                $dateVal = $is_trash_view ? $row['deleted_at'] : ($isFuture ? $row['published_at'] : $row['updated_at']);
+                $dateVal = $isTrashView ? $row['deleted_at'] : ($isFuture ? $row['published_at'] : $row['updated_at']);
 
                 $dateDisplay = $dateVal ? date('Y-m-d H:i', strtotime($dateVal)) : '-';
                 echo $isFuture ? "<span class='text-theme-warning font-bold'>{$dateDisplay}</span>" : $dateDisplay;
@@ -322,7 +322,7 @@ $csrf_token = generate_csrf_token();
 
             <td class="px-6 py-4 text-sm text-right align-middle whitespace-nowrap">
               <div class="flex justify-end items-center gap-3 h-full">
-                <?php if ($is_trash_view): ?>
+                <?php if ($isTrashView): ?>
                   <button type="button" onclick="executeAction('restore', <?= $row['id'] ?>)" class="flex items-center bg-transparent p-1 border-none text-theme-success hover:scale-110 transition-transform cursor-pointer" title="<?= h(_t('btn_restore_post')) ?>" aria-label="<?= h(_t('btn_restore_post')) ?>">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-arrow-uturn-left"></use>
@@ -369,7 +369,7 @@ $csrf_token = generate_csrf_token();
       $isFuture = $row['is_future'];
       $catName = $row['cat_name'];
     ?>
-      <div class="bg-theme-surface border border-theme-border rounded-theme overflow-hidden" x-data="{ open: false }" <?= ($row['status'] === 'draft') ? 'style="background-color:' . h($draft_bg_color) . '"' : '' ?>>
+      <div class="bg-theme-surface border border-theme-border rounded-theme overflow-hidden" x-data="{ open: false }" <?= ($row['status'] === 'draft') ? 'style="background-color:' . h($draftBgColor) . '"' : '' ?>>
         <!-- Compact Header -->
         <div class="flex items-center gap-3 p-3 cursor-pointer" @click="open = !open">
           <div class="shrink-0" @click.stop>
@@ -380,7 +380,7 @@ $csrf_token = generate_csrf_token();
             <div class="flex justify-between items-start gap-2">
               <h4 class="font-bold text-theme-text text-sm truncate"><?= h($row['title']) ?></h4>
               <!-- Status Badge (Small) -->
-              <?php if ($is_trash_view): ?>
+              <?php if ($isTrashView): ?>
                 <span class="shrink-0 bg-theme-danger/10 px-1.5 py-0.5 rounded-theme font-bold text-theme-danger text-[10px]"><?= _t('st_trash') ?></span>
               <?php elseif ($isPublished && $isFuture): ?>
                 <span class="shrink-0 bg-theme-warning/10 px-1.5 py-0.5 rounded-theme font-bold text-theme-warning text-[10px]"><?= _t('st_reserved') ?></span>
@@ -391,7 +391,7 @@ $csrf_token = generate_csrf_token();
               <?php endif; ?>
             </div>
             <?php
-            $dateVal = $is_trash_view ? $row['deleted_at'] : ($isFuture ? $row['published_at'] : $row['updated_at']);
+            $dateVal = $isTrashView ? $row['deleted_at'] : ($isFuture ? $row['published_at'] : $row['updated_at']);
             $dateDisplay = $dateVal ? date('Y-m-d H:i', strtotime($dateVal)) : '-';
             ?>
             <div class="flex items-center gap-2 mt-1 text-theme-text/60 text-xs">
@@ -426,9 +426,9 @@ $csrf_token = generate_csrf_token();
 
             <div class="flex-1 space-y-2 min-w-0">
               <!-- Category / Type -->
-              <?php if ($type !== 'template' || $is_trash_view): ?>
+              <?php if ($type !== 'template' || $isTrashView): ?>
                 <div class="flex flex-wrap gap-1">
-                  <?php if ($is_trash_view): ?>
+                  <?php if ($isTrashView): ?>
                     <span class="px-1.5 py-0.5 rounded-theme border font-bold text-[10px] <?= $row['post_type_class'] ?>"><?= $row['post_type_label'] ?></span>
                   <?php endif; ?>
                   <?php if ($row['type'] !== 'template'): ?>
@@ -443,7 +443,7 @@ $csrf_token = generate_csrf_token();
 
           <!-- Actions -->
           <div class="flex justify-end gap-3 pt-3 border-theme-border/50 border-t">
-            <?php if ($is_trash_view): ?>
+            <?php if ($isTrashView): ?>
               <button type="button" onclick="executeAction('restore', <?= $row['id'] ?>)" class="flex items-center gap-1 bg-theme-success/10 px-3 py-1.5 rounded-theme font-bold text-theme-success text-xs">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-arrow-uturn-left"></use>

@@ -2,7 +2,23 @@
 
 /** Before / After Block View */
 if (!defined('GRINDS_APP')) exit; ?>
-<div class="space-y-4 bg-theme-bg/40 p-4 border border-theme-border rounded-theme" x-data="{ isUploadingBefore: false, isUploadingAfter: false }">
+<div class="space-y-4 bg-theme-bg/40 p-4 border border-theme-border rounded-theme transition-colors"
+  x-data="{ isUploadingBefore: false, isUploadingAfter: false, isDragging: false, dragCount: 0 }"
+  @dragenter.prevent="dragCount++; isDragging = true"
+  @dragover.prevent="isDragging = true"
+  @dragleave.prevent="dragCount--; if (dragCount === 0) isDragging = false"
+  @drop.prevent="dragCount = 0; isDragging = false;
+    if($event.dataTransfer.files.length) {
+      isUploadingBefore = true;
+      await uploadImage({target: {files: [$event.dataTransfer.files[0]]}}, block.id, 'beforeUrl');
+      isUploadingBefore = false;
+      if($event.dataTransfer.files.length > 1) {
+        isUploadingAfter = true;
+        await uploadImage({target: {files: [$event.dataTransfer.files[1]]}}, block.id, 'afterUrl');
+        isUploadingAfter = false;
+      }
+    }"
+  :class="{'border-theme-primary bg-theme-primary/5': isDragging}">
   <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
     <!-- Before -->
     <div class="space-y-2">

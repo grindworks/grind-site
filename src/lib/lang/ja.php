@@ -1315,7 +1315,7 @@ return [
     'ssg_limit_form' => 'フォーム: 通常のPHPメール送信は機能しません。',
     'ssg_limit_link' => 'リンク: 自動的に相対パスに変換されます。',
     'ssg_limit_js_img' => '動的アセット: カスタムHTML内のJavaScript等で動的に読み込んでいる画像は出力されない場合があります。',
-    'ssg_limit_warning' => '<strong class="text-theme-danger">注意:</strong> サーバー過負荷によるエラー（500 Error）を防ぐため、<strong>連続して書き出しを実行したり、処理中に画面をリロードしないでください。</strong>',
+    'ssg_limit_warning' => '<strong class="text-theme-danger">注意: サーバー過負荷によるエラー（500 Error）を防ぐため、連続して書き出しを実行したり、処理中に画面をリロードしないでください。</strong>',
     'ssg_label_url' => '公開用URL (任意)',
     'ssg_desc_url' => '`canonical` タグや `sitemap.xml` に使用されます。空欄の場合、すべてのリンクは<strong>相対パス</strong>（ローカルでも閲覧可能）になります。',
     'ssg_label_form' => 'フォーム送信先URL (任意)',
@@ -1561,6 +1561,7 @@ return [
     'mig_btn_clear' => 'クリア',
     'mig_msg_rewrite_ok' => '.htaccess の設定は正常です。',
     'mig_msg_rewrite_fail' => '.htaccess の設定が現在のパスと一致しません。',
+    'mig_notice_rewrite' => '※ 一度修正を実行すると、次回別のディレクトリやサーバーへ移転した際にも再設定（または .htaccess の手動修正）が必要になります。',
     'mig_btn_run_all' => '推奨メンテナンスを一括実行',
     'mig_confirm_run_all' => "推奨されるメンテナンス（.htaccess確認、DB最適化、インデックス再構築、キャッシュクリア）を一括で実行しますか？\n※リンク修正は含まれません。",
     'mig_manual_check' => '手動チェック',
@@ -1782,4 +1783,5 @@ return [
     'Tab' => 'タブ',
     'Untitled' => '無題',
     'Guide' => 'ガイド',
+    'btn_retry' => '再試行',
 ];

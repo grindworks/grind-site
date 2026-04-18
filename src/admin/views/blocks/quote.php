@@ -15,7 +15,7 @@ if (!defined('GRINDS_APP'))
     <input type="text" x-model="block.data.cite" :id="'block-' + block.id + '-cite'"
       class="w-1/3 bg-transparent border-none focus:ring-0 p-0 text-xs text-theme-text opacity-60 text-right"
       placeholder="<?= _t('ph_quote_source') ?>">
-    <input type="url" x-model="block.data.citeUrl" :id="'block-' + block.id + '-citeUrl'"
+    <input type="text" x-model="block.data.citeUrl" :id="'block-' + block.id + '-citeUrl'"
       @blur="block.data.citeUrl = normalizeUrl(block.data.citeUrl)" class="w-2/3 bg-transparent border-b border-theme-border focus:ring-0 p-0 text-xs text-theme-text opacity-60"
       placeholder="<?= _t('ph_quote_url') ?>">
   </div>

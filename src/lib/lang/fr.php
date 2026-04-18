@@ -1315,7 +1315,7 @@ return [
     'ssg_limit_form' => 'Formulaires : Les formulaires PHP standards ne fonctionneront pas.',
     'ssg_limit_link' => 'Liens : Automatiquement convertis en chemins relatifs.',
     'ssg_limit_js_img' => 'Ressources Dynamiques : Les images chargées dynamiquement via JavaScript (ex. dans du HTML personnalisé) peuvent ne pas être exportées.',
-    'ssg_limit_warning' => '<strong class="text-theme-danger">Attention :</strong> Pour éviter une surcharge du serveur (Erreur 500), <strong>n\'exécutez pas d\'exportations consécutivement ou ne rechargez pas la page pendant le traitement.</strong>',
+    'ssg_limit_warning' => '<strong class="text-theme-danger">Attention : Pour éviter une surcharge du serveur (Erreur 500), n\'exécutez pas d\'exportations consécutivement ou ne rechargez pas la page pendant le traitement.</strong>',
     'ssg_label_url' => 'URL de destination (Facultatif)',
     'ssg_desc_url' => 'Utilisée pour les balises `canonical` et `sitemap.xml`. Si laissé vide, les liens seront convertis en <strong>chemins relatifs</strong> (lisibles sur un disque local).',
     'ssg_label_form' => 'Point de terminaison du formulaire (Facultatif)',
@@ -1561,6 +1561,7 @@ return [
     'mig_btn_clear' => 'Effacer',
     'mig_msg_rewrite_ok' => 'La configuration .htaccess est correcte.',
     'mig_msg_rewrite_fail' => 'Incohérence de configuration .htaccess détectée.',
+    'mig_notice_rewrite' => '* Remarque : Une fois corrigé, vous devrez reconfigurer (ou modifier manuellement le .htaccess) à nouveau si vous déplacez le site vers un autre répertoire ou serveur à l\'avenir.',
     'mig_btn_run_all' => 'Exécuter Toutes les Tâches Recommandées',
     'mig_confirm_run_all' => "Exécuter toutes les tâches de maintenance recommandées (Vérification .htaccess, Optimisation BDD, Reconstruction Index, Effacer Cache) ?\n* La correction des liens n'est PAS incluse.",
     'mig_manual_check' => 'VÉRIFICATION MANUELLE',
@@ -1782,4 +1783,5 @@ return [
     'Tab' => 'Onglet',
     'Untitled' => 'Sans titre',
     'Guide' => 'Guide',
+    'btn_retry' => 'Réessayer la mise à jour',
 ];

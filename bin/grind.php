@@ -160,6 +160,7 @@ function displayHelp(): void
     echo "  " . ConsoleColor::green('backup:restore') . "        Restore database from a specific backup file.\n";
     echo "  " . ConsoleColor::green('migration:create') . "      Create a full migration package (DB + Uploads ZIP).\n";
     echo "  " . ConsoleColor::green('ssg:build') . "             Run Static Site Generation (Options: --diff, --full).\n";
+    echo "  " . ConsoleColor::green('export:markdown') . "       Export all posts and pages as Markdown files.\n";
 
     echo "\n" . ConsoleColor::yellow("User Management:\n");
     echo "  " . ConsoleColor::green('user:list') . "             List all registered users.\n";
@@ -956,11 +957,11 @@ function handleRescueFix(string $srcPath): void
         if (!$pdo) throw new Exception("Database connection failed.");
 
         // 1. Reset admin layout
-        $pdo->exec("INSERT OR REPLACE INTO settings (key, value) VALUES ('admin_layout', 'sidebar')");
+        $pdo->exec("INSERT OR REPLACE INTO settings (key, value, autoload) VALUES ('admin_layout', 'sidebar', 1)");
         echo "  " . ConsoleColor::green("✓") . " Admin layout reset to sidebar.\n";
 
         // 2. Disable debug mode
-        $pdo->exec("INSERT OR REPLACE INTO settings (key, value) VALUES ('debug_mode', '0')");
+        $pdo->exec("INSERT OR REPLACE INTO settings (key, value, autoload) VALUES ('debug_mode', '0', 1)");
         echo "  " . ConsoleColor::green("✓") . " Debug mode disabled.\n";
 
         // 3. Clear lockouts
@@ -1036,13 +1037,13 @@ function handleSsgBuild(array $args, string $srcPath): void
 
     $buildId = 'cli_' . date('YmdHis');
 
-    // モックセッションに設定を仕込む
+    // Set up mock session
     if (session_status() === PHP_SESSION_NONE) {
-        // CLIではセッションは開始しないが、$_SESSION変数は使える
+        // Session is not started in CLI, but $_SESSION variable is available
         $_SESSION = [];
     }
 
-    // init ステップの実行
+    // Execute init step
     $ssgInit = new GrindsSSG($pdo, [
         'step' => 'init',
         'buildId' => $buildId,
@@ -1068,7 +1069,7 @@ function handleSsgBuild(array $args, string $srcPath): void
     $renderedCount = 0;
     $batchSize = 20;
 
-    // 生成用のインスタンスを作成 (step は init 以外)
+    // Create an instance for generation (step is not init)
     $ssgGen = new GrindsSSG($pdo, ['buildId' => $buildId]);
 
     if ($totalPages > 0) {
@@ -1138,6 +1139,213 @@ function handleSsgBuild(array $args, string $srcPath): void
     }
 }
 
+/**
+ * Helper for Markdown Export CLI
+ */
+function grinds_cli_blocks_to_markdown(string $contentJson): string
+{
+    $data = json_decode($contentJson, true);
+    if (!is_array($data) || empty($data['blocks'])) {
+        $text = strip_tags($contentJson, '<p><br><h1><h2><h3><h4><ul><ol><li><blockquote><pre><code>');
+        $text = str_replace(['<br>', '<br/>', '<br />', '</p>'], "\n\n", $text);
+        return trim(strip_tags($text));
+    }
+
+    $htmlToMarkdown = function ($html) {
+        $safeReplace = function ($pattern, $replacement, $subject) {
+            if (!is_string($subject)) return '';
+            $result = @preg_replace($pattern, $replacement, $subject);
+            return ($result === null) ? $subject : $result;
+        };
+        $md = str_replace(['<br>', '<br/>', '<br />'], "\n", $html ?? '');
+        $md = $safeReplace('/<(b|strong)\b[^>]*+>((?:[^<]++|<(?!\/\1>))*+)<\/\1>/is', '**$2**', $md);
+        $md = $safeReplace('/<(i|em)\b[^>]*+>((?:[^<]++|<(?!\/\1>))*+)<\/\1>/is', '*$2*', $md);
+        $md = $safeReplace('/<(s|strike|del)\b[^>]*+>((?:[^<]++|<(?!\/\1>))*+)<\/\1>/is', '~~$2~~', $md);
+        $md = $safeReplace('/<code\b[^>]*+>((?:[^<]++|<(?!\/code>))*+)<\/code>/is', '`$1`', $md);
+        $md = $safeReplace('/<a\b[^>]*+href=["\']([^"\']++)["\'][^>]*+>((?:[^<]++|<(?!\/a>))*+)<\/a>/is', '$2', $md);
+        return strip_tags($md);
+    };
+
+    $md = "";
+    foreach ($data['blocks'] as $block) {
+        $type = $block['type'] ?? '';
+        $bData = $block['data'] ?? [];
+
+        if ($type === 'password_protect') {
+            $md .= "\n\n> **[Password Protected Content Below]**\n\n";
+            break;
+        }
+
+        switch ($type) {
+            case 'header':
+                $levelStr = str_replace('h', '', $bData['level'] ?? '2');
+                $level = (int)$levelStr ?: 2;
+                $md .= "\n\n" . str_repeat('#', $level) . " " . $htmlToMarkdown($bData['text'] ?? '') . "\n\n";
+                break;
+            case 'paragraph':
+                $md .= "\n\n" . $htmlToMarkdown($bData['text'] ?? '') . "\n\n";
+                break;
+            case 'list':
+                $style = $bData['style'] ?? 'unordered';
+                $md .= "\n\n";
+                foreach ($bData['items'] ?? [] as $idx => $item) {
+                    $md .= ($style === 'ordered' ? ($idx + 1) . ". " : "- ") . $htmlToMarkdown($item) . "\n";
+                }
+                $md .= "\n\n";
+                break;
+            case 'image':
+                $md .= "\n\n![" . ($bData['alt'] ?? $bData['caption'] ?? 'image') . "](" . ($bData['url'] ?? '') . ")\n\n";
+                break;
+            case 'code':
+                $md .= "\n\n```" . ($bData['language'] ?? 'plaintext') . "\n" . ($bData['code'] ?? '') . "\n```\n\n";
+                break;
+            case 'quote':
+                $md .= "\n\n> " . str_replace("\n", "\n> ", $htmlToMarkdown($bData['text'] ?? '')) . "\n\n";
+                break;
+            case 'divider':
+                $md .= "\n\n---\n\n";
+                break;
+            case 'html':
+                $md .= "\n\n" . ($bData['code'] ?? '') . "\n\n";
+                break;
+            default:
+                $fallback = '';
+                array_walk_recursive($bData, function ($value) use (&$fallback) {
+                    if (is_string($value) && !preg_match('/^https?:\/\//i', $value)) {
+                        $fallback .= strip_tags($value) . " ";
+                    }
+                });
+                if (trim($fallback)) $md .= "\n\n<!-- {$type} block -->\n" . trim($fallback) . "\n\n";
+                break;
+        }
+    }
+    return preg_replace("/\n{3,}/", "\n\n", trim($md));
+}
+
+/**
+ * Handles the 'export:markdown' command.
+ */
+function handleExportMarkdown(string $srcPath): void
+{
+    echo ConsoleColor::yellow("Exporting posts and pages to Markdown...\n");
+
+    if (!class_exists('ZipArchive')) {
+        echo ConsoleColor::red("Error: PHP Zip extension is required but not installed.\n");
+        exit(1);
+    }
+
+    @set_time_limit(0);
+    @ini_set('memory_limit', '-1');
+
+    $pdo = App::db();
+    if (!$pdo) {
+        echo ConsoleColor::red("✗ Database connection failed.\n");
+        exit(1);
+    }
+
+    $tmpDir = $srcPath . '/data/tmp';
+    if (!is_dir($tmpDir)) @mkdir($tmpDir, 0775, true);
+
+    $zipFilename = 'markdown_export_' . date('Ymd_His') . '.zip';
+    $zipPath = $tmpDir . '/' . $zipFilename;
+
+    $zip = new ZipArchive();
+    if ($zip->open($zipPath, ZipArchive::CREATE | ZipArchive::OVERWRITE) !== TRUE) {
+        echo ConsoleColor::red("✗ Cannot create zip file at {$zipPath}.\n");
+        exit(1);
+    }
+
+    $zipPassword = function_exists('get_option') ? get_option('backup_zip_password', '') : '';
+    if ($zipPassword !== '') {
+        $zip->setPassword($zipPassword);
+    }
+
+    $repo = new PostRepository($pdo);
+    $total = $repo->count(['type' => ['post', 'page'], 'status' => 'all']);
+
+    if ($total === 0) {
+        $zip->close();
+        echo "  " . ConsoleColor::yellow("No posts or pages found to export.") . "\n";
+        return;
+    }
+
+    echo "  Found {$total} items. Processing...\n";
+
+    $batchSize = 100;
+    $offset = 0;
+    $processed = 0;
+
+    while (true) {
+        $posts = $repo->fetch(['type' => ['post', 'page'], 'status' => 'all'], $batchSize, $offset, 'p.id ASC');
+        if (empty($posts)) break;
+
+        if (function_exists('grinds_attach_tags')) {
+            grinds_attach_tags($posts);
+        }
+
+        foreach ($posts as $post) {
+            // Build YAML Frontmatter
+            $fm = "---\n";
+            $cleanTitle = str_replace(["\r", "\n"], ' ', html_entity_decode(strip_tags($post['title'] ?? ''), ENT_QUOTES | ENT_HTML5, 'UTF-8'));
+            $fm .= "title: \"" . addcslashes($cleanTitle, '"\\') . "\"\n";
+            $fm .= "slug: \"{$post['slug']}\"\n";
+            $fm .= "type: \"{$post['type']}\"\n";
+            $fm .= "status: \"{$post['status']}\"\n";
+
+            $date = $post['published_at'] ?: $post['created_at'];
+            if ($date) $fm .= "date: " . date('c', strtotime($date)) . "\n";
+
+            $updated = $post['updated_at'] ?: $date;
+            if ($updated) $fm .= "lastmod: " . date('c', strtotime($updated)) . "\n";
+
+            if (!empty($post['category_name'])) {
+                $fm .= "category: \"{$post['category_name']}\"\n";
+            }
+
+            if (!empty($post['tags'])) {
+                $fm .= "tags:\n";
+                foreach (array_column($post['tags'], 'name') as $tag) {
+                    $fm .= "  - \"{$tag}\"\n";
+                }
+            }
+
+            if (!empty($post['description'])) {
+                $cleanDesc = str_replace(["\r", "\n"], ' ', html_entity_decode(strip_tags($post['description']), ENT_QUOTES | ENT_HTML5, 'UTF-8'));
+                $fm .= "description: \"" . addcslashes($cleanDesc, '"\\') . "\"\n";
+            }
+
+            $fm .= "---\n\n";
+
+            // Convert Content blocks into Markdown
+            $markdownBody = grinds_cli_blocks_to_markdown($post['content'] ?? '');
+            $fileContent = $fm . $markdownBody;
+
+            // Group by category/type
+            $folder = ($post['type'] === 'page') ? 'pages' : 'posts';
+            if ($post['type'] === 'post' && !empty($post['category_slug'])) {
+                $safeCat = preg_replace('/[^a-zA-Z0-9_\-]/', '_', strtolower($post['category_slug']));
+                if ($safeCat !== '') $folder .= '/' . $safeCat;
+            }
+
+            $filename = "{$folder}/{$post['slug']}.md";
+            $zip->addFromString($filename, $fileContent);
+
+            if (!empty($zipPassword) && method_exists($zip, 'setEncryptionName')) {
+                $zip->setEncryptionName($filename, ZipArchive::EM_AES_256);
+            }
+            $processed++;
+        }
+
+        $percent = floor(($processed / $total) * 100);
+        echo "\r    Processed {$processed}/{$total} [{$percent}%]";
+
+        $offset += $batchSize;
+        if (function_exists('gc_collect_cycles')) gc_collect_cycles();
+    }
+
+    $zip->close();
+    echo ConsoleColor::green("\n✓ Export completed successfully!\n") . "  Output: " . ConsoleColor::cyan($zipPath) . "\n";
+}
 
 // --- Main Application Logic ---
 $argv = $_SERVER['argv'];
@@ -1229,6 +1437,10 @@ switch ($command) {
 
     case 'ssg:build':
         handleSsgBuild($args, $srcPath);
+        break;
+
+    case 'export:markdown':
+        handleExportMarkdown($srcPath);
         break;
 
     case 'help':

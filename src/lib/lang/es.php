@@ -1315,7 +1315,7 @@ return [
     'ssg_limit_form' => 'Formularios: Los formularios PHP estándar no funcionarán.',
     'ssg_limit_link' => 'Enlaces: Convertidos automáticamente a rutas relativas.',
     'ssg_limit_js_img' => 'Recursos Dinámicos: Las imágenes cargadas dinámicamente a través de JavaScript (por ejemplo, en HTML personalizado) pueden no exportarse.',
-    'ssg_limit_warning' => '<strong class="text-theme-danger">Atención:</strong> Para evitar la sobrecarga del servidor (Error 500), <strong>no ejecute exportaciones de forma consecutiva ni recargue la página durante el proceso.</strong>',
+    'ssg_limit_warning' => '<strong class="text-theme-danger">Atención: Para evitar la sobrecarga del servidor (Error 500), no ejecute exportaciones de forma consecutiva ni recargue la página durante el proceso.</strong>',
     'ssg_label_url' => 'URL de Destino (Opcional)',
     'ssg_desc_url' => 'Se usa para etiquetas `canonical` y `sitemap.xml`. Si está en blanco, los enlaces se convertirán a <strong>rutas relativas</strong> (pueden verse desde un disco local).',
     'ssg_label_form' => 'Endpoint del Formulario (Opcional)',
@@ -1561,6 +1561,7 @@ return [
     'mig_btn_clear' => 'Borrar',
     'mig_msg_rewrite_ok' => 'La configuración de .htaccess es correcta.',
     'mig_msg_rewrite_fail' => 'Se detectó una discrepancia en la configuración del .htaccess.',
+    'mig_notice_rewrite' => '* Nota: Una vez corregido, deberá reconfigurar (o editar manualmente el .htaccess) nuevamente si mueve el sitio a otro directorio o servidor en el futuro.',
     'mig_btn_run_all' => 'Ejecutar Todas las Tareas Recomendadas',
     'mig_confirm_run_all' => "¿Ejecutar todas las tareas de mantenimiento recomendadas (Revisión de .htaccess, Optimizar BD, Reconstruir Índice, Borrar Caché)?\n* La corrección de enlaces NO está incluida.",
     'mig_manual_check' => 'COMPROBACIÓN MANUAL',
@@ -1782,4 +1783,5 @@ return [
     'Tab' => 'Pestaña',
     'Untitled' => 'Sin título',
     'Guide' => 'Guía',
+    'btn_retry' => 'Reintentar actualización',
 ];

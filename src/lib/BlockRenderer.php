@@ -114,13 +114,15 @@ class BlockRenderer
 
                     $wrapperHtml = $this->renderPasswordProtectWrapper($password, $message, $protectedHtml);
 
-                    $html .= "<div id='pwd-bypass-{$index}' class='cms-block-password-bypass my-8 p-4 bg-yellow-50 border-l-4 border-yellow-400 text-yellow-800 rounded-r-theme text-sm shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3'>";
+                    $html .= "<div x-data=\"{ showTest: false }\">";
+                    $html .= "<div x-show=\"!showTest\" class='cms-block-password-bypass my-8 p-4 bg-yellow-50 border-l-4 border-yellow-400 text-yellow-800 rounded-r-theme text-sm shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3'>";
                     $html .= "<div><strong class='font-bold mr-1'>{$noticeLabel}:</strong>{$bypassMsg}</div>";
-                    $html .= "<button type='button' onclick='document.getElementById(\"pwd-bypass-{$index}\").style.display=\"none\"; document.getElementById(\"pwd-content-{$index}\").style.display=\"none\"; document.getElementById(\"pwd-test-{$index}\").style.display=\"block\";' class='text-xs bg-white border border-yellow-400 text-yellow-800 px-3 py-1.5 rounded-theme hover:bg-yellow-100 transition-colors font-bold whitespace-nowrap shadow-sm'>{$testBtnLabel}</button>";
+                    $html .= "<button type='button' @click=\"showTest = true\" class='text-xs bg-white border border-yellow-400 text-yellow-800 px-3 py-1.5 rounded-theme hover:bg-yellow-100 transition-colors font-bold whitespace-nowrap shadow-sm'>{$testBtnLabel}</button>";
                     $html .= "</div>";
 
-                    $html .= "<div id='pwd-test-{$index}' style='display:none;'>{$wrapperHtml}</div>";
-                    $html .= "<div id='pwd-content-{$index}'>{$protectedHtml}</div>";
+                    $html .= "<div x-show=\"showTest\" x-cloak>{$wrapperHtml}</div>";
+                    $html .= "<div x-show=\"!showTest\">{$protectedHtml}</div>";
+                    $html .= "</div>";
                 } else {
                     $html .= ($password !== '') ? $this->renderPasswordProtectWrapper($password, $message, $protectedHtml) : $protectedHtml;
                 }
@@ -407,10 +409,10 @@ HTML;
 
                     // Determine color class
                     $bgClass = match ($color) {
-                        'success' => 'bg-green-500',
-                        'danger'  => 'bg-red-500',
-                        'warning' => 'bg-yellow-500',
-                        'dark'    => 'bg-gray-800',
+                        'success' => 'bg-theme-success',
+                        'danger'  => 'bg-theme-danger',
+                        'warning' => 'bg-theme-warning',
+                        'dark'    => 'bg-theme-text',
                         default   => 'bg-theme-primary'
                     };
 
@@ -564,13 +566,13 @@ HTML;
 
                 // Map color name to class
                 $colorClass = match ($colorType) {
-                    'green' => 'text-green-500',
-                    'blue' => 'text-blue-500',
-                    'red' => 'text-red-500',
-                    'yellow' => 'text-yellow-500',
-                    'gray' => 'text-gray-400',
+                    'green' => 'text-theme-success',
+                    'blue' => 'text-theme-info',
+                    'red' => 'text-theme-danger',
+                    'yellow' => 'text-theme-warning',
+                    'gray' => 'text-theme-text opacity-50',
                     'primary' => 'text-theme-primary',
-                    default => 'text-green-500'
+                    default => 'text-theme-success'
                 };
 
                 $iconHtml = "<svg class='mt-0.5 mr-3 w-5 h-5 shrink-0 {$colorClass}' fill='none' stroke='currentColor' viewBox='0 0 24 24'><use href='{$spriteUrl}#{$svgId}'></use></svg>";
@@ -1154,9 +1156,9 @@ HTML;
                 $btnClass = "inline-flex items-center justify-center px-8 py-4 text-base font-bold rounded-theme shadow-theme transition-all duration-200 hover:shadow-theme hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-offset-2";
                 $styleClass = "is-style-" . $color;
                 if ($color === 'primary') $btnClass .= " bg-theme-primary text-theme-on-primary hover:opacity-90 focus:ring-theme-primary";
-                elseif ($color === 'success') $btnClass .= " bg-green-600 text-white hover:bg-green-700 focus:ring-green-600";
-                elseif ($color === 'danger') $btnClass .= " bg-red-600 text-white hover:bg-red-700 focus:ring-red-600";
-                elseif ($color === 'dark') $btnClass .= " bg-gray-900 text-white hover:bg-black focus:ring-gray-900";
+                elseif ($color === 'success') $btnClass .= " bg-theme-success text-white hover:opacity-90 focus:ring-theme-success";
+                elseif ($color === 'danger') $btnClass .= " bg-theme-danger text-white hover:opacity-90 focus:ring-theme-danger";
+                elseif ($color === 'dark') $btnClass .= " bg-theme-text text-theme-bg hover:opacity-90 focus:ring-theme-text";
 
                 $overrides = ['class' => "{$btnClass} {$styleClass}"];
                 if (!empty($data['external'])) {
@@ -1365,15 +1367,15 @@ HTML;
                 if (empty($pItems) && empty($cItems)) return '';
 
                 $html = "<div class='{$commonClass} gap-6 grid grid-cols-1 md:grid-cols-2 my-8'>";
-                $html .= "<div class='bg-green-50 p-4 border border-green-200 rounded-theme' aria-label='Pros' role='region'>";
-                $html .= "<div class='flex items-center gap-2 mb-3 font-bold text-green-800'><svg class='w-5 h-5 text-green-500' fill='none' stroke='currentColor' viewBox='0 0 24 24'><use href='{$spriteUrl}#outline-check-circle'></use></svg> {$pTitle}</div>";
+                $html .= "<div class='bg-theme-success/10 p-4 border border-theme-success/30 rounded-theme' aria-label='Pros' role='region'>";
+                $html .= "<div class='flex items-center gap-2 mb-3 font-bold text-theme-success'><svg class='w-5 h-5 text-theme-success' fill='none' stroke='currentColor' viewBox='0 0 24 24'><use href='{$spriteUrl}#outline-check-circle'></use></svg> {$pTitle}</div>";
                 $html .= "<ul class='space-y-2'>";
-                foreach ($pItems as $item) $html .= "<li class='flex items-start gap-2 text-gray-700 text-sm'><svg class='mt-1 w-4 h-4 text-green-500 shrink-0' fill='none' stroke='currentColor' viewBox='0 0 24 24'><use href='{$spriteUrl}#outline-check'></use></svg> " . h($item) . "</li>";
+                foreach ($pItems as $item) $html .= "<li class='flex items-start gap-2 text-gray-700 text-sm'><svg class='mt-1 w-4 h-4 text-theme-success shrink-0' fill='none' stroke='currentColor' viewBox='0 0 24 24'><use href='{$spriteUrl}#outline-check'></use></svg> " . h($item) . "</li>";
                 $html .= "</ul></div>";
-                $html .= "<div class='bg-red-50 p-4 border border-red-200 rounded-theme' aria-label='Cons' role='region'>";
-                $html .= "<div class='flex items-center gap-2 mb-3 font-bold text-red-800'><svg class='w-5 h-5 text-red-500' fill='none' stroke='currentColor' viewBox='0 0 24 24'><use href='{$spriteUrl}#outline-x-circle'></use></svg> {$cTitle}</div>";
+                $html .= "<div class='bg-theme-danger/10 p-4 border border-theme-danger/30 rounded-theme' aria-label='Cons' role='region'>";
+                $html .= "<div class='flex items-center gap-2 mb-3 font-bold text-theme-danger'><svg class='w-5 h-5 text-theme-danger' fill='none' stroke='currentColor' viewBox='0 0 24 24'><use href='{$spriteUrl}#outline-x-circle'></use></svg> {$cTitle}</div>";
                 $html .= "<ul class='space-y-2'>";
-                foreach ($cItems as $item) $html .= "<li class='flex items-start gap-2 text-gray-700 text-sm'><svg class='mt-1 w-4 h-4 text-red-500 shrink-0' fill='none' stroke='currentColor' viewBox='0 0 24 24'><use href='{$spriteUrl}#outline-x'></use></svg> " . h($item) . "</li>";
+                foreach ($cItems as $item) $html .= "<li class='flex items-start gap-2 text-gray-700 text-sm'><svg class='mt-1 w-4 h-4 text-theme-danger shrink-0' fill='none' stroke='currentColor' viewBox='0 0 24 24'><use href='{$spriteUrl}#outline-x'></use></svg> " . h($item) . "</li>";
                 $html .= "</ul></div></div>";
                 return $html;
 
@@ -1382,10 +1384,10 @@ HTML;
                 $max = (int)($data['max'] ?? 5);
                 $color = $data['color'] ?? 'gold';
                 $starColor = match ($color) {
-                    'red' => 'text-red-500',
-                    'blue' => 'text-blue-500',
-                    'green' => 'text-green-500',
-                    default => 'text-yellow-400'
+                    'red' => 'text-theme-danger',
+                    'blue' => 'text-theme-info',
+                    'green' => 'text-theme-success',
+                    default => 'text-theme-warning'
                 };
                 $html = "<div class='{$commonClass} flex items-center gap-4 bg-white shadow-theme my-6 p-4 border border-gray-200 rounded-theme w-fit'>";
                 $html .= "<div class='flex items-center gap-0.5 {$starColor}'>";
@@ -1504,15 +1506,14 @@ HTML;
         $out .= "<form onsubmit=\"event.preventDefault(); window.grindsDecrypt('{$uid}', '{$payload}', '{$errText}');\" class='flex flex-col sm:flex-row gap-3'>";
 
         $eyeIcon = "<svg class='w-5 h-5' fill='none' stroke='currentColor' viewBox='0 0 24 24'><use href='{$this->spriteUrl}#outline-eye'></use></svg>";
-        $eyeSlashIcon = "<svg class='w-5 h-5' fill='none' stroke='currentColor' viewBox='0 0 24 24' style='display:none;'><use href='{$this->spriteUrl}#outline-eye-slash'></use></svg>";
+        $eyeSlashIcon = "<svg class='w-5 h-5' fill='none' stroke='currentColor' viewBox='0 0 24 24'><use href='{$this->spriteUrl}#outline-eye-slash'></use></svg>";
 
-        $out .= "<div class='relative flex-1'>";
-        $out .= "<input type='password' id='{$uid}-input' placeholder='{$phText}' class='w-full flex-1 px-4 py-3 border border-gray-300 rounded-theme focus:outline-none focus:border-theme-primary focus:ring-2 focus:ring-theme-primary/20 transition-all text-center tracking-widest pr-10' required>";
-        $out .= "<button type='button'
-            onclick=\"var inp = document.getElementById('{$uid}-input'); var isPass = inp.type === 'password'; inp.type = isPass ? 'text' : 'password'; var btn = this; btn.querySelector('svg:first-child').style.display = isPass ? 'none' : 'block'; btn.querySelector('svg:last-child').style.display = isPass ? 'block' : 'none';\"
-            class='absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none'>
-            {$eyeIcon}{$eyeSlashIcon}
-        </button>";
+        $out .= "<div class='relative flex-1' x-data=\"{ show: false }\">";
+        $out .= "<input :type=\"show ? 'text' : 'password'\" id='{$uid}-input' placeholder='{$phText}' class='w-full flex-1 px-4 py-3 border border-gray-300 rounded-theme focus:outline-none focus:border-theme-primary focus:ring-2 focus:ring-theme-primary/20 transition-all text-center tracking-widest pr-10' required>";
+        $out .= "<button type='button' @click=\"show = !show\" class='absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none'>";
+        $out .= "<span x-show=\"!show\">{$eyeIcon}</span>";
+        $out .= "<span x-show=\"show\" x-cloak>{$eyeSlashIcon}</span>";
+        $out .= "</button>";
         $out .= "</div>";
 
         $out .= "<button type='submit' class='bg-theme-primary hover:opacity-90 text-theme-on-primary font-bold px-8 py-3 rounded-theme shadow-theme transition-colors whitespace-nowrap flex items-center justify-center gap-2 transform hover:-translate-y-0.5'>";

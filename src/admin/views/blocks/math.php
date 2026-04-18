@@ -24,6 +24,8 @@ if (!defined('GRINDS_APP')) exit; ?>
     <textarea x-model="block.data.code" :id="'block-' + block.id + '-code'" rows="4"
       x-init="$nextTick(() => { $el.style.height = 'auto'; $el.style.height = $el.scrollHeight + 'px' })"
       @input="$el.style.height = 'auto'; $el.style.height = $el.scrollHeight + 'px'"
+      @keydown.escape="$el.blur()"
+      @keydown.tab.prevent="handleCodeIndent($event, index)"
       class="w-full font-mono text-xs form-control-sm overflow-hidden resize-none" placeholder="<?= _t('ph_math_code') ?>"></textarea>
   </div>
 

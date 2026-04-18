@@ -76,17 +76,14 @@ if (!class_exists('SitemapGenerator')) {
       return function_exists('get_option') && (bool)get_option('site_noindex');
     }
 
-    private function generateAndCache(): void
+    public function generateToFile(string $filePath): void
     {
-      $dir = dirname($this->cacheFile);
-      $tempFile = tempnam($dir, 'sitemap_');
-      if ($tempFile === false) {
-        $this->sendError(500);
+      if ($this->shouldNoIndex()) {
         return;
       }
 
       $writer = new XMLWriter();
-      $writer->openUri($tempFile);
+      $writer->openUri($filePath);
       $writer->startDocument('1.0', 'UTF-8');
       $writer->setIndent(true);
 
@@ -107,11 +104,51 @@ if (!class_exists('SitemapGenerator')) {
       $writer->endElement();
       $writer->endDocument();
       $writer->flush();
+    }
 
-      chmod($tempFile, 0644);
+    public function generateAsString(): string
+    {
+      $writer = new XMLWriter();
+      $writer->openMemory();
+      $writer->startDocument('1.0', 'UTF-8');
+      $writer->setIndent(true);
+
+      $writer->startElement('urlset');
+      $writer->writeAttribute('xmlns', self::XML_NS);
+      $writer->writeAttribute('xmlns:image', 'http://www.google.com/schemas/sitemap-image/1.1');
+
+      // Add home URL.
+      $this->renderUrl($writer, $this->baseUrl . '/', time(), '1.0', 'daily');
+
+      // Add post URLs.
+      $this->generatePostUrls($writer);
+
+      // Add category and tag URLs.
+      $this->generateCategoryUrls($writer);
+      $this->generateTagUrls($writer);
+
+      $writer->endElement();
+      $writer->endDocument();
+
+      return $writer->outputMemory(true);
+    }
+
+    private function generateAndCache(): void
+    {
+      $content = $this->generateAsString();
+
       if (!$this->isSsgMode) {
-        if (!rename($tempFile, $this->cacheFile)) {
-          grinds_force_unlink($tempFile);
+        $dir = dirname($this->cacheFile);
+        $tempFile = tempnam($dir, 'sitemap_');
+        if ($tempFile !== false) {
+          if (file_put_contents($tempFile, $content) !== false) {
+            chmod($tempFile, 0644);
+            if (!rename($tempFile, $this->cacheFile)) {
+              grinds_force_unlink($tempFile);
+            }
+          } else {
+            grinds_force_unlink($tempFile);
+          }
         }
       }
 
@@ -121,12 +158,7 @@ if (!class_exists('SitemapGenerator')) {
         }
       }
       $this->sendHeaders();
-      if (!$this->isSsgMode && file_exists($this->cacheFile)) {
-        readfile($this->cacheFile);
-      } elseif ($this->isSsgMode && file_exists($tempFile)) {
-        readfile($tempFile);
-        grinds_force_unlink($tempFile);
-      }
+      echo $content;
     }
 
     private function generatePostUrls(XMLWriter $writer): void
@@ -251,17 +283,7 @@ if (!class_exists('SitemapGenerator')) {
           $scheme = $parsedBase['scheme'] ?? 'https';
           $url = $scheme . ':' . $url;
         }
-        if (preg_match('/^https?:\/\//i', $url)) {
-          $parts = parse_url($url);
-          if (isset($parts['path'])) {
-            $pathSegments = explode('/', $parts['path']);
-            $encodedPath = implode('/', array_map(function ($segment) {
-              return rawurlencode(rawurldecode($segment));
-            }, $pathSegments));
-            $url = str_replace($parts['path'], $encodedPath, $url);
-          }
-          return $url;
-        }
+        return $url;
       }
       return '';
     }
@@ -273,9 +295,11 @@ if (!class_exists('SitemapGenerator')) {
         if (pathinfo($slug, PATHINFO_EXTENSION) === '') {
           $slug .= '.html';
         }
-        $parts = explode('/', $slug);
+
+        $parts = explode('/', ltrim($slug, '/'));
         $encodedParts = array_map('rawurlencode', $parts);
-        return $this->baseUrl . '/' . implode('/', $encodedParts);
+        $encodedSlug = implode('/', $encodedParts);
+        return $this->baseUrl . '/' . $encodedSlug;
       }
 
       return function_exists('get_permalink')
@@ -298,12 +322,14 @@ if (!class_exists('SitemapGenerator')) {
 }
 
 // Execute generator.
-$isSsgMode = defined('GRINDS_IS_SSG') && GRINDS_IS_SSG;
-$baseUrl = defined('BASE_URL') ? (string)BASE_URL : '';
-if ($isSsgMode && isset($ssgBaseUrl) && $ssgBaseUrl !== '') {
-  $baseUrl = $ssgBaseUrl;
-}
-$pdo = App::db();
+if (basename(__FILE__) === basename($_SERVER['SCRIPT_FILENAME'])) {
+  $isSsgMode = defined('GRINDS_IS_SSG') && GRINDS_IS_SSG;
+  $baseUrl = defined('BASE_URL') ? (string)BASE_URL : '';
+  if ($isSsgMode && isset($ssgBaseUrl) && $ssgBaseUrl !== '') {
+    $baseUrl = $ssgBaseUrl;
+  }
+  $pdo = App::db();
 
-$generator = new SitemapGenerator($pdo, $baseUrl, $isSsgMode);
-$generator->run();
+  $generator = new SitemapGenerator($pdo, $baseUrl, $isSsgMode);
+  $generator->run();
+}

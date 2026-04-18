@@ -837,8 +837,6 @@ if (!function_exists('get_permalink')) {
             }
         }
 
-        $parts = explode('/', $path);
-        $path = implode('/', array_map('rawurlencode', $parts));
         $url = resolve_url($path);
         return apply_filters('grinds_get_permalink', $url, $slug);
     }

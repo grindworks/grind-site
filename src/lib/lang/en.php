@@ -1315,7 +1315,7 @@ return [
     'ssg_limit_form' => 'Forms: Standard PHP forms will not work.',
     'ssg_limit_link' => 'Links: Automatically converted to relative paths.',
     'ssg_limit_js_img' => 'Dynamic Assets: Images loaded dynamically via JavaScript (e.g. in Custom HTML) may not be exported.',
-    'ssg_limit_warning' => '<strong class="text-theme-danger">Warning:</strong> To prevent server overload (500 Error), <strong>do not run exports consecutively or reload the page during processing.</strong>',
+    'ssg_limit_warning' => '<strong class="text-theme-danger">Warning: To prevent server overload (500 Error), do not run exports consecutively or reload the page during processing.</strong>',
     'ssg_label_url' => 'Target URL (Optional)',
     'ssg_desc_url' => 'Used for `canonical` tags and `sitemap.xml`. If empty, links will be converted to <strong>relative paths</strong> (playable on local disk).',
     'ssg_label_form' => 'Form Endpoint (Optional)',
@@ -1561,6 +1561,7 @@ return [
     'mig_btn_clear' => 'Clear',
     'mig_msg_rewrite_ok' => '.htaccess configuration is correct.',
     'mig_msg_rewrite_fail' => '.htaccess configuration mismatch detected.',
+    'mig_notice_rewrite' => '* Note: Once fixed, you will need to reconfigure (or manually edit .htaccess) again if you move the site to another directory or server in the future.',
     'mig_btn_run_all' => 'Run All Recommended Tasks',
     'mig_confirm_run_all' => "Run all recommended maintenance tasks (.htaccess check, DB Optimize, Rebuild Index, Clear Cache)?\n* Link fixing is NOT included.",
     'mig_manual_check' => 'MANUAL CHECK',
@@ -1782,4 +1783,5 @@ return [
     'Tab' => 'Tab',
     'Untitled' => 'Untitled',
     'Guide' => 'Guide',
+    'btn_retry' => 'Retry Update',
 ];

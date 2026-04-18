@@ -99,8 +99,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$maintenanceMode) {
   if (!isset($_POST['csrf_token']) || !validate_csrf_token($_POST['csrf_token'])) {
     $error = theme_t('Invalid Request.');
   }
-  // Time trap (server-side strict check)
-  elseif (isset($_SESSION['contact_form_init_time']) && (time() - $_SESSION['contact_form_init_time'] < 3)) {
+  // Time trap (server-side strict check) - Relaxed to 1 second to allow fast human autofill
+  elseif (isset($_SESSION['contact_form_init_time']) && (time() - $_SESSION['contact_form_init_time'] < 1)) {
     $success = nl2br(h($successMsgRaw)); // Fake success
   }
   // Check honeypot for spam

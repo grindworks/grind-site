@@ -345,7 +345,8 @@ function grinds_process_bulk_actions(PDO $pdo, array $data): array
                     foreach ($metaData as $val) {
                         if (is_scalar($val)) $metaValues[] = strip_tags((string)$val);
                     }
-                    $searchDesc = trim($post['description'] . ' ' . implode(' ', $metaValues));
+                    $safeDescription = $post['description'] ?? '';
+                    $searchDesc = trim($safeDescription . ' ' . implode(' ', $metaValues));
                     $searchText = grinds_generate_search_text($post['title'], $searchDesc, $post['content'], $newCatName, $tags);
                     $stmt->execute([$newCatId, $searchText, $now, $tid]);
                     $count++;
@@ -1041,7 +1042,8 @@ function grinds_reassign_category_posts(PDO $pdo, int $fromCatId, int $toCatId):
         foreach ($metaData as $val) {
             if (is_scalar($val)) $metaValues[] = strip_tags((string)$val);
         }
-        $searchDesc = trim($post['description'] . ' ' . implode(' ', $metaValues));
+        $safeDescription = $post['description'] ?? '';
+        $searchDesc = trim($safeDescription . ' ' . implode(' ', $metaValues));
         $searchText = grinds_generate_search_text($post['title'], $searchDesc, $post['content'], $newCatName, $tags);
 
         $stmtUpdate->execute([$toCatId, $searchText, $now, $post['id']]);
@@ -1129,7 +1131,8 @@ function _grinds_rebuild_index_chunk(PDO $pdo, $post_id, $limit, $offset): int
         foreach ($metaData as $val) {
             if (is_scalar($val)) $metaValues[] = strip_tags((string)$val);
         }
-        $searchDesc = trim($post['description'] . ' ' . implode(' ', $metaValues));
+        $safeDescription = $post['description'] ?? '';
+        $searchDesc = trim($safeDescription . ' ' . implode(' ', $metaValues));
         $text = grinds_generate_search_text($post['title'], $searchDesc, $post['content'], $post['category_name'] ?? '', $tags);
 
         // Force update to trigger FTS rebuild even if content is same
@@ -1488,9 +1491,10 @@ function grinds_queue_ssg_dependencies(PDO $pdo, int $postId, string $actionType
     }
 
     // Bypass PDO rowCount() inconsistencies for SQLite by explicit checking
+    $now = date('Y-m-d H:i:s');
     $stmtCheck  = $pdo->prepare("SELECT id FROM ssg_queue WHERE target_url = ?");
-    $stmtUpdate = $pdo->prepare("UPDATE ssg_queue SET status = 'pending', action_type = ?, updated_at = CURRENT_TIMESTAMP WHERE target_url = ?");
-    $stmtInsert = $pdo->prepare("INSERT INTO ssg_queue (target_url, action_type, status, updated_at) VALUES (?, ?, 'pending', CURRENT_TIMESTAMP)");
+    $stmtUpdate = $pdo->prepare("UPDATE ssg_queue SET status = 'pending', action_type = ?, updated_at = ? WHERE target_url = ?");
+    $stmtInsert = $pdo->prepare("INSERT INTO ssg_queue (target_url, action_type, status, updated_at) VALUES (?, ?, 'pending', ?)");
 
     $inTransaction = $pdo->inTransaction();
     if (!$inTransaction) {
@@ -1504,9 +1508,9 @@ function grinds_queue_ssg_dependencies(PDO $pdo, int $postId, string $actionType
 
             // 2. Branch safely
             if ($exists) {
-                $stmtUpdate->execute([$item['action'], $item['url']]);
+                $stmtUpdate->execute([$item['action'], $now, $item['url']]);
             } else {
-                $stmtInsert->execute([$item['url'], $item['action']]);
+                $stmtInsert->execute([$item['url'], $item['action'], $now]);
             }
         }
         if (!$inTransaction) {

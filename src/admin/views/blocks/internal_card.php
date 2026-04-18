@@ -3,7 +3,7 @@
 /** Internal Link Card Block View */
 if (!defined('GRINDS_APP'))
   exit; ?>
-<div class="bg-theme-bg/40 p-4 border border-theme-border rounded-theme" x-data="{
+<div class="bg-theme-bg/40 p-4 border border-theme-border rounded-theme relative transition-all" :class="{ 'z-50 ring-1 ring-theme-primary': searching }" x-data="{
        searching: false,
        loading: false,
        results: [],

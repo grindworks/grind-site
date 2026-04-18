@@ -1,29 +1,35 @@
 Release title
-v1.6.7 - Core Maintenance, Translation Fixes & Skin Cleanup
+v1.6.8 - Contact Form Anti-Spam, SSG Improvements & Password Protect Enhancements
 
 Release notes
-This release focuses on internal maintenance, cleaning up unused admin skin files, fixing missing translation keys, and improving overall system stability.
+This release introduces powerful anti-spam measures for the contact form, improves Static Site Generation (SSG) output, and enhances the Password Protect block.
+
+### ✨ New Features & Enhancements
+- **Contact Form Anti-Spam:** Added privacy policy agreement checkbox, honeypot fields, and time-trap mechanisms to significantly reduce spam submissions.
+- **SSG & Feeds:** Optimized URL resolution and absolute/relative path conversion during Static Site Generation. Improved output formats for RSS, Sitemap, and AI crawler files (`llms.txt`).
+- **Password Protection:** Added bypass functionality for administrators and preview modes to the Password Protect block.
+- **Affiliate Plugins:** Refined shortcode processing and UI for Amazon, Rakuten, and eBay affiliate plugins.
+- **CLI Tools:** Enhanced the `grind.php` CLI tool, including improvements to the Markdown export and migration package generation processes.
 
 ### 🛡️ Bug Fixes & Maintenance
-- **Translations:** Added missing translation keys for the Password Protect block across all languages (`en`, `ja`, `de`, `es`, `fr`, `pt-br`).
-- **Block Views:** Cleaned up the view template for the Password Protect block.
-- **Dependencies:** Updated internal build dependencies (`caniuse-lite` database).
-
-### ✨ Enhancements
-- **Admin Skins:** Cleaned up 24 unused/deprecated admin skins to streamline the system.
-- **Core & API:** General refinements and stability improvements in core systems, API endpoints, and block editor components.
+- **Editor UI:** Improved drag & drop and paste behaviors in `admin_editor.js` and `media_manager.js`.
+- **CSS/Styles:** Updated Tailwind CSS builds across the admin panel and all built-in themes.
+- **Translations:** Added new translation keys for contact form and password protect features across multiple languages.
 
 ---
 
 ## 🇯🇵 日本語 (Japanese)
 
-このリリースは、内部システムのメンテナンス、未使用スキンファイルの整理、翻訳キーの追加、および全体的な安定性向上を目的としています。
+このリリースでは、コンタクトフォームの強力なスパム対策の実装、静的サイト生成（SSG）の最適化、パスワード保護ブロックの利便性向上を行いました。
+
+### ✨ 新機能・改善
+- **コンタクトフォームのスパム対策強化:** プライバシーポリシーの同意チェックボックス、ハニーポット、タイムトラップ（送信時間計測）機能を追加し、スパムを強力にブロックします。
+- **SSG・フィード出力の最適化:** 静的サイト生成時のURL正規化ロジックを改善。RSS、Sitemap、およびAIクローラー向けファイル（`llms.txt`）の出力フォーマットを調整しました。
+- **パスワード保護ブロック:** 管理者ログイン時やプレビューモード時に、パスワード入力を省略（バイパス）できる機能を追加しました。
+- **アフィリエイトプラグイン:** Amazon、楽天、eBayプラグインのショートコード展開処理と管理画面UIを改善しました。
+- **CLIツール:** `bin/grind.php` のMarkdownエクスポート機能やマイグレーションパッケージ作成処理を最適化しました。
 
 ### 🛡️ バグ修正・メンテナンス
-- **翻訳ファイルの修正:** パスワード保護ブロックに関する多言語翻訳キー (`err_password_protect_at_bottom`) の抜けを全言語で修正しました。
-- **ブロックビュー:** パスワード保護ブロックのテンプレートコードをクリーンアップしました。
-- **依存パッケージ:** 内部のビルドツール（ブラウザ対応状況データベース）を最新化しました。
-
-### ✨ 改善・新機能
-- **管理画面スキン:** システムをスッキリさせるため、未使用・非推奨のカスタムスキン（24種類）を整理・削除しました。
-- **コアシステム・API:** データベース処理、ファイルマネージャー、APIエンドポイント、および各種ブロックコンポーネントの全般的なブラッシュアップを行いました。
+- **エディタUI:** `admin_editor.js` や `media_manager.js` におけるドラッグ＆ドロップやペースト時の挙動を修正・改善しました。
+- **CSS更新:** 管理画面および各テーマのTailwind CSSビルド結果を最新化しました。
+- **翻訳:** コンタクトフォームやパスワード保護機能に関する翻訳キーを各言語ファイルに追加しました。

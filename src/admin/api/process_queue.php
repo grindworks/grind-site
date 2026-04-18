@@ -55,14 +55,15 @@ try {
                     // Process the specific URL
                     $success = $ssg->buildSinglePage($task['target_url'], $task['action_type']);
 
+                    $now = date('Y-m-d H:i:s');
                     if ($success) {
-                        $pdo->prepare("UPDATE ssg_queue SET status = 'completed', updated_at = CURRENT_TIMESTAMP WHERE id = ?")->execute([$task['id']]);
+                        $pdo->prepare("UPDATE ssg_queue SET status = 'completed', updated_at = ? WHERE id = ?")->execute([$now, $task['id']]);
                     } else {
-                        $pdo->prepare("UPDATE ssg_queue SET status = 'failed', error_msg = 'Build failed' WHERE id = ?")->execute([$task['id']]);
+                        $pdo->prepare("UPDATE ssg_queue SET status = 'failed', error_msg = 'Build failed', updated_at = ? WHERE id = ?")->execute([$now, $task['id']]);
                     }
                     $processedIds[] = $task['id'];
                 } catch (Exception $e) {
-                    $pdo->prepare("UPDATE ssg_queue SET status = 'failed', error_msg = ? WHERE id = ?")->execute([$e->getMessage(), $task['id']]);
+                    $pdo->prepare("UPDATE ssg_queue SET status = 'failed', error_msg = ?, updated_at = ? WHERE id = ?")->execute([$e->getMessage(), date('Y-m-d H:i:s'), $task['id']]);
                 }
             }
         }

@@ -68,60 +68,76 @@ if (!isset($backups)) {
     x-data="{
       ...migrationExporter(<?= htmlspecialchars(json_encode($migConfig, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT), ENT_QUOTES, 'UTF-8') ?>),
       isMarkdown: false,
+
       async startMarkdown() {
+          if (this.processing) return;
           this.processing = true;
           this.isMarkdown = true;
           this.progress = 0;
-          this.statusMsg = <?= htmlspecialchars(json_encode(_t('ssg_btn_generating') ?: 'Generating...'), ENT_QUOTES, 'UTF-8') ?>;
-
-          let interval = setInterval(() => {
-              if (this.progress < 90) this.progress += 10;
-          }, 500);
+          this.statusMsg = <?= htmlspecialchars(json_encode(_t('js_initializing') ?: 'Initializing...'), ENT_QUOTES, 'UTF-8') ?>;
 
           try {
-              const formData = new FormData();
-              formData.append('csrf_token', window.grindsCsrfToken || document.querySelector('input[name=\'csrf_token\']').value);
+              // 1. Initialize
+              let initRes = await this.callMarkdownApi('init');
+              let totalPosts = initRes.total_posts || 0;
 
-              const response = await fetch('api/export_markdown.php', {
-                  method: 'POST',
-                  body: formData
-              });
-
-              clearInterval(interval);
-
-              if (!response.ok) {
-                  throw new Error('Export failed: ' + response.statusText);
+              if (totalPosts === 0) {
+                  this.progress = 100;
+                  this.statusMsg = <?= htmlspecialchars(json_encode(_t('js_done') ?: 'Done!'), ENT_QUOTES, 'UTF-8') ?>;
+                  this.processing = false;
+                  return;
               }
+
+              // 2. Process in batches
+              let offset = 0;
+              let done = false;
+
+              while (!done) {
+                  // Calculate exact progress percentage
+                  this.progress = Math.min(90, Math.round((offset / totalPosts) * 90));
+                  this.statusMsg = <?= htmlspecialchars(json_encode(_t('ssg_btn_generating') ?: 'Generating...'), ENT_QUOTES, 'UTF-8') ?> + ` (${Math.min(offset, totalPosts)}/${totalPosts})`;
+
+                  let batchRes = await this.callMarkdownApi('process_batch', { offset: offset });
+                  offset = batchRes.next_offset;
+                  done = batchRes.done;
+              }
+
+              // 3. Finalize
+              this.statusMsg = <?= htmlspecialchars(json_encode(_t('js_finalizing') ?: 'Finalizing...'), ENT_QUOTES, 'UTF-8') ?>;
+              this.progress = 95;
+              let finalRes = await this.callMarkdownApi('finalize');
 
               this.progress = 100;
               this.statusMsg = <?= htmlspecialchars(json_encode(_t('js_done') ?: 'Done!'), ENT_QUOTES, 'UTF-8') ?>;
 
-              const blob = await response.blob();
-              const url = window.URL.createObjectURL(blob);
-              const a = document.createElement('a');
-              a.href = url;
-
-              const disposition = response.headers.get('Content-Disposition');
-              let filename = 'markdown_export.zip';
-              if (disposition && disposition.indexOf('attachment') !== -1) {
-                  const matches = /filename[^;=\n]*=((['\x22]).*?\2|[^;\n]*)/.exec(disposition);
-                  if (matches != null && matches[1]) {
-                      filename = matches[1].replace(/['\x22]/g, '');
-                  }
-              }
-
-              a.download = filename;
-              document.body.appendChild(a);
-              a.click();
-              window.URL.revokeObjectURL(url);
-              document.body.removeChild(a);
-
+              // 4. Download
               setTimeout(() => {
-                  this.processing = false;
-              }, 2000);
+                  const urlObj = new URL(finalRes.url, window.location.href);
+                  const form = document.createElement('form');
+                  form.method = 'POST';
+                  form.action = urlObj.pathname;
+                  form.style.display = 'none';
+
+                  urlObj.searchParams.forEach((value, key) => {
+                      const input = document.createElement('input');
+                      input.type = 'hidden';
+                      input.name = key;
+                      input.value = value;
+                      form.appendChild(input);
+                  });
+
+                  document.body.appendChild(form);
+                  form.submit();
+                  document.body.removeChild(form);
+
+                  // Reset UI
+                  setTimeout(() => {
+                      this.processing = false;
+                      this.progress = 0;
+                  }, 3000);
+              }, 500);
 
           } catch (e) {
-              clearInterval(interval);
               this.processing = false;
               if (typeof window.ToastManager !== 'undefined') {
                   window.ToastManager.show({ type: 'error', message: e.message });
@@ -129,6 +145,36 @@ if (!isset($backups)) {
                   alert(e.message);
               }
           }
+      },
+
+      async callMarkdownApi(step, data = {}) {
+          const formData = new FormData();
+          formData.append('csrf_token', window.grindsCsrfToken || document.querySelector('input[name=\'csrf_token\']').value);
+          formData.append('step', step);
+          formData.append('data', JSON.stringify(data));
+
+          const baseUrl = (window.grindsBaseUrl || '').replace(/\/$/, '');
+          const res = await fetch(`${baseUrl}/admin/api/export_markdown.php`, {
+              method: 'POST',
+              body: formData,
+              credentials: 'include'
+          });
+
+          const text = await res.text();
+          let json = null;
+          try {
+              json = JSON.parse(text);
+          } catch (e) {
+              console.error('Invalid JSON:', text);
+              throw new Error(`Server Error: ${res.status}`);
+          }
+
+          if (!res.ok || !json.success) {
+              throw new Error(json && json.error ? json.error : `Server Error: ${res.status}`);
+          }
+
+          if (json.csrf_token) window.grindsCsrfToken = json.csrf_token;
+          return json;
       }
     }">
     <div class="flex flex-col divide-y divide-theme-primary/10">
@@ -206,23 +252,20 @@ if (!isset($backups)) {
         </div>
 
         <div class="w-full md:w-auto shrink-0 mt-2 md:mt-0">
-          <form method="post" action="api/export_markdown.php" target="_blank" class="w-full sm:w-auto" @submit.prevent="isMarkdown = true; startMarkdown()">
-            <input type="hidden" name="csrf_token" value="<?= h(generate_csrf_token()) ?>">
-            <button type="submit" :disabled="processing" class="relative flex justify-center items-center shadow-theme px-6 py-2.5 rounded-theme w-full sm:w-auto font-bold transition-all disabled:opacity-70 disabled:cursor-not-allowed btn-secondary hover:text-theme-primary hover:border-theme-primary overflow-hidden">
-              <div class="flex items-center gap-2 transition-opacity duration-200" :class="processing && isMarkdown ? 'opacity-0' : 'opacity-100'">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-arrow-down-tray"></use>
-                </svg>
-                <span><?= function_exists('_t') ? (_t('btn_download') ?: 'Download') : 'Download' ?></span>
-              </div>
-              <div class="absolute inset-0 flex items-center justify-center gap-2 transition-opacity duration-200" :class="processing && isMarkdown ? 'opacity-100' : 'opacity-0 pointer-events-none'">
-                <svg class="w-5 h-5 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-arrow-path"></use>
-                </svg>
-                <span><?= h(_t('ssg_btn_generating')) ?></span>
-              </div>
-            </button>
-          </form>
+          <button type="button" @click="startMarkdown()" :disabled="processing" class="relative flex justify-center items-center shadow-theme px-6 py-2.5 rounded-theme w-full sm:w-auto font-bold transition-all disabled:opacity-70 disabled:cursor-not-allowed btn-secondary hover:text-theme-primary hover:border-theme-primary overflow-hidden">
+            <div class="flex items-center gap-2 transition-opacity duration-200" :class="processing && isMarkdown ? 'opacity-0' : 'opacity-100'">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-arrow-down-tray"></use>
+              </svg>
+              <span><?= function_exists('_t') ? (_t('btn_download') ?: 'Download') : 'Download' ?></span>
+            </div>
+            <div class="absolute inset-0 flex items-center justify-center gap-2 transition-opacity duration-200" :class="processing && isMarkdown ? 'opacity-100' : 'opacity-0 pointer-events-none'">
+              <svg class="w-5 h-5 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-arrow-path"></use>
+              </svg>
+              <span><?= h(_t('ssg_btn_generating')) ?></span>
+            </div>
+          </button>
         </div>
       </div>
     </div>
