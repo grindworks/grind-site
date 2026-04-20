@@ -92,10 +92,15 @@ add_filter('grinds_the_content', function ($content) {
 
         // XSS Prevention: Safely escape user inputs and validate URLs
         // XSS対策: ユーザー入力のエスケープとURLの厳格な検証
-        $safe_aff_id = htmlspecialchars($aff_id, ENT_QUOTES, 'UTF-8');
-        $safe_title = htmlspecialchars($title, ENT_QUOTES, 'UTF-8');
-        $safe_url = filter_var($url, FILTER_VALIDATE_URL) ? $url : '';
-        $safe_image = filter_var($image, FILTER_VALIDATE_URL) ? $image : '';
+        // Use double_encode = false to prevent double escaping of already escaped attributes from BlockRenderer
+        $safe_aff_id = htmlspecialchars($aff_id, ENT_QUOTES, 'UTF-8', false);
+        $safe_title = htmlspecialchars($title, ENT_QUOTES, 'UTF-8', false);
+
+        $url_decoded = html_entity_decode($url, ENT_QUOTES, 'UTF-8');
+        $safe_url = filter_var($url_decoded, FILTER_VALIDATE_URL) ? $url_decoded : '';
+
+        $image_decoded = html_entity_decode($image, ENT_QUOTES, 'UTF-8');
+        $safe_image = filter_var($image_decoded, FILTER_VALIDATE_URL) ? $image_decoded : '';
 
         // Display warnings to the admin if required data is missing
         if (empty($safe_aff_id)) {
@@ -137,7 +142,7 @@ add_filter('grinds_the_content', function ($content) {
                 </a>
             </div>
             <div class="flex flex-wrap justify-center sm:justify-start gap-3">
-                <a href="{$affiliate_url}" target="_blank" rel="noopener noreferrer external" class="inline-flex items-center justify-center bg-theme-danger text-theme-on-danger font-bold text-xs sm:text-sm px-6 py-2 sm:py-2.5 rounded-full shadow-sm hover:opacity-90 transition-opacity no-underline w-full sm:w-auto">
+                <a href="{$affiliate_url}" target="_blank" rel="noopener noreferrer external" class="inline-flex items-center justify-center bg-[#BF0000] text-white font-bold text-xs sm:text-sm px-6 py-2 sm:py-2.5 rounded-full shadow-sm hover:opacity-90 transition-opacity no-underline w-full sm:w-auto">
                     <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="{$sprite_url}#outline-shopping-bag"></use></svg>
                     ' . grinds_rakuten_t('buy_on_rakuten') . '
                 </a>
@@ -241,7 +246,7 @@ add_action('grinds_html_block_tools', function () {
         const el = document.getElementById('block-' + block.id + '-code');
         const text = block.data.code || '';
         block.data.code = text + (text ? '\\n' : '') + '[rakuten url=\'商品URL\' title=\'商品名\' image=\'画像URL\']';
-        \$nextTick(() => { el.focus(); el.setSelectionRange(block.data.code.indexOf('商品URL'), block.data.code.indexOf('商品URL') + 5); });
+        \$nextTick(() => { el.focus(); el.setSelectionRange(block.data.code.lastIndexOf('商品URL'), block.data.code.lastIndexOf('商品URL') + 5); });
       " class="inline-flex items-center gap-1.5 px-2.5 py-1.5 hover:bg-theme-bg/50 border border-theme-border rounded-theme text-theme-text text-[10px] font-bold transition-colors" title="{$t_insert_tooltip}">
         <svg class="w-3.5 h-3.5 text-theme-danger" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <use href="{$sprite_url}#outline-shopping-bag"></use>

@@ -1784,4 +1784,16 @@ return [
     'Untitled' => '無題',
     'Guide' => 'ガイド',
     'btn_retry' => '再試行',
+
+    // Affiliate Block
+    'blk_affiliate' => 'アフィリエイト',
+    'desc_affiliate' => 'Amazon、楽天、eBayの商品カード',
+    'lbl_asin_url' => 'ASIN または Amazon URL',
+    'desc_asin_extract' => '商品のURLをペーストすると、自動的にASINを抽出します。',
+    'lbl_region' => 'リージョン (国)',
+    'ph_affiliate_title_amazon' => '任意のタイトル (空の場合はAmazonから自動取得)',
+    'lbl_product_image' => '商品画像',
+    'lbl_product_url' => '商品URL',
+    'ph_affiliate_title' => '商品タイトル',
+    'msg_asin_extracted' => 'ASINを抽出しました',
 ];

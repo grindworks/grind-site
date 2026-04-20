@@ -8,7 +8,8 @@ Any ".php" files placed here will be automatically loaded at system startup.
 
 - Features:
   - Extend functionality without modifying core files.
-  - Files in this directory are SAFE from GrindSite core updates.
+  - Custom files you create in this directory are SAFE from GrindSite core updates.
+    *(Note: Do not modify the default bundled plugins directly, as they will be overwritten during updates. If you want to customize them, duplicate the file with a new name).*
   - Auto-Quarantine (Safe Mode): If a plugin causes a Fatal Error or crash, the system
     will automatically disable it by renaming it with an underscore "_"
     prefix to protect your site from going down.
@@ -123,9 +124,9 @@ Any ".php" files placed here will be automatically loaded at system startup.
      into beautiful Rakuten affiliate product cards.
      (Disabled by default. Rename to "rakuten_affiliate.php" to enable)
 
-  15. `easter_egg.php`
+  15. `_easter_egg.php`
      Displays an engineer-focused Easter egg (console log) in the admin footer.
-     (Enabled by default. Rename to "_easter_egg.php" to disable.)
+     (Disabled by default. Rename to "easter_egg.php" to enable.)
 
 -------------------------------------------------------------------------
 
@@ -135,7 +136,8 @@ Any ".php" files placed here will be automatically loaded at system startup.
 
 - 特徴:
   - システムのコアファイルを変更せずに機能を拡張できます。
-  - GrindSite本体をアップデートしても、このフォルダの中身は維持されます（上書きされません）。
+  - 独自に作成したファイルは、GrindSite本体をアップデートしても維持されます（上書きされません）。
+    ※注意: 最初から同梱されているデフォルトのプラグインを直接編集すると、アップデート時に上書きされてしまいます。カスタマイズする場合は、ファイルを別名で複製してから編集してください。
   - 自動隔離（セーフモード）: 万が一自作プラグインが致命的なエラー（Fatal Error等）を
     引き起こしてしまった場合、システムが自動的にファイル名の先頭に "_" を付けて無効化し、
     サイト全体がエラーで閲覧不可になるのを防ぎます。
@@ -248,6 +250,6 @@ Any ".php" files placed here will be automatically loaded at system startup.
      美しい商品カードに自動変換します。
      （デフォルトでは無効です。有効にするには "rakuten_affiliate.php" にリネームしてください）
 
-  15. `easter_egg.php`
+  15. `_easter_egg.php`
      管理画面のコンソールにエンジニア向けのイースターエッグ（システムメッセージ）を表示します。
-     （デフォルトで有効です。無効化するには "_easter_egg.php" にリネームしてください）
+     （デフォルトでは無効です。有効にするには "easter_egg.php" にリネームしてください）

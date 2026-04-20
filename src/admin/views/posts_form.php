@@ -298,6 +298,7 @@ $basePath = rtrim($parsedBase['path'] ?? '/', '/') . '/';
     @dragleave.window.prevent="handleGlobalDragLeave($event)"
     @drop.window.prevent="handleGlobalDrop($event)"
     @announce.window="document.getElementById('a11y-live-region').textContent = $event.detail"
+    @date-changed.window="isFutureDate = $event.detail.isFuture"
     :class="inserterOpen || templateModalOpen ? 'pointer-events-none' : ''">
 
     <!-- Accessibility Live Region for Screen Readers -->
@@ -340,8 +341,21 @@ $basePath = rtrim($parsedBase['path'] ?? '/', '/') . '/';
         <button type="button"
             @click="if(document.getElementById('post-form').reportValidity()) { if(postType !== 'template') { postStatus = 'published'; } $nextTick(() => document.getElementById('post-form').requestSubmit()); }"
             :disabled="isSubmitting || isUploading || isOffline"
-            class="lg:hidden bg-theme-primary hover:opacity-90 shadow-sm px-4 py-2 rounded-theme font-bold text-white text-xs transition transform hover:-translate-y-0.5 disabled:opacity-50">
-            <span x-text="postType === 'template' ? (isUpdateMode ? '<?= h(_t('update')) ?>' : '<?= h(_t('save')) ?>') : (isFutureDate ? '<?= h(_t('action_schedule')) ?>' : (isUpdateMode ? '<?= h(_t('update')) ?>' : '<?= h(_t('action_publish')) ?>'))"></span>
+            class="relative overflow-hidden lg:hidden bg-theme-primary hover:opacity-90 shadow-sm px-4 py-2 rounded-theme font-bold text-white text-xs transition transform hover:-translate-y-0.5 disabled:opacity-50">
+            <span class="transition-opacity duration-200 block" :class="(isSubmitting || isUploading) ? 'opacity-0' : 'opacity-100'" x-text="postType === 'template' ? (isUpdateMode ? '<?= h(_t('update')) ?>' : '<?= h(_t('save')) ?>') : (isFutureDate ? '<?= h(_t('action_schedule')) ?>' : (isUpdateMode ? '<?= h(_t('update')) ?>' : '<?= h(_t('action_publish')) ?>'))"></span>
+
+            <div class="absolute inset-0 flex items-center justify-center transition-opacity duration-200" :class="isSubmitting ? 'opacity-100' : 'opacity-0 pointer-events-none'" x-cloak>
+                <svg class="w-4 h-4 animate-spin text-theme-on-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-arrow-path"></use>
+                </svg>
+            </div>
+
+            <div class="absolute inset-0 flex items-center justify-center transition-opacity duration-200" :class="(!isSubmitting && isUploading) ? 'opacity-100' : 'opacity-0 pointer-events-none'" x-cloak>
+                <svg class="w-4 h-4 animate-spin text-theme-on-primary mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-arrow-path"></use>
+                </svg>
+                <span>UP</span>
+            </div>
         </button>
 
         <!-- Auto-save Indicator -->
@@ -755,7 +769,7 @@ $basePath = rtrim($parsedBase['path'] ?? '/', '/') . '/';
                                 </div>
                             </div>
 
-                            <!-- Alpine.js の x-show に変更し、フェードアニメーション (x-transition) を追加 -->
+                            <!-- Change to Alpine.js x-show and add fade animation (x-transition) -->
                             <div x-show="isFutureDate" x-transition x-cloak class="mt-2 flex items-center gap-1.5 text-xs text-theme-warning font-bold bg-theme-warning/5 p-2 rounded-theme border border-theme-warning/20">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-clock"></use>
@@ -808,7 +822,7 @@ $basePath = rtrim($parsedBase['path'] ?? '/', '/') . '/';
                         :class="isStuck ? 'py-2' : 'py-2.5'"
                         :disabled="isSubmitting || isUploading || isOffline">
 
-                        <div class="z-10 relative flex justify-center items-center gap-2 font-bold text-sm transition-opacity duration-200" :class="isSubmitting ? 'text-transparent' : ''">
+                        <div class="z-10 relative flex justify-center items-center gap-2 font-bold text-sm transition-opacity duration-200" :class="(isSubmitting || isUploading) ? 'text-transparent' : ''">
                             <input type="hidden" id="main-action-is-update" :value="isUpdateMode ? '1' : '0'">
 
                             <svg x-show="isUpdateMode || postType === 'template'" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" x-cloak>
@@ -821,10 +835,17 @@ $basePath = rtrim($parsedBase['path'] ?? '/', '/') . '/';
                             <span id="main-action-label" x-text="postType === 'template' ? (isUpdateMode ? '<?= h(_t('update')) ?>' : '<?= h(_t('save')) ?>') : (isFutureDate ? '<?= h(_t('action_schedule')) ?>' : (isUpdateMode ? '<?= h(_t('update')) ?>' : '<?= h(_t('action_publish')) ?>'))"></span>
                         </div>
 
-                        <div class="absolute inset-0 flex items-center justify-center transition-opacity duration-200" :class="isSubmitting ? 'opacity-100' : 'opacity-0 pointer-events-none'">
+                        <div class="absolute inset-0 flex items-center justify-center transition-opacity duration-200" :class="isSubmitting ? 'opacity-100' : 'opacity-0 pointer-events-none'" x-cloak>
                             <svg class="w-5 h-5 animate-spin text-theme-on-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-arrow-path"></use>
                             </svg>
+                        </div>
+
+                        <div class="absolute inset-0 flex items-center justify-center transition-opacity duration-200" :class="(!isSubmitting && isUploading) ? 'opacity-100' : 'opacity-0 pointer-events-none'" x-cloak>
+                            <svg class="w-5 h-5 animate-spin text-theme-on-primary mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-arrow-path"></use>
+                            </svg>
+                            <span class="text-xs"><?= _t('uploading') ?></span>
                         </div>
                     </button>
 
@@ -882,16 +903,16 @@ $basePath = rtrim($parsedBase['path'] ?? '/', '/') . '/';
                                     try {
                                         const meta = typeof data.data.meta_data === 'string' ? JSON.parse(data.data.meta_data) : data.data.meta_data;
                                         for (const key in meta) {
-                                            const input = document.querySelector(`[name='meta_data[${key}]']`) || document.querySelector(`[name='meta_data_${key}_url']`);
-                                            if (input) {
+                                            const inputs = document.querySelectorAll(`[name='meta_data[${key}]'], [name='meta_data_${key}_url']`);
+                                            inputs.forEach(input => {
                                                 if (input.type === 'checkbox' || input.type === 'radio') {
-                                                    input.checked = (meta[key] == '1');
+                                                    input.checked = (meta[key] == '1' || meta[key] === true);
                                                 } else {
                                                     input.value = meta[key];
                                                 }
                                                 input.dispatchEvent(new Event('input', { bubbles: true }));
                                                 input.dispatchEvent(new Event('change', { bubbles: true }));
-                                            }
+                                            });
                                             if (document.getElementById(`meta_data_${key}_input`)) {
                                                 window.dispatchEvent(new CustomEvent(`set-meta-image-${key}`, { detail: { url: meta[key] } }));
                                             }
@@ -918,7 +939,7 @@ $basePath = rtrim($parsedBase['path'] ?? '/', '/') . '/';
                                             }
                                         };
 
-                                        // ヒーロー設定の各入力欄へ過去のデータをセット
+                                        // Restore past data to each hero setting input field
                                         setVal('hero_title', hs.title);
                                         setVal('hero_subtext', hs.subtext);
                                         setVal('hero_layout', hs.layout);
@@ -926,7 +947,7 @@ $basePath = rtrim($parsedBase['path'] ?? '/', '/') . '/';
                                         setVal('hero_fixed_bg', hs.fixed_bg);
                                         setVal('seo_author', hs.seo_author);
 
-                                        // モバイル用画像の復元（プレビューにも反映させるためカスタムイベントを発火）
+                                        // Restore mobile image and trigger custom event to reflect in preview
                                         if (hs.mobile_image) {
                                             window.dispatchEvent(new CustomEvent('set-hero-image', { detail: { url: hs.mobile_image, mobile: true } }));
                                         } else {
@@ -934,7 +955,7 @@ $basePath = rtrim($parsedBase['path'] ?? '/', '/') . '/';
                                             if (mobileImgInput) mobileImgInput.value = '';
                                         }
 
-                                        // ヒーローボタンの復元（上で追加したリスナーに向けて発火）
+                                        // Restore hero buttons by triggering the listener added above
                                         window.dispatchEvent(new CustomEvent('restore-hero-buttons', { detail: hs.buttons }));
 
                                     } catch (e) {
@@ -1536,14 +1557,27 @@ $basePath = rtrim($parsedBase['path'] ?? '/', '/') . '/';
             <?= _t('st_draft') ?>
         </button>
 
-        <button type="button" @click="if(document.getElementById('post-form').reportValidity()) { if(postType !== 'template') { postStatus = 'published'; } $nextTick(() => document.getElementById('post-form').requestSubmit()); }" :disabled="isSubmitting || isUploading || isOffline" class="flex-1 py-3 bg-theme-primary text-theme-on-primary rounded-theme font-bold text-sm flex items-center justify-center gap-1 shadow-theme transition-all hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed">
-            <svg x-show="isUpdateMode || postType === 'template'" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" x-cloak>
-                <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-arrow-path"></use>
-            </svg>
-            <svg x-show="!isUpdateMode && postType !== 'template'" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" x-cloak>
-                <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-globe-alt"></use>
-            </svg>
-            <span x-text="postType === 'template' ? (isUpdateMode ? '<?= h(_t('update')) ?>' : '<?= h(_t('save')) ?>') : (isFutureDate ? '<?= h(_t('action_schedule')) ?>' : (isUpdateMode ? '<?= h(_t('update')) ?>' : '<?= h(_t('action_publish')) ?>'))"></span>
+        <button type="button" @click="if(document.getElementById('post-form').reportValidity()) { if(postType !== 'template') { postStatus = 'published'; } $nextTick(() => document.getElementById('post-form').requestSubmit()); }" :disabled="isSubmitting || isUploading || isOffline" class="relative overflow-hidden flex-1 py-3 bg-theme-primary text-theme-on-primary rounded-theme font-bold text-sm flex items-center justify-center shadow-theme transition-all hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed">
+            <div class="flex items-center justify-center gap-1 transition-opacity duration-200" :class="(isSubmitting || isUploading) ? 'opacity-0' : 'opacity-100'">
+                <svg x-show="isUpdateMode || postType === 'template'" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" x-cloak>
+                    <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-arrow-path"></use>
+                </svg>
+                <svg x-show="!isUpdateMode && postType !== 'template'" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" x-cloak>
+                    <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-globe-alt"></use>
+                </svg>
+                <span x-text="postType === 'template' ? (isUpdateMode ? '<?= h(_t('update')) ?>' : '<?= h(_t('save')) ?>') : (isFutureDate ? '<?= h(_t('action_schedule')) ?>' : (isUpdateMode ? '<?= h(_t('update')) ?>' : '<?= h(_t('action_publish')) ?>'))"></span>
+            </div>
+            <div class="absolute inset-0 flex items-center justify-center transition-opacity duration-200" :class="isSubmitting ? 'opacity-100' : 'opacity-0 pointer-events-none'" x-cloak>
+                <svg class="w-5 h-5 animate-spin text-theme-on-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-arrow-path"></use>
+                </svg>
+            </div>
+            <div class="absolute inset-0 flex items-center justify-center transition-opacity duration-200" :class="(!isSubmitting && isUploading) ? 'opacity-100' : 'opacity-0 pointer-events-none'" x-cloak>
+                <svg class="w-4 h-4 animate-spin text-theme-on-primary mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-arrow-path"></use>
+                </svg>
+                <span class="text-xs"><?= _t('uploading') ?></span>
+            </div>
         </button>
     </div>
 
@@ -1688,6 +1722,26 @@ $basePath = rtrim($parsedBase['path'] ?? '/', '/') . '/';
             f.submit();
         }
     }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        if (typeof flatpickr !== 'undefined') {
+            const lang = window.grindsLang || 'en';
+            flatpickr('#published_at', {
+                enableTime: true,
+                dateFormat: 'Y-m-d H:i',
+                time_24hr: true,
+                locale: lang === 'ja' ? 'ja' : 'en',
+                onChange: function(selectedDates) {
+                    const now = new Date();
+                    window.dispatchEvent(new CustomEvent('date-changed', {
+                        detail: {
+                            isFuture: selectedDates[0] > now
+                        }
+                    }));
+                },
+            });
+        }
+    });
 </script>
 
 <?php include __DIR__ . '/parts/media_picker.php'; ?>

@@ -202,10 +202,28 @@ function resolve_front_request($request_url)
         if (isset($result['data']['posts']) && is_array($result['data']['posts'])) {
             foreach ($result['data']['posts'] as $p) {
                 if (!empty($p['thumbnail'])) $thumbUrls[] = $p['thumbnail'];
+
+                $metaData = json_decode($p['meta_data'] ?? '{}', true);
+                if (is_array($metaData)) {
+                    foreach ($metaData as $val) {
+                        if (is_string($val) && preg_match('/^\{\{CMS_URL\}\}\/assets\/uploads\//i', $val)) {
+                            $thumbUrls[] = $val;
+                        }
+                    }
+                }
             }
         } elseif (isset($result['data']['post']) && is_array($result['data']['post'])) {
             if (!empty($result['data']['post']['thumbnail'])) $thumbUrls[] = $result['data']['post']['thumbnail'];
             if (!empty($result['data']['post']['hero_image'])) $thumbUrls[] = $result['data']['post']['hero_image'];
+
+            $metaData = json_decode($result['data']['post']['meta_data'] ?? '{}', true);
+            if (is_array($metaData)) {
+                foreach ($metaData as $val) {
+                    if (is_string($val) && preg_match('/^\{\{CMS_URL\}\}\/assets\/uploads\//i', $val)) {
+                        $thumbUrls[] = $val;
+                    }
+                }
+            }
         }
 
         if (!empty($thumbUrls)) {

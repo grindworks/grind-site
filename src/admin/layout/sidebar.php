@@ -53,7 +53,7 @@ $activeClass = 'bg-theme-primary border-theme-primary text-theme-on-primary font
 
   <?php require __DIR__ . '/../views/parts/alert_installer.php'; ?>
 
-  <div class="relative flex flex-1 overflow-hidden" x-data="{ sidebarOpen: false }" x-init="$watch('sidebarOpen', val => window.toggleScrollLock(val))">
+  <div class="relative flex flex-1 overflow-hidden" x-data="{ sidebarOpen: false }" x-init="$watch('sidebarOpen', val => window.toggleScrollLock(val))" @resize.window="if(window.innerWidth >= 768 && sidebarOpen) { sidebarOpen = false; }">
 
     <!-- Mobile overlay -->
     <div x-show="sidebarOpen" @click="sidebarOpen = false"

@@ -500,7 +500,7 @@ class GrindsSSG
         $assetsScanOptions['exclude_dirs'][] = 'uploads';
 
         if (!class_exists('FileManager')) {
-            $mediaFile = $this->rootDir . '/lib/functions/media.php';
+            $mediaFile = $this->rootDir . '/lib/file_manager.php';
             if (file_exists($mediaFile)) require_once $mediaFile;
         }
 
@@ -1255,10 +1255,10 @@ class GrindsSSG
             $prodBaseUrl = rtrim($config['base_url'], '/');
 
             // Replace domains in link tags (canonical, alternate, etc.) - Fast & ReDoS safe
-            $html = $safeReplaceCallback('/<link\b([^>]+)>/i', function ($matches) use ($liveBaseUrl, $prodBaseUrl) {
+            $html = $safeReplaceCallback('/<link\b([^>]++)>/i', function ($matches) use ($liveBaseUrl, $prodBaseUrl) {
                 $fullTag = $matches[0];
                 if (stripos($fullTag, 'rel="canonical"') !== false || stripos($fullTag, 'rel="alternate"') !== false || stripos($fullTag, 'rel="llms-txt"') !== false) {
-                    if (preg_match('/href=["\']([^"\']+)["\']/i', $fullTag, $hrefMatch)) {
+                    if (preg_match('/href=["\']([^"\']++)["\']/i', $fullTag, $hrefMatch)) {
                         $url = $hrefMatch[1];
                         if (strpos($url, $liveBaseUrl) === 0) {
                             $newUrl = str_replace($liveBaseUrl, $prodBaseUrl, $url);
@@ -1270,10 +1270,10 @@ class GrindsSSG
             }, $html);
 
             // Replace domains in meta tags (og:url, og:image, twitter:image) - Fast & ReDoS safe
-            $html = $safeReplaceCallback('/<meta\b([^>]+)>/i', function ($matches) use ($liveBaseUrl, $prodBaseUrl) {
+            $html = $safeReplaceCallback('/<meta\b([^>]++)>/i', function ($matches) use ($liveBaseUrl, $prodBaseUrl) {
                 $fullTag = $matches[0];
                 if (stripos($fullTag, 'property="og:url"') !== false || stripos($fullTag, 'property="og:image"') !== false || stripos($fullTag, 'name="twitter:image"') !== false) {
-                    if (preg_match('/content=["\']([^"\']+)["\']/i', $fullTag, $contentMatch)) {
+                    if (preg_match('/content=["\']([^"\']++)["\']/i', $fullTag, $contentMatch)) {
                         $url = $contentMatch[1];
                         if (strpos($url, $liveBaseUrl) === 0) {
                             $newUrl = str_replace($liveBaseUrl, $prodBaseUrl, $url);
@@ -1297,10 +1297,10 @@ class GrindsSSG
         }
 
         // Remove base tags
-        $html = $safeReplace('/<base\b[^>]*>/i', '', $html);
+        $html = $safeReplace('/<base\b[^>]*+>/i', '', $html);
 
         // Replace URLs in inline styles
-        $html = $safeReplaceCallback('/style=["\']([^"\']+)["\']/i', function ($matches) use ($processUrl) {
+        $html = $safeReplaceCallback('/style=["\']([^"\']++)["\']/i', function ($matches) use ($processUrl) {
             $styleContent = $matches[1];
             if (stripos($styleContent, 'url(') !== false && function_exists('grinds_replace_css_urls')) {
                 $newContent = grinds_replace_css_urls($styleContent, fn($url) => $processUrl($url));
@@ -1310,11 +1310,11 @@ class GrindsSSG
         }, $html);
 
         // Convert href, src, and poster attribute paths and hide admin links
-        $html = $safeReplaceCallback('/<(a|img|script|link|video|audio|source|iframe)\b([^>]+)>/i', function ($matches) use ($processUrl, $safeReplaceCallback) {
+        $html = $safeReplaceCallback('/<(a|img|script|link|video|audio|source|iframe)\b([^>]++)>/i', function ($matches) use ($processUrl, $safeReplaceCallback) {
             $tagName = strtolower($matches[1]);
             $attributes = $matches[2];
 
-            $attributes = $safeReplaceCallback('/(href|src|poster)\s*=\s*(["\'])([^"\']*)\2/i', function ($attrMatches) use ($tagName, $processUrl) {
+            $attributes = $safeReplaceCallback('/(href|src|poster)\s*=\s*(["\'])([^"\']*+)\2/i', function ($attrMatches) use ($tagName, $processUrl) {
                 $attrName = $attrMatches[1];
                 $quote = $attrMatches[2];
                 $url = $attrMatches[3];
@@ -1334,7 +1334,7 @@ class GrindsSSG
         }, $html);
 
         // Convert paths in srcset attributes
-        $html = $safeReplaceCallback('/srcset\s*=\s*(["\'])([^"\']*)\1/i', function ($matches) use ($processUrl) {
+        $html = $safeReplaceCallback('/srcset\s*=\s*(["\'])([^"\']*+)\1/i', function ($matches) use ($processUrl) {
             $quote = $matches[1];
             $srcset = $matches[2];
 
@@ -1353,7 +1353,7 @@ class GrindsSSG
         }, $html);
 
         // Convert form actions
-        $html = $safeReplaceCallback('/<form\b([^>]+)>/i', function ($matches) use ($processUrl, $config, $depth, $safeReplace) {
+        $html = $safeReplaceCallback('/<form\b([^>]++)>/i', function ($matches) use ($processUrl, $config, $depth, $safeReplace) {
             $attributes = $matches[1];
             $isSearch = false;
 
@@ -1365,14 +1365,14 @@ class GrindsSSG
                 $searchPath = str_repeat('../', $depth) . 'search.html';
                 if ($searchPath === 'search.html') $searchPath = './search.html';
 
-                $attributes = $safeReplace('/action\s*=\s*["\'][^"\']*["\']/i', 'action="' . $searchPath . '"', $attributes);
-                $attributes = $safeReplace('/method\s*=\s*["\'][^"\']*["\']/i', 'method="get"', $attributes);
+                $attributes = $safeReplace('/action\s*=\s*["\'][^"\']*+["\']/i', 'action="' . $searchPath . '"', $attributes);
+                $attributes = $safeReplace('/method\s*=\s*["\'][^"\']*+["\']/i', 'method="get"', $attributes);
             } elseif (!empty($config['form_endpoint'])) {
                 $safeEndpoint = htmlspecialchars($config['form_endpoint'], ENT_QUOTES, 'UTF-8');
-                $attributes = $safeReplace('/action\s*=\s*["\'][^"\']*["\']/i', 'action="' . $safeEndpoint . '"', $attributes);
-                $attributes = $safeReplace('/method\s*=\s*["\'][^"\']*["\']/i', 'method="post"', $attributes);
+                $attributes = $safeReplace('/action\s*=\s*["\'][^"\']*+["\']/i', 'action="' . $safeEndpoint . '"', $attributes);
+                $attributes = $safeReplace('/method\s*=\s*["\'][^"\']*+["\']/i', 'method="post"', $attributes);
             } else {
-                $attributes = @preg_replace_callback('/action\s*=\s*(["\'])([^"\']*)\1/i', function ($actMatches) use ($processUrl) {
+                $attributes = @preg_replace_callback('/action\s*=\s*(["\'])([^"\']*+)\1/i', function ($actMatches) use ($processUrl) {
                     $url = $actMatches[2];
                     $processedUrl = $processUrl($url);
                     return 'action=' . $actMatches[1] . $processedUrl . $actMatches[1];

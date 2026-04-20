@@ -8,7 +8,7 @@ if (!defined('GRINDS_APP'))
     exit;
 
 $serverNameRaw = $_SERVER['SERVER_NAME'] ?? 'example.com';
-// ポート番号が含まれている場合は明示的に除去し、その後不正な文字をサニタイズ
+// Explicitly remove port number if present, then sanitize invalid characters
 $serverName = preg_replace('/[^a-zA-Z0-9.\-_]/', '', preg_replace('/:\d+$/', '', $serverNameRaw));
 $relativePath = parse_url(BASE_URL, PHP_URL_PATH) ?? '/';
 $relativePath = rtrim($relativePath, '/') . '/';

@@ -1,7 +1,7 @@
 {
-  "version": "1.6.8",
-  "release_date": "2026-04-18",
-  "message": "Contact Form Anti-Spam, SSG Improvements & Password Protect Enhancements",
-  "download_url": "https://github.com/grindworks/grind-site/releases/download/v1.6.8/grindsite-v1.6.8.zip",
-  "sha256": "0ced599b4d046ec21e1aa818e1adee6d8882e2db211d4894ed9b78187b367188"
+  "version": "1.6.9",
+  "release_date": "2026-04-20",
+  "message": "New Affiliate Block (Amazon/Rakuten/eBay) & Editor UX Improvements",
+  "download_url": "https://github.com/grindworks/grind-site/releases/download/v1.6.9/grindsite-v1.6.9.zip",
+  "sha256": "eb1c346ad9ef8bce2c423ea6b781f5330f3a3e4a2d8fbb1fef4a2217764154f4"
 }

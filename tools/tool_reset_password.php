@@ -249,7 +249,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
               throw new Exception("WAL mode not supported");
             }
           } catch (Exception $e) {
-            // 共有サーバー等でWALモードが拒否された場合はフォールバック
+            // Fallback to DELETE mode if WAL is rejected on shared hosting
             $pdo->exec("PRAGMA journal_mode = DELETE;");
           }
           $pdo->exec("PRAGMA foreign_keys = ON;");

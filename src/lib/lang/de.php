@@ -1784,4 +1784,16 @@ return [
     'Untitled' => 'Unbenannt',
     'Guide' => 'Anleitung',
     'btn_retry' => 'Update wiederholen',
+
+    // Affiliate Block
+    'blk_affiliate' => 'Affiliate',
+    'desc_affiliate' => 'Amazon, Rakuten, eBay Produktkarten',
+    'lbl_asin_url' => 'ASIN oder Amazon-URL',
+    'desc_asin_extract' => 'Fügen Sie die vollständige Produkt-URL ein, wir extrahieren die ASIN automatisch.',
+    'lbl_region' => 'Region',
+    'ph_affiliate_title_amazon' => 'Benutzerdefinierter Titel (Leer lassen, um ihn von Amazon abzurufen)',
+    'lbl_product_image' => 'Produktbild',
+    'lbl_product_url' => 'Produkt-URL',
+    'ph_affiliate_title' => 'Produkttitel',
+    'msg_asin_extracted' => 'ASIN extrahiert',
 ];

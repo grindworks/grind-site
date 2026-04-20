@@ -522,8 +522,9 @@ if (!defined('GRINDS_APP'))
     </div>
 
     <form method="post"
+      x-data="{ isDuplicating: false }"
       class="flex sm:flex-row flex-col items-end gap-5 bg-theme-bg/50 p-5 rounded-theme border border-theme-border/50 warn-on-unsaved"
-      onsubmit="return confirm(<?= htmlspecialchars(json_encode(_t('st_confirm_duplicate'), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT), ENT_QUOTES, 'UTF-8') ?>);">
+      @submit="if(confirm(<?= htmlspecialchars(json_encode(_t('st_confirm_duplicate'), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT), ENT_QUOTES, 'UTF-8') ?>)) { setTimeout(() => isDuplicating = true, 10); } else { $event.preventDefault(); }">
       <input type="hidden" name="csrf_token" value="<?= h(generate_csrf_token()) ?>">
       <input type="hidden" name="action" value="duplicate_theme">
 
@@ -554,8 +555,16 @@ if (!defined('GRINDS_APP'))
       </div>
 
       <button type="submit"
-        class="shadow-theme w-full sm:w-auto font-bold text-sm whitespace-nowrap btn-secondary px-6 py-2.5 transition-all hover:bg-theme-info hover:text-white hover:border-theme-info">
-        <?= _t('st_duplicate_btn') ?>
+        :disabled="isDuplicating"
+        class="relative shadow-theme w-full sm:w-auto font-bold text-sm whitespace-nowrap btn-secondary px-6 py-2.5 transition-all hover:bg-theme-info hover:text-white hover:border-theme-info overflow-hidden disabled:opacity-70 disabled:cursor-not-allowed">
+        <span class="flex items-center gap-2 transition-opacity duration-200" :class="isDuplicating ? 'opacity-0' : 'opacity-100'">
+          <?= _t('st_duplicate_btn') ?>
+        </span>
+        <div class="absolute inset-0 flex items-center justify-center transition-opacity duration-200" :class="isDuplicating ? 'opacity-100' : 'opacity-0 pointer-events-none'" x-cloak>
+          <svg class="w-5 h-5 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-arrow-path"></use>
+          </svg>
+        </div>
       </button>
     </form>
   </div>

@@ -1,11 +1,11 @@
-# GrindSite v1.6.8
+# GrindSite v1.6.9
 
 **The simplest CMS on earth.**
 **地球上で最もシンプルな CMS**
 
 [![PHP Version](https://img.shields.io/badge/php-8.3%2B-blue.svg)](https://www.php.net/)
 [![License](https://img.shields.io/badge/license-Commercial%2FFree-green.svg)](#-license--support-policy)
-[![Version](https://img.shields.io/badge/version-1.6.8-blue.svg)](https://github.com/grindworks/grind-site/releases)
+[![Version](https://img.shields.io/badge/version-1.6.9-blue.svg)](https://github.com/grindworks/grind-site/releases)
 
 ---
 

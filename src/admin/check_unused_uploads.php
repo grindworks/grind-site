@@ -175,11 +175,14 @@ if (isset($params['action'])) {
             }
 
             // Remove from media table to prevent zombie records
-            $cleanRelPath = ltrim($relPath, '/');
-            $stmtGetId = $pdo->prepare("SELECT id FROM media WHERE filepath = ?");
-            $stmtGetId->execute([$cleanRelPath]);
-            $mediaId = $stmtGetId->fetchColumn();
-            if ($mediaId) {
+            $cleanRelPath = ltrim(str_replace('\\', '/', $relPath), '/');
+            // Try both with and without assets/uploads/ prefix to ensure it matches DB storage format
+            $shortPath = str_replace('assets/uploads/', '', $cleanRelPath);
+
+            $stmtGetId = $pdo->prepare("SELECT id FROM media WHERE filepath = ? OR filepath = ?");
+            $stmtGetId->execute([$cleanRelPath, $shortPath]);
+
+            while ($mediaId = $stmtGetId->fetchColumn()) {
               $pdo->prepare("DELETE FROM media_tags WHERE media_id = ?")->execute([$mediaId]);
               $pdo->prepare("DELETE FROM media WHERE id = ?")->execute([$mediaId]);
             }

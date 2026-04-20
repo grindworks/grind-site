@@ -343,7 +343,12 @@ function grinds_process_bulk_actions(PDO $pdo, array $data): array
                     $metaData = json_decode($post['meta_data'] ?? '{}', true) ?: [];
                     $metaValues = [];
                     foreach ($metaData as $val) {
-                        if (is_scalar($val)) $metaValues[] = strip_tags((string)$val);
+                        if (is_scalar($val)) {
+                            $strVal = strip_tags((string)$val);
+                            if (!preg_match('/^(?:\{\{CMS_URL\}\}|https?:\/\/)/i', $strVal)) {
+                                $metaValues[] = $strVal;
+                            }
+                        }
                     }
                     $safeDescription = $post['description'] ?? '';
                     $searchDesc = trim($safeDescription . ' ' . implode(' ', $metaValues));
@@ -736,7 +741,12 @@ function grinds_save_post(PDO $pdo, array $data, array $files, string $action, ?
 
         $metaValues = [];
         foreach ($metaData as $val) {
-            if (is_scalar($val)) $metaValues[] = strip_tags((string)$val);
+            if (is_scalar($val)) {
+                $strVal = strip_tags((string)$val);
+                if (!preg_match('/^(?:\{\{CMS_URL\}\}|https?:\/\/)/i', $strVal)) {
+                    $metaValues[] = $strVal;
+                }
+            }
         }
         $searchDesc = trim($postData['description'] . ' ' . implode(' ', $metaValues));
         $search_text = grinds_generate_search_text($postData['title'], $searchDesc, $postData['content'], (string)$category_name, $tagNames);
@@ -1040,7 +1050,12 @@ function grinds_reassign_category_posts(PDO $pdo, int $fromCatId, int $toCatId):
         $metaData = json_decode($post['meta_data'] ?? '{}', true) ?: [];
         $metaValues = [];
         foreach ($metaData as $val) {
-            if (is_scalar($val)) $metaValues[] = strip_tags((string)$val);
+            if (is_scalar($val)) {
+                $strVal = strip_tags((string)$val);
+                if (!preg_match('/^(?:\{\{CMS_URL\}\}|https?:\/\/)/i', $strVal)) {
+                    $metaValues[] = $strVal;
+                }
+            }
         }
         $safeDescription = $post['description'] ?? '';
         $searchDesc = trim($safeDescription . ' ' . implode(' ', $metaValues));
@@ -1106,7 +1121,16 @@ function grinds_rebuild_post_index(PDO $pdo, $post_id = null, $limit = 0, $offse
 function _grinds_rebuild_index_chunk(PDO $pdo, $post_id, $limit, $offset): int
 {
     $repo    = new PostRepository($pdo);
-    $filters = ['type' => ['post', 'page']];
+
+    $allowed_types = ['post', 'page'];
+    if (function_exists('grinds_get_theme_post_types')) {
+        $cpts = grinds_get_theme_post_types();
+        if (is_array($cpts)) {
+            $allowed_types = array_merge($allowed_types, array_keys($cpts));
+        }
+    }
+
+    $filters = ['type' => $allowed_types];
     if ($post_id !== null) {
         $filters['ids'] = is_array($post_id) ? $post_id : [$post_id];
     }
@@ -1129,7 +1153,12 @@ function _grinds_rebuild_index_chunk(PDO $pdo, $post_id, $limit, $offset): int
         $metaData = json_decode($post['meta_data'] ?? '{}', true) ?: [];
         $metaValues = [];
         foreach ($metaData as $val) {
-            if (is_scalar($val)) $metaValues[] = strip_tags((string)$val);
+            if (is_scalar($val)) {
+                $strVal = strip_tags((string)$val);
+                if (!preg_match('/^(?:\{\{CMS_URL\}\}|https?:\/\/)/i', $strVal)) {
+                    $metaValues[] = $strVal;
+                }
+            }
         }
         $safeDescription = $post['description'] ?? '';
         $searchDesc = trim($safeDescription . ' ' . implode(' ', $metaValues));

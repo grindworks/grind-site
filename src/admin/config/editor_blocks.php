@@ -187,6 +187,19 @@ $config = [
             'Organization' => ['label' => '組織・会社 (Organization)']
           ]
         ],
+        'affiliate' => [
+          'label' => _t('blk_affiliate'),
+          'icon'  => 'outline-shopping-bag',
+          'desc'  => _t('desc_affiliate'),
+          'default' => [
+            'platform' => 'amazon',
+            'title' => '',
+            'productId' => '',
+            'region' => 'co.jp',
+            'url' => '',
+            'image' => ''
+          ]
+        ],
       ]
     ],
     'media' => [

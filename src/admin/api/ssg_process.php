@@ -67,8 +67,16 @@ try {
             header('Pragma: no-cache');
             header('Expires: 0');
 
+            // Stream output using chunks to prevent memory exhaustion (OOM) on huge ZIP files
             if (function_exists('set_time_limit')) @set_time_limit(0);
-            @readfile($zipFile);
+            $handle = @fopen($zipFile, 'rb');
+            if ($handle) {
+                while (!feof($handle)) {
+                    echo fread($handle, 8192);
+                    flush();
+                }
+                fclose($handle);
+            }
             grinds_force_unlink($zipFile);
             exit;
         } else {

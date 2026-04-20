@@ -211,7 +211,7 @@ class GrindsUpdater
 
     // Find the 'src' root inside the extracted folder
     $sourceDir = $extractPath . '/';
-    $items = scandir($extractPath);
+    $items = @scandir($extractPath) ?: [];
     foreach ($items as $f) {
       if ($f !== '.' && $f !== '..' && is_dir($extractPath . '/' . $f) && $f !== '__MACOSX') {
         if (is_dir($extractPath . '/' . $f . '/src')) {

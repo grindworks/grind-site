@@ -156,7 +156,10 @@ class Routing
                 $json = json_decode($content, true);
                 if (is_array($json)) {
                     $processed = self::recursiveUrlConvert($json, $baseUrl);
-                    return json_encode($processed, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_INVALID_UTF8_IGNORE);
+                    $encoded = json_encode($processed, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_INVALID_UTF8_IGNORE);
+                    if ($encoded !== false) {
+                        return $encoded;
+                    }
                 }
             }
         }

@@ -1,35 +1,29 @@
 Release title
-v1.6.8 - Contact Form Anti-Spam, SSG Improvements & Password Protect Enhancements
+v1.6.9 - New Affiliate Block (Amazon/Rakuten/eBay) & Editor UX Improvements
 
 Release notes
-This release introduces powerful anti-spam measures for the contact form, improves Static Site Generation (SSG) output, and enhances the Password Protect block.
+This release introduces a brand new, highly requested **Affiliate Block** that makes it easier than ever to embed beautiful Amazon, Rakuten, and eBay product cards directly from the block editor.
 
 ### ✨ New Features & Enhancements
-- **Contact Form Anti-Spam:** Added privacy policy agreement checkbox, honeypot fields, and time-trap mechanisms to significantly reduce spam submissions.
-- **SSG & Feeds:** Optimized URL resolution and absolute/relative path conversion during Static Site Generation. Improved output formats for RSS, Sitemap, and AI crawler files (`llms.txt`).
-- **Password Protection:** Added bypass functionality for administrators and preview modes to the Password Protect block.
-- **Affiliate Plugins:** Refined shortcode processing and UI for Amazon, Rakuten, and eBay affiliate plugins.
-- **CLI Tools:** Enhanced the `grind.php` CLI tool, including improvements to the Markdown export and migration package generation processes.
+- **Dedicated Affiliate Block:** Added a new block specifically designed for affiliate marketing. Switch seamlessly between Amazon, Rakuten, and eBay within the editor.
+- **Smart ASIN Extraction:** Simply paste an Amazon product URL into the editor, and the system will automatically extract the ASIN and region (e.g., co.jp, com), drastically improving your workflow.
+- **Seamless Plugin Integration:** The new block architecture perfectly integrates with existing affiliate shortcode plugins, ensuring high performance and maintainability.
 
 ### 🛡️ Bug Fixes & Maintenance
-- **Editor UI:** Improved drag & drop and paste behaviors in `admin_editor.js` and `media_manager.js`.
-- **CSS/Styles:** Updated Tailwind CSS builds across the admin panel and all built-in themes.
-- **Translations:** Added new translation keys for contact form and password protect features across multiple languages.
+- **Editor UX:** Optimized the block deletion logic (`admin_editor.js`) so that empty affiliate blocks are removed silently without unnecessary confirmation dialogs.
+- **Security:** Enforced strict HTML escaping (`htmlspecialchars`) and double-encoding prevention for all affiliate attributes.
 
 ---
 
 ## 🇯🇵 日本語 (Japanese)
 
-このリリースでは、コンタクトフォームの強力なスパム対策の実装、静的サイト生成（SSG）の最適化、パスワード保護ブロックの利便性向上を行いました。
+このリリースでは、多くのご要望をいただいていた専用の **「アフィリエイトブロック」** を新たに搭載しました。Amazon、楽天、eBayの美しい商品カードを、ブロックエディタからこれまで以上に直感的に作成できます。
 
 ### ✨ 新機能・改善
-- **コンタクトフォームのスパム対策強化:** プライバシーポリシーの同意チェックボックス、ハニーポット、タイムトラップ（送信時間計測）機能を追加し、スパムを強力にブロックします。
-- **SSG・フィード出力の最適化:** 静的サイト生成時のURL正規化ロジックを改善。RSS、Sitemap、およびAIクローラー向けファイル（`llms.txt`）の出力フォーマットを調整しました。
-- **パスワード保護ブロック:** 管理者ログイン時やプレビューモード時に、パスワード入力を省略（バイパス）できる機能を追加しました。
-- **アフィリエイトプラグイン:** Amazon、楽天、eBayプラグインのショートコード展開処理と管理画面UIを改善しました。
-- **CLIツール:** `bin/grind.php` のMarkdownエクスポート機能やマイグレーションパッケージ作成処理を最適化しました。
+- **アフィリエイト専用ブロック:** ブロックエディタにAmazon、楽天、eBayのアフィリエイトリンクを簡単に挿入できる専用ブロックを追加しました。タブで簡単にプラットフォームを切り替えられます。
+- **ASIN自動抽出 (Smart Paste):** Amazonの商品URLをペーストするだけで、URLからASINとリージョン（co.jpなど）を自動的に抽出するスマート入力機能を実装しました。これにより作業効率が劇的に向上します。
+- **プラグインとのシームレスな統合:** 新しいブロックは既存のアフィリエイトプラグイン（ショートコード）と連携するDRYな設計となっており、高いパフォーマンスと保守性を実現しています。
 
 ### 🛡️ バグ修正・メンテナンス
-- **エディタUI:** `admin_editor.js` や `media_manager.js` におけるドラッグ＆ドロップやペースト時の挙動を修正・改善しました。
-- **CSS更新:** 管理画面および各テーマのTailwind CSSビルド結果を最新化しました。
-- **翻訳:** コンタクトフォームやパスワード保護機能に関する翻訳キーを各言語ファイルに追加しました。
+- **エディタUIの最適化:** 空のアフィリエイトブロックを削除する際、不要な確認ダイアログが表示されないよう削除ロジックを最適化しました。
+- **セキュリティ:** 属性出力時の二重エンコード防止機能および、厳格なエスケープ処理を徹底し安全性を強化しました。

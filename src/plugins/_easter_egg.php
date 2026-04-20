@@ -1,17 +1,17 @@
 <?php
 
 /**
- * easter_egg.php
+ * _easter_egg.php
  *
  * [English]
  * Displays an engineer-focused Easter egg (console log) in the admin footer.
  * This plugin utilizes the GrindSite Hook System (`grinds_footer`).
- * To disable this, rename this file to "_easter_egg.php" (add an underscore).
+ * To enable this, rename this file to "easter_egg.php" (remove the underscore).
  *
  * [Japanese]
  * 管理画面のフッターにエンジニア向けのイースターエッグ（コンソールログ）を表示します。
  * このプラグインは GrindSite のフックシステム（`grinds_footer`）を利用しています。
- * 無効化するにはファイル名の先頭に "_" を追加して "_easter_egg.php" にしてください。
+ * 有効にするには、ファイル名の先頭の "_" を削除して "easter_egg.php" にしてください。
  */
 if (!defined('GRINDS_APP')) exit;
 

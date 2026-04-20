@@ -77,7 +77,7 @@ document.addEventListener('alpine:init', () => {
 
       this.globalDragCount++;
       // Prevent conflict with existing block dropzones
-      const isOverBlockDropzone = e.target.closest('[x-data*="isDragging: false"]');
+      const isOverBlockDropzone = e.target.closest('.js-block-dropzone, [x-data*="isDragging: false"]');
       if (!isOverBlockDropzone) {
         this.isGlobalDragging = true;
       }
@@ -247,29 +247,16 @@ document.addEventListener('alpine:init', () => {
     },
 
     /**
-     * Recursively clones an object and regenerates any 'id' properties.
-     * @param {object} obj The object to clone and process.
-     * @returns {object} The new object with regenerated IDs.
+     * Safely recalculate textarea heights to prevent layout collapsing.
+     * @param {HTMLElement|Document} container
      */
-    recursivelyRegenerateIds(obj) {
-      if (obj === null || typeof obj !== 'object') {
-        return obj;
-      }
-
-      if (Array.isArray(obj)) {
-        return obj.map((item) => this.recursivelyRegenerateIds(item));
-      }
-
-      const newObj = {};
-      for (const key in obj) {
-        if (Object.prototype.hasOwnProperty.call(obj, key)) {
-          newObj[key] =
-            key === 'id' && (typeof obj[key] === 'string' || typeof obj[key] === 'number')
-              ? this.generateId()
-              : this.recursivelyRegenerateIds(obj[key]);
+    recalculateTextareas(container = document) {
+      container.querySelectorAll('textarea').forEach((ta) => {
+        if (ta.style.overflow === 'hidden') {
+          ta.style.height = 'auto';
+          ta.style.height = ta.scrollHeight + 'px';
         }
-      }
-      return newObj;
+      });
     },
 
     /**
@@ -1135,8 +1122,8 @@ document.addEventListener('alpine:init', () => {
       let resizeTimeout;
       const resizeTextareas = () => {
         document.querySelectorAll('#post-form textarea').forEach((ta) => {
-          // Only target textareas with auto-height behavior (identified by overflow:hidden)
-          if (ta.style.overflow === 'hidden') {
+          // Only target textareas with auto-height behavior AND are currently visible
+          if (ta.style.overflow === 'hidden' && ta.scrollHeight > 0) {
             ta.style.height = 'auto';
             ta.style.height = ta.scrollHeight + 'px';
           }
@@ -2035,7 +2022,7 @@ document.addEventListener('alpine:init', () => {
     },
 
     /**
-     * Duplicate block.
+     * Safely duplicate a block without destroying data references (e.g. post IDs).
      * @param {number} index
      */
     duplicateBlock(index) {
@@ -2048,8 +2035,49 @@ document.addEventListener('alpine:init', () => {
         return;
       }
 
-      const newBlock = this.recursivelyRegenerateIds(originalBlock);
+      // Deep clone the block safely
+      const newBlock = JSON.parse(JSON.stringify(originalBlock));
+
+      // Regenerate structural IDs only, preserving data references like `data.id`
+      newBlock.id = this.generateId();
+
+      if (newBlock.data) {
+        // Regenerate list/accordion/tabs/step/timeline/price item IDs
+        if (Array.isArray(newBlock.data.items)) {
+          newBlock.data.items.forEach((item) => {
+            if (typeof item === 'object' && item !== null && item.id) {
+              item.id = this.generateId();
+            }
+          });
+        }
+        // Regenerate gallery/carousel image IDs
+        if (Array.isArray(newBlock.data.images)) {
+          newBlock.data.images.forEach((img) => {
+            if (typeof img === 'object' && img !== null && img.id) {
+              img.id = this.generateId();
+            }
+          });
+        }
+        // Regenerate table row internal IDs
+        if (Array.isArray(newBlock.data.content)) {
+          newBlock.data.content.forEach((row) => {
+            if (typeof row === 'object' && row !== null) {
+              Object.defineProperty(row, '_id', { value: this.generateId(), enumerable: false, writable: true });
+            }
+          });
+        }
+      }
+
       this.blocks.splice(index + 1, 0, newBlock);
+
+      // Scroll and focus safely
+      this.$nextTick(() => {
+        const el = document.getElementById('block-wrapper-' + newBlock.id);
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          this.recalculateTextareas(el);
+        }
+      });
     },
 
     /**
@@ -2096,6 +2124,10 @@ document.addEventListener('alpine:init', () => {
         case 'math':
           isEmpty = !d.code || String(d.code).trim().length === 0;
           break;
+        case 'affiliate':
+          isEmpty =
+            (!d.productId || String(d.productId).trim().length === 0) && (!d.url || String(d.url).trim().length === 0);
+          break;
         default:
           const dataString = JSON.stringify(d);
           isEmpty = dataString === '{}' || dataString.length < 20;
@@ -2130,17 +2162,20 @@ document.addEventListener('alpine:init', () => {
       if (toIndex < 0) toIndex = 0;
       if (toIndex >= this.blocks.length) toIndex = this.blocks.length - 1;
       if (fromIndex === toIndex) return;
+
       const item = this.blocks.splice(fromIndex, 1)[0];
       this.blocks.splice(toIndex, 0, item);
 
-      if (shouldScroll) {
-        this.$nextTick(() => {
-          const el = document.getElementById('block-wrapper-' + item.id);
-          if (el) {
+      this.$nextTick(() => {
+        const el = document.getElementById('block-wrapper-' + item.id);
+        if (el) {
+          if (shouldScroll) {
             el.scrollIntoView({ behavior: 'smooth', block: 'center' });
           }
-        });
-      }
+          // Prevent textarea height collapse on DOM node movement
+          this.recalculateTextareas(el);
+        }
+      });
     },
 
     /**
@@ -2609,11 +2644,13 @@ document.addEventListener('alpine:init', () => {
         const targetArray = block.data.images || block.data.items;
 
         if (this.activeMediaItemIndex === 'add' && targetArray) {
-          // Add item to gallery
+          // Add item to gallery/carousel
           const meta = file.metadata || {};
           targetArray.push({
+            id: this.generateId(),
             url: file.url,
             caption: meta.caption || '',
+            alt: meta.alt || meta.title || file.filename || '',
           });
         } else if (this.activeMediaItemIndex !== null && targetArray && targetArray[this.activeMediaItemIndex]) {
           // Update existing item
@@ -2625,11 +2662,11 @@ document.addEventListener('alpine:init', () => {
           block.data[this.activeMediaKey] = file.url;
 
           // Auto-fill file size
-          if (block.type === 'download' && file.size) {
+          if (block.type === 'download' && file.file_size) {
             const size =
-              file.size < 1024 * 1024
-                ? (file.size / 1024).toFixed(1) + ' KB'
-                : (file.size / (1024 * 1024)).toFixed(1) + ' MB';
+              file.file_size < 1024 * 1024
+                ? (file.file_size / 1024).toFixed(1) + ' KB'
+                : (file.file_size / (1024 * 1024)).toFixed(1) + ' MB';
             block.data.fileSize = size;
           }
 
@@ -2747,6 +2784,7 @@ document.addEventListener('alpine:init', () => {
               id: this.generateId(),
               url: result.url,
               caption: meta.caption || '',
+              alt: meta.alt || meta.title || result.filename || '',
             });
           } else if (result && result.error) {
             errorMessages.push(`Error ${result.name}: ${result.message}`);
@@ -3007,40 +3045,12 @@ document.addEventListener('DOMContentLoaded', function () {
       locale: lang === 'ja' ? 'ja' : 'en',
       onChange: function (selectedDates) {
         const now = new Date();
-        const alpineEl = document.querySelector('[x-data]');
-        if (alpineEl && alpineEl._x_dataStack) {
-          const data = alpineEl._x_dataStack.find((d) => d.isFutureDate !== undefined);
-          if (data) {
-            data.isFutureDate = selectedDates[0] > now;
-          }
-        }
+        window.dispatchEvent(
+          new CustomEvent('date-changed', {
+            detail: { isFuture: selectedDates[0] > now },
+          })
+        );
       },
-    });
-  }
-});
-
-// BFCache (Back/Forward Cache) recovery
-window.addEventListener('pageshow', (event) => {
-  if (event.persisted) {
-    // Force release scroll lock on BFCache restore
-    if (typeof window.toggleScrollLock === 'function') {
-      window.scrollLockCount = 0;
-      window.toggleScrollLock(false);
-    }
-
-    // Reset Alpine.js local component states
-    document.querySelectorAll('[x-data]').forEach((el) => {
-      if (el._x_dataStack && el._x_dataStack[0]) {
-        const data = el._x_dataStack[0];
-        if (data.isSubmitting !== undefined) data.isSubmitting = false;
-        if (data.isSaving !== undefined) data.isSaving = false;
-        if (data.isUploading !== undefined) data.isUploading = false;
-      }
-    });
-
-    // Fallback for native buttons
-    document.querySelectorAll('button[type="submit"], button:disabled').forEach((btn) => {
-      btn.disabled = false;
     });
   }
 });

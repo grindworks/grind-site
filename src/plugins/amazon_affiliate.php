@@ -115,10 +115,11 @@ add_filter('grinds_the_content', function ($content) {
         $region = $atts['region'] ?? $default_region;
         // XSS Prevention: Safely escape user inputs and DB value
         // XSS対策: ユーザー入力とDB値を安全にエスケープ
-        $safe_asin = htmlspecialchars(strtoupper($asin), ENT_QUOTES, 'UTF-8');
-        $safe_title = htmlspecialchars($title, ENT_QUOTES, 'UTF-8');
-        $safe_region = htmlspecialchars(strtolower($region), ENT_QUOTES, 'UTF-8');
-        $safe_tracking_id = htmlspecialchars($tracking_id, ENT_QUOTES, 'UTF-8');
+        // Use double_encode = false to prevent double escaping of already escaped attributes from BlockRenderer
+        $safe_asin = htmlspecialchars(strtoupper($asin), ENT_QUOTES, 'UTF-8', false);
+        $safe_title = htmlspecialchars($title, ENT_QUOTES, 'UTF-8', false);
+        $safe_region = htmlspecialchars(strtolower($region), ENT_QUOTES, 'UTF-8', false);
+        $safe_tracking_id = htmlspecialchars($tracking_id, ENT_QUOTES, 'UTF-8', false);
 
         if (empty($safe_asin) || !preg_match('/^[A-Z0-9]{10}$/', $safe_asin)) {
             $msg = grinds_amazon_t('invalid_asin');
@@ -160,7 +161,7 @@ add_filter('grinds_the_content', function ($content) {
                 </a>
             </div>
             <div class="flex flex-wrap justify-center sm:justify-start gap-3">
-                <a href="{$amazon_url}" target="_blank" rel="noopener noreferrer external" class="inline-flex items-center justify-center bg-theme-primary text-theme-on-primary font-bold text-xs sm:text-sm px-6 py-2 sm:py-2.5 rounded-full shadow-sm hover:opacity-90 transition-opacity no-underline w-full sm:w-auto">
+                <a href="{$amazon_url}" target="_blank" rel="noopener noreferrer external" class="inline-flex items-center justify-center bg-[#FF9900] text-gray-900 font-bold text-xs sm:text-sm px-6 py-2 sm:py-2.5 rounded-full shadow-sm hover:opacity-90 transition-opacity no-underline w-full sm:w-auto">
                     <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="{$sprite_url}#outline-shopping-bag"></use></svg>
                     {$btn_text}
                 </a>
@@ -324,7 +325,7 @@ add_action('grinds_html_block_tools', function () {
         const el = document.getElementById('block-' + block.id + '-code');
         const text = block.data.code || '';
         block.data.code = text + (text ? '\\n' : '') + '[amazon id=\'ASIN\' title=\'{$t_insert_product}\']';
-        \$nextTick(() => { el.focus(); el.setSelectionRange(block.data.code.indexOf('ASIN'), block.data.code.indexOf('ASIN') + 4); });
+        \$nextTick(() => { el.focus(); el.setSelectionRange(block.data.code.lastIndexOf('ASIN'), block.data.code.lastIndexOf('ASIN') + 4); });
       " class="inline-flex items-center gap-1.5 px-2.5 py-1.5 hover:bg-theme-bg/50 border border-theme-border rounded-theme text-theme-text text-[10px] font-bold transition-colors" title="{$t_insert_tooltip}">
         <svg class="w-3.5 h-3.5 text-theme-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <use href="{$sprite_url}#outline-shopping-bag"></use>

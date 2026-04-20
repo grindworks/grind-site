@@ -1784,4 +1784,16 @@ return [
     'Untitled' => 'Sans titre',
     'Guide' => 'Guide',
     'btn_retry' => 'Réessayer la mise à jour',
+
+    // Affiliate Block
+    'blk_affiliate' => 'Affiliation',
+    'desc_affiliate' => 'Cartes de produits Amazon, Rakuten, eBay',
+    'lbl_asin_url' => 'ASIN ou URL Amazon',
+    'desc_asin_extract' => 'Collez l\'URL complète du produit et nous extrairons l\'ASIN automatiquement.',
+    'lbl_region' => 'Région',
+    'ph_affiliate_title_amazon' => 'Titre personnalisé (Laisser vide pour récupérer depuis Amazon)',
+    'lbl_product_image' => 'Image du produit',
+    'lbl_product_url' => 'URL du produit',
+    'ph_affiliate_title' => 'Titre du produit',
+    'msg_asin_extracted' => 'ASIN extrait',
 ];

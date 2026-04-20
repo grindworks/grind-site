@@ -47,7 +47,8 @@ class FileManager
 
         'application/zip' => ['zip'],
         'application/x-zip-compressed' => ['zip'],
-        'application/octet-stream' => ['zip', 'csv'],
+        'multipart/x-zip' => ['zip'],
+        'application/octet-stream' => ['zip', 'csv', 'rar', '7z'],
         'application/x-rar-compressed' => ['rar'],
         'application/x-7z-compressed' => ['7z'],
 

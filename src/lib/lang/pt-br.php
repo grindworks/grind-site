@@ -1784,4 +1784,16 @@ return [
     'Untitled' => 'Sem título',
     'Guide' => 'Guia',
     'btn_retry' => 'Tentar novamente a atualização',
+
+    // Affiliate Block
+    'blk_affiliate' => 'Afiliados',
+    'desc_affiliate' => 'Cartões de produtos da Amazon, Rakuten, eBay',
+    'lbl_asin_url' => 'ASIN ou URL da Amazon',
+    'desc_asin_extract' => 'Cole a URL completa do produto e extrairemos o ASIN automaticamente.',
+    'lbl_region' => 'Região',
+    'ph_affiliate_title_amazon' => 'Título personalizado (Deixe em branco para buscar da Amazon)',
+    'lbl_product_image' => 'Imagem do Produto',
+    'lbl_product_url' => 'URL do Produto',
+    'ph_affiliate_title' => 'Título do Produto',
+    'msg_asin_extracted' => 'ASIN Extraído',
 ];

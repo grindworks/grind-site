@@ -24,6 +24,7 @@ window.ToastManager = {
       container = document.createElement('div');
       container.id = 'grinds-toast-container';
       container.className = `fixed right-4 ${opts.position} z-[100] flex flex-col sm:flex-col-reverse gap-2 pointer-events-none`;
+      container.style.zIndex = '99999';
       document.body.appendChild(container);
     }
 
@@ -330,4 +331,42 @@ document.addEventListener('DOMContentLoaded', () => {
       el.dispatchEvent(new Event('input', { bubbles: true }));
     }
   });
+});
+
+/**
+ * BFCache (Back/Forward Cache) recovery
+ * Prevents loading spinners from getting stuck when navigating "Back" via browser history (e.g. iOS Safari)
+ */
+window.addEventListener('pageshow', (event) => {
+  if (event.persisted) {
+    // Force release scroll lock on BFCache restore
+    if (typeof window.toggleScrollLock === 'function') {
+      window.scrollLockCount = 0;
+      window.toggleScrollLock(false);
+    }
+
+    // Reset Alpine.js local component states across all admin pages
+    document.querySelectorAll('[x-data]').forEach((el) => {
+      if (el._x_dataStack && el._x_dataStack[0]) {
+        const data = el._x_dataStack[0];
+        // Reset common loading/submitting states
+        if (data.isSubmitting !== undefined) data.isSubmitting = false;
+        if (data.isSaving !== undefined) data.isSaving = false;
+        if (data.isUploading !== undefined) data.isUploading = false;
+        if (data.processing !== undefined) data.processing = false;
+        if (data.isProcessing !== undefined) data.isProcessing = false;
+        if (data.loading !== undefined) data.loading = false;
+        if (data.clearing !== undefined) data.clearing = false;
+        if (data.optimizing !== undefined) data.optimizing = false;
+        if (data.runningAll !== undefined) data.runningAll = false;
+        if (data.rebuilding !== undefined) data.rebuilding = false;
+        if (data.isDownloading !== undefined) data.isDownloading = false;
+      }
+    });
+
+    // Fallback for native buttons
+    document.querySelectorAll('button[type="submit"], button:disabled').forEach((btn) => {
+      btn.disabled = false;
+    });
+  }
 });

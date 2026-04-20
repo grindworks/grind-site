@@ -324,7 +324,8 @@ if (!class_exists('LlmsFullGenerator')) {
 
         private function cleanString(string $text): string
         {
-            return str_replace(["\r", "\n", "[", "]"], [' ', ' ', '\[', '\]'], html_entity_decode(strip_tags($text), ENT_QUOTES | ENT_HTML5, 'UTF-8'));
+            // Removed over-sanitization of brackets '[' and ']' to keep metadata noise-free
+            return str_replace(["\r", "\n"], ' ', html_entity_decode(strip_tags($text), ENT_QUOTES | ENT_HTML5, 'UTF-8'));
         }
 
         /**
@@ -373,14 +374,14 @@ if (!class_exists('LlmsFullGenerator')) {
             }, $html) ?? $html;
 
             // 4. Handle images
-            $html = preg_replace_callback('/<img\b([^>]*)>/is', function ($matches) {
+            $html = preg_replace_callback('/<img\b([^>]*+)>/is', function ($matches) {
                 $attrs = $matches[1];
                 $src = '';
                 $alt = '';
-                if (preg_match('/src=["\']([^"\']+)["\']/i', $attrs, $srcMatch)) {
+                if (preg_match('/src=["\']([^"\']++)["\']/i', $attrs, $srcMatch)) {
                     $src = $srcMatch[1];
                 }
-                if (preg_match('/alt=["\']([^"\']*)["\']/i', $attrs, $altMatch)) {
+                if (preg_match('/alt=["\']([^"\']*+)["\']/i', $attrs, $altMatch)) {
                     $alt = trim($altMatch[1]);
                 }
 
@@ -410,12 +411,13 @@ if (!class_exists('LlmsFullGenerator')) {
                     $src = $scheme . ':' . $src;
                 }
 
-                $safeAlt = str_replace(['[', ']'], ['\(', '\)'], $alt);
+                // Escape Markdown brackets correctly to prevent syntax breakage
+                $safeAlt = str_replace(['[', ']'], ['\[', '\]'], $alt);
                 return $alt ? "![{$safeAlt}]({$src})" : "![Image]({$src})";
             }, $html) ?? $html;
 
             // 5. Convert other href/src URLs to absolute
-            $html = preg_replace_callback('/(href|src)=["\']([^"\']+)["\']/i', function ($matches) {
+            $html = preg_replace_callback('/(href|src)=["\']([^"\']++)["\']/i', function ($matches) {
                 $attr = $matches[1];
                 $url = $matches[2];
                 if (!preg_match('/^(https?:\/\/|\/\/|mailto:|tel:|data:|#)/i', $url)) {

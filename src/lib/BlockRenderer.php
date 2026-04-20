@@ -356,6 +356,36 @@ HTML;
 
         switch ($type) {
 
+            case 'affiliate':
+                $platform = $data['platform'] ?? 'amazon';
+                $title = $data['title'] ?? '';
+                $shortcode = '';
+
+                if ($platform === 'amazon') {
+                    $productId = $data['productId'] ?? '';
+                    $region = $data['region'] ?? 'co.jp';
+                    if ($productId) {
+                        $shortcode = sprintf('[amazon id="%s" title="%s" region="%s"]', h($productId), h($title), h($region));
+                    }
+                } elseif ($platform === 'rakuten') {
+                    $url = $data['url'] ?? '';
+                    $image = $data['image'] ?? '';
+                    if ($url) {
+                        $shortcode = sprintf('[rakuten url="%s" title="%s" image="%s"]', h($url), h($title), h($image));
+                    }
+                } elseif ($platform === 'ebay') {
+                    $url = $data['url'] ?? '';
+                    $image = $data['image'] ?? '';
+                    if ($url) {
+                        $shortcode = sprintf('[ebay url="%s" title="%s" image="%s"]', h($url), h($title), h($image));
+                    }
+                }
+
+                if ($shortcode) {
+                    return "<div class='{$commonClass} my-8'>" . apply_filters('grinds_the_content', $shortcode) . "</div>";
+                }
+                return '';
+
             case 'before_after':
                 $beforeUrl = resolve_url($data['beforeUrl'] ?? '');
                 $afterUrl = resolve_url($data['afterUrl'] ?? '');

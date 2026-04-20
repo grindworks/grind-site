@@ -56,7 +56,12 @@ function grinds_blocks_to_markdown($contentJson)
         $md = $safeReplace('/<(i|em)\b[^>]*+>((?:[^<]++|<(?!\/\1>))*+)<\/\1>/is', '*$2*', $md);
         $md = $safeReplace('/<(s|strike|del)\b[^>]*+>((?:[^<]++|<(?!\/\1>))*+)<\/\1>/is', '~~$2~~', $md);
         $md = $safeReplace('/<code\b[^>]*+>((?:[^<]++|<(?!\/code>))*+)<\/code>/is', '`$1`', $md);
-        $md = $safeReplace('/<a\b[^>]*+href=["\']([^"\']++)["\'][^>]*+>((?:[^<]++|<(?!\/a>))*+)<\/a>/is', '$2', $md);
+
+        // Escape brackets in link text to prevent Markdown syntax collision
+        $md = preg_replace_callback('/<a\b[^>]*+href=["\']([^"\']++)["\'][^>]*+>((?:[^<]++|<(?!\/a>))*+)<\/a>/is', function ($m) {
+            $text = str_replace(['[', ']'], ['\[', '\]'], $m[2]);
+            return "[{$text}]({$m[1]})";
+        }, $md) ?? $md;
         return strip_tags($md);
     };
 
@@ -99,7 +104,8 @@ function grinds_blocks_to_markdown($contentJson)
             case 'image':
                 $url = $bData['url'] ?? '';
                 $alt = $bData['alt'] ?? $bData['caption'] ?? 'image';
-                $md .= "\n\n![{$alt}]({$url})\n\n";
+                $safeAlt = str_replace(['[', ']'], ['\[', '\]'], $alt);
+                $md .= "\n\n!{$safeAlt}\n\n";
                 break;
             case 'code':
                 $lang = $bData['language'] ?? 'plaintext';
@@ -129,7 +135,7 @@ function grinds_blocks_to_markdown($contentJson)
                             $md .= " {$cellText} |";
                         }
                         $md .= "\n";
-                        // ヘッダー行の区切り線を追加
+                        // Add separator line for header row
                         if ($rIdx === 0 && !empty($bData['withHeadings'])) {
                             $md .= "|";
                             foreach ($row as $cell) {
@@ -205,7 +211,8 @@ if ($action === 'download') {
     if (file_exists($zipPath)) {
         while (ob_get_level()) ob_end_clean();
         header('Content-Type: application/zip');
-        header('Content-disposition: attachment; filename=grinds_markdown_export_' . date('Ymd_His') . '.zip');
+        // Added double quotes around the filename for strict RFC 6266 compliance
+        header('Content-disposition: attachment; filename="grinds_markdown_export_' . date('Ymd_His') . '.zip"');
         header('Content-Length: ' . filesize($zipPath));
         header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
         header('Pragma: no-cache');
@@ -298,7 +305,7 @@ try {
         }
 
         $zip = new ZipArchive();
-        // ★ FIX: 追加で作成する場合は CREATE 指定が必須 (空のZIPがない場合のエラー回避)
+        // FIX: Require CREATE flag to avoid errors when an empty ZIP does not exist
         if ($zip->open($zipPath, ZipArchive::CREATE) !== TRUE) {
             throw new Exception("Cannot open zip file.");
         }

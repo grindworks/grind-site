@@ -1784,4 +1784,16 @@ return [
     'Untitled' => 'Untitled',
     'Guide' => 'Guide',
     'btn_retry' => 'Retry Update',
+
+    // Affiliate Block
+    'blk_affiliate' => 'Affiliate',
+    'desc_affiliate' => 'Amazon, Rakuten, eBay Product Cards',
+    'lbl_asin_url' => 'ASIN or Amazon URL',
+    'desc_asin_extract' => 'Paste the full product URL, and we\'ll extract the ASIN automatically.',
+    'lbl_region' => 'Region',
+    'ph_affiliate_title_amazon' => 'Custom product title (Leave empty to fetch automatically from Amazon)',
+    'lbl_product_image' => 'Product Image',
+    'lbl_product_url' => 'Product URL',
+    'ph_affiliate_title' => 'Product Title',
+    'msg_asin_extracted' => 'ASIN Extracted',
 ];

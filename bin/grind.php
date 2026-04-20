@@ -24,12 +24,12 @@ define('GRINDS_APP', true);
 $basePath = dirname(__DIR__);
 
 $possiblePaths = [
-    $basePath . '/src',          // 1. GitHubリポジトリの標準構造
-    $basePath,                   // 2. 'bin' と 'srcの中身' を同じ階層に配置した場合
-    $basePath . '/public_html',  // 3. 一般的な共有サーバー (cPanel等)
-    $basePath . '/public',       // 4. 一般的なVPS / Laravel風の構造
-    $basePath . '/html',         // 5. 一般的なLinux (Apache/Nginxのデフォルト)
-    $basePath . '/www'           // 6. その他のWebルート
+    $basePath . '/src',          // 1. Standard GitHub repository structure
+    $basePath,                   // 2. Flat structure (bin and src contents at same level)
+    $basePath . '/public_html',  // 3. Common shared hosting (cPanel, etc.)
+    $basePath . '/public',       // 4. Common VPS / Laravel-like structure
+    $basePath . '/html',         // 5. Common Linux (Apache/Nginx default)
+    $basePath . '/www'           // 6. Other web roots
 ];
 
 $srcPath = null;
@@ -369,7 +369,7 @@ function handleUserCreate(array $args): void
         if (!$pdo) throw new Exception("Database connection failed.");
 
         // Check duplicates
-        $stmt = $pdo->prepare("SELECT COUNT(*) FROM users WHERE username = ? OR email = ?");
+        $stmt = $pdo->prepare("SELECT COUNT(*) FROM users WHERE LOWER(username) = LOWER(?) OR LOWER(email) = LOWER(?)");
         $stmt->execute([$username, $email]);
         if ($stmt->fetchColumn() > 0) {
             throw new Exception("Username or Email already exists.");
@@ -414,7 +414,7 @@ function handleUserResetPassword(array $args): void
         $pdo = App::db();
         if (!$pdo) throw new Exception("Database connection failed.");
 
-        $stmt = $pdo->prepare("SELECT id, username FROM users WHERE username = ?");
+        $stmt = $pdo->prepare("SELECT id, username FROM users WHERE LOWER(username) = LOWER(?)");
         $stmt->execute([$username]);
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -1127,7 +1127,7 @@ function handleSsgBuild(array $args, string $srcPath): void
     echo "  " . ConsoleColor::gray("5/5") . " Packaging ZIP Archive...\n";
     $zipRes = $ssgGen->run('finalize', []);
 
-    // APIは相対URL(api/ssg_process.php?action=download...)を返すが、物理パスは tmp 内にある
+    // API returns a relative URL, but the physical path is in the tmp directory
     $zipFile = $srcPath . '/data/tmp/static_site_' . $buildId . '.zip';
 
     if (file_exists($zipFile)) {
@@ -1162,7 +1162,12 @@ function grinds_cli_blocks_to_markdown(string $contentJson): string
         $md = $safeReplace('/<(i|em)\b[^>]*+>((?:[^<]++|<(?!\/\1>))*+)<\/\1>/is', '*$2*', $md);
         $md = $safeReplace('/<(s|strike|del)\b[^>]*+>((?:[^<]++|<(?!\/\1>))*+)<\/\1>/is', '~~$2~~', $md);
         $md = $safeReplace('/<code\b[^>]*+>((?:[^<]++|<(?!\/code>))*+)<\/code>/is', '`$1`', $md);
-        $md = $safeReplace('/<a\b[^>]*+href=["\']([^"\']++)["\'][^>]*+>((?:[^<]++|<(?!\/a>))*+)<\/a>/is', '$2', $md);
+
+        // Escape brackets in link text to prevent Markdown syntax collision
+        $md = preg_replace_callback('/<a\b[^>]*+href=["\']([^"\']++)["\'][^>]*+>((?:[^<]++|<(?!\/a>))*+)<\/a>/is', function ($m) {
+            $text = str_replace(['[', ']'], ['\[', '\]'], $m[2]);
+            return "[{$text}]({$m[1]})";
+        }, $md) ?? $md;
         return strip_tags($md);
     };
 
@@ -1194,7 +1199,9 @@ function grinds_cli_blocks_to_markdown(string $contentJson): string
                 $md .= "\n\n";
                 break;
             case 'image':
-                $md .= "\n\n![" . ($bData['alt'] ?? $bData['caption'] ?? 'image') . "](" . ($bData['url'] ?? '') . ")\n\n";
+                $alt = $bData['alt'] ?? $bData['caption'] ?? 'image';
+                $safeAlt = str_replace(['[', ']'], ['\[', '\]'], $alt);
+                $md .= "\n\n![{$safeAlt}](" . ($bData['url'] ?? '') . ")\n\n";
                 break;
             case 'code':
                 $md .= "\n\n```" . ($bData['language'] ?? 'plaintext') . "\n" . ($bData['code'] ?? '') . "\n```\n\n";

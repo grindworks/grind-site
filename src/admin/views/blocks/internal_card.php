@@ -78,7 +78,7 @@ if (!defined('GRINDS_APP'))
          this.block.data.id = String(item.id);
          this.block.data.titleCache = item.title;
          this.keyword = item.title;
-         // キーワード自動入力によるサジェスト再オープンを防ぐため、$nextTickで確実に閉じる
+         // Close suggestions reliably on next tick to prevent reopening from auto-filled keyword
          this.$nextTick(() => {
              this.searching = false;
              this.results = [];

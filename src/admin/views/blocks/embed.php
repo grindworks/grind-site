@@ -19,10 +19,10 @@ if (!defined('GRINDS_APP')) exit; ?>
   </div>
   <!-- Preview -->
   <div x-show="block.data.url" class="mt-3 bg-theme-surface border border-theme-border rounded-theme overflow-hidden aspect-video relative flex items-center justify-center">
-    <template x-if="block.data.url && block.data.url.match(/(?:youtube\.com\/(?:[^\/]+\/[^\/]+\/|(?:v|e(?:mbed)?|shorts)\/|[^&?]*[?&]v=)|youtu\.be\/)([^&?\/ ]{11})/i)">
-      <iframe :src="'https://www.youtube-nocookie.com/embed/' + block.data.url.match(/(?:youtube\.com\/(?:[^\/]+\/[^\/]+\/|(?:v|e(?:mbed)?|shorts)\/|[^&?]*[?&]v=)|youtu\.be\/)([^&?\/ ]{11})/i)[1]" class="absolute inset-0 w-full h-full" frameborder="0" allowfullscreen loading="lazy"></iframe>
+    <template x-if="block.data.url && block.data.url.match(/(?:youtube(?:-nocookie)?\.com\/(?:(?:v|e(?:mbed)?|shorts)\/|[^\s]+?[?&]v=)|youtu\.be\/)([^&?\/\s]{11})/i)">
+      <iframe :src="'https://www.youtube-nocookie.com/embed/' + block.data.url.match(/(?:youtube(?:-nocookie)?\.com\/(?:(?:v|e(?:mbed)?|shorts)\/|[^\s]+?[?&]v=)|youtu\.be\/)([^&?\/\s]{11})/i)[1]" class="absolute inset-0 w-full h-full" frameborder="0" allowfullscreen loading="lazy"></iframe>
     </template>
-    <template x-if="block.data.url && !block.data.url.match(/(?:youtube\.com\/(?:[^\/]+\/[^\/]+\/|(?:v|e(?:mbed)?|shorts)\/|[^&?]*[?&]v=)|youtu\.be\/)([^&?\/ ]{11})/i)">
+    <template x-if="block.data.url && !block.data.url.match(/(?:youtube(?:-nocookie)?\.com\/(?:(?:v|e(?:mbed)?|shorts)\/|[^\s]+?[?&]v=)|youtu\.be\/)([^&?\/\s]{11})/i)">
       <div class="text-xs text-theme-text opacity-50">
         External Content: <a :href="block.data.url" target="_blank" class="underline text-theme-primary" x-text="block.data.url"></a>
       </div>
