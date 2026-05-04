@@ -66,10 +66,7 @@
   "sidebar_mode": "dark",
   "nav_style": "block",
   "media_bg_css": "checker_dark",
-  "effects": [
-    "input_mono",
-    "btn_8bit"
-  ],
+  "effects": ["input_mono", "btn_8bit"],
   "ai_paste": {
     "title": "BONUS STAGE",
     "description": "Throw Markdown Here",
@@ -84,7 +81,7 @@
     "icon": "outline-arrow-down-tray"
   },
   "sidebar_custom_css": "border-right: 4px solid #00ffff !important; box-shadow: 4px 0 0 #e6005c !important;",
-  "css": "* { text-transform: uppercase !important; -webkit-font-smoothing: none !important; font-smooth: never !important; }\n::selection { background: #ff9900 !important; color: #000 !important; }\n/* Girder Borders */\n.bg-theme-surface, .card {\n  border: 4px solid #e6005c !important;\n  border-radius: 0 !important;\n}\n/* Ladder Accents */\n.btn-primary {\n  background: #00ffff !important;\n  color: #000 !important;\n  border: 4px solid #fff !important;\n}\n.btn-primary:hover { background: #fff !important; color: #e6005c !important; border-color: #00ffff !important; }\n/* Barrel Input */\ninput, textarea, select { border: 4px solid #00ffff !important; color: #ff9900 !important; }\n/* Row Hover */\ntr:hover td { background: #00ffff !important; color: #000 !important; }\ntr:hover td a, tr:hover td span, tr:hover td svg { color: #000 !important; }",
+  "css": "* { text-transform: uppercase !important; -webkit-font-smoothing: none !important; font-smooth: never !important; }\n::selection { background: #ff9900 !important; color: #000 !important; }\n/* Girder Borders */\n.bg-theme-surface, .card {\n  border: 4px solid #e6005c !important;\n  border-radius: 0 !important;\n}\n/* Ladder Accents */\n.btn-primary {\n  background: #00ffff !important;\n  color: #000 !important;\n  border: 4px solid #fff !important;\n}\n.btn-primary:hover { background: #fff !important; color: #e6005c !important; border-color: #00ffff !important; }\n/* Barrel Input */\ninput, textarea, select { border: 4px solid #00ffff !important; color: #ff9900 !important; font-family: ui-monospace, SFMono-Regular, monospace !important; text-transform: none !important; }\n/* Row Hover */\ntr:hover td { background: #00ffff !important; color: #000 !important; }\ntr:hover td a, tr:hover td span, tr:hover td svg { color: #000 !important; }",
   "is_dark": true,
   "is_sidebar_dark": true
 }

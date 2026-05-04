@@ -6,6 +6,9 @@ if (!defined('GRINDS_APP'))
 /**
  * archive.php
  * Display tag archive.
+ *
+ * @var array $pageData
+ * @var string|null $pageType
  */
 $isSearch = (isset($pageType) && $pageType === 'search');
 ?>
@@ -89,6 +92,14 @@ $isSearch = (isset($pageType) && $pageType === 'search');
 
   <!-- Pagination controls -->
   <div class="d-flex justify-content-center mt-5">
-    <?php if (isset($pageData['paginator'])) echo $pageData['paginator']->renderFrontend(); ?>
+    <?php
+    if (isset($pageData['paginator'])) {
+      if (is_object($pageData['paginator']) && method_exists($pageData['paginator'], 'renderFrontend')) {
+        echo $pageData['paginator']->renderFrontend();
+      } else {
+        echo $pageData['paginator'];
+      }
+    }
+    ?>
   </div>
 <?php endif; ?>

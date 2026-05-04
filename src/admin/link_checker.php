@@ -30,7 +30,7 @@ if (!current_user_can('manage_tools')) {
 
 // Validate internal link
 if (!function_exists('check_internal_link')) {
-    function check_internal_link($url, $pdo)
+    function check_internal_link(string $url, PDO $pdo)
     {
         // Skip empty/anchors
         if (empty($url) || $url === '#' || strpos($url, '#') === 0) return ['isValid' => true];

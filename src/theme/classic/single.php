@@ -5,6 +5,8 @@ if (!defined('GRINDS_APP')) exit;
 /**
  * single.php
  * Render single post layout.
+ *
+ * @var array $pageData
  */
 global $post;
 $post = $pageData['post'];

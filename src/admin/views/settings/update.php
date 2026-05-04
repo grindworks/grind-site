@@ -184,7 +184,7 @@ if (($init_tab ?? '') === 'update') {
               </template>
             </div>
 
-            <div x-show="errorMessage" class="mt-4 p-3 bg-theme-danger/10 border border-theme-danger/30 text-theme-danger text-xs rounded-theme" x-text="errorMessage" style="display:none;"></div>
+            <div x-show="errorMessage" class="mt-4 p-3 bg-theme-danger/10 border border-theme-danger/30 text-theme-danger text-xs rounded-theme" x-text="errorMessage" style="display:none;" x-cloak></div>
           </div>
         </div>
 

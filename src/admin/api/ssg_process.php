@@ -112,11 +112,13 @@ try {
     // Handle API Actions
     check_csrf_token();
 
-    $inputData = json_decode($_POST['data'] ?? '{}', true);
+    // Prevent Array Injection (TypeError crash) by ensuring data is a scalar string
+    $rawPostData = is_scalar($_POST['data'] ?? null) ? (string)$_POST['data'] : '{}';
+    $inputData = json_decode($rawPostData, true);
     if (!is_array($inputData)) {
         $inputData = [];
     }
-    $step = $_POST['step'] ?? '';
+    $step = is_scalar($_POST['step'] ?? null) ? (string)$_POST['step'] : '';
 
     $ssg = new GrindsSSG($pdo, array_merge($inputData, ['step' => $step]));
     $response = $ssg->run($step, $inputData);
@@ -133,12 +135,12 @@ try {
     $errorData = [
         'success' => false,
         'error' => $e->getMessage(),
-        'type' => get_class($e),
-        'file' => basename($e->getFile()),
-        'line' => $e->getLine()
+        'type' => get_class($e)
     ];
 
     if (defined('DEBUG_MODE') && DEBUG_MODE) {
+        $errorData['file'] = basename($e->getFile());
+        $errorData['line'] = $e->getLine();
         $errorData['trace'] = $e->getTraceAsString();
     }
 

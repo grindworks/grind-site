@@ -4,6 +4,10 @@
  * topbar.php
  *
  * Render the admin layout with a top navigation bar.
+ *
+ * @var array $admin_menu
+ * @var array $sysStatus
+ * @var string $current_page
  */
 require_once __DIR__ . '/header.php';
 
@@ -92,7 +96,7 @@ $statusLabel = strtoupper($sysStatus['status']);
               <div class="relative" x-data="{ open: false }">
                 <button @click="open = !open" @click.outside="open = false"
                   class="flex items-center gap-1.5 hover:bg-theme-bg px-3 py-1.5 border border-transparent hover:border-theme-border rounded-theme text-theme-text/60 hover:text-theme-primary transition-all"
-                  title="<?= _t('create_new') ?>">
+                  title="<?= h(_t('create_new')) ?>">
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-plus"></use>
                   </svg>
@@ -203,7 +207,7 @@ $statusLabel = strtoupper($sysStatus['status']);
               <!-- View site button -->
               <a href="<?= h(resolve_url('/')) ?>" target="_blank"
                 class="flex items-center gap-1.5 hover:bg-theme-bg px-2 py-1.5 rounded-theme text-theme-text/60 hover:text-theme-primary transition-colors"
-                title="<?= _t('view_site') ?>">
+                title="<?= h(_t('view_site')) ?>">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-arrow-top-right-on-square"></use>
                 </svg>
@@ -215,7 +219,7 @@ $statusLabel = strtoupper($sysStatus['status']);
               <div class="relative ml-2" x-data="{ userMenuOpen: false }">
                 <!-- Trigger avatar -->
                 <button @click="userMenuOpen = !userMenuOpen" class="flex items-center focus:outline-none"
-                  title="<?= _t('st_profile_title') ?>" aria-label="<?= _t('st_profile_title') ?>">
+                  title="<?= h(_t('st_profile_title')) ?>" aria-label="<?= h(_t('st_profile_title')) ?>">
                   <div
                     class="flex justify-center items-center bg-theme-primary/10 border border-theme-primary/20 rounded-full hover:ring-2 hover:ring-theme-primary/50 w-8 h-8 overflow-hidden font-bold text-theme-primary text-xs transition-all">
                     <?php if (!empty($currentUser['avatar'])): ?>
@@ -259,7 +263,7 @@ $statusLabel = strtoupper($sysStatus['status']);
             <!-- Mobile toggle buttons -->
             <div class="md:hidden flex items-center gap-2 -mr-2">
               <button @click="searchOpen = true; reset(); $nextTick(() => $refs.searchInput.focus());"
-                class="p-2 text-theme-text/60 hover:text-theme-primary" aria-label="<?= _t('search') ?>">
+                class="p-2 text-theme-text/60 hover:text-theme-primary" aria-label="<?= h(_t('search')) ?>">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-magnifying-glass"></use>
                 </svg>
@@ -432,7 +436,7 @@ $statusLabel = strtoupper($sysStatus['status']);
             <?php if (!in_array($licStatus, ['pro', 'agency'])): ?>
               <span class="opacity-30">|</span>
               <a href="settings.php?tab=general" class="flex items-center gap-2 hover:text-theme-text transition-colors"
-                title="<?= _t('license') ?>">
+                title="<?= h(_t('license')) ?>">
                 <span class="relative flex w-2 h-2"><span
                     class="inline-flex relative bg-theme-info rounded-full w-2 h-2"></span></span>
                 <span class="font-bold text-theme-info tracking-wide">
@@ -451,7 +455,7 @@ $statusLabel = strtoupper($sysStatus['status']);
               <?php if (!empty($hasUpdate)): ?>
                 <a href="settings.php?tab=update"
                   class="flex items-center gap-1 ml-3 text-theme-primary font-bold text-xs hover:underline animate-pulse"
-                  title="<?= _t('st_update_available') ?>">
+                  title="<?= h(_t('st_update_available')) ?>">
                   <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-arrow-path"></use>
                   </svg>

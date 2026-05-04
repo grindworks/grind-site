@@ -15,7 +15,7 @@ if (!defined('GRINDS_APP')) exit;
  * Transform widget output to Bootstrap.
  */
 if (!function_exists('bootstrap_transform_widget_output')) {
-  function bootstrap_transform_widget_output($html)
+  function bootstrap_transform_widget_output(string $html)
   {
     // Convert generic widget output to Bootstrap Card
     // Input: <div class="... widget-type ...">...</div>
@@ -46,7 +46,7 @@ if (!function_exists('bootstrap_transform_widget_output')) {
       // Rebuild form.
       $newForm = '<form action="' . $action . '" method="get" class="input-group grinds-search-form">';
       $newForm .= $hiddenFields;
-      $newForm .= '<input type="text" name="q" class="form-control" placeholder="' . theme_t('Search...') . '">';
+      $newForm .= '<input type="text" name="q" class="form-control" placeholder="' . theme_t('Search...') . '" value="' . h($_GET['q'] ?? '') . '">';
       $newForm .= '<button type="submit" class="btn btn-danger" aria-label="' . theme_t('Search') . '"><i class="bi bi-search"></i></button>';
       $newForm .= '</form>';
 
@@ -58,7 +58,7 @@ if (!function_exists('bootstrap_transform_widget_output')) {
       } else {
         // Fallback replacement.
         $html = preg_replace('/class="[^"]*grinds-search-form[^"]*"/', 'class="input-group grinds-search-form"', $html);
-        $html = preg_replace('/<input[^>]*name="q"[^>]*>/', '<input type="text" name="q" class="form-control" placeholder="' . theme_t('Search...') . '">', $html);
+        $html = preg_replace('/<input[^>]*name="q"[^>]*>/', '<input type="text" name="q" class="form-control" placeholder="' . theme_t('Search...') . '" value="' . h($_GET['q'] ?? '') . '">', $html);
         // Replace submit button.
         $html = preg_replace('/(<button\b[^>]*>.*?<\/button>|<input\b[^>]*type=["\'](?:submit|image)["\'][^>]*>)/is', '<button type="submit" class="btn btn-danger" aria-label="' . theme_t('Search') . '"><i class="bi bi-search"></i></button>', $html);
       }
@@ -128,15 +128,15 @@ if (!function_exists('bootstrap_transform_widget_output')) {
 }
 
 // Filter widget output.
-add_filter('grinds_widget_output', function ($html, $widget) {
+add_filter('grinds_widget_output', function (string $html, array $widget) {
   return bootstrap_transform_widget_output($html);
-}, 10, 2);
+}, 10);
 
 /**
  * Get highlighted excerpt for search results.
  */
 if (!function_exists('bootstrap_get_highlighted_excerpt')) {
-  function bootstrap_get_highlighted_excerpt($post, $length = 80)
+  function bootstrap_get_highlighted_excerpt(array $post, int $length = 80)
   {
     $excerpt = (!empty($post['description'])) ? h($post['description']) : get_excerpt($post['content'], $length);
     if (isset($_GET['q']) && $_GET['q'] !== '') {
@@ -162,7 +162,7 @@ if (!function_exists('bootstrap_get_highlighted_excerpt')) {
  * Render content blocks.
  */
 if (!function_exists('bootstrap_render_block')) {
-  function bootstrap_render_block($block, $pathFixer)
+  function bootstrap_render_block(array $block, callable $pathFixer)
   {
     $type = $block['type'] ?? '';
     $data = $block['data'] ?? [];
@@ -492,8 +492,9 @@ if (!function_exists('bootstrap_render_block')) {
       case 'search_box':
         $action = resolve_url('/');
         $ph = h($data['placeholder'] ?? theme_t('Search...'));
+        $q = h($_GET['q'] ?? '');
         $html = "<form action='{$action}' method='get' class='d-flex my-4 grinds-search-form'>";
-        $html .= "<input type='text' name='q' class='me-2 form-control' placeholder='{$ph}'>";
+        $html .= "<input type='text' name='q' class='me-2 form-control' placeholder='{$ph}' value='{$q}'>";
         $html .= "<button class='btn btn-primary' type='submit'>Search</button></form>";
         return $html;
 
@@ -564,12 +565,14 @@ if (!function_exists('bootstrap_render_block')) {
         return $html;
 
       case 'countdown':
-        $deadline = h($data['deadline'] ?? '');
-        $msg = h($data['message'] ?? theme_t('Finished'));
+        $deadline = $data['deadline'] ?? '';
+        $msg = $data['message'] ?? theme_t('Finished');
         $uid = 'timer-' . uniqid();
+        $jsDeadline = json_encode($deadline);
+        $jsMsg = json_encode($msg);
         $html = "<div id='{$uid}' class='bg-dark my-4 text-white text-center card'><div class='py-4 card-body'>";
         $html .= "<small class='text-white-50 text-uppercase'>" . theme_t('Time Remaining') . "</small><div class='mt-2 font-monospace display-4 fw-bold timer-display'>00:00:00:00</div></div></div>";
-        $html .= "<script>(function(){const end=new Date('{$deadline}').getTime();const el=document.querySelector('#{$uid} .timer-display');const timer=setInterval(()=>{const now=new Date().getTime();const dist=end-now;if(dist<0){clearInterval(timer);el.innerHTML='{$msg}';return;}const d=Math.floor(dist/(1000*60*60*24));const h=Math.floor((dist%(1000*60*60*24))/(1000*60));const m=Math.floor((dist%(1000*60*60))/(1000*60));const s=Math.floor((dist%(1000*60))/1000);el.innerText=d+'d '+h.toString().padStart(2,'0')+'h '+m.toString().padStart(2,'0')+'m '+s.toString().padStart(2,'0')+'s';},1000);})();</script>";
+        $html .= "<script>(function(){const end=new Date({$jsDeadline}).getTime();const el=document.querySelector('#{$uid} .timer-display');const timer=setInterval(()=>{const now=new Date().getTime();const dist=end-now;if(dist<0){clearInterval(timer);el.innerHTML={$jsMsg};return;}const d=Math.floor(dist/(1000*60*60*24));const h=Math.floor((dist%(1000*60*60*24))/(1000*60));const m=Math.floor((dist%(1000*60*60))/(1000*60));const s=Math.floor((dist%(1000*60))/1000);el.innerText=d+'d '+h.toString().padStart(2,'0')+'h '+m.toString().padStart(2,'0')+'m '+s.toString().padStart(2,'0')+'s';},1000);})();</script>";
         return $html;
 
       case 'qrcode':

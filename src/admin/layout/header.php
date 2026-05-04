@@ -4,6 +4,8 @@
  * header.php
  *
  * Render the <head> section and initialize global JavaScript data.
+ *
+ * @var array $admin_menu
  */
 if (!defined('GRINDS_APP'))
   exit;
@@ -158,7 +160,7 @@ $lang = grinds_detect_language();
 
   <title>
     <?= h($page_title ?? 'Admin') ?> |
-    <?= h(get_option('site_name', SITE_NAME)) ?>
+    <?= h(get_option('admin_title') ?: get_option('site_name', SITE_NAME)) ?>
   </title>
 
   <link rel="icon" href="<?= h(get_favicon_url()) ?>">
@@ -215,12 +217,14 @@ $lang = grinds_detect_language();
           document.body.dataset.scrollY = window.scrollY;
           document.body.style.top = `-${window.scrollY}px`;
           document.body.classList.add('fixed', 'w-full', 'overflow-hidden');
+          document.documentElement.classList.add('overflow-hidden');
         }
       } else {
         window.scrollLockCount = Math.max(0, window.scrollLockCount - 1);
         if (window.scrollLockCount === 0) {
           document.body.style.paddingRight = '';
           document.body.classList.remove('fixed', 'w-full', 'overflow-hidden');
+          document.documentElement.classList.remove('overflow-hidden');
           document.body.style.top = '';
           if (document.body.dataset.scrollY) {
             window.scrollTo(0, parseInt(document.body.dataset.scrollY));

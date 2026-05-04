@@ -3,6 +3,8 @@
 /**
  * contact.php
  * Handle contact form.
+ *
+ * @var array $pageData
  */
 if (!defined('GRINDS_APP')) exit;
 

@@ -5,6 +5,9 @@ if (!defined('GRINDS_APP')) exit;
 /**
  * home.php
  * Render home page and search results.
+ *
+ * @var array $pageData
+ * @var string|null $pageType
  */
 ?>
 

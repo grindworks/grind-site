@@ -3,6 +3,8 @@
 /**
  * general.php
  * Renders the interface for managing general settings.
+ *
+ * @var array $opt
  */
 if (!defined('GRINDS_APP')) exit; ?>
 <div class="space-y-6 bg-theme-surface shadow-theme p-4 sm:p-6 border border-theme-border rounded-theme">
@@ -99,7 +101,7 @@ if (!defined('GRINDS_APP')) exit; ?>
                   <div class="relative flex-1">
                     <input :type="showKey ? 'text' : 'password'" name="license_key" value="<?= h(get_option('license_key')) ?>"
                       class="font-mono text-sm tracking-widest form-control pr-12 bg-theme-bg focus:bg-theme-surface transition-colors"
-                      placeholder="<?= _t('lic_ph') ?>" autocomplete="off">
+                      placeholder="<?= h(_t('lic_ph')) ?>" autocomplete="off">
                     <button type="button" @click="showKey = !showKey" class="absolute right-0 inset-y-0 px-4 flex items-center text-theme-text opacity-40 hover:opacity-100 hover:text-theme-primary focus:outline-none transition-colors">
                       <svg x-show="!showKey" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-eye"></use>
@@ -138,14 +140,14 @@ if (!defined('GRINDS_APP')) exit; ?>
               </div>
               <div>
                 <h4 class="font-bold text-theme-info text-xl tracking-wide uppercase flex items-center gap-2">
-                  GrindSite Free
+                  GrindSite <?= $licStatus === 'trial' ? 'Trial' : 'Free' ?>
                 </h4>
-                <p class="text-[10px] text-theme-info opacity-70 font-mono tracking-widest uppercase mt-0.5">Evaluation License</p>
+                <p class="text-[10px] text-theme-info opacity-70 font-mono tracking-widest uppercase mt-0.5"><?= $licStatus === 'trial' ? 'Local Evaluation' : 'Unregistered License' ?></p>
               </div>
             </div>
 
             <span class="inline-flex items-center px-4 py-1.5 bg-theme-info/10 border border-theme-info/30 rounded-theme font-bold text-theme-info text-xs">
-              <?= _t('lic_status_trial') ?>
+              <?= $licStatus === 'trial' ? _t('lic_status_trial') : _t('lic_status_unregistered') ?>
             </span>
           </div>
 
@@ -160,7 +162,7 @@ if (!defined('GRINDS_APP')) exit; ?>
               <div class="relative flex-1">
                 <input :type="showKey ? 'text' : 'password'" name="license_key" value="<?= h(get_option('license_key')) ?>"
                   class="font-mono text-sm tracking-wider form-control pr-12 border-theme-info/40 focus:border-theme-info focus:ring-theme-info/20 bg-theme-surface"
-                  placeholder="<?= _t('lic_ph') ?>" autocomplete="off">
+                  placeholder="<?= h(_t('lic_ph')) ?>" autocomplete="off">
                 <button type="button" @click="showKey = !showKey" class="absolute right-0 inset-y-0 px-4 flex items-center text-theme-text opacity-40 hover:opacity-100 hover:text-theme-info focus:outline-none transition-colors">
                   <svg x-show="!showKey" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-eye"></use>

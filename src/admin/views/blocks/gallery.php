@@ -51,8 +51,8 @@ if (!defined('GRINDS_APP')) exit; ?>
         </div>
         <!-- Caption and Alt inputs -->
         <div class="bottom-0 left-0 absolute w-full skin-modal-overlay opacity-0 group-hover:opacity-100 p-1.5 space-y-1 transition-opacity">
-          <input type="text" x-model="img.caption" :id="'block-' + block.id + '-caption-' + i" class="bg-black/30 border-white/20 focus:ring-white/50 focus:border-white/50 w-full text-[10px] text-white text-center form-control-sm" placeholder="<?= _t('ph_caption') ?>">
-          <input type="text" x-model="img.alt" :id="'block-' + block.id + '-alt-' + i" class="bg-black/30 border-white/20 focus:ring-white/50 focus:border-white/50 w-full text-[10px] text-white text-center form-control-sm" placeholder="<?= _t('ph_alt_text') ?>">
+          <input type="text" x-model="img.caption" :id="'block-' + block.id + '-caption-' + i" class="bg-black/30 border-white/20 focus:ring-white/50 focus:border-white/50 w-full text-[10px] text-white text-center form-control-sm" placeholder="<?= h(_t('ph_caption')) ?>">
+          <input type="text" x-model="img.alt" :id="'block-' + block.id + '-alt-' + i" class="bg-black/30 border-white/20 focus:ring-white/50 focus:border-white/50 w-full text-[10px] text-white text-center form-control-sm" placeholder="<?= h(_t('ph_alt_text')) ?>">
         </div>
       </div>
     </template>

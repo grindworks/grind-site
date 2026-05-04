@@ -11,15 +11,8 @@ require_once __DIR__ . '/functions.php';
 GrindsLogger::init();
 require_once __DIR__ . '/paginator.php';
 
-/**
- * Add llms.txt discovery link to head
- */
-add_action('grinds_head', function () {
-    echo '<link rel="llms-txt" href="' . resolve_url('/llms.txt') . '">' . "\n";
-});
-
 /** Resolve frontend request URL. */
-function resolve_front_request($request_url)
+function resolve_front_request(string $request_url)
 {
     $pdo = App::db();
     $now = date('Y-m-d H:i:s');
@@ -338,7 +331,7 @@ function get_front_banners($context = [])
     return $banners;
 }
 
-function display_banners($position, $context = [])
+function display_banners(string $position, array $context = [])
 {
     $banners = get_front_banners($context);
     if (!empty($banners[$position])) {

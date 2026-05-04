@@ -11,9 +11,9 @@ class GrindsUpdater
 {
   const UPDATE_URL = 'https://raw.githubusercontent.com/grindworks/grind-site/main/update.json';
 
-  private $pdo;
+  private ?PDO $pdo;
 
-  public function __construct($pdo)
+  public function __construct(?PDO $pdo)
   {
     $this->pdo = $pdo;
   }
@@ -21,7 +21,7 @@ class GrindsUpdater
   /**
    * Check for available updates.
    */
-  public function check($timeout = 5)
+  public function check(int $timeout = 5): array
   {
     $currentVersion = defined('CMS_VERSION') ? CMS_VERSION : '';
     $result = [
@@ -66,93 +66,23 @@ class GrindsUpdater
    * Memory-safe streaming download bypassing memory_limit.
    * Includes Strict SSRF Protection (Protocol Restriction & Private IP Blocking).
    */
-  public function downloadDirect($url, $destPath)
+  public function downloadDirect(string $url, string $destPath): bool
   {
-    // Protocol validation (Security Hardening against file:// and other protocols)
-    $parsedUrl = parse_url($url);
-    if (!$parsedUrl || !isset($parsedUrl['scheme']) || !in_array(strtolower($parsedUrl['scheme']), ['http', 'https'], true)) {
-      throw new Exception("Security Error: Invalid URL protocol. Only HTTP and HTTPS are allowed.");
-    }
-
-    // Restrict access to private/loopback networks (DNS Rebinding & SSRF protection)
-    $host = $parsedUrl['host'] ?? '';
-    $ips = gethostbynamel($host);
-    if (!$ips) return false;
-
-    $resolveRules = [];
-    foreach ($ips as $ip) {
-      if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) === false) {
-        throw new Exception("Security Error: Access to private IP address is prohibited.");
-      }
-    }
-    // Pin DNS to prevent TOCTOU/DNS Rebinding
-    if (isset($ips[0])) {
-      $scheme = $parsedUrl['scheme'];
-      $port = $parsedUrl['port'] ?? ($scheme === 'https' ? 443 : 80);
-      $resolveRules[] = "{$host}:{$port}:{$ips[0]}";
-    }
-
-    $fp = @fopen($destPath, 'wb');
-    if (!$fp) return false;
-
-    // Use cURL for streaming if available
-    if (function_exists('curl_init')) {
-      $ch = curl_init($url);
-      curl_setopt($ch, CURLOPT_FILE, $fp);
-      curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-      curl_setopt($ch, CURLOPT_MAXREDIRS, 5);
-      curl_setopt($ch, CURLOPT_TIMEOUT, 120);
-      curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
-      curl_setopt($ch, CURLOPT_USERAGENT, 'GrindsCMS/' . CMS_VERSION);
-
-      // Apply pinned DNS
-      if (!empty($resolveRules)) {
-        curl_setopt($ch, CURLOPT_RESOLVE, $resolveRules);
-      }
-
-      // Restrict protocols to HTTP/HTTPS internally within cURL
-      if (defined('CURLOPT_PROTOCOLS_STR')) {
-        curl_setopt($ch, CURLOPT_PROTOCOLS_STR, 'http,https');
-        curl_setopt($ch, CURLOPT_REDIR_PROTOCOLS_STR, 'http,https');
-      } else {
-        curl_setopt($ch, CURLOPT_PROTOCOLS, CURLPROTO_HTTP | CURLPROTO_HTTPS);
-        curl_setopt($ch, CURLOPT_REDIR_PROTOCOLS, CURLPROTO_HTTP | CURLPROTO_HTTPS);
-      }
-
-      $success = curl_exec($ch);
-      curl_close($ch);
-      fclose($fp);
-      if (!$success) @unlink($destPath);
-      return $success;
-    }
-
-    // Fallback to fopen with context options
-    $context = stream_context_create([
-      'http' => [
+    if (function_exists('grinds_download_file')) {
+      return grinds_download_file($url, $destPath, [
         'timeout' => 120,
-        'user_agent' => 'GrindsCMS/' . CMS_VERSION,
-        'follow_location' => 1,
-        'max_redirects' => 5
-      ],
-      'ssl' => ['verify_peer' => true, 'verify_peer_name' => true]
-    ]);
-    $in = @fopen($url, 'rb', false, $context);
-    if (!$in) {
-      fclose($fp);
-      return false;
+        'max_size' => 100 * 1024 * 1024,
+        'user_agent' => 'GrindsCMS/' . (defined('CMS_VERSION') ? CMS_VERSION : 'Unknown'),
+        'block_private_ip' => true
+      ]);
     }
-    while (!feof($in)) {
-      fwrite($fp, fread($in, 8192));
-    }
-    fclose($in);
-    fclose($fp);
-    return true;
+    throw new Exception("Core function grinds_download_file is missing.");
   }
 
   /**
    * Extract ZIP archive and return the actual source directory path.
    */
-  public function extractPackage($zipFilePath, $extractPath)
+  public function extractPackage(string $zipFilePath, string $extractPath): string
   {
     if (!class_exists('ZipArchive')) throw new Exception("ZipArchive extension required.");
 
@@ -229,7 +159,7 @@ class GrindsUpdater
   /**
    * Pre-flight Check: Ensure all target paths are writable before touching anything.
    */
-  public function dryRun($sourceDir, $targetDir, $exclude)
+  public function dryRun(string $sourceDir, string $targetDir, array $exclude): void
   {
     $iterator = $this->getFilteredIterator($sourceDir, $exclude);
     $sourceLen = strlen(str_replace('\\', '/', realpath($sourceDir) ?: $sourceDir));
@@ -244,7 +174,7 @@ class GrindsUpdater
         if (!is_writable($target)) $unwritable[] = $relPath;
       } else {
         $dir = dirname($target);
-        while (!file_exists($dir) && $dir !== '/' && $dir !== '.') {
+        while (!file_exists($dir) && $dir !== '/' && $dir !== '.' && $dir !== dirname($dir)) {
           $dir = dirname($dir);
         }
         if (!is_writable($dir)) $unwritable[] = dirname($relPath);
@@ -261,7 +191,7 @@ class GrindsUpdater
   /**
    * Backup current files that will be overwritten.
    */
-  public function backupCoreFiles($sourceDir, $targetDir, $backupDir, $exclude)
+  public function backupCoreFiles(string $sourceDir, string $targetDir, string $backupDir, array $exclude): void
   {
     if (!is_dir($backupDir)) @mkdir($backupDir, 0775, true);
     $iterator = $this->getFilteredIterator($sourceDir, $exclude);
@@ -286,7 +216,7 @@ class GrindsUpdater
   /**
    * Apply the new files safely.
    */
-  public function applyUpdate($sourceDir, $targetDir, $exclude)
+  public function applyUpdate(string $sourceDir, string $targetDir, array $exclude): void
   {
     $iterator = $this->getFilteredIterator($sourceDir, $exclude);
     $sourceLen = strlen(str_replace('\\', '/', realpath($sourceDir) ?: $sourceDir));
@@ -337,7 +267,7 @@ class GrindsUpdater
   /**
    * Rollback applied changes from backup.
    */
-  public function rollback($backupDir, $targetDir)
+  public function rollback(string $backupDir, string $targetDir): void
   {
     if (!is_dir($backupDir)) return;
     $iterator = new RecursiveIteratorIterator(
@@ -362,7 +292,7 @@ class GrindsUpdater
   /**
    * Generate Filtered Iterator based on excludes.
    */
-  private function getFilteredIterator($dir, $exclude)
+  private function getFilteredIterator(string $dir, array $exclude): RecursiveIteratorIterator
   {
     $realDir = realpath($dir) ?: $dir;
     $exclude = array_map(function ($p) {
@@ -390,7 +320,7 @@ class GrindsUpdater
     return new RecursiveIteratorIterator($filter, RecursiveIteratorIterator::SELF_FIRST);
   }
 
-  public function cleanupDir($dir)
+  public function cleanupDir(string $dir): void
   {
     if (!is_dir($dir)) return;
     $files = new RecursiveIteratorIterator(
@@ -404,7 +334,7 @@ class GrindsUpdater
     @rmdir($dir);
   }
 
-  public function cleanupWindowsLockedFiles($dir)
+  public function cleanupWindowsLockedFiles(string $dir): void
   {
     try {
       $iterator = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($dir));

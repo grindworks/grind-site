@@ -7,12 +7,12 @@ if (!defined('GRINDS_APP')) exit;
 
 class Sorter
 {
-    private $sort;
-    private $order;
-    private $allowed_columns;
+    private string $sort;
+    private string $order;
+    private array $allowed_columns;
 
     /** Initialize sorter. */
-    public function __construct($allowed_columns, $default_sort = 'id', $default_order = 'DESC')
+    public function __construct(array $allowed_columns, string $default_sort = 'id', string $default_order = 'DESC')
     {
         $this->allowed_columns = $allowed_columns;
         $params = Routing::getParams();
@@ -25,13 +25,13 @@ class Sorter
     }
 
     /** Generate ORDER BY clause. */
-    public function getOrderClause()
+    public function getOrderClause(): string
     {
         return "ORDER BY {$this->sort} {$this->order}";
     }
 
     /** Render sortable header. */
-    public function renderTh($key, $label, $extra_class = '')
+    public function renderTh(string $key, string $label, string $extra_class = ''): void
     {
         $is_current = ($this->sort === $key);
         $next_order = ($is_current && $this->order === 'DESC') ? 'ASC' : 'DESC';

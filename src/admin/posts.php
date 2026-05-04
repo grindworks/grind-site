@@ -222,7 +222,7 @@ if ($action === 'list') {
     $pubDate = $row['published_at'] ? new DateTime($row['published_at']) : new DateTime('1970-01-01');
     $row['is_future'] = ($pubDate > $now);
     $row['cat_name'] = $row['category_name'] ?? 'Uncategorized';
-    $row['post_type_label'] = _t('type_' . ($row['type'] ?? 'post'));
+    $row['post_type_label'] = $typeLabels[$row['type'] ?? 'post'] ?? ucfirst($row['type'] ?? 'post');
     $row['post_type_class'] = match ($row['type'] ?? 'post') {
       'page' => 'bg-theme-info/10 text-theme-info border-theme-info/20',
       'template' => 'bg-theme-warning/10 text-theme-warning border-theme-warning/20',

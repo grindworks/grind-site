@@ -275,7 +275,7 @@ $current_page = 'unused_uploads';
       <div class="flex justify-between items-center gap-4">
         <div class="flex items-center gap-2">
           <button @click="toggleAll()" class="btn-secondary px-3 py-1 text-xs">
-            <span x-text="selectedFiles.length === unusedFiles.length ? '<?= _t('lbl_select_all') ?> (OFF)' : '<?= _t('lbl_select_all') ?>'"></span>
+            <span x-text="selectedFiles.length === unusedFiles.length ? <?= h(json_encode(_t('lbl_select_all') . ' (OFF)')) ?> : <?= h(json_encode(_t('lbl_select_all'))) ?>"></span>
           </button>
           <button @click="deleteSelected()" :disabled="selectedFiles.length === 0 || deleting" class="btn-danger px-3 py-1 text-xs disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1">
             <svg x-show="deleting" class="w-3 h-3 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">

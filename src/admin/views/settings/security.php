@@ -3,6 +3,8 @@
 /**
  * security.php
  * Renders the interface for managing security settings.
+ *
+ * @var array $opt
  */
 if (!defined('GRINDS_APP')) exit; ?>
 
@@ -107,7 +109,7 @@ if (!defined('GRINDS_APP')) exit; ?>
       <label for="htpasswd_pass" class="block mb-2 font-bold text-theme-text text-sm"><?= _t('password') ?></label>
       <div class="flex gap-2" x-data="{ showPass: false }">
         <div class="relative w-full">
-          <input :type="showPass ? 'text' : 'password'" id="htpasswd_pass" x-model="pass" class="font-mono form-control w-full pr-10" placeholder="<?= _t('password') ?>" autocomplete="new-password">
+          <input :type="showPass ? 'text' : 'password'" id="htpasswd_pass" x-model="pass" class="font-mono form-control w-full pr-10" placeholder="<?= h(_t('password')) ?>" autocomplete="new-password">
           <button type="button" @click="showPass = !showPass" class="right-0 absolute inset-y-0 flex items-center opacity-50 hover:opacity-100 px-3 focus:outline-none text-theme-text" tabindex="-1">
             <svg x-show="!showPass" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-eye"></use>

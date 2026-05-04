@@ -3,6 +3,8 @@
 /**
  * pagination.php
  * Render pagination links.
+ *
+ * @var \Paginator $paginator
  */
 if (!defined('GRINDS_APP')) exit;
 

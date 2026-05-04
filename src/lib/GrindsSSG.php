@@ -11,12 +11,12 @@ if (!defined('GRINDS_APP')) exit;
 
 class GrindsSSG
 {
-    private $pdo;
-    private $config;
-    private $buildId;
-    private $exportDir;
-    private $rootDir;
-    private $excludeExts = [
+    private ?PDO $pdo;
+    private array $config;
+    private string $buildId;
+    private string $exportDir;
+    private string $rootDir;
+    private array $excludeExts = [
         'php',
         'phtml',
         'php3',
@@ -58,7 +58,7 @@ class GrindsSSG
         'map'
     ];
 
-    public function __construct($pdo, $inputData)
+    public function __construct(?PDO $pdo, array $inputData)
     {
         $this->pdo = $pdo;
         $this->rootDir = $this->normalizePath(ROOT_PATH);
@@ -81,12 +81,12 @@ class GrindsSSG
     /**
      * Normalize path to use forward slashes and remove trailing slash.
      */
-    private function normalizePath($path)
+    private function normalizePath(string $path)
     {
         return rtrim(str_replace('\\', '/', $path), '/');
     }
 
-    private function initSessionConfig($data)
+    private function initSessionConfig(array $data)
     {
         $mode = $data['mode'] ?? 'full';
         $lastExport = ($mode === 'diff') ? get_option('last_ssg_export') : null;
@@ -113,11 +113,11 @@ class GrindsSSG
         }
     }
 
-    private function resolveBuildId($data)
+    private function resolveBuildId(array $data)
     {
         $id = $data['buildId'] ?? $data['build_id'] ?? '';
         if (empty($id) || !preg_match('/^[a-zA-Z0-9_]+$/', $id)) {
-            return 'build_' . bin2hex(random_bytes(8));
+            return 'build_' . bin2hex(grinds_random_bytes(8));
         }
         return $id;
     }
@@ -126,7 +126,7 @@ class GrindsSSG
      * Build a single page for the Virtual Publish Queue.
      * This bypasses the ZIP creation and writes directly to a persistent directory.
      */
-    public function buildSinglePage($url, $actionType = 'build')
+    public function buildSinglePage(string $url, string $actionType = 'build')
     {
         $exportDir = $this->rootDir . '/data/ssg_output';
         if (!is_dir($exportDir)) {
@@ -187,7 +187,7 @@ class GrindsSSG
         return file_put_contents($filePath, $html) !== false;
     }
 
-    public function run($step, $data)
+    public function run(string $step, array $data)
     {
         switch ($step) {
             case 'init':
@@ -412,7 +412,7 @@ class GrindsSSG
         return ['success' => true, 'pages' => $pages, 'buildId' => $this->buildId];
     }
 
-    private function stepGeneratePages($pages)
+    private function stepGeneratePages(array $pages)
     {
         $config = $this->config;
         $jsToolPath = function_exists('resolve_url') ? resolve_url('assets/js/static_tools.js') : '/assets/js/static_tools.js';
@@ -696,7 +696,7 @@ class GrindsSSG
         return ['success' => true, 'total' => $totalFiles];
     }
 
-    private function stepCopyAssets($offset, $limit)
+    private function stepCopyAssets(int $offset, int $limit)
     {
         $startTime = microtime(true);
         $timeLimit = 20;
@@ -1103,7 +1103,7 @@ class GrindsSSG
         return ['success' => true, 'url' => $downloadUrl];
     }
 
-    private function processCssFiles($dir)
+    private function processCssFiles(string $dir)
     {
         $baseUrl = $this->config['base_url'] ?? '';
 
@@ -1150,7 +1150,7 @@ class GrindsSSG
         }
     }
 
-    private function renderPage($page, $config, $jsToolPath, $customContent = null)
+    private function renderPage(array $page, array $config, string $jsToolPath, ?string $customContent = null)
     {
         $GLOBALS['grinds_query'] = null;
         $GLOBALS['post'] = null;

@@ -11,7 +11,7 @@ if (!defined('GRINDS_APP')) exit; ?>
       <option value="right"><?= _t('align_right') ?></option>
     </select>
     <!-- URL input -->
-    <input type="text" x-model="block.data.url" :id="'block-' + block.id + '-url'" class="flex-1 text-xs form-control-sm" placeholder="<?= _t('ph_embed_url') ?>">
+    <input type="text" x-model="block.data.url" :id="'block-' + block.id + '-url'" class="flex-1 text-xs form-control-sm" placeholder="<?= h(_t('ph_embed_url')) ?>">
   </div>
   <!-- Helper text -->
   <div class="opacity-50 ml-1 text-[10px] text-theme-text">

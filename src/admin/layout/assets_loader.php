@@ -4,6 +4,11 @@
  * assets_loader.php
  *
  * Load CSS/JS assets and define CSS variables based on the active skin.
+ *
+ * @var bool $is_sidebar_dark
+ * @var string $color_scheme
+ * @var array $colors
+ * @var array $skin
  */
 if (!defined('GRINDS_APP')) {
     exit;

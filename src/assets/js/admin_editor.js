@@ -192,61 +192,6 @@ document.addEventListener('alpine:init', () => {
     },
 
     /**
-     * Preview HTML/Shortcode block
-     * @param {number} index
-     */
-    async previewHtmlBlock(index) {
-      const block = this.blocks[index];
-      if (!block || block.type !== 'html') return;
-
-      // Toggle state
-      block.previewMode = !block.previewMode;
-
-      if (block.previewMode) {
-        if (!block.data.code || block.data.code.trim() === '') {
-          block.previewHtml =
-            '<div class="opacity-50 italic text-center p-4 text-theme-text text-sm">Empty block</div>';
-          return;
-        }
-
-        // Show loading state
-        block.previewHtml =
-          '<div class="flex justify-center p-4"><svg class="w-6 h-6 text-theme-primary animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="' +
-          (window.grindsBaseUrl || '').replace(/\/$/, '') +
-          '/assets/img/sprite.svg#outline-arrow-path"></use></svg></div>';
-
-        try {
-          const res = await fetch(this.getApiUrl('preview_html.php'), {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'X-Requested-With': 'XMLHttpRequest',
-            },
-            body: JSON.stringify({
-              csrf_token: window.grindsCsrfToken,
-              code: block.data.code,
-            }),
-          });
-
-          if (!res.ok) throw new Error('Preview failed');
-
-          const data = await res.json();
-          if (data.success) {
-            block.previewHtml = data.html;
-          } else {
-            const errorLabel = window.grindsTranslations.error
-              ? window.grindsTranslations.error.replace('%s', data.error)
-              : `Error: ${data.error}`;
-            block.previewHtml = `<div class="text-theme-danger text-sm p-4 border border-theme-danger/30 bg-theme-danger/10 rounded">${errorLabel}</div>`;
-          }
-        } catch (e) {
-          block.previewHtml =
-            '<div class="text-theme-danger text-sm p-4 border border-theme-danger/30 bg-theme-danger/10 rounded">Failed to load preview.</div>';
-        }
-      }
-    },
-
-    /**
      * Safely recalculate textarea heights to prevent layout collapsing.
      * @param {HTMLElement|Document} container
      */
@@ -450,12 +395,7 @@ document.addEventListener('alpine:init', () => {
           this.$nextTick(() => {
             window.scrollTo(0, document.body.scrollHeight);
             // Recalculate heights for newly pasted long text blocks
-            document.querySelectorAll('#post-form textarea').forEach((ta) => {
-              if (ta.style.overflow === 'hidden') {
-                ta.style.height = 'auto';
-                ta.style.height = ta.scrollHeight + 'px';
-              }
-            });
+            this.recalculateTextareas(document.getElementById('post-form') || document);
           });
           return true;
         }
@@ -775,8 +715,6 @@ document.addEventListener('alpine:init', () => {
           const json = JSON.stringify({
             blocks: this.blocks,
             formData: formDataObj,
-            history: this.history,
-            future: this.future,
           });
           try {
             localStorage.setItem(this.draftKey, json);
@@ -906,6 +844,14 @@ document.addEventListener('alpine:init', () => {
           }
         } else {
           document.title = document.title.replace(/^\*\s/, '');
+        }
+      });
+
+      // Auto-resize textareas during typing for better UX
+      document.addEventListener('input', (e) => {
+        if (e.target.tagName === 'TEXTAREA' && e.target.style.overflow === 'hidden') {
+          e.target.style.height = 'auto';
+          e.target.style.height = e.target.scrollHeight + 'px';
         }
       });
 
@@ -1338,8 +1284,6 @@ document.addEventListener('alpine:init', () => {
         this.blocks = [];
         this.$nextTick(() => {
           this.blocks = parsed.blocks || [];
-          if (parsed.history !== undefined) this.history = parsed.history;
-          if (parsed.future !== undefined) this.future = parsed.future;
 
           let formDataToRestore = parsed.formData;
           if (!formDataToRestore) {
@@ -1488,12 +1432,7 @@ document.addEventListener('alpine:init', () => {
         this.isUndoing = false;
 
         // Recalculate textarea heights to prevent display issues
-        document.querySelectorAll('#post-form textarea').forEach((ta) => {
-          if (ta.style.overflow === 'hidden') {
-            ta.style.height = 'auto';
-            ta.style.height = ta.scrollHeight + 'px';
-          }
-        });
+        this.recalculateTextareas(document.getElementById('post-form') || document);
 
         if (prevState.caret && prevState.caret.id) {
           const el = document.getElementById(prevState.caret.id);
@@ -1545,12 +1484,7 @@ document.addEventListener('alpine:init', () => {
         this.isUndoing = false;
 
         // Recalculate textarea heights to prevent display issues
-        document.querySelectorAll('#post-form textarea').forEach((ta) => {
-          if (ta.style.overflow === 'hidden') {
-            ta.style.height = 'auto';
-            ta.style.height = ta.scrollHeight + 'px';
-          }
-        });
+        this.recalculateTextareas(document.getElementById('post-form') || document);
 
         if (nextState.caret && nextState.caret.id) {
           const el = document.getElementById(nextState.caret.id);

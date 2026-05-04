@@ -4,6 +4,11 @@
  * posts_list.php
  *
  * Renders the main posts list view for the admin panel.
+ *
+ * @var int $countPublished
+ * @var int $countDraft
+ * @var array $filterCats
+ * @var string $currentType
  */
 if (!defined('GRINDS_APP')) exit;
 
@@ -66,7 +71,7 @@ $csrf_token = generate_csrf_token();
         <input type="hidden" name="type" value="<?= h($type) ?>">
         <?php if ($statusFilter): ?><input type="hidden" name="status" value="<?= h($statusFilter) ?>"><?php endif; ?>
 
-        <input type="text" name="q" value="<?= h($_GET['q'] ?? '') ?>" placeholder="<?= _t('search') ?>"
+        <input type="text" name="q" value="<?= h($_GET['q'] ?? '') ?>" placeholder="<?= h(_t('search')) ?>"
           class="bg-theme-bg pl-8 border-theme-border w-32 focus:w-48 text-theme-text text-xs transition-all form-control-sm">
         <svg class="top-1/2 left-2.5 absolute opacity-50 w-3.5 h-3.5 text-theme-text -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-magnifying-glass"></use>
@@ -151,7 +156,7 @@ $csrf_token = generate_csrf_token();
     <form method="get" action="posts.php" class="relative">
       <input type="hidden" name="type" value="<?= h($type) ?>">
       <?php if ($statusFilter): ?><input type="hidden" name="status" value="<?= h($statusFilter) ?>"><?php endif; ?>
-      <input type="text" name="q" value="<?= h($_GET['q'] ?? '') ?>" placeholder="<?= _t('search') ?>"
+      <input type="text" name="q" value="<?= h($_GET['q'] ?? '') ?>" placeholder="<?= h(_t('search')) ?>"
         class="bg-theme-bg pl-8 border-theme-border w-full text-theme-text text-xs form-control-sm">
       <svg class="top-1/2 left-2.5 absolute opacity-50 w-3.5 h-3.5 text-theme-text -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-magnifying-glass"></use>

@@ -1,6 +1,10 @@
 <?php
 
-/** Post Grid Block View */
+/** 
+ * Post Grid Block View 
+ *
+ * @var array $categories
+ */
 if (!defined('GRINDS_APP')) exit; ?>
 <div class="bg-theme-bg/40 p-4 border border-theme-border rounded-theme" x-init="if(!block.data.limit) block.data.limit = 6; if(!block.data.columns) block.data.columns = '3'; if(!block.data.category) block.data.category = ''; if(!block.data.style) block.data.style = 'card';">
 

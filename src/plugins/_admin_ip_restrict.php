@@ -1,7 +1,10 @@
 <?php
 
 /**
- * _admin_ip_restrict.php
+ * Plugin Name: Admin IP Restrict
+ *
+ * Author: Grind Works Inc.
+ * Version: 1.0.0
  *
  * [English]
  * Restricts access to the admin area (/admin/) to specific IP addresses (e.g., office or home).

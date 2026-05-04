@@ -4,6 +4,12 @@
  * sidebar.php
  *
  * Render the admin layout with a sidebar navigation.
+ *
+ * @var array $admin_menu
+ * @var string|null $current_page
+ * @var string|null $page_title
+ * @var bool|null $is_dark_mode
+ * @var string|null $content
  */
 require_once __DIR__ . '/header.php';
 
@@ -91,7 +97,7 @@ $activeClass = 'bg-theme-primary border-theme-primary text-theme-on-primary font
           endif; ?>
         </a>
         <button @click="sidebarOpen = false" class="md:hidden hover:bg-white/10 p-1 rounded-theme transition-colors"
-          title="<?= _t('close_menu') ?>" aria-label="<?= _t('close_menu') ?>">
+          title="<?= h(_t('close_menu')) ?>" aria-label="<?= h(_t('close_menu')) ?>">
           <svg class="opacity-70 w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-x-mark"></use>
           </svg>
@@ -102,7 +108,7 @@ $activeClass = 'bg-theme-primary border-theme-primary text-theme-on-primary font
       <div class="px-4 pt-4 pb-2 shrink-0">
         <button @click="searchOpen = true; sidebarOpen = false; reset(); $nextTick(() => $refs.searchInput.focus());"
           class="group flex justify-between items-center shadow-theme px-3 py-2.5 border skin-sidebar-border rounded-theme w-full text-sm transition-colors skin-sidebar-input skin-sidebar-muted"
-          title="<?= _t('search') ?>">
+          title="<?= h(_t('search')) ?>">
           <div class="flex items-center"><svg class="opacity-70 mr-3 w-4 h-4" fill="none" stroke="currentColor"
               viewBox="0 0 24 24">
               <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-magnifying-glass"></use>
@@ -149,7 +155,7 @@ $activeClass = 'bg-theme-primary border-theme-primary text-theme-on-primary font
         <div class="flex items-center">
           <button @click="sidebarOpen = !sidebarOpen"
             class="md:hidden hover:bg-theme-bg mr-4 p-2 rounded-theme focus:outline-none text-theme-text transition-colors"
-            title="<?= _t('toggle_sidebar') ?>" aria-label="<?= _t('toggle_sidebar') ?>">
+            title="<?= h(_t('toggle_sidebar')) ?>" aria-label="<?= h(_t('toggle_sidebar')) ?>">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-bars-3"></use>
             </svg>
@@ -200,7 +206,7 @@ $activeClass = 'bg-theme-primary border-theme-primary text-theme-on-primary font
           <div class="relative hidden sm:block" x-data="{ open: false }">
             <button @click="open = !open" @click.outside="open = false"
               class="flex items-center gap-1.5 hover:bg-theme-bg px-3 py-1.5 border border-transparent hover:border-theme-border rounded-theme text-theme-text/60 hover:text-theme-primary transition-all"
-              title="<?= _t('create_new') ?>">
+              title="<?= h(_t('create_new')) ?>">
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-plus"></use>
               </svg>
@@ -257,7 +263,7 @@ $activeClass = 'bg-theme-primary border-theme-primary text-theme-on-primary font
 
           <a href="<?= h(resolve_url('/')) ?>" target="_blank"
             class="group flex items-center bg-theme-primary/10 hover:bg-theme-primary shadow-theme px-3 py-1.5 rounded-full font-bold text-theme-primary hover:text-theme-on-primary text-xs transition-all"
-            title="<?= _t('view_site') ?>">
+            title="<?= h(_t('view_site')) ?>">
             <svg class="mr-1.5 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-arrow-top-right-on-square"></use>
             </svg>

@@ -7,6 +7,7 @@
  */
 require_once __DIR__ . '/api_bootstrap.php';
 
+/** @var \PDO $pdo */
 // Configure execution limits for batch processing
 if (function_exists('grinds_set_high_load_mode')) {
   grinds_set_high_load_mode();

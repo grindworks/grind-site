@@ -3,6 +3,12 @@
 /**
  * theme.php
  * Renders the theme settings interface.
+ *
+ * @var array $opt
+ * @var array $available_site_themes
+ * @var array $available_layouts
+ * @var array $available_admin_skins
+ * @var array $colorDefGroups
  */
 if (!defined('GRINDS_APP'))
   exit;
@@ -461,12 +467,12 @@ if (!defined('GRINDS_APP'))
               <div class="relative flex-1">
                 <span
                   class="top-1/2 left-3 absolute opacity-50 text-theme-text text-xs -translate-y-1/2 pointer-events-none">skins/</span>
-                <input type="text" name="new_skin_name" class="pl-16 text-sm form-control" placeholder="my_new_skin"
+                <input type="text" name="new_skin_name" id="new_skin_name" class="pl-16 text-sm form-control" placeholder="my_new_skin"
                   pattern="[a-z0-9_-]+" title="Alphanumeric, underscore, and hyphen" @input.stop>
                 <span
                   class="top-1/2 right-3 absolute opacity-50 text-theme-text text-xs -translate-y-1/2 pointer-events-none">.json</span>
               </div>
-              <button type="submit" name="action" value="save_custom_skin"
+              <button type="submit" name="action" value="save_custom_skin" @click="if(!document.getElementById('new_skin_name').value) { window.showToast(<?= htmlspecialchars(json_encode(_t('err_required'), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT), ENT_QUOTES, 'UTF-8') ?>, 'error'); $event.preventDefault(); }"
                 class="shadow-theme font-bold text-xs whitespace-nowrap transition-all"
                 :class="skinDirty ? 'btn-primary' : 'btn-secondary hover:border-theme-primary hover:text-theme-primary'">
                 <?= _t('st_btn_save_file') ?>
@@ -586,14 +592,19 @@ if (!defined('GRINDS_APP'))
       parseVal() {
         const v = String(this.val).trim();
 
-        // Hex color (#abc or #aabbcc)
-        if (/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(v)) {
-          if (v.length === 4) {
-            this.hex = '#' + v[1] + v[1] + v[2] + v[2] + v[3] + v[3];
+        // Hex color (#rgb, #rgba, #rrggbb, #rrggbbaa)
+        const hexMatch = v.match(/^#([0-9a-fA-F]{3,4}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/);
+        if (hexMatch) {
+          const hexStr = hexMatch[1];
+          if (hexStr.length === 3 || hexStr.length === 4) {
+            this.hex = '#' + hexStr[0] + hexStr[0] + hexStr[1] + hexStr[1] + hexStr[2] + hexStr[2];
+            this.alpha = hexStr.length === 4 ? parseInt(hexStr[3] + hexStr[3], 16) / 255 : 1;
           } else {
-            this.hex = v;
+            this.hex = '#' + hexStr.substring(0, 6);
+            this.alpha = hexStr.length === 8 ? parseInt(hexStr.substring(6, 8), 16) / 255 : 1;
           }
-          this.alpha = 1;
+          // Round alpha to 2 decimal places
+          this.alpha = Math.round(this.alpha * 100) / 100;
           return;
         }
 

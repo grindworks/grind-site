@@ -83,7 +83,13 @@ if (!defined('GRINDS_APP')) exit;
     <?php
     if (isset($pageData['paginator'])) {
       $paginator = $pageData['paginator'];
-      get_template_part('parts/pagination', null, ['paginator' => $paginator]);
+      if (is_object($paginator) && file_exists(__DIR__ . '/parts/pagination.php')) {
+        get_template_part('parts/pagination', null, ['paginator' => $paginator]);
+      } elseif (is_object($paginator) && method_exists($paginator, 'renderFrontend')) {
+        echo $paginator->renderFrontend();
+      } else {
+        echo $paginator;
+      }
     }
     ?>
   </div>

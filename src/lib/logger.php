@@ -55,8 +55,19 @@ final class GrindsLogger
     }
 
     /** Write log message. */
-    public static function log($message, $level = 'ERROR')
+    public static function log(string $message, string $level = 'ERROR')
     {
+        // Ensure log file is set (failsafe for early plugin crashes before init)
+        if (empty(self::$logFile)) {
+            $logDir = (defined('ROOT_PATH') ? ROOT_PATH : dirname(__DIR__, 2)) . '/data/logs';
+            self::$logFile = $logDir . '/error.log';
+            if (function_exists('grinds_secure_dir')) {
+                grinds_secure_dir($logDir);
+            } elseif (!is_dir($logDir)) {
+                @mkdir($logDir, 0775, true);
+            }
+        }
+
         // Security: Mask potentially sensitive session/cookie data in error messages
         $message = preg_replace('/(PHPSESSID|grinds_[a-zA-Z0-9_]+)=[^;\s]+/', '$1=***MASKED***', $message);
 
@@ -112,7 +123,7 @@ final class GrindsLogger
     }
 
     /** Handle errors. */
-    public static function errorHandler($severity, $message, $file, $line)
+    public static function errorHandler(int $severity, string $message, string $file, int $line)
     {
         if (!(error_reporting() & $severity)) {
             return;
@@ -135,7 +146,7 @@ final class GrindsLogger
     }
 
     /** Handle exceptions. */
-    public static function exceptionHandler($e)
+    public static function exceptionHandler(Throwable $e)
     {
         self::log("Uncaught Exception: " . $e->getMessage() . " in " . $e->getFile() . " on line " . $e->getLine(), 'CRITICAL');
         if (!(defined('DEBUG_MODE') && DEBUG_MODE) && !self::$isDebug) {

@@ -5,6 +5,9 @@ if (!defined('GRINDS_APP')) exit;
 /**
  * breadcrumbs.php
  * Render breadcrumb navigation.
+ *
+ * @var string|null $pageType
+ * @var array|null $pageData
  */
 // Initialize breadcrumbs.
 $crumbs = [['label' => theme_t('home'), 'url' => resolve_url('/')]];

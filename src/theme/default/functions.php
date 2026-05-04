@@ -10,7 +10,7 @@ if (!defined('GRINDS_APP')) exit;
  * Render SNS share buttons.
  */
 if (!function_exists('default_the_share_buttons')) {
-  function default_the_share_buttons($url = null, $title = null)
+  function default_the_share_buttons(?string $url = null, ?string $title = null): void
   {
     // Use centralized helper
     $buttons = grinds_get_share_buttons($url, $title);
@@ -35,7 +35,7 @@ if (!function_exists('default_the_share_buttons')) {
  * Get highlighted excerpt for search results.
  */
 if (!function_exists('default_get_highlighted_excerpt')) {
-  function default_get_highlighted_excerpt($post)
+  function default_get_highlighted_excerpt(array $post): string
   {
     $plain = null;
     $text = '';
@@ -71,21 +71,21 @@ if (!function_exists('default_get_highlighted_excerpt')) {
         if ($pos !== false) {
           $start = max(0, $pos - 40);
           $sub = mb_substr($plain, $start, 100, 'UTF-8');
+          $escapedSub = h($sub);
 
-          $marker = "[[MARK_" . bin2hex(random_bytes(8)) . "_START]]";
-          $endMarker = "[[MARK_" . bin2hex(random_bytes(8)) . "_END]]";
+          $marker = "[[MARK_" . bin2hex(grinds_random_bytes(8)) . "_START]]";
+          $endMarker = "[[MARK_" . bin2hex(grinds_random_bytes(8)) . "_END]]";
 
           usort($keywords, function ($a, $b) {
             return mb_strlen($b, 'UTF-8') <=> mb_strlen($a, 'UTF-8');
           });
 
-          // Highlight all keywords
-          foreach ($keywords as $kw) {
-            $sub = preg_replace('/(' . preg_quote($kw, '/') . ')/iu', $marker . '$1' . $endMarker, $sub);
-          }
+          $pattern = '/(' . implode('|', array_map(function ($kw) {
+            return preg_quote(h($kw), '/');
+          }, $keywords)) . ')/iu';
 
-          $escaped = h($sub);
-          $final = str_replace([$marker, $endMarker], ['<mark class="bg-yellow-200 text-gray-900">', '</mark>'], $escaped);
+          $highlighted = preg_replace($pattern, $marker . '$1' . $endMarker, $escapedSub);
+          $final = str_replace([$marker, $endMarker], ['<mark class="bg-yellow-200 text-gray-900">', '</mark>'], $highlighted);
 
           return '...' . $final . '...';
         }

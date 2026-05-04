@@ -1,7 +1,10 @@
 <?php
 
 /**
- * _rate_limiter.php
+ * Plugin Name: Rate Limiter
+ *
+ * Author: Grind Works Inc.
+ * Version: 1.0.0
  *
  * [English]
  * Lightweight Rate Limiting Plugin for API and Contact Forms.

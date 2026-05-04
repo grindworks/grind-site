@@ -14,5 +14,5 @@ if (!defined('GRINDS_APP')) exit; ?>
   <input type="text"
     x-model="block.data.title" :id="'block-' + block.id + '-title'"
     class="form-control-sm text-center max-w-xs mx-auto"
-    placeholder="<?= _t('ph_toc_title') ?>">
+    placeholder="<?= h(_t('ph_toc_title')) ?>">
 </div>

@@ -5,6 +5,10 @@
  *
  * Renders the user interface for creating and editing posts and pages.
  * Fixed: Localized editor controls (Expand/Collapse All, Reset).
+ *
+ * @var string $action
+ * @var array $post
+ * @var array $available_themes
  */
 if (!defined('GRINDS_APP'))
     exit;
@@ -276,20 +280,20 @@ $basePath = rtrim($parsedBase['path'] ?? '/', '/') . '/';
         event.dataTransfer.effectAllowed = 'move';
     },
     handleDragOver(index) {
-    if (index===this.draggingIndex) return;
-    this.dropTargetIndex=index;
+        if (index === this.draggingIndex) return;
+        this.dropTargetIndex = index;
     },
     handleDragLeave() {
-    this.dropTargetIndex=null;
+        this.dropTargetIndex = null;
     },
     handleDrop(index) {
-    if (this.draggingIndex===null || this.draggingIndex===index) return;
-    this.moveBlockTo(this.draggingIndex, index, false);
-    this.handleDragEnd();
+        if (this.draggingIndex === null || this.draggingIndex === index) return;
+        this.moveBlockTo(this.draggingIndex, index, false);
+        this.handleDragEnd();
     },
     handleDragEnd() {
-    this.draggingIndex=null;
-    this.dropTargetIndex=null;
+        this.draggingIndex = null;
+        this.dropTargetIndex = null;
     }
     }"
     x-init="$watch('inserterOpen', val => window.toggleScrollLock(val)); $watch('templateModalOpen', val => window.toggleScrollLock(val));"
@@ -387,7 +391,7 @@ $basePath = rtrim($parsedBase['path'] ?? '/', '/') . '/';
                         <label class="font-bold text-theme-text text-sm"><?= _t('lbl_title') ?></label>
                         <span class="text-xs opacity-60" :class="seoTitle.length > (window.grindsLang === 'ja' ? 35 : 60) ? 'text-theme-danger font-bold' : ''"><span x-text="seoTitle.length"></span> / <span x-text="window.grindsLang === 'ja' ? '35' : '60'"></span></span>
                     </div>
-                    <input type="text" name="title" x-model="seoTitle" required class="text-lg form-control" placeholder="<?= _t('lbl_title') ?>">
+                    <input type="text" name="title" x-model="seoTitle" required class="text-lg form-control" placeholder="<?= h(_t('lbl_title')) ?>">
                 </div>
 
                 <div>
@@ -396,7 +400,7 @@ $basePath = rtrim($parsedBase['path'] ?? '/', '/') . '/';
                         <span class="inline-flex items-center bg-theme-bg opacity-70 px-3 border border-theme-border border-r-0 rounded-l-theme text-theme-text text-sm"><?= h(resolve_url('/')) ?></span>
                         <input type="text" name="slug" x-model="postSlug"
                             @blur="postSlug = postSlug.toLowerCase().trim().replace(/[\s_]+/g, '-').replace(/[^\p{L}\p{N}-]/gu, '').replace(/-+/g, '-').replace(/^-+|-+$/g, '')"
-                            class="rounded-l-none font-mono form-control" placeholder="<?= _t('ph_url_slug') ?>">
+                            class="rounded-l-none font-mono form-control" placeholder="<?= h(_t('ph_url_slug')) ?>">
                     </div>
                 </div>
 
@@ -506,7 +510,7 @@ $basePath = rtrim($parsedBase['path'] ?? '/', '/') . '/';
 
                                 <div class="flex items-center gap-3">
                                     <!-- Drag Handle -->
-                                    <div draggable="true" @dragstart.stop="handleDragStart(index, $event)" @dragend.stop="handleDragEnd()" class="cursor-move p-1 text-theme-text/40 hover:text-theme-text transition-colors" title="<?= _t('drag_to_reorder') ?>">
+                                    <div draggable="true" @dragstart.stop="handleDragStart(index, $event)" @dragend.stop="handleDragEnd()" class="cursor-move p-1 text-theme-text/40 hover:text-theme-text transition-colors" title="<?= h(_t('drag_to_reorder')) ?>">
                                         <svg class="w-5 h-5 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-bars-3"></use>
                                         </svg>
@@ -518,7 +522,7 @@ $basePath = rtrim($parsedBase['path'] ?? '/', '/') . '/';
                                             @change="const val = parseInt($event.target.value); if (isNaN(val)) { $event.target.value = index + 1; return; } moveBlockTo(index, val - 1); $dispatch('announce', 'Block moved to position ' + val);"
                                             @keydown.enter.prevent="$event.target.blur()"
                                             class="bg-theme-bg shadow-theme py-1 border border-theme-border focus:border-theme-primary rounded-theme focus:ring-theme-primary w-12 font-bold text-theme-text text-sm text-center appearance-none [-moz-appearance:textfield]"
-                                            min="1" :max="blocks.length" title="<?= _t('change_order') ?>">
+                                            min="1" :max="blocks.length" title="<?= h(_t('change_order')) ?>">
                                     </div>
                                     <div class="flex-1 min-w-0">
                                         <!-- Block controls. -->
@@ -1030,7 +1034,7 @@ $basePath = rtrim($parsedBase['path'] ?? '/', '/') . '/';
                 <div class="mb-4">
                     <label class="block opacity-70 mb-1 font-bold text-theme-text text-xs"><?= _t('col_type') ?></label>
                     <?php if ($postTypeKey === 'template'): ?>
-                        <input type="text" value="<?= _t('btn_template') ?>" class="bg-theme-bg opacity-70 text-sm form-control" readonly>
+                        <input type="text" value="<?= h(_t('btn_template')) ?>" class="bg-theme-bg opacity-70 text-sm form-control" readonly>
                         <input type="hidden" name="type" value="template">
                     <?php elseif (isset($cpts[$postTypeKey])): ?>
                         <input type="text" value="<?= h(function_exists('_t') && isset($cpts[$postTypeKey]['label']) ? _t($cpts[$postTypeKey]['label']) : ($cpts[$postTypeKey]['label'] ?? ucfirst($postTypeKey))) ?>" class="bg-theme-bg opacity-70 text-sm font-bold text-theme-primary form-control" readonly>
@@ -1086,7 +1090,7 @@ $basePath = rtrim($parsedBase['path'] ?? '/', '/') . '/';
                                     @blur="setTimeout(() => { if(tagInput.trim() !== '') addTag() }, 150)"
                                     @click.stop="showTagSuggestions = true"
                                     @click.outside="showTagSuggestions = false"
-                                    class="bg-transparent p-0 border-none outline-none focus:ring-0 w-full text-theme-text text-sm placeholder-theme-text/40" placeholder="<?= _t('ph_tags') ?>">
+                                    class="bg-transparent p-0 border-none outline-none focus:ring-0 w-full text-theme-text text-sm placeholder-theme-text/40" placeholder="<?= h(_t('ph_tags')) ?>">
 
                                 <div x-show="showTagSuggestions && tagSuggestions.length > 0" x-cloak
                                     class="absolute left-0 top-full mt-2 w-48 max-h-48 overflow-y-auto bg-theme-surface border border-theme-border shadow-theme rounded-theme z-50">
@@ -1152,7 +1156,7 @@ $basePath = rtrim($parsedBase['path'] ?? '/', '/') . '/';
                     </div>
                     <div class="mb-6">
                         <label class="block opacity-60 mb-1 font-bold text-theme-text text-xs"><?= _t('lbl_toc_title') ?></label>
-                        <input type="text" name="toc_title" value="<?= h($post['toc_title'] ?? _t('ph_toc_title')) ?>" class="text-sm form-control" placeholder="<?= _t('ph_toc_title') ?>">
+                        <input type="text" name="toc_title" value="<?= h($post['toc_title'] ?? _t('ph_toc_title')) ?>" class="text-sm form-control" placeholder="<?= h(_t('ph_toc_title')) ?>">
                     </div>
                 <?php endif; ?>
 
@@ -1161,7 +1165,7 @@ $basePath = rtrim($parsedBase['path'] ?? '/', '/') . '/';
                     <h3 class="block opacity-70 mb-3 pb-2 border-theme-border border-b font-bold text-theme-text text-xs"><?= _t('lbl_seo') ?></h3>
                     <div class="mb-4">
                         <label class="block opacity-60 mb-1 font-bold text-theme-text text-xs"><?= _t('lbl_seo_author') ?></label>
-                        <input type="text" name="seo_author" value="<?= h($heroConfig['seo_author'] ?? '') ?>" class="text-sm form-control" placeholder="<?= _t('ph_seo_author') ?>">
+                        <input type="text" name="seo_author" value="<?= h($heroConfig['seo_author'] ?? '') ?>" class="text-sm form-control" placeholder="<?= h(_t('ph_seo_author')) ?>">
                     </div>
                 <?php endif; ?>
                 <?php if ($supports('thumbnail')): ?>
@@ -1333,7 +1337,7 @@ $basePath = rtrim($parsedBase['path'] ?? '/', '/') . '/';
                                                 <div class="space-y-2 pr-4">
                                                     <!-- Button text and style. -->
                                                     <div class="flex gap-2">
-                                                        <input type="text" x-model="btn.text" class="flex-1 text-xs form-control" placeholder="<?= _t('hero_btn_text') ?>">
+                                                        <input type="text" x-model="btn.text" class="flex-1 text-xs form-control" placeholder="<?= h(_t('hero_btn_text')) ?>">
                                                         <select x-model="btn.style" class="px-1 w-24 text-xs cursor-pointer form-control shrink-0">
                                                             <option value="primary"><?= _t('btn_style_primary') ?></option>
                                                             <option value="secondary"><?= _t('btn_style_secondary') ?></option>
@@ -1344,12 +1348,12 @@ $basePath = rtrim($parsedBase['path'] ?? '/', '/') . '/';
 
                                                     <!-- Button URL and page selector. -->
                                                     <div class="flex flex-col gap-1">
-                                                        <input type="text" x-model="btn.url" class="font-mono text-xs form-control" placeholder="<?= _t('ph_https_path') ?>">
+                                                        <input type="text" x-model="btn.url" class="font-mono text-xs form-control" placeholder="<?= h(_t('ph_https_path')) ?>">
 
                                                         <div class="relative" @click.outside="searchingIndex = null">
                                                             <input type="text"
                                                                 class="opacity-70 py-1 text-[10px] text-theme-text form-control"
-                                                                placeholder="<?= _t('hero_btn_select') ?> (<?= _t('ph_type_to_search') ?>)"
+                                                                placeholder="<?= h(_t('hero_btn_select')) ?> (<?= h(_t('ph_type_to_search')) ?>)"
                                                                 @focus="searchingIndex = index"
                                                                 @input.debounce.300ms="searchContent($event.target.value)">
 
@@ -1591,7 +1595,7 @@ $basePath = rtrim($parsedBase['path'] ?? '/', '/') . '/';
                         <svg class="top-1/2 left-3 absolute opacity-50 w-5 h-5 text-theme-text -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-magnifying-glass"></use>
                         </svg>
-                        <input x-ref="blockSearch" x-model="blockSearchTerm" type="text" class="bg-theme-surface py-3 pr-4 pl-10 border border-theme-border focus:border-theme-primary rounded-theme outline-none focus:ring-2 focus:ring-theme-primary/50 w-full text-theme-text text-sm transition-all placeholder-theme-text/50" placeholder="<?= _t('ph_search_blocks') ?>">
+                        <input x-ref="blockSearch" x-model="blockSearchTerm" type="text" class="bg-theme-surface py-3 pr-4 pl-10 border border-theme-border focus:border-theme-primary rounded-theme outline-none focus:ring-2 focus:ring-theme-primary/50 w-full text-theme-text text-sm transition-all placeholder-theme-text/50" placeholder="<?= h(_t('ph_search_blocks')) ?>">
                         <button @click="inserterOpen = false" class="top-1/2 right-3 absolute bg-theme-bg opacity-50 px-1.5 py-0.5 border border-theme-border rounded-theme text-theme-text text-xs -translate-y-1/2">ESC</button>
                     </div>
                 </div>
@@ -1655,7 +1659,7 @@ $basePath = rtrim($parsedBase['path'] ?? '/', '/') . '/';
                 <div x-show="tplTab === 'save'">
                     <div class="mb-4">
                         <label class="block mb-2 font-bold text-theme-text text-xs"><?= _t('tpl_name') ?></label>
-                        <input type="text" x-model="newTemplateName" @keydown.enter.prevent class="text-sm form-control" placeholder="<?= _t('tpl_ph_name') ?>">
+                        <input type="text" x-model="newTemplateName" @keydown.enter.prevent class="text-sm form-control" placeholder="<?= h(_t('tpl_ph_name')) ?>">
                     </div>
                     <button type="button" @click.prevent.stop="saveCurrentAsTemplate()" class="py-2 w-full text-sm btn-primary" :disabled="!newTemplateName"><?= _t('tpl_save_btn') ?></button>
                 </div>

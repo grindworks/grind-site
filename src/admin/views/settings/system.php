@@ -190,7 +190,7 @@ if (!defined('GRINDS_APP')) exit; ?>
             document.getElementById('nginx-security-title').innerHTML += ' <span class="bg-theme-danger text-white px-2 py-0.5 rounded-theme text-[10px] ml-2 animate-pulse uppercase shadow-theme">Action Required</span>';
           }
         } catch (e) {
-          // Handle errors
+          console.error('Nginx security test failed:', e);
         } finally {
           // Delete test PHP file
           fetch((window.grindsBaseUrl || '').replace(/\/$/, '') + '/admin/settings.php?tab=system', {
@@ -218,7 +218,7 @@ if (!defined('GRINDS_APP')) exit; ?>
       <form method="post">
         <input type="hidden" name="csrf_token" value="<?= h(generate_csrf_token()) ?>">
         <input type="hidden" name="action" value="delete_installer">
-        <button type="submit" onclick="return confirm(<?= htmlspecialchars(json_encode(_t('warning_delete_self_responsibility') ?? _t('confirm_delete')), ENT_QUOTES) ?>);" class="bg-theme-danger hover:opacity-90 shadow-theme px-3 py-1.5 rounded-theme font-bold text-white text-xs">
+        <button type="submit" onclick="return confirm(<?= htmlspecialchars(json_encode(_t('warning_delete_self_responsibility') ?? _t('confirm_delete'), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT), ENT_QUOTES, 'UTF-8') ?>);" class="bg-theme-danger hover:opacity-90 shadow-theme px-3 py-1.5 rounded-theme font-bold text-white text-xs">
           <?= _t('btn_delete_now') ?>
         </button>
       </form>
@@ -361,7 +361,7 @@ if (!defined('GRINDS_APP')) exit; ?>
 
     <form method="post" class="space-y-4 warn-on-unsaved" x-data="{
       enabled: <?= !empty($opt['trust_proxies']) ? 'true' : 'false' ?>,
-      proxyIps: <?= htmlspecialchars(json_encode($opt['trusted_proxy_ips'] ?? ''), ENT_QUOTES, 'UTF-8') ?>
+      proxyIps: <?= htmlspecialchars(json_encode($opt['trusted_proxy_ips'] ?? '', JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT), ENT_QUOTES, 'UTF-8') ?>
     }">
       <input type="hidden" name="csrf_token" value="<?= h(generate_csrf_token()) ?>">
       <input type="hidden" name="action" value="update_proxy_settings">
@@ -471,11 +471,11 @@ if (!defined('GRINDS_APP')) exit; ?>
           <div class="space-y-3 mt-4" x-show="current" x-transition>
             <label class="block">
               <span class="block mb-1 font-bold text-theme-text text-xs"><?= _t('lbl_title') ?></span>
-              <input type="text" name="maintenance_title" x-model="title" class="w-full form-control-sm" placeholder="<?= _t('maintenance_title') ?>">
+              <input type="text" name="maintenance_title" x-model="title" class="w-full form-control-sm" placeholder="<?= h(_t('maintenance_title')) ?>">
             </label>
             <label class="block">
               <span class="block mb-1 font-bold text-theme-text text-xs"><?= _t('lbl_message') ?></span>
-              <textarea name="maintenance_message" rows="3" x-model="message" class="w-full form-control-sm" placeholder="<?= _t('maintenance_message') ?>"></textarea>
+              <textarea name="maintenance_message" rows="3" x-model="message" class="w-full form-control-sm" placeholder="<?= h(_t('maintenance_message')) ?>"></textarea>
             </label>
           </div>
         </div>
@@ -518,7 +518,7 @@ if (!defined('GRINDS_APP')) exit; ?>
         <form method="post" class="shrink-0 w-full sm:w-auto">
           <input type="hidden" name="csrf_token" value="<?= h(generate_csrf_token()) ?>">
           <input type="hidden" name="action" value="install_sample_templates">
-          <button type="submit" onclick="return confirm(<?= htmlspecialchars(json_encode(_t('confirm_install_tpl')), ENT_QUOTES) ?>);" class="bg-theme-surface hover:bg-theme-danger shadow-theme px-6 py-2.5 border border-theme-danger rounded-theme w-full font-bold text-theme-danger hover:text-white text-sm whitespace-nowrap transition-colors">
+          <button type="submit" onclick="return confirm(<?= htmlspecialchars(json_encode(_t('confirm_install_tpl'), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT), ENT_QUOTES, 'UTF-8') ?>);" class="bg-theme-surface hover:bg-theme-danger shadow-theme px-6 py-2.5 border border-theme-danger rounded-theme w-full font-bold text-theme-danger hover:text-white text-sm whitespace-nowrap transition-colors">
             <?= _t('btn_install_tpl') ?>
           </button>
         </form>
@@ -530,7 +530,7 @@ if (!defined('GRINDS_APP')) exit; ?>
         <form method="post" class="shrink-0 w-full sm:w-auto">
           <input type="hidden" name="csrf_token" value="<?= h(generate_csrf_token()) ?>">
           <input type="hidden" name="action" value="reset_settings">
-          <button type="submit" onclick="return confirm(<?= htmlspecialchars(json_encode(_t('st_reset_desc') . '\n\n' . _t('confirm_continue')), ENT_QUOTES) ?>);" class="bg-theme-surface hover:bg-theme-danger shadow-theme px-6 py-2.5 border border-theme-danger rounded-theme w-full font-bold text-theme-danger hover:text-white text-sm whitespace-nowrap transition-colors">
+          <button type="submit" onclick="return confirm(<?= htmlspecialchars(json_encode(_t('st_reset_desc') . '\n\n' . _t('confirm_continue'), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT), ENT_QUOTES, 'UTF-8') ?>);" class="bg-theme-surface hover:bg-theme-danger shadow-theme px-6 py-2.5 border border-theme-danger rounded-theme w-full font-bold text-theme-danger hover:text-white text-sm whitespace-nowrap transition-colors">
             <?= _t('st_reset_all') ?>
           </button>
         </form>

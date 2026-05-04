@@ -14,7 +14,7 @@ final class I18n
     private function __construct() {}
 
     /** Initialize language system. */
-    public static function init($lang = 'ja')
+    public static function init(string $lang = 'ja')
     {
         // Sanitize language code
         $lang = preg_replace('/[^a-zA-Z0-9]/', '', $lang);
@@ -29,7 +29,7 @@ final class I18n
     }
 
     /** Retrieve translated string. */
-    public static function get($key, $params = [])
+    public static function get(string $key, array $params = [])
     {
         $text = self::$messages[$key] ?? $key;
 
@@ -49,7 +49,7 @@ final class I18n
 
 /** Global translation helper. */
 if (!function_exists('_t')) {
-    function _t($key, ...$params)
+    function _t(string $key, mixed ...$params)
     {
         // Handle backward compatibility
         if (isset($params[0]) && is_array($params[0]) && count($params) === 1) {

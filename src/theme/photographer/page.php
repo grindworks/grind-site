@@ -5,6 +5,8 @@ if (!defined('GRINDS_APP')) exit;
 /**
  * page.php
  * Display static page.
+ *
+ * @var array $pageData
  */
 $post = $pageData['post'];
 

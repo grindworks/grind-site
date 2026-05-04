@@ -6,6 +6,8 @@ if (!defined('GRINDS_APP'))
 /**
  * single.php
  * Render single post layout.
+ *
+ * @var array $pageData
  */
 ?>
 

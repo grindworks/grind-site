@@ -5,6 +5,8 @@ if (!defined('GRINDS_APP')) exit;
 /**
  * page.php
  * Render page layout.
+ *
+ * @var array $pageData
  */
 ?>
 

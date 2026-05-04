@@ -104,4 +104,9 @@ return [
     'Author Note' => '著者メモ',
     'This article contains promotional links.' => 'この記事はプロモーションを含みます。',
     'View Sponsored Link' => 'スポンサーリンクを見る',
+
+    // System / Admin Actions
+    'attention' => '注意',
+    'great' => '素晴らしい！',
+    'warning_delete_self_responsibility' => '警告：自己責任で削除してください（システムが破損した場合、手動で復旧する必要があります）',
 ];

@@ -100,8 +100,8 @@ function redirect_to_login($reason = '')
  */
 function grinds_remember_me($user_id)
 {
-    $selector = bin2hex(random_bytes(16));
-    $validator = bin2hex(random_bytes(32));
+    $selector = bin2hex(grinds_random_bytes(16));
+    $validator = bin2hex(grinds_random_bytes(32));
     $hashed_validator = hash('sha256', $validator);
     $expires_at = date('Y-m-d H:i:s', time() + 86400 * 30);
 
@@ -139,7 +139,7 @@ function grinds_remember_me($user_id)
  */
 function grinds_check_remember_me()
 {
-    if (empty($_COOKIE['grinds_remember'])) {
+    if (empty($_COOKIE['grinds_remember']) || !is_string($_COOKIE['grinds_remember'])) {
         return false;
     }
 
@@ -230,7 +230,7 @@ function grinds_logout()
     session_destroy();
 
     // Clear Remember Me cookie
-    if (isset($_COOKIE['grinds_remember'])) {
+    if (isset($_COOKIE['grinds_remember']) && is_string($_COOKIE['grinds_remember'])) {
         $parts = explode(':', $_COOKIE['grinds_remember']);
         if (count($parts) === 2) {
             $selector = $parts[0];

@@ -11,6 +11,7 @@ define('GRINDS_IS_SSG', true);
 
 require_once __DIR__ . '/api_bootstrap.php';
 
+/** @var \PDO $pdo */
 // Defense in Depth: Prevent unauthenticated/CSRF requests from causing DoS
 if (!current_user_can('manage_posts')) {
     json_response(['success' => false, 'error' => 'Unauthorized'], 403);

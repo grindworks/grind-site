@@ -7,7 +7,7 @@ if (!defined('GRINDS_APP'))
     exit;
 
 if (!function_exists('grinds_get_nginx_uploads_rules')) {
-    function grinds_get_nginx_uploads_rules($relativePath = '/')
+    function grinds_get_nginx_uploads_rules(string $relativePath = '/'): string
     {
         $path = rtrim($relativePath, '/');
         // Normalize prefix
@@ -28,7 +28,7 @@ EOT;
 }
 
 if (!function_exists('grinds_get_nginx_plugins_rules')) {
-    function grinds_get_nginx_plugins_rules($relativePath = '/')
+    function grinds_get_nginx_plugins_rules(string $relativePath = '/'): string
     {
         $path = rtrim($relativePath, '/');
         $prefix = ($path === '') ? '' : $path;
@@ -44,7 +44,7 @@ EOT;
 }
 
 if (!function_exists('grinds_get_nginx_security_rules')) {
-    function grinds_get_nginx_security_rules($relativePath = '/')
+    function grinds_get_nginx_security_rules(string $relativePath = '/'): string
     {
         $rel = rtrim($relativePath, '/');
         $prefix = ($rel === '') ? '' : $rel;
@@ -84,7 +84,7 @@ EOT;
 }
 
 if (!function_exists('grinds_get_nginx_config')) {
-    function grinds_get_nginx_config($serverName, $rootPath, $relativePath, $fastCgiPass)
+    function grinds_get_nginx_config(string $serverName, string $rootPath, string $relativePath, string $fastCgiPass): string
     {
         $rel = rtrim($relativePath, '/');
         $prefix = ($rel === '') ? '' : $rel;

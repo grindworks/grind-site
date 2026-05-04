@@ -1,29 +1,29 @@
 Release title
-v1.6.9 - New Affiliate Block (Amazon/Rakuten/eBay) & Editor UX Improvements
+v1.7.0 - Plugin Management UI & Fullscreen Presentation Theme
 
 Release notes
-This release introduces a brand new, highly requested **Affiliate Block** that makes it easier than ever to embed beautiful Amazon, Rakuten, and eBay product cards directly from the block editor.
+This release introduces a brand new **Plugin Management UI**, allowing administrators to easily enable and disable plugins directly from the dashboard. We've also added a new **Fullscreen Presentation** theme, new admin skins, and completed comprehensive translation synchronizations.
 
 ### ✨ New Features & Enhancements
-- **Dedicated Affiliate Block:** Added a new block specifically designed for affiliate marketing. Switch seamlessly between Amazon, Rakuten, and eBay within the editor.
-- **Smart ASIN Extraction:** Simply paste an Amazon product URL into the editor, and the system will automatically extract the ASIN and region (e.g., co.jp, com), drastically improving your workflow.
-- **Seamless Plugin Integration:** The new block architecture perfectly integrates with existing affiliate shortcode plugins, ensuring high performance and maintainability.
+- **Plugin Management UI:** A new dashboard interface to securely toggle system plugins on and off without touching server files.
+- **New Theme & Skins:** Added the `fullscreen_presentation` theme and several new retro-arcade admin skins (e.g., `arcade-lode-digger`).
+- **Translation Sync:** Complete synchronization of English, Japanese, French, Spanish, Portuguese, and German translation keys across the core and all 10 themes.
 
 ### 🛡️ Bug Fixes & Maintenance
-- **Editor UX:** Optimized the block deletion logic (`admin_editor.js`) so that empty affiliate blocks are removed silently without unnecessary confirmation dialogs.
-- **Security:** Enforced strict HTML escaping (`htmlspecialchars`) and double-encoding prevention for all affiliate attributes.
+- **System Stability:** Resolved translation key discrepancies and verified perfect HTML/SVG rendering syntax across the system.
+- **Easter Egg:** Added a new developer-focused Easter egg plugin that outputs a cool system boot sequence in the browser console.
 
 ---
 
 ## 🇯🇵 日本語 (Japanese)
 
-このリリースでは、多くのご要望をいただいていた専用の **「アフィリエイトブロック」** を新たに搭載しました。Amazon、楽天、eBayの美しい商品カードを、ブロックエディタからこれまで以上に直感的に作成できます。
+このリリースでは、ダッシュボードから直接プラグインを有効・無効化できる **「プラグイン管理UI」** を新たに搭載しました。また、新しい「フルスクリーンプレゼンテーション」テーマや管理画面スキンを追加し、全言語の翻訳同期を完了しました。
 
 ### ✨ 新機能・改善
-- **アフィリエイト専用ブロック:** ブロックエディタにAmazon、楽天、eBayのアフィリエイトリンクを簡単に挿入できる専用ブロックを追加しました。タブで簡単にプラットフォームを切り替えられます。
-- **ASIN自動抽出 (Smart Paste):** Amazonの商品URLをペーストするだけで、URLからASINとリージョン（co.jpなど）を自動的に抽出するスマート入力機能を実装しました。これにより作業効率が劇的に向上します。
-- **プラグインとのシームレスな統合:** 新しいブロックは既存のアフィリエイトプラグイン（ショートコード）と連携するDRYな設計となっており、高いパフォーマンスと保守性を実現しています。
+- **プラグイン管理UI:** サーバーのファイルを直接操作することなく、管理画面から安全にプラグインの有効/無効を切り替えられるインターフェースを追加しました。
+- **新テーマ・スキン:** 新しいテーマ `fullscreen_presentation` と、レトロアーケード風の管理画面スキン（`arcade-lode-digger` など）を追加しました。
+- **翻訳の完全同期:** コアおよび全10テーマにおいて、英語・日本語・フランス語・スペイン語・ポルトガル語・ドイツ語のすべての翻訳キーを完全に同期しました。
 
 ### 🛡️ バグ修正・メンテナンス
-- **エディタUIの最適化:** 空のアフィリエイトブロックを削除する際、不要な確認ダイアログが表示されないよう削除ロジックを最適化しました。
-- **セキュリティ:** 属性出力時の二重エンコード防止機能および、厳格なエスケープ処理を徹底し安全性を強化しました。
+- **システムの安定性:** 翻訳キーの不足を解消し、HTML構文やSVGレンダリングの細かな問題を検証・修正しました。
+- **イースターエッグ:** ブラウザのコンソールにシステム起動シーケンスを出力する、開発者向けの新しいイースターエッグプラグインを追加しました。

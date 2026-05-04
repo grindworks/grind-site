@@ -1157,7 +1157,7 @@ function grinds_cli_blocks_to_markdown(string $contentJson): string
             $result = @preg_replace($pattern, $replacement, $subject);
             return ($result === null) ? $subject : $result;
         };
-        $md = str_replace(['<br>', '<br/>', '<br />'], "\n", $html ?? '');
+        $md = str_replace(['<br>', '<br/>', '<br />'], "\n", is_string($html) ? $html : '');
         $md = $safeReplace('/<(b|strong)\b[^>]*+>((?:[^<]++|<(?!\/\1>))*+)<\/\1>/is', '**$2**', $md);
         $md = $safeReplace('/<(i|em)\b[^>]*+>((?:[^<]++|<(?!\/\1>))*+)<\/\1>/is', '*$2*', $md);
         $md = $safeReplace('/<(s|strike|del)\b[^>]*+>((?:[^<]++|<(?!\/\1>))*+)<\/\1>/is', '~~$2~~', $md);
@@ -1168,13 +1168,13 @@ function grinds_cli_blocks_to_markdown(string $contentJson): string
             $text = str_replace(['[', ']'], ['\[', '\]'], $m[2]);
             return "[{$text}]({$m[1]})";
         }, $md) ?? $md;
-        return strip_tags($md);
+        return html_entity_decode(strip_tags($md), ENT_QUOTES | ENT_HTML5, 'UTF-8');
     };
 
     $md = "";
     foreach ($data['blocks'] as $block) {
         $type = $block['type'] ?? '';
-        $bData = $block['data'] ?? [];
+        $bData = is_array($block['data'] ?? null) ? $block['data'] : [];
 
         if ($type === 'password_protect') {
             $md .= "\n\n> **[Password Protected Content Below]**\n\n";
@@ -1183,46 +1183,128 @@ function grinds_cli_blocks_to_markdown(string $contentJson): string
 
         switch ($type) {
             case 'header':
-                $levelStr = str_replace('h', '', $bData['level'] ?? '2');
+                $levelStr = str_replace('h', '', is_string($bData['level'] ?? null) ? $bData['level'] : '2');
                 $level = (int)$levelStr ?: 2;
-                $md .= "\n\n" . str_repeat('#', $level) . " " . $htmlToMarkdown($bData['text'] ?? '') . "\n\n";
+                $prefix = str_repeat('#', $level);
+                $text = $htmlToMarkdown(is_string($bData['text'] ?? null) ? $bData['text'] : '');
+                $md .= "\n\n{$prefix} {$text}\n\n";
                 break;
             case 'paragraph':
-                $md .= "\n\n" . $htmlToMarkdown($bData['text'] ?? '') . "\n\n";
+                $text = $htmlToMarkdown(is_string($bData['text'] ?? null) ? $bData['text'] : '');
+                $md .= "\n\n{$text}\n\n";
                 break;
             case 'list':
-                $style = $bData['style'] ?? 'unordered';
+                $style = is_string($bData['style'] ?? null) ? $bData['style'] : 'unordered';
+                $items = is_array($bData['items'] ?? null) ? $bData['items'] : [];
                 $md .= "\n\n";
-                foreach ($bData['items'] ?? [] as $idx => $item) {
-                    $md .= ($style === 'ordered' ? ($idx + 1) . ". " : "- ") . $htmlToMarkdown($item) . "\n";
+                foreach ($items as $idx => $item) {
+                    $itemText = $htmlToMarkdown(is_string($item) ? $item : '');
+                    if ($style === 'ordered') {
+                        $md .= ($idx + 1) . ". {$itemText}\n";
+                    } else {
+                        $md .= "- {$itemText}\n";
+                    }
                 }
                 $md .= "\n\n";
                 break;
             case 'image':
-                $alt = $bData['alt'] ?? $bData['caption'] ?? 'image';
+                $url = is_string($bData['url'] ?? null) ? $bData['url'] : '';
+                $alt = is_string($bData['alt'] ?? $bData['caption'] ?? null) ? ($bData['alt'] ?? $bData['caption']) : 'image';
                 $safeAlt = str_replace(['[', ']'], ['\[', '\]'], $alt);
-                $md .= "\n\n![{$safeAlt}](" . ($bData['url'] ?? '') . ")\n\n";
+                $md .= "\n\n![{$safeAlt}]({$url})\n\n";
                 break;
             case 'code':
-                $md .= "\n\n```" . ($bData['language'] ?? 'plaintext') . "\n" . ($bData['code'] ?? '') . "\n```\n\n";
+                $lang = is_string($bData['language'] ?? null) ? $bData['language'] : 'plaintext';
+                $code = is_string($bData['code'] ?? null) ? $bData['code'] : '';
+                $md .= "\n\n```{$lang}\n{$code}\n```\n\n";
                 break;
             case 'quote':
-                $md .= "\n\n> " . str_replace("\n", "\n> ", $htmlToMarkdown($bData['text'] ?? '')) . "\n\n";
+                $text = $htmlToMarkdown(is_string($bData['text'] ?? null) ? $bData['text'] : '');
+                $cite = is_string($bData['cite'] ?? null) ? $bData['cite'] : '';
+                $md .= "\n\n> " . str_replace("\n", "\n> ", $text);
+                if ($cite) $md .= "\n> — {$cite}";
+                $md .= "\n\n";
                 break;
             case 'divider':
                 $md .= "\n\n---\n\n";
                 break;
             case 'html':
-                $md .= "\n\n" . ($bData['code'] ?? '') . "\n\n";
+                $md .= "\n\n" . (is_string($bData['code'] ?? null) ? $bData['code'] : '') . "\n\n";
+                break;
+            case 'table':
+                if (!empty($bData['content']) && is_array($bData['content'])) {
+                    $md .= "\n\n";
+                    foreach ($bData['content'] as $rIdx => $row) {
+                        if (!is_array($row)) continue;
+                        $md .= "|";
+                        foreach ($row as $cell) {
+                            $cellText = str_replace('|', '&#124;', $htmlToMarkdown(is_string($cell) ? $cell : ''));
+                            $md .= " {$cellText} |";
+                        }
+                        $md .= "\n";
+                        // Add separator line for header row
+                        if ($rIdx === 0 && !empty($bData['withHeadings'])) {
+                            $md .= "|";
+                            foreach ($row as $cell) {
+                                $md .= "---|";
+                            }
+                            $md .= "\n";
+                        }
+                    }
+                    $md .= "\n\n";
+                }
+                break;
+            case 'proscons':
+                $pTitle = $htmlToMarkdown(is_string($bData['pros_title'] ?? null) ? $bData['pros_title'] : 'Pros');
+                $cTitle = $htmlToMarkdown(is_string($bData['cons_title'] ?? null) ? $bData['cons_title'] : 'Cons');
+                $md .= "\n\n### {$pTitle}\n";
+                $prosItems = is_array($bData['pros_items'] ?? null) ? $bData['pros_items'] : [];
+                foreach ($prosItems as $item) {
+                    $itemText = is_string($item) ? $item : '';
+                    if (trim($itemText)) $md .= "- [x] " . $htmlToMarkdown($itemText) . "\n";
+                }
+                $md .= "\n### {$cTitle}\n";
+                $consItems = is_array($bData['cons_items'] ?? null) ? $bData['cons_items'] : [];
+                foreach ($consItems as $item) {
+                    $itemText = is_string($item) ? $item : '';
+                    if (trim($itemText)) $md .= "- [ ] " . $htmlToMarkdown($itemText) . "\n";
+                }
+                $md .= "\n\n";
+                break;
+            case 'step':
+                $md .= "\n\n";
+                $items = is_array($bData['items'] ?? null) ? $bData['items'] : [];
+                foreach ($items as $idx => $item) {
+                    if (!is_array($item)) continue;
+                    $stepTitle = $htmlToMarkdown(is_string($item['title'] ?? null) ? $item['title'] : '');
+                    $stepDesc = $htmlToMarkdown(is_string($item['desc'] ?? null) ? $item['desc'] : '');
+                    $md .= "#### Step " . ($idx + 1) . ": {$stepTitle}\n";
+                    if ($stepDesc) $md .= "{$stepDesc}\n";
+                    $md .= "\n";
+                }
+                $md .= "\n";
+                break;
+            case 'accordion':
+                $md .= "\n\n";
+                $items = is_array($bData['items'] ?? null) ? $bData['items'] : [];
+                foreach ($items as $item) {
+                    if (!is_array($item)) continue;
+                    $q = $htmlToMarkdown(is_string($item['title'] ?? null) ? $item['title'] : '');
+                    $a = $htmlToMarkdown(is_string($item['content'] ?? null) ? $item['content'] : '');
+                    $md .= "**Q. {$q}**\n\n> A. " . str_replace("\n", "\n> ", $a) . "\n\n";
+                }
+                $md .= "\n";
                 break;
             default:
+                // For complex blocks, try to extract plain text as fallback
                 $fallback = '';
-                array_walk_recursive($bData, function ($value) use (&$fallback) {
+                array_walk_recursive($bData, function ($value, $key) use (&$fallback) {
                     if (is_string($value) && !preg_match('/^https?:\/\//i', $value)) {
                         $fallback .= strip_tags($value) . " ";
                     }
                 });
-                if (trim($fallback)) $md .= "\n\n<!-- {$type} block -->\n" . trim($fallback) . "\n\n";
+                $fallback = trim($fallback);
+                if ($fallback) $md .= "\n\n<!-- {$type} block -->\n{$fallback}\n\n";
                 break;
         }
     }

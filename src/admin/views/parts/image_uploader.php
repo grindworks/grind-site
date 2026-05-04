@@ -49,6 +49,11 @@ $previewUrl = get_media_url($value);
         window.dispatchEvent(new CustomEvent('open-media-picker', {
             detail: {
                 callback: (file) => {
+                    // [FIXED] Revoke old URL to prevent memory leaks when picking from library
+                    if (this.previewUrl && this.previewUrl.startsWith('blob:')) {
+                        URL.revokeObjectURL(this.previewUrl);
+                    }
+
                     this.previewUrl = file.url;
                     this.isDeleted = false;
                     if($refs.urlInput) {
@@ -73,7 +78,7 @@ $previewUrl = get_media_url($value);
     <div class="flex flex-col gap-2">
         <div class="<?= $preview_container_class ?> relative group" x-show="previewUrl && !isDeleted">
             <img :src="previewUrl" class="<?= $preview_class ?> shadow-theme <?= $preview_bg_class ?>"
-                alt="<?= _t('lbl_preview') ?>" <?= $preview_attrs ?>>
+                alt="<?= h(_t('lbl_preview')) ?>" <?= $preview_attrs ?>>
             <button type="button" @click="isDeleted = true; $refs.urlInput.value=''; $refs.fileInput.value=''; if($refs.urlInput) $refs.urlInput.dispatchEvent(new Event('input', { bubbles: true }));"
                 class="absolute top-2 right-2 bg-theme-surface/90 hover:bg-theme-danger text-theme-text hover:text-white p-1.5 rounded-full shadow-theme transition-colors"
                 title="<?= h(_t('delete')) ?>">
@@ -84,7 +89,7 @@ $previewUrl = get_media_url($value);
         </div>
 
         <?php if ($input_style === 'box'): ?>
-            <div x-show="!previewUrl && !isDeleted"
+            <div x-show="!previewUrl || isDeleted"
                 class="<?= $preview_class ?> <?= $preview_bg_class ?> bg-clip-content flex items-center justify-center text-theme-text/20 border-theme-border border-dashed border-2 p-1">
                 <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-photo"></use>

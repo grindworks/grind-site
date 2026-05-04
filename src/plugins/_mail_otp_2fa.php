@@ -1,7 +1,10 @@
 <?php
 
 /**
- * _mail_otp_2fa.php
+ * Plugin Name: Email OTP 2FA
+ *
+ * Author: Grind Works Inc.
+ * Version: 1.0.0
  *
  * [English]
  * Two-Factor Authentication (2FA) via Email OTP (One-Time Password).

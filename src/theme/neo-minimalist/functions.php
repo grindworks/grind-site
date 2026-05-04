@@ -37,7 +37,7 @@ if (!function_exists('neo_minimalist_the_share_buttons')) {
  * Get highlighted excerpt for search results.
  */
 if (!function_exists('neo_minimalist_get_highlighted_excerpt')) {
-  function neo_minimalist_get_highlighted_excerpt($post)
+  function neo_minimalist_get_highlighted_excerpt(array $post)
   {
     $text = (!empty($post['description'])) ? $post['description'] : get_excerpt($post['content'], 80);
 
@@ -85,7 +85,7 @@ if (!function_exists('neo_minimalist_get_highlighted_excerpt')) {
  * Render content block.
  */
 if (!function_exists('neo_minimalist_render_block')) {
-  function neo_minimalist_render_block($block, $pathFixer)
+  function neo_minimalist_render_block(array $block, callable $pathFixer)
   {
     $type = $block['type'] ?? '';
     $data = $block['data'] ?? [];

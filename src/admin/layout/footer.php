@@ -43,7 +43,7 @@ if (!defined('GRINDS_APP')) exit;
               }
             "
             class="bg-transparent pr-14 pl-14 border-none focus:outline-none focus:ring-0 w-full h-16 font-medium text-theme-text text-lg transition-colors placeholder-theme-text/40"
-            placeholder="<?= _t('search') ?>">
+            placeholder="<?= h(_t('search')) ?>">
 
           <button @click="searchOpen = false" class="top-1/2 right-4 absolute hover:bg-theme-bg opacity-50 hover:opacity-100 px-2 py-1 border border-theme-border rounded-theme font-bold text-[10px] text-theme-text transition -translate-y-1/2">ESC</button>
         </div>

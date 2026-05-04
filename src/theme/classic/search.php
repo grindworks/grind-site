@@ -5,7 +5,10 @@ if (!defined('GRINDS_APP')) exit;
 /**
  * search.php
  * Render search results.
+ *
+ * @var array $pageData
  */
+global $post;
 ?>
 
 <header class="page-header">

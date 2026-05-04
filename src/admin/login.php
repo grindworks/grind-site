@@ -137,7 +137,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$is_locked) {
                     // Process successful login
                     session_regenerate_id(true);
 
-                    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+                    $_SESSION['csrf_token'] = bin2hex(grinds_random_bytes(32));
 
                     $_SESSION['admin_logged_in'] = true;
                     $_SESSION['user_id'] = $user['id'];
@@ -210,6 +210,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$is_locked) {
 
                     // Send lockout alert email to admin on first occurrence
                     if ($is_new_lockout) {
+                        if (class_exists('GrindsLogger')) {
+                            GrindsLogger::log("Security Alert: Login Lockout for IP {$ip_address} or Username {$input_user}", 'WARNING');
+                        } else {
+                            error_log("Security Alert: Login Lockout for IP {$ip_address} or Username {$input_user}");
+                        }
+
                         $admin_email = get_option('smtp_admin_email');
                         $smtp_host = get_option('smtp_host');
                         if (!empty($admin_email) && !empty($smtp_host)) {

@@ -15,7 +15,7 @@ if (!defined('GRINDS_APP')) exit;
  * Render content block.
  */
 if (!function_exists('corporate_render_block')) {
-  function corporate_render_block($block, $pathFixer)
+  function corporate_render_block(array $block, callable $pathFixer)
   {
     $type = $block['type'] ?? '';
     $data = $block['data'] ?? [];
@@ -297,11 +297,13 @@ if (!function_exists('corporate_render_block')) {
         return $html;
 
       case 'countdown':
-        $deadline = h($data['deadline'] ?? '');
-        $msg = h($data['message'] ?? theme_t('Finished'));
+        $deadline = $data['deadline'] ?? '';
+        $msg = $data['message'] ?? theme_t('Finished');
         $uid = 'timer-' . uniqid();
+        $jsDeadline = json_encode($deadline);
+        $jsMsg = json_encode($msg);
         $html = "<div id='{$uid}' class='bg-gray-900 shadow-lg my-8 p-6 rounded-xl text-white text-center'><div class='opacity-70 mb-2 text-sm'>" . theme_t('Time Remaining') . "</div><div class='font-mono font-bold text-3xl md:text-5xl tracking-widest timer-display'>00:00:00:00</div></div>";
-        $html .= "<script>(function(){const end=new Date('{$deadline}').getTime();const el=document.querySelector('#{$uid} .timer-display');const timer=setInterval(()=>{const now=new Date().getTime();const dist=end-now;if(dist<0){clearInterval(timer);el.innerHTML='{$msg}';return;}const d=Math.floor(dist/(1000*60*60*24));const h=Math.floor((dist%(1000*60*60*24))/(1000*60));const m=Math.floor((dist%(1000*60*60))/(1000*60));const s=Math.floor((dist%(1000*60))/1000);el.innerText=d+'d '+h.toString().padStart(2,'0')+'h '+m.toString().padStart(2,'0')+'m '+s.toString().padStart(2,'0')+'s';},1000);})();</script>";
+        $html .= "<script>(function(){const end=new Date({$jsDeadline}).getTime();const el=document.querySelector('#{$uid} .timer-display');const timer=setInterval(()=>{const now=new Date().getTime();const dist=end-now;if(dist<0){clearInterval(timer);el.innerHTML={$jsMsg};return;}const d=Math.floor(dist/(1000*60*60*24));const h=Math.floor((dist%(1000*60*60*24))/(1000*60));const m=Math.floor((dist%(1000*60*60))/(1000*60));const s=Math.floor((dist%(1000*60))/1000);el.innerText=d+'d '+h.toString().padStart(2,'0')+'h '+m.toString().padStart(2,'0')+'m '+s.toString().padStart(2,'0')+'s';},1000);})();</script>";
         return $html;
 
       case 'qrcode':
@@ -422,8 +424,9 @@ if (!function_exists('corporate_render_block')) {
       case 'search_box':
         $action = resolve_url('/');
         $ph = h($data['placeholder'] ?? theme_t('search_placeholder'));
+        $q = h($_GET['q'] ?? '');
         $html = "<form action='{$action}' method='get' class='flex my-8'>";
-        $html .= "<input type='text' name='q' placeholder='{$ph}' class='flex-1 p-2 border border-gray-300 rounded-l focus:border-corp-accent outline-none'><button class='bg-corp-accent px-4 rounded-r text-white hover:opacity-90 transition'>" . theme_t('search', 'Search') . "</button></form>";
+        $html .= "<input type='text' name='q' placeholder='{$ph}' value='{$q}' class='flex-1 p-2 border border-gray-300 rounded-l focus:border-corp-accent outline-none'><button class='bg-corp-accent px-4 rounded-r text-white hover:opacity-90 transition'>" . theme_t('search', 'Search') . "</button></form>";
         return $html;
 
       default:

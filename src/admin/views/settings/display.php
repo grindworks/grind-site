@@ -3,6 +3,8 @@
 /**
  * display.php
  * Renders the interface for managing display settings.
+ *
+ * @var array $opt
  */
 if (!defined('GRINDS_APP')) exit; ?>
 <div class="space-y-6 bg-theme-surface shadow-theme p-4 sm:p-6 border border-theme-border rounded-theme">

@@ -26,7 +26,7 @@ $step_styles = $block_config['library']['design']['items']['step']['styles'] ?? 
         <!-- Title input -->
         <div>
           <label class="block opacity-50 mb-1 font-bold text-[10px] text-theme-text"><?= _t('lbl_step_title') ?></label>
-          <input type="text" x-model="item.title" :id="'block-' + block.id + '-item-' + i + '-title'" class="w-full font-bold form-control-sm" placeholder="<?= _t('ph_step_title') ?>">
+          <input type="text" x-model="item.title" :id="'block-' + block.id + '-item-' + i + '-title'" class="w-full font-bold form-control-sm" placeholder="<?= h(_t('ph_step_title')) ?>">
         </div>
         <!-- Description input -->
         <div>
@@ -34,7 +34,7 @@ $step_styles = $block_config['library']['design']['items']['step']['styles'] ?? 
           <textarea x-model="item.desc" :id="'block-' + block.id + '-item-' + i + '-desc'" rows="3"
             x-init="$nextTick(() => { $el.style.height = 'auto'; $el.style.height = $el.scrollHeight + 'px' })"
             @input="$el.style.height = 'auto'; $el.style.height = $el.scrollHeight + 'px'"
-            class="w-full text-xs form-control-sm overflow-hidden resize-none" placeholder="<?= _t('ph_step_desc') ?>"></textarea>
+            class="w-full text-xs form-control-sm overflow-hidden resize-none" placeholder="<?= h(_t('ph_step_desc')) ?>"></textarea>
         </div>
       </div>
     </div>

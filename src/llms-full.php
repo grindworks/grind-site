@@ -128,7 +128,7 @@ if (!class_exists('LlmsFullGenerator')) {
             echo $content;
         }
 
-        private function writeContent($fp): void
+        private function writeContent(mixed $fp): void
         {
             fwrite($fp, "# {$this->siteName} - Full Content Archive\n");
             fwrite($fp, "> This file contains the full text of all published articles for AI context loading.\n");
@@ -344,10 +344,21 @@ if (!class_exists('LlmsFullGenerator')) {
             $codeBlocks = [];
             $preIndex = 0;
 
-            // 1. Protect <pre> / <code> blocks
+            // 1. Protect <pre> / <code> blocks and extract language
             $html = preg_replace_callback('/<pre\b[^>]*+>((?:[^<]++|<(?!\/pre>))*+)<\/pre>/is', function ($matches) use (&$codeBlocks, &$preIndex) {
                 $placeholder = '___GRINDS_CODE_BLOCK_' . $preIndex++ . '___';
-                $codeBlocks[$placeholder] = $matches[1];
+                $innerHtml = $matches[1];
+                $lang = '';
+
+                if (preg_match('/<code\b[^>]*?(?:class=["\'][^"\']*?language-([a-zA-Z0-9_-]+)[^"\']*?["\'])?[^>]*+>((?:[^<]++|<(?!\/code>))*+)<\/code>/is', $innerHtml, $codeMatches)) {
+                    $lang = !empty($codeMatches[1]) ? $codeMatches[1] : '';
+                    $innerHtml = $codeMatches[2];
+                }
+
+                $codeBlocks[$placeholder] = [
+                    'lang' => $lang,
+                    'code' => html_entity_decode(strip_tags($innerHtml), ENT_QUOTES | ENT_HTML5, 'UTF-8')
+                ];
                 return $placeholder;
             }, $html) ?? $html;
 
@@ -461,8 +472,8 @@ if (!class_exists('LlmsFullGenerator')) {
             }, $html) ?? $html;
 
             // Restore code blocks.
-            foreach ($codeBlocks as $placeholder => $codeBlock) {
-                $html = str_replace((string)$placeholder, "\n\n```\n" . trim((string)$codeBlock) . "\n```\n\n", $html);
+            foreach ($codeBlocks as $placeholder => $data) {
+                $html = str_replace((string)$placeholder, "\n\n```" . $data['lang'] . "\n" . trim($data['code']) . "\n```\n\n", $html);
             }
 
             // Decode HTML entities to maximize LLM token efficiency

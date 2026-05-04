@@ -1,7 +1,10 @@
 <?php
 
 /**
- * _maintenance_mode.php
+ * Plugin Name: Maintenance Mode
+ *
+ * Author: Grind Works Inc.
+ * Version: 1.0.0
  *
  * [English]
  * Displays a "Maintenance Mode" screen (503 status) to non-logged-in users.

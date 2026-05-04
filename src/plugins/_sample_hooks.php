@@ -1,7 +1,10 @@
 <?php
 
 /**
- * _sample_hooks.php
+ * Plugin Name: Sample Hooks
+ *
+ * Author: Grind Works Inc.
+ * Version: 1.0.0
  *
  * [English]
  * Sample plugin demonstrating the Hook System (Actions & Filters) of GrindSite.

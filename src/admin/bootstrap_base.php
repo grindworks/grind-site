@@ -30,6 +30,9 @@ if (function_exists('_safe_session_start')) {
 define('GRINDS_ENABLE_MIGRATIONS', true);
 require_once $rootDir . '/lib/db.php';
 
+// Load user plugins AFTER session and DB are ready
+require_once $rootDir . '/lib/functions/plugins.php';
+
 // Initialize logger
 if (class_exists('GrindsLogger')) {
     GrindsLogger::init();

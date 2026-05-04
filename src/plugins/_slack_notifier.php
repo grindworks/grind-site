@@ -1,7 +1,10 @@
 <?php
 
 /**
- * _slack_notifier.php
+ * Plugin Name: Slack Notifier
+ *
+ * Author: Grind Works Inc.
+ * Version: 1.0.0
  *
  * [English]
  * Sends a notification to a specified Slack or Discord Webhook URL when a post is saved as "published".

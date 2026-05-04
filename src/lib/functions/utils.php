@@ -152,7 +152,7 @@ if (!function_exists('grinds_ssg_normalize_slug')) {
  * @return string Output format: "R G B" or "R G B / A"
  */
 if (!function_exists('grinds_normalize_color')) {
-    function grinds_normalize_color($color)
+    function grinds_normalize_color(mixed $color): string
     {
         if (!is_string($color) || empty($color))
             return "0 0 0";
@@ -174,6 +174,10 @@ if (!function_exists('grinds_normalize_color')) {
                 return $cache[$key] = "$r $g $b / $a";
             }
             return $cache[$key] = "$r $g $b";
+        }
+
+        if ($hex === 'transparent') {
+            return $cache[$key] = "0 0 0 / 0";
         }
 
         $hex = str_replace('#', '', $hex);
@@ -206,7 +210,7 @@ if (!function_exists('grinds_normalize_color')) {
 
 /** Extract plain text from content */
 if (!function_exists('grinds_extract_text_from_content')) {
-    function grinds_extract_text_from_content(?string $content): string
+    function grinds_extract_text_from_content(?string $content, bool $includeTechnical = true): string
     {
         if (empty($content)) {
             return '';
@@ -274,6 +278,11 @@ if (!function_exists('grinds_extract_text_from_content')) {
                     continue;
                 }
 
+                // Skip technical blocks (code, html, math) for excerpts to prevent SEO noise
+                if (!$includeTechnical && in_array($type, ['code', 'html', 'math'])) {
+                    continue;
+                }
+
                 if ($type === 'password_protect') {
                     break;
                 }
@@ -315,7 +324,7 @@ if (!function_exists('grinds_extract_text_from_content')) {
  * @return array
  */
 if (!function_exists('grinds_extract_urls')) {
-    function grinds_extract_urls($content)
+    function grinds_extract_urls(mixed $content): array
     {
         $urlsMap = [];
         if (empty($content))
@@ -379,7 +388,7 @@ if (!function_exists('grinds_extract_urls')) {
 
 /** Restore URL for view display */
 if (!function_exists('grinds_url_to_view')) {
-    function grinds_url_to_view($content)
+    function grinds_url_to_view(mixed $content): string
     {
         return Routing::restoreViewUrl($content);
     }
@@ -387,7 +396,7 @@ if (!function_exists('grinds_url_to_view')) {
 
 /** Resolve relative path to absolute URL */
 if (!function_exists('resolve_url')) {
-    function resolve_url($path = '')
+    function resolve_url(string $path = ''): string
     {
         return Routing::resolveUrl($path);
     }
@@ -395,7 +404,7 @@ if (!function_exists('resolve_url')) {
 
 /** Convert shorthand byte notation */
 if (!function_exists('grinds_return_bytes')) {
-    function grinds_return_bytes($val)
+    function grinds_return_bytes(int|string $val): int
     {
         $val = trim($val);
         if ($val === '')
@@ -419,7 +428,7 @@ if (!function_exists('grinds_return_bytes')) {
 
 /** Determine maximum upload size */
 if (!function_exists('grinds_get_max_upload_size')) {
-    function grinds_get_max_upload_size()
+    function grinds_get_max_upload_size(): int
     {
         $max_upload = grinds_return_bytes(ini_get('upload_max_filesize'));
         $max_post = grinds_return_bytes(ini_get('post_max_size'));
@@ -445,7 +454,7 @@ if (!function_exists('grinds_get_max_upload_size')) {
  * @return string
  */
 if (!function_exists('grinds_replace_css_urls')) {
-    function grinds_replace_css_urls($content, $callback)
+    function grinds_replace_css_urls(mixed $content, callable $callback): string
     {
         if (empty($content) || !is_string($content))
             return $content;
@@ -540,11 +549,11 @@ if (!function_exists('get_client_ip')) {
         }
 
         if ($trust) {
-            if (!empty($_SERVER['HTTP_CF_CONNECTING_IP'])) {
-                return $_SERVER['HTTP_CF_CONNECTING_IP'];
-            }
-
+            // [FIXED] Merged CF-Connecting-IP and True-Client-IP into the validation loop
+            // to prevent IP spoofing bypasses when trusting proxies.
             $headers = [
+                'HTTP_CF_CONNECTING_IP',
+                'HTTP_TRUE_CLIENT_IP',
                 'HTTP_CLIENT_IP',
                 'HTTP_X_FORWARDED_FOR',
                 'HTTP_X_FORWARDED',
@@ -557,10 +566,19 @@ if (!function_exists('get_client_ip')) {
                 if (array_key_exists($key, $_SERVER) === true) {
                     $ips = array_map('trim', explode(',', $_SERVER[$key]));
 
+                    // For X-Forwarded-For, the client IP is typically the first one,
+                    // but we reverse it to process from the proxy nearest to the server backwards
                     $ips = array_reverse($ips);
+
+                    $last_valid_ip = null;
 
                     foreach ($ips as $possible_ip) {
                         if (filter_var($possible_ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) !== false) {
+
+                            $last_valid_ip = $possible_ip;
+
+                            // If explicit proxy IPs are defined, verify the possible IP
+                            // isn't just another trusted node in the chain
                             if (!empty($trustedIps)) {
                                 $isProxyTrusted = false;
                                 foreach ($trustedIps as $range) {
@@ -572,10 +590,16 @@ if (!function_exists('get_client_ip')) {
                                 if ($isProxyTrusted) {
                                     continue;
                                 }
+                                return $possible_ip;
+                            } else {
+                                // Trust all proxies, continue to find the leftmost valid IP
+                                continue;
                             }
-
-                            return $possible_ip;
                         }
+                    }
+
+                    if ($last_valid_ip !== null) {
+                        return $last_valid_ip;
                     }
                 }
             }
@@ -587,7 +611,7 @@ if (!function_exists('get_client_ip')) {
 
 /** Redirect to specified URL */
 if (!function_exists('redirect')) {
-    function redirect($path)
+    function redirect(string $path): never
     {
         $url = resolve_url($path);
 
@@ -610,7 +634,7 @@ if (!function_exists('redirect')) {
  * @return string
  */
 if (!function_exists('grinds_get_current_list_url')) {
-    function grinds_get_current_list_url($scriptName = null)
+    function grinds_get_current_list_url(?string $scriptName = null): string
     {
         if ($scriptName === null) {
             $scriptName = basename($_SERVER['SCRIPT_NAME']);
@@ -642,7 +666,7 @@ if (!function_exists('grinds_get_current_list_url')) {
  * @return bool
  */
 if (!function_exists('grinds_force_unlink')) {
-    function grinds_force_unlink($path)
+    function grinds_force_unlink(string $path): bool
     {
         if (!file_exists($path))
             return true;
@@ -672,7 +696,7 @@ if (!function_exists('grinds_force_unlink')) {
  * @return bool
  */
 if (!function_exists('is_dark')) {
-    function is_dark($rgb_str)
+    function is_dark(string $rgb_str): bool
     {
         $rgb = explode(' ', $rgb_str);
         if (count($rgb) < 3)
@@ -703,7 +727,7 @@ if (!function_exists('grinds_clean_output_buffer')) {
  * @param int $status
  */
 if (!function_exists('json_response')) {
-    function json_response($data, $status = 200)
+    function json_response(mixed $data, int $status = 200): never
     {
         // Clear output buffers to ensure clean JSON
         grinds_clean_output_buffer();
@@ -723,19 +747,19 @@ if (!function_exists('json_response')) {
  * @return string
  */
 if (!function_exists('grinds_decode_post_content')) {
-    function grinds_decode_post_content($content)
+    function grinds_decode_post_content(mixed $content): string
     {
         if (empty($content))
-            return $content;
+            return (string)$content;
 
         // Return content directly if it looks like JSON
-        $firstChar = substr(ltrim($content), 0, 1);
+        $firstChar = substr(ltrim((string)$content), 0, 1);
         if ($firstChar === '{' || $firstChar === '[') {
-            return $content;
+            return (string)$content;
         }
 
-        $contentSafe = str_replace(' ', '+', $content);
-        return base64_decode($contentSafe);
+        $contentSafe = str_replace(' ', '+', (string)$content);
+        return base64_decode($contentSafe) ?: '';
     }
 }
 
@@ -745,7 +769,7 @@ if (!function_exists('grinds_decode_post_content')) {
  * @return string
  */
 if (!function_exists('grinds_get_db_path')) {
-    function grinds_get_db_path()
+    function grinds_get_db_path(): string
     {
         if (!defined('DB_FILE'))
             return '';
@@ -761,7 +785,7 @@ if (!function_exists('grinds_get_db_path')) {
  * @throws Exception
  */
 if (!function_exists('grinds_db_snapshot')) {
-    function grinds_db_snapshot($destination)
+    function grinds_db_snapshot(string $destination): bool
     {
         if (file_exists($destination)) {
             grinds_force_unlink($destination);
@@ -829,7 +853,7 @@ if (!function_exists('grinds_db_snapshot')) {
  * @return void
  */
 if (!function_exists('grinds_rotate_backups')) {
-    function grinds_rotate_backups($prefix, $limit)
+    function grinds_rotate_backups(string $prefix, int $limit): void
     {
         $backup_dir = ROOT_PATH . '/data/backups/';
         if (!is_dir($backup_dir))
@@ -879,7 +903,7 @@ if (!function_exists('grinds_rotate_backups')) {
  * @throws Exception
  */
 if (!function_exists('grinds_create_backup')) {
-    function grinds_create_backup($filename)
+    function grinds_create_backup(string $filename): bool
     {
         // Disconnect global connection to release lock
         global $pdo;
@@ -924,7 +948,7 @@ if (!function_exists('grinds_create_backup')) {
  * @return void
  */
 if (!function_exists('grinds_recursive_copy')) {
-    function grinds_recursive_copy($src, $dst, $exclude = [])
+    function grinds_recursive_copy(string $src, string $dst, array $exclude = []): void
     {
         if (!is_dir($src))
             return;
@@ -1025,13 +1049,14 @@ if (!function_exists('grinds_recursive_copy')) {
  * @return bool
  */
 if (!function_exists('grinds_delete_tree')) {
-    function grinds_delete_tree($dir)
+    function grinds_delete_tree(string $dir): bool
     {
         if (!is_dir($dir))
             return false;
 
         // Prevent deleting root directory
-        $realDir = rtrim(str_replace('\\', '/', (string)realpath($dir)), '/');
+        $resolvedPath = realpath($dir);
+        $realDir = rtrim(str_replace('\\', '/', $resolvedPath !== false ? $resolvedPath : $dir), '/');
         $realRoot = defined('ROOT_PATH') ? rtrim(str_replace('\\', '/', (string)realpath(ROOT_PATH)), '/') : '';
 
         if (($realRoot !== '' && $realDir === $realRoot) || empty($realDir) || $realDir === '/') {
@@ -1051,7 +1076,7 @@ if (!function_exists('grinds_delete_tree')) {
             ];
             foreach ($protectedDirs as $protectedDir) {
                 $protectedPath = $realRoot . '/' . $protectedDir;
-                if ($realDir === $protectedPath) {
+                if ($realDir === $protectedPath || str_starts_with($protectedPath, $realDir . '/')) {
                     error_log("CRITICAL SECURITY: Attempted to delete a protected directory! ($dir)");
                     return false;
                 }
@@ -1090,7 +1115,7 @@ if (!function_exists('grinds_delete_tree')) {
  * @return string|false Content or false on failure.
  */
 if (!function_exists('grinds_fetch_url')) {
-    function grinds_fetch_url($url, $options = [])
+    function grinds_fetch_url(string $url, array $options = []): string|false
     {
         $timeout = $options['timeout'] ?? 10;
         $maxSize = $options['max_size'] ?? 2 * 1024 * 1024;
@@ -1241,7 +1266,7 @@ if (!function_exists('grinds_fetch_url')) {
 
 /** Split search query into keywords */
 if (!function_exists('grinds_split_search_keywords')) {
-    function grinds_split_search_keywords($query)
+    function grinds_split_search_keywords(string $query): array
     {
         return preg_split('/[\s　]+/u', $query, -1, PREG_SPLIT_NO_EMPTY);
     }
@@ -1249,7 +1274,7 @@ if (!function_exists('grinds_split_search_keywords')) {
 
 /** Escape string for SQL LIKE clause */
 if (!function_exists('grinds_escape_like')) {
-    function grinds_escape_like($term, $escapeChar = '\\')
+    function grinds_escape_like(string $term, string $escapeChar = '\\'): string
     {
         return addcslashes($term, '%' . '_' . $escapeChar);
     }
@@ -1257,7 +1282,7 @@ if (!function_exists('grinds_escape_like')) {
 
 /** Build search query conditions */
 if (!function_exists('grinds_build_search_query')) {
-    function grinds_build_search_query($query, $callback)
+    function grinds_build_search_query(string|array $query, callable $callback): string
     {
         $keywords = is_array($query) ? $query : grinds_split_search_keywords($query);
         $conditions = [];
@@ -1276,7 +1301,7 @@ if (!function_exists('grinds_build_search_query')) {
 
 /** Sanitize HTML content */
 if (!function_exists('grinds_sanitize_html')) {
-    function grinds_sanitize_html($text, $allowUnsafe = false)
+    function grinds_sanitize_html(mixed $text, bool $allowUnsafe = false): string
     {
         if (empty($text) || !is_string($text))
             return '';
@@ -1415,7 +1440,7 @@ if (!function_exists('grinds_sanitize_html')) {
 }
 
 if (!function_exists('_grinds_sanitize_clean_nodes')) {
-    function _grinds_sanitize_clean_nodes($node, $allowedTags, $depth = 0)
+    function _grinds_sanitize_clean_nodes(DOMNode $node, array $allowedTags, int $depth = 0): void
     {
         if ($depth > 200) {
             if ($node->parentNode) {
@@ -1450,7 +1475,7 @@ if (!function_exists('_grinds_sanitize_clean_nodes')) {
 }
 
 if (!function_exists('_grinds_sanitize_clean_attributes')) {
-    function _grinds_sanitize_clean_attributes($element)
+    function _grinds_sanitize_clean_attributes(DOMNode $element): void
     {
         if (!($element instanceof DOMElement)) {
             return;
@@ -1546,10 +1571,10 @@ if (!function_exists('_grinds_sanitize_clean_attributes')) {
 }
 
 if (!function_exists('_grinds_is_dangerous_url')) {
-    function _grinds_is_dangerous_url($url)
+    function _grinds_is_dangerous_url(string $url): bool
     {
         $url = html_entity_decode($url, ENT_QUOTES | ENT_HTML5, 'UTF-8');
-        $url = preg_replace('/[\x00-\x1F\x7F]+/', '', $url);
+        $url = preg_replace('/[\s\x00-\x1F\x7F]+/', '', $url);
         $url = trim($url);
 
         if (preg_match('/^data:image\//i', $url)) {
@@ -1566,7 +1591,7 @@ if (!function_exists('_grinds_is_dangerous_url')) {
  * @return array
  */
 if (!function_exists('get_json_input')) {
-    function get_json_input()
+    function get_json_input(): array
     {
         static $cachedInput = null;
         if ($cachedInput !== null)
@@ -1584,7 +1609,7 @@ if (!function_exists('get_json_input')) {
  * @return bool
  */
 if (!function_exists('is_ajax_request')) {
-    function is_ajax_request()
+    function is_ajax_request(): bool
     {
         if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') {
             return true;
@@ -1611,7 +1636,7 @@ if (!function_exists('is_ajax_request')) {
  * @return int
  */
 if (!function_exists('grinds_delete_records')) {
-    function grinds_delete_records($pdo, $table, $ids, $options = [])
+    function grinds_delete_records(PDO $pdo, string $table, array $ids, array $options = []): int
     {
         $count = 0;
         $col = $options['id_column'] ?? 'id';
@@ -1650,7 +1675,7 @@ if (!function_exists('grinds_delete_records')) {
  * @return array
  */
 if (!function_exists('grinds_get_or_create_tags')) {
-    function grinds_get_or_create_tags(PDO $pdo, array $tagNames)
+    function grinds_get_or_create_tags(PDO $pdo, array $tagNames): array
     {
         $tagIds = [];
         if (empty($tagNames))
@@ -1744,7 +1769,7 @@ if (!function_exists('grinds_get_or_create_tags')) {
  * @return array
  */
 if (!function_exists('grinds_paginate_query')) {
-    function grinds_paginate_query(PDO $pdo, string $tableName, int $page, int $limit, ?Sorter $sorter = null, string $whereClause = '', array $params = [])
+    function grinds_paginate_query(PDO $pdo, string $tableName, int $page, int $limit, ?Sorter $sorter = null, string $whereClause = '', array $params = []): array
     {
         if (!preg_match('/^[a-zA-Z0-9_]+$/', $tableName)) {
             throw new InvalidArgumentException("Invalid table name provided.");
@@ -1783,7 +1808,7 @@ if (!function_exists('grinds_paginate_query')) {
  * @throws Exception
  */
 if (!function_exists('grinds_get_bulk_target_ids')) {
-    function grinds_get_bulk_target_ids($data)
+    function grinds_get_bulk_target_ids(array $data): array
     {
         $targetIds = [];
         if (isset($data['ids']) && is_array($data['ids'])) {
@@ -1823,7 +1848,7 @@ if (!function_exists('grinds_get_bulk_target_ids')) {
  * @return void
  */
 if (!function_exists('grinds_sync_taxonomy_urls')) {
-    function grinds_sync_taxonomy_urls(PDO $pdo, $type, $oldSlug, $newSlug, $oldName, $newName)
+    function grinds_sync_taxonomy_urls(PDO $pdo, string $type, string $oldSlug, string $newSlug, string $oldName, string $newName): void
     {
         $relOld = '/' . $type . '/' . $oldSlug;
         $absOld = '{{CMS_URL}}' . $relOld;
@@ -1953,7 +1978,7 @@ if (!function_exists('grinds_sync_taxonomy_urls')) {
  * @throws Exception
  */
 if (!function_exists('grinds_process_image_upload')) {
-    function grinds_process_image_upload(PDO $pdo, $field_name, $current_value = '', $options = [])
+    function grinds_process_image_upload(PDO $pdo, string $field_name, string $current_value = '', array $options = []): string
     {
         $post = $options['post_data'] ?? $_POST;
         $files = $options['files_data'] ?? $_FILES;
@@ -2045,7 +2070,8 @@ if (!function_exists('grinds_get_unique_slug')) {
 if (!function_exists('grinds_get_bigram')) {
     function grinds_get_bigram(string $text): string
     {
-        $text = mb_strtolower(strip_tags($text), 'UTF-8');
+        $text = html_entity_decode(strip_tags($text), ENT_QUOTES | ENT_HTML5, 'UTF-8');
+        $text = mb_strtolower($text, 'UTF-8');
         $text = preg_replace('/([a-z0-9\-_]+)/u', ' $1 ', $text);
         $text = preg_replace('/[\s　]+/u', ' ', $text);
         $tokens = [];
@@ -2058,19 +2084,21 @@ if (!function_exists('grinds_get_bigram')) {
             if (preg_match('/^[a-z0-9\-_]+$/u', $part)) {
                 $tokens[] = $part;
             } else {
-                // Generate bigrams for other characters
-                $len = mb_strlen($part, 'UTF-8');
+                // Prevent CPU Timeout/Crash: Use mb_str_split instead of mb_substr in a loop.
+                $chars = mb_str_split($part, 1, 'UTF-8');
+                $len = count($chars);
 
+                // Prevent excessive processing on huge continuous blocks
                 if ($len > 5000) {
+                    $chars = array_slice($chars, 0, 5000);
                     $len = 5000;
-                    $part = mb_substr($part, 0, 5000, 'UTF-8');
                 }
 
                 if ($len === 1) {
-                    $tokens[] = $part;
+                    $tokens[] = $chars[0];
                 } else {
                     for ($i = 0; $i < $len - 1; $i++) {
-                        $tokens[] = mb_substr($part, $i, 2, 'UTF-8');
+                        $tokens[] = $chars[$i] . $chars[$i + 1];
                     }
                 }
             }
@@ -2180,6 +2208,11 @@ if (!function_exists('grinds_download_file')) {
 
         // Fallback if cURL is completely missing
         if (!function_exists('curl_init')) {
+            // Return false if blocking private IPs due to DNS rebinding vulnerability
+            if ($blockPrivateIp) {
+                return false;
+            }
+
             $contextOptions = [
                 'http' => [
                     'timeout' => $timeout,

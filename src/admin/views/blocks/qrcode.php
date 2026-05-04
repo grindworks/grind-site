@@ -12,7 +12,7 @@ if (!defined('GRINDS_APP'))
         <?= _t('lbl_qr_url') ?>
       </label>
       <input type="text" x-model="block.data.url" :id="'block-' + block.id + '-url'" class="w-full text-xs form-control-sm"
-        placeholder="<?= _t('ph_url_example') ?>">
+        placeholder="<?= h(_t('ph_url_example')) ?>">
     </div>
     <div>
       <label class="block opacity-50 mb-1 font-bold text-[10px] text-theme-text">

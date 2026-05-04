@@ -120,6 +120,14 @@ Save the output code to `src/theme/my-custom-theme/` to complete the theme skele
 - **Pixel Perfection**: AI creates a "very close" reproduction, but it may not perfectly match font sizes or spacing values from Figma. Manual adjustments (tweaking Tailwind classes) will be required.
 - **Mobile Responsiveness**: If you only provide PC design images, the AI will guess the mobile layout. For best results, provide mobile design images as well.
 
+### 💡 5. Displaying a Static Page on the Homepage
+
+If you want the theme to display a specific static page (like `home-demo`) on the top page (`/`), instruct the AI to fetch it in `home.php`.
+
+**Example Prompt:**
+
+> "In `home.php`, fetch the static page with the slug `home-demo` from the database and render it using `BlockRenderer` at the very top, before the latest posts list."
+
 ---
 
 <a name="japanese"></a>
@@ -235,3 +243,11 @@ AIが画像の色合い、レイアウト、余白を解析し、Tailwind CSSで
 
 - **完全再現は難しい**: AIは見た目を「かなり近く」再現しますが、Figmaのフォントサイズや余白の数値を100%正確に読み取れるわけではありません。生成後、微調整（Tailwindのクラスの変更）は必要になります。
 - **スマホ表示の補完**: PC版のデザイン画像しか渡さないと、AIがスマホ版のレイアウトを「良きに計らって」作ります。こだわりがある場合は、スマホ版の画像も一緒に渡すと完璧です。
+
+### 💡 5. トップページに特定の固定ページを表示させる
+
+トップページ（`/`）に新着記事一覧だけでなく、特定の固定ページ（例: `home-demo`）の内容を表示させたい場合は、AIに `home.php` をカスタマイズするように指示します。
+
+**AIへの指示例:**
+
+> 「`home.php` の上部（記事一覧の直前）で、データベースからスラッグが `home-demo` の固定ページを取得し、`BlockRenderer` を使ってレンダリングして表示する処理を追加してください。」

@@ -7,6 +7,7 @@
  */
 require_once __DIR__ . '/api_bootstrap.php';
 
+/** @var \PDO $pdo */
 // Check permissions
 if (!current_user_can('manage_media')) {
   json_response(['success' => false, 'error' => 'Forbidden'], 403);
@@ -21,12 +22,12 @@ try {
   $offset = ($page - 1) * $limit;
 
   // Get filter parameters
-  $keyword = isset($_GET['q']) ? trim($_GET['q']) : '';
-  $sort = isset($_GET['sort']) ? $_GET['sort'] : 'newest';
-  $type = isset($_GET['type']) ? $_GET['type'] : 'all';
-  $date = isset($_GET['date']) ? $_GET['date'] : '';
-  $ext = isset($_GET['ext']) ? $_GET['ext'] : '';
-  $tag = isset($_GET['tag']) ? trim($_GET['tag']) : '';
+  $keyword = trim(Routing::getString($_GET, 'q'));
+  $sort = Routing::getString($_GET, 'sort', 'newest');
+  $type = Routing::getString($_GET, 'type', 'all');
+  $date = Routing::getString($_GET, 'date');
+  $ext = Routing::getString($_GET, 'ext');
+  $tag = trim(Routing::getString($_GET, 'tag'));
 
   $whereConditions = [];
   $params = [];

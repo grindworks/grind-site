@@ -46,7 +46,7 @@ function get_admin_menu()
   ];
 
   // Add categories and tags
-  if (current_user_can('manage_categories')) {
+  if (function_exists('current_user_can') && current_user_can('manage_categories')) {
     $menu['categories'] = [
       'label' => _t('menu_categories'),
       'url'   => 'categories.php',
@@ -60,7 +60,7 @@ function get_admin_menu()
   }
 
   // Add menus
-  if (current_user_can('manage_menus')) {
+  if (function_exists('current_user_can') && current_user_can('manage_menus')) {
     $menu['menus'] = [
       'label' => _t('menu_menus'),
       'url'   => 'menus.php',
@@ -69,7 +69,7 @@ function get_admin_menu()
   }
 
   // Add widgets
-  if (current_user_can('manage_widgets')) {
+  if (function_exists('current_user_can') && current_user_can('manage_widgets')) {
     $menu['widgets'] = [
       'label' => _t('menu_widgets'),
       'url'   => 'widgets.php',
@@ -78,7 +78,7 @@ function get_admin_menu()
   }
 
   // Add banners
-  if (current_user_can('manage_banners')) {
+  if (function_exists('current_user_can') && current_user_can('manage_banners')) {
     $menu['banners'] = [
       'label' => _t('menu_banners'),
       'url'   => 'banners.php',
@@ -87,7 +87,7 @@ function get_admin_menu()
   }
 
   // Add tools
-  if (current_user_can('manage_tools')) {
+  if (function_exists('current_user_can') && current_user_can('manage_tools')) {
     $menu['static_export'] = [
       'label' => _t('ssg_title'),
       'url'   => 'static_export.php',
@@ -116,8 +116,17 @@ function get_admin_menu()
     ];
   }
 
+  // Add plugins
+  if (function_exists('current_user_can') && current_user_can('manage_settings')) {
+    $menu['plugins'] = [
+      'label' => _t('menu_plugins'),
+      'url'   => 'plugins.php',
+      'icon'  => 'outline-puzzle-piece'
+    ];
+  }
+
   // Add settings or profile
-  if (current_user_can('manage_settings')) {
+  if (function_exists('current_user_can') && current_user_can('manage_settings')) {
     $menu['settings'] = [
       'label' => _t('menu_settings'),
       'url'   => 'settings.php',

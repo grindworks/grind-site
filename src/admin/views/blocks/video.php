@@ -10,7 +10,7 @@ if (!defined('GRINDS_APP')) exit; ?>
   @drop.prevent="dragCount = 0; isDragging = false; if($event.dataTransfer.files.length) { isUploading = true; await uploadImage({target: {files: $event.dataTransfer.files}}, block.id, 'url'); isUploading = false; }"
   :class="{'border-theme-primary bg-theme-primary/5': isDragging}">
   <div class="flex gap-2 mb-3">
-    <input type="text" x-model="block.data.url" :id="'block-' + block.id + '-url'" @blur="block.data.url = normalizeUrl(block.data.url)" class="flex-1 font-mono text-xs form-control-sm" placeholder="<?= _t('ph_video_url') ?>">
+    <input type="text" x-model="block.data.url" :id="'block-' + block.id + '-url'" @blur="block.data.url = normalizeUrl(block.data.url)" class="flex-1 font-mono text-xs form-control-sm" placeholder="<?= h(_t('ph_video_url')) ?>">
 
     <button type="button" @click="openMediaLibrary(block.id, null, 'url')" class="flex items-center gap-1 px-3 py-1 text-xs btn-secondary shrink-0">
       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

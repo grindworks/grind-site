@@ -12,7 +12,7 @@ if (!defined('GRINDS_APP')) exit;
 // function theme_t removed (centralized in core)
 
 if (!function_exists('photographer_the_share_buttons')) {
-  function photographer_the_share_buttons($url, $title)
+  function photographer_the_share_buttons(?string $url, ?string $title)
   {
     // Use centralized helper
     $buttons = grinds_get_share_buttons($url, $title);
@@ -35,7 +35,7 @@ if (!function_exists('photographer_the_share_buttons')) {
  * Render block.
  */
 if (!function_exists('photographer_render_block')) {
-  function photographer_render_block($block, $pathFixer)
+  function photographer_render_block(array $block, callable $pathFixer)
   {
     $type = $block['type'] ?? '';
     $data = $block['data'] ?? [];
@@ -281,7 +281,8 @@ if (!function_exists('photographer_render_block')) {
       case 'search_box':
         $action = resolve_url('/');
         $ph = h($data['placeholder'] ?? theme_t('Search...'));
-        return "<form action='{$action}' method='get' class='my-12 flex border-b border-black'><input type='text' name='q' placeholder='{$ph}' class='flex-1 py-2 outline-none bg-transparent font-serif'><button class='text-xs uppercase tracking-widest'>" . theme_t('Search') . "</button></form>";
+        $q = h($_GET['q'] ?? '');
+        return "<form action='{$action}' method='get' class='my-12 flex border-b border-black'><input type='text' name='q' placeholder='{$ph}' value='{$q}' class='flex-1 py-2 outline-none bg-transparent font-serif'><button class='text-xs uppercase tracking-widest'>" . theme_t('Search') . "</button></form>";
 
       case 'internal_card':
         $id = $data['id'] ?? '';
@@ -326,11 +327,13 @@ if (!function_exists('photographer_render_block')) {
         return $html;
 
       case 'countdown':
-        $deadline = h($data['deadline'] ?? '');
-        $msg = h($data['message'] ?? 'Finished');
+        $deadline = $data['deadline'] ?? '';
+        $msg = $data['message'] ?? 'Finished';
         $uid = 'timer-' . uniqid();
+        $jsDeadline = json_encode($deadline);
+        $jsMsg = json_encode($msg);
         $html = "<div id='{$uid}' class='my-12 p-8 border border-black text-center'><div class='text-xs uppercase tracking-widest mb-2'>" . theme_t('Time Remaining') . "</div><div class='font-serif text-4xl timer-display'>00:00:00:00</div></div>";
-        $html .= "<script>(function(){const end=new Date('{$deadline}').getTime();const el=document.querySelector('#{$uid} .timer-display');const timer=setInterval(()=>{const now=new Date().getTime();const dist=end-now;if(dist<0){clearInterval(timer);el.innerHTML='{$msg}';return;}const d=Math.floor(dist/(1000*60*60*24));const h=Math.floor((dist%(1000*60*60*24))/(1000*60));const m=Math.floor((dist%(1000*60*60))/(1000*60));const s=Math.floor((dist%(1000*60))/1000);el.innerText=d+'d '+h.toString().padStart(2,'0')+'h '+m.toString().padStart(2,'0')+'m '+s.toString().padStart(2,'0')+'s';},1000);})();</script>";
+        $html .= "<script>(function(){const end=new Date({$jsDeadline}).getTime();const el=document.querySelector('#{$uid} .timer-display');const timer=setInterval(()=>{const now=new Date().getTime();const dist=end-now;if(dist<0){clearInterval(timer);el.innerHTML={$jsMsg};return;}const d=Math.floor(dist/(1000*60*60*24));const h=Math.floor((dist%(1000*60*60*24))/(1000*60));const m=Math.floor((dist%(1000*60*60))/(1000*60));const s=Math.floor((dist%(1000*60))/1000);el.innerText=d+'d '+h.toString().padStart(2,'0')+'h '+m.toString().padStart(2,'0')+'m '+s.toString().padStart(2,'0')+'s';},1000);})();</script>";
         return $html;
 
       case 'qrcode':

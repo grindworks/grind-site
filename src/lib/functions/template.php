@@ -9,12 +9,12 @@ if (!defined('GRINDS_APP'))
 
 /** Render block content to HTML. */
 if (!function_exists('render_content')) {
-    function render_content($content)
+    function render_content(mixed $content): string
     {
         $html = '';
         $renderer = new BlockRenderer(true);
         $html = $renderer->render($content);
-        return apply_filters('grinds_the_content', $html);
+        return (string)apply_filters('grinds_the_content', $html);
     }
 }
 
@@ -27,7 +27,7 @@ if (!function_exists('render_content')) {
  * @return string HTML attributes string (href="..." ...).
  */
 if (!function_exists('grinds_get_link_attributes')) {
-    function grinds_get_link_attributes($url, $overrides = [])
+    function grinds_get_link_attributes(string $url, array $overrides = []): string
     {
         $url = trim((string)$url);
         $isExternal = false;
@@ -67,27 +67,27 @@ if (!function_exists('grinds_get_link_attributes')) {
  * making it a flexible formatter for any given date string.
  */
 if (!function_exists('the_date')) {
-    function the_date($dateStr, $format = null)
+    function the_date(string $dateStr, ?string $format = null): string
     {
         // DRY: Call get_the_date internally to share the localization logic
         $date = get_the_date($format, ['published_at' => $dateStr]);
-        return apply_filters('grinds_the_date', $date, $dateStr);
+        return (string)apply_filters('grinds_the_date', $date, $dateStr);
     }
 }
 
 /** Generate text excerpt. */
 if (!function_exists('get_excerpt')) {
-    function get_excerpt($content, $length = 100)
+    function get_excerpt(mixed $content, int $length = 100): string
     {
-        $text = grinds_extract_text_from_content($content);
+        $text = grinds_extract_text_from_content($content, false);
         $excerpt = mb_strimwidth($text, 0, $length, '...', 'UTF-8');
-        return apply_filters('grinds_get_excerpt', $excerpt);
+        return (string)apply_filters('grinds_get_excerpt', $excerpt);
     }
 }
 
 /** Generate responsive image tag with WebP support. */
 if (!function_exists('get_image_html')) {
-    function get_image_html($src, $attributes = [])
+    function get_image_html(?string $src, array $attributes = []): string
     {
         $pdo = App::db();
         global $grinds_image_meta_cache;
@@ -177,11 +177,11 @@ if (!function_exists('get_image_html')) {
             $html .= '<source srcset="' . h($webpSrc) . '" type="image/webp">';
             $html .= '<img src="' . h($src) . '"' . $attr_str . '>';
             $html .= '</picture>';
-            return apply_filters('grinds_get_image_html', $html, $src, $attributes);
+            return (string)apply_filters('grinds_get_image_html', $html, $src, $attributes);
         }
 
         $html = '<img src="' . h($src) . '"' . $attr_str . '>';
-        return apply_filters('grinds_get_image_html', $html, $src, $attributes);
+        return (string)apply_filters('grinds_get_image_html', $html, $src, $attributes);
     }
 }
 
@@ -192,7 +192,7 @@ if (!function_exists('get_image_html')) {
  * @return array List of headers with level, text, and id.
  */
 if (!function_exists('get_post_toc')) {
-    function get_post_toc($contentData)
+    function get_post_toc(mixed $contentData): array
     {
         $headers = [];
         if (is_array($contentData) && !empty($contentData['blocks'])) {
@@ -221,7 +221,7 @@ if (!function_exists('get_post_toc')) {
 
 /** Get URL for system asset with versioning. */
 if (!function_exists('grinds_asset_url')) {
-    function grinds_asset_url($path)
+    function grinds_asset_url(string $path): string
     {
         static $cache = [];
         if (isset($cache[$path])) {
@@ -248,7 +248,7 @@ if (!function_exists('grinds_asset_url')) {
 
 /** Get URL for theme asset with fallback to default theme. */
 if (!function_exists('grinds_theme_asset_url')) {
-    function grinds_theme_asset_url($path)
+    function grinds_theme_asset_url(string $path): string
     {
         $theme = grinds_get_active_theme();
 
@@ -269,7 +269,7 @@ if (!function_exists('grinds_theme_asset_url')) {
  * Generate body classes based on current page context.
  */
 if (!function_exists('get_body_class')) {
-    function get_body_class($class = '')
+    function get_body_class(string|array $class = ''): array
     {
         global $pageType, $pageData;
 
@@ -302,7 +302,7 @@ if (!function_exists('get_body_class')) {
             $classes = array_merge($classes, $class);
         }
 
-        return array_unique(apply_filters('grinds_body_class', $classes, $class));
+        return array_unique((array)apply_filters('grinds_body_class', $classes, $class));
     }
 }
 
@@ -310,7 +310,7 @@ if (!function_exists('get_body_class')) {
  * Generate body classes based on current page context.
  */
 if (!function_exists('body_class')) {
-    function body_class($class = '')
+    function body_class(string|array $class = ''): void
     {
         echo 'class="' . implode(' ', array_map('h', get_body_class($class))) . '"';
     }
@@ -320,7 +320,7 @@ if (!function_exists('body_class')) {
  * Output system required head tags.
  */
 if (!function_exists('grinds_head')) {
-    function grinds_head()
+    function grinds_head(): void
     {
         $favicon = function_exists('get_favicon_url') ? get_favicon_url() : '';
         if ($favicon) {
@@ -379,7 +379,7 @@ if (!function_exists('grinds_head')) {
  * Output system required footer tags.
  */
 if (!function_exists('grinds_footer')) {
-    function grinds_footer()
+    function grinds_footer(): void
     {
         // Output custom footer scripts
         if (function_exists('get_option')) {
@@ -402,7 +402,7 @@ if (!function_exists('grinds_footer')) {
  * Preload image metadata to reduce N+1 queries.
  */
 if (!function_exists('grinds_preload_image_meta')) {
-    function grinds_preload_image_meta($urls)
+    function grinds_preload_image_meta(array $urls): void
     {
         global $grinds_image_meta_cache;
         if (!isset($grinds_image_meta_cache))
@@ -453,7 +453,7 @@ if (!function_exists('grinds_preload_image_meta')) {
  * Generate breadcrumb HTML.
  */
 if (!function_exists('get_breadcrumb_html')) {
-    function get_breadcrumb_html($options = [])
+    function get_breadcrumb_html(array $options = []): string
     {
         global $pageType, $pageData, $pageTitle;
 
@@ -507,7 +507,7 @@ if (!function_exists('get_breadcrumb_html')) {
         }
         $html .= '</ol></nav>';
 
-        return apply_filters('grinds_get_breadcrumb', $html, $options);
+        return (string)apply_filters('grinds_get_breadcrumb', $html, $options);
     }
 }
 
@@ -515,7 +515,7 @@ if (!function_exists('get_breadcrumb_html')) {
  * Render pagination.
  */
 if (!function_exists('the_pagination')) {
-    function the_pagination()
+    function the_pagination(): void
     {
         global $pageData;
         if (isset($pageData['paginator']) && is_object($pageData['paginator']) && method_exists($pageData['paginator'], 'renderFrontend')) {
@@ -527,7 +527,7 @@ if (!function_exists('the_pagination')) {
 
 /** Check if current page is home. */
 if (!function_exists('is_home')) {
-    function is_home()
+    function is_home(): bool
     {
         global $pageType;
         return $pageType === 'home';
@@ -539,7 +539,7 @@ if (!function_exists('is_home')) {
  * if theme developers accidentally overwrite the global $post variable.
  */
 if (!function_exists('grinds_get_current_post')) {
-    function grinds_get_current_post()
+    function grinds_get_current_post(): array
     {
         global $post, $pageData;
         // Validate type to ensure it hasn't been polluted with a string/integer
@@ -551,7 +551,7 @@ if (!function_exists('grinds_get_current_post')) {
 
 /** Display or return post title. */
 if (!function_exists('the_title')) {
-    function the_title($echo = true)
+    function the_title(bool $echo = true): ?string
     {
         global $pageTitle;
         $p = grinds_get_current_post();
@@ -562,18 +562,20 @@ if (!function_exists('the_title')) {
             $title = $pageTitle ?? '';
         }
 
-        $title = apply_filters('grinds_the_title', $title);
+        $title = (string)apply_filters('grinds_the_title', $title);
 
-        if ($echo)
+        if ($echo) {
             echo h($title);
-        else
+            return null;
+        } else {
             return $title;
+        }
     }
 }
 
 /** Display post content. */
 if (!function_exists('the_content')) {
-    function the_content()
+    function the_content(): void
     {
         $p = grinds_get_current_post();
         $content = '';
@@ -594,16 +596,16 @@ if (!function_exists('the_content')) {
 
 /** Get site URL. */
 if (!function_exists('site_url')) {
-    function site_url($path = '')
+    function site_url(string $path = ''): string
     {
         $url = resolve_url($path);
-        return apply_filters('grinds_site_url', $url, $path);
+        return (string)apply_filters('grinds_site_url', $url, $path);
     }
 }
 
 /** Display post category. */
 if (!function_exists('the_category')) {
-    function the_category($separator = ', ')
+    function the_category(string $separator = ', '): void
     {
         $p = grinds_get_current_post();
         $html = '';
@@ -620,7 +622,7 @@ if (!function_exists('the_category')) {
 
 /** Display post tags. */
 if (!function_exists('the_tags')) {
-    function the_tags($before = '', $sep = ', ', $after = '')
+    function the_tags(string $before = '', string $sep = ', ', string $after = ''): void
     {
         $p = grinds_get_current_post();
 
@@ -658,7 +660,7 @@ if (!function_exists('the_tags')) {
 
 /** Check if post has thumbnail. */
 if (!function_exists('has_post_thumbnail')) {
-    function has_post_thumbnail()
+    function has_post_thumbnail(): bool
     {
         $p = grinds_get_current_post();
         return !empty($p['thumbnail']);
@@ -667,7 +669,7 @@ if (!function_exists('has_post_thumbnail')) {
 
 /** Display post thumbnail. */
 if (!function_exists('the_post_thumbnail')) {
-    function the_post_thumbnail($attr = [])
+    function the_post_thumbnail(array $attr = []): void
     {
         $p = grinds_get_current_post();
         $html = '';
@@ -680,7 +682,7 @@ if (!function_exists('the_post_thumbnail')) {
 
 /** Display post time. */
 if (!function_exists('the_time')) {
-    function the_time($format = 'Y-m-d')
+    function the_time(string $format = 'Y-m-d'): void
     {
         $p = grinds_get_current_post();
         $date = $p['published_at'] ?? $p['created_at'] ?? null;
@@ -699,7 +701,7 @@ if (!function_exists('the_time')) {
  * Render single widget.
  */
 if (!function_exists('render_widget')) {
-    function render_widget($widget)
+    function render_widget(array $widget): void
     {
         $type = $widget['type'];
         $title = h($widget['title']);
@@ -745,7 +747,7 @@ if (!function_exists('render_widget')) {
  * Render dynamic sidebar widgets.
  */
 if (!function_exists('dynamic_sidebar')) {
-    function dynamic_sidebar($index = 1)
+    function dynamic_sidebar(int $index = 1): bool
     {
         if (!function_exists('get_sidebar_widgets'))
             return false;
@@ -783,7 +785,7 @@ if (!function_exists('dynamic_sidebar')) {
 
 /** Get formatted date. */
 if (!function_exists('get_the_date')) {
-    function get_the_date($format = null, $post_obj = null)
+    function get_the_date(?string $format = null, mixed $post_obj = null): string
     {
         $p = $post_obj ?? grinds_get_current_post();
 
@@ -809,13 +811,13 @@ if (!function_exists('get_the_date')) {
             $date = str_replace($en, $ja, $date);
         }
 
-        return apply_filters('grinds_get_the_date', $date, $format, $p);
+        return (string)apply_filters('grinds_get_the_date', $date, $format, $p);
     }
 }
 
 /** Get post permalink. */
 if (!function_exists('get_permalink')) {
-    function get_permalink($post_obj = null)
+    function get_permalink(mixed $post_obj = null): string
     {
         // Support passing slug string directly (legacy/internal usage)
         if (is_string($post_obj)) {
@@ -838,7 +840,7 @@ if (!function_exists('get_permalink')) {
         }
 
         $url = resolve_url($path);
-        return apply_filters('grinds_get_permalink', $url, $slug);
+        return (string)apply_filters('grinds_get_permalink', $url, $slug);
     }
 }
 
@@ -849,7 +851,7 @@ if (!function_exists('get_permalink')) {
  * @param string $wrapperClass CSS class for the wrapper div
  */
 if (!function_exists('render_banners')) {
-    function render_banners($position, $wrapperClass = 'banner-item my-4')
+    function render_banners(string $position, string $wrapperClass = 'banner-item my-4'): void
     {
         if (!function_exists('get_front_banners'))
             return;
@@ -898,7 +900,7 @@ if (!function_exists('render_banners')) {
  * @return string The favicon URL.
  */
 if (!function_exists('get_favicon_url')) {
-    function get_favicon_url($default = null)
+    function get_favicon_url(?string $default = null): string
     {
         $faviconUrl = $default ?? DEFAULT_FAVICON_URI;
         $uploadedFavicon = get_option('site_favicon');
@@ -911,7 +913,7 @@ if (!function_exists('get_favicon_url')) {
                 $faviconUrl .= '?v=' . filemtime($localFavicon);
             }
         }
-        return apply_filters('grinds_get_favicon_url', $faviconUrl);
+        return (string)apply_filters('grinds_get_favicon_url', $faviconUrl);
     }
 }
 
@@ -921,7 +923,7 @@ if (!function_exists('get_favicon_url')) {
  * @return array Associative array of theme slug => theme name.
  */
 if (!function_exists('get_available_themes')) {
-    function get_available_themes()
+    function get_available_themes(): array
     {
         $themes = [];
         $theme_dir = ROOT_PATH . '/theme/';
@@ -943,7 +945,7 @@ if (!function_exists('get_available_themes')) {
  * Render admin bar.
  */
 if (!function_exists('grinds_admin_bar')) {
-    function grinds_admin_bar()
+    function grinds_admin_bar(): void
     {
         $isAdmin = isset($_SESSION['admin_logged_in']) && $_SESSION['admin_logged_in'];
         $isPreview = false;
@@ -1428,11 +1430,20 @@ add_action('grinds_footer', 'grinds_admin_bar');
  * @return bool True on success, false on failure.
  */
 if (!function_exists('get_template_part')) {
-    function get_template_part($slug, $name = null, $args = [])
+    function get_template_part(string $slug, ?string $name = null, array $args = []): bool
     {
         global $post, $pageData, $pageType, $pageTitle;
 
         static $resolvedPaths = [];
+
+        // Sanitize parameters to prevent directory traversal but allow subdirectories
+        $slug = preg_replace('/[^a-zA-Z0-9_\-\/]/', '', $slug);
+        if ($name !== null) {
+            $name = preg_replace('/[^a-zA-Z0-9_\-\/]/', '', $name);
+        }
+        if (empty($slug)) {
+            return false;
+        }
 
         $theme = $GLOBALS['activeTheme'] ?? get_option('site_theme', 'default');
         $cacheKey = $theme . '-' . $slug . ($name ? '-' . $name : '');

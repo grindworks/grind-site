@@ -3,6 +3,9 @@
 /**
  * mobile_menu.php
  * Renders the mobile navigation menu.
+ *
+ * @var array $admin_menu
+ * @var string|null $current_page
  */
 if (!defined('GRINDS_APP')) exit;
 ?>

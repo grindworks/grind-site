@@ -7,12 +7,13 @@
  */
 require_once __DIR__ . '/api_bootstrap.php';
 
+/** @var \PDO $pdo */
 // Check permissions
 if (!current_user_can('manage_posts')) {
     json_response(['success' => false, 'error' => 'Forbidden'], 403);
 }
 
-$q = $_GET['q'] ?? '';
+$q = Routing::getString($_GET, 'q');
 if (empty($q)) {
     json_response([]);
 }

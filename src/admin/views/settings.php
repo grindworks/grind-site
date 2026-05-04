@@ -4,6 +4,9 @@
  * settings.php
  *
  * Renders the user interface for managing system settings.
+ *
+ * @var array $tabs
+ * @var string $init_tab
  */
 
 // Format data for JS.

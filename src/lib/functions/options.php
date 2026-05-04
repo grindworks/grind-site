@@ -12,7 +12,7 @@ $GLOBALS['_grinds_options_cache'] = null;
 /**
  * Load autoload options into cache.
  */
-function _load_all_options()
+function _load_all_options(): void
 {
     $pdo = App::db();
     if (!$pdo) return;
@@ -30,7 +30,7 @@ function _load_all_options()
 
 /** Retrieve option value. */
 if (!function_exists('get_option')) {
-    function get_option($key, $default = '')
+    function get_option(string $key, mixed $default = ''): mixed
     {
         $pdo = App::db();
         if (!$pdo) return $default;
@@ -64,7 +64,7 @@ if (!function_exists('get_option')) {
 
 /** Update or insert option value. */
 if (!function_exists('update_option')) {
-    function update_option($key, $value, $autoload = null)
+    function update_option(string $key, mixed $value, ?bool $autoload = null): bool
     {
         $pdo = App::db();
         if (!$pdo) return false;
@@ -126,7 +126,7 @@ if (!function_exists('update_option')) {
  * @return array
  */
 if (!function_exists('get_default_share_buttons')) {
-    function get_default_share_buttons()
+    function get_default_share_buttons(): array
     {
         return [
             ['id' => 'x', 'name' => 'X (Twitter)', 'url' => 'https://twitter.com/intent/tweet?url={URL}&text={TITLE}', 'icon' => 'icon-twitter-x', 'color' => '#000000', 'enabled' => true],
@@ -148,7 +148,7 @@ if (!function_exists('get_default_share_buttons')) {
  * Generate DB key for skin setting.
  */
 if (!function_exists('grinds_generate_skin_key')) {
-    function grinds_generate_skin_key($key, $parent = null)
+    function grinds_generate_skin_key(string $key, ?string $parent = null): string
     {
         if ($parent === 'colors') {
             return 'custom_skin_' . str_replace('-', '_', $key);
@@ -162,7 +162,7 @@ if (!function_exists('grinds_generate_skin_key')) {
  * Map skin configuration to flat DB options array.
  */
 if (!function_exists('grinds_map_skin_keys')) {
-    function grinds_map_skin_keys($skinConfig)
+    function grinds_map_skin_keys(array $skinConfig): array
     {
         $mapped = [];
         foreach ($skinConfig as $key => $val) {
@@ -184,7 +184,7 @@ if (!function_exists('grinds_map_skin_keys')) {
  * @return array
  */
 if (!function_exists('grinds_get_default_settings')) {
-    function grinds_get_default_settings($lang = null)
+    function grinds_get_default_settings(?string $lang = null): array
     {
         if ($lang === null) {
             $lang = defined('SITE_LANG') ? SITE_LANG : 'en';

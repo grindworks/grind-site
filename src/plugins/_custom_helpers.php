@@ -1,7 +1,10 @@
 <?php
 
 /**
- * _custom_helpers.php
+ * Plugin Name: Custom Helpers
+ *
+ * Author: Grind Works Inc.
+ * Version: 1.0.0
  *
  * [English]
  * Useful Custom Functions Sample.
@@ -23,7 +26,7 @@ if (!defined('GRINDS_APP')) exit;
  * Usage: dd($pageData);
  */
 if (!function_exists('dd')) {
-    function dd($var)
+    function dd(mixed $var)
     {
         echo '<div style="background:#1e293b; color:#e2e8f0; padding:20px; font-family:monospace; z-index:99999; position:relative; text-align:left; font-size:14px; line-height:1.5;">';
         echo '<pre>';
@@ -45,7 +48,7 @@ if (!function_exists('dd')) {
  * Usage: <?php the_reading_time($pageData['post']['content']); ?>
  */
 if (!function_exists('the_reading_time')) {
-    function the_reading_time($content)
+    function the_reading_time(string $content)
     {
         // Fallback to strip_tags() if the GrindSite core function is unavailable
         // GrindSiteコアの関数が存在しない場合は標準の strip_tags() を使用するフォールバック
@@ -87,7 +90,7 @@ if (!function_exists('the_reading_time')) {
  * <?php endif; ?>
  */
 if (!function_exists('is_new_post')) {
-    function is_new_post($dateString, $days = 7)
+    function is_new_post(string $dateString, int $days = 7)
     {
         if (empty($dateString)) return false;
 

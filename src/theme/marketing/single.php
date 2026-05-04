@@ -5,6 +5,8 @@ if (!defined('GRINDS_APP')) exit;
 /**
  * single.php
  * Display single post.
+ *
+ * @var array $pageData
  */
 ?>
 <article>

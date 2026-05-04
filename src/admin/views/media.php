@@ -4,6 +4,8 @@
  * media.php
  *
  * Renders the media library interface for managing files.
+ *
+ * @var array $mediaMonths
  */
 if (!defined('GRINDS_APP'))
   exit;
@@ -67,7 +69,6 @@ if (!isset($skin) || !is_array($skin)) {
           <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-arrow-up-tray"></use>
         </svg>
         <span x-text="isUploading ? trans.uploading : <?= htmlspecialchars(json_encode(_t('upload'), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT), ENT_QUOTES, 'UTF-8') ?>"></span>
-        <span x-text="isUploading ? trans.uploading : <?= htmlspecialchars(json_encode(_t('upload'), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT), ENT_QUOTES, 'UTF-8') ?>"></span>
         <input type="file" multiple class="sr-only" @change="uploadFiles($event)" :disabled="isUploading">
       </label>
     </div>
@@ -103,7 +104,7 @@ if (!isset($skin) || !is_array($skin)) {
               @keydown.backspace="if(searchInput === '' && searchKeywords.length > 0) removeSearchKeyword(searchKeywords.length - 1)"
               @input.debounce.500ms="search()"
               class="flex-1 bg-transparent p-1 border-none outline-none min-w-[200px] h-6 text-theme-text text-xs placeholder-theme-text/40"
-              placeholder="<?= _t('ph_search_media_extended') ?? 'Search (Filename, Title, Alt, Tags...)' ?>">
+              placeholder="<?= h(_t('ph_search_media_extended') ?? 'Search (Filename, Title, Alt, Tags...)') ?>">
           </div>
         </div>
 
@@ -126,8 +127,8 @@ if (!isset($skin) || !is_array($skin)) {
         <!-- Filter Toggle -->
         <button @click="showFilters = !showFilters"
           class="relative flex items-center gap-1.5 px-3 py-2 rounded-theme h-[34px] text-theme-text text-xs btn-secondary"
-          :class="showFilters ? 'bg-theme-bg' : ''" title="<?= _t('lbl_filters') ?>"
-          aria-label="<?= _t('lbl_filters') ?>">
+          :class="showFilters ? 'bg-theme-bg' : ''" title="<?= h(_t('lbl_filters')) ?>"
+          aria-label="<?= h(_t('lbl_filters')) ?>">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-adjustments-vertical"></use>
           </svg>
@@ -685,7 +686,7 @@ if (!isset($skin) || !is_array($skin)) {
                       @focus="fetchSuggestions().then(() => { filterTagSuggestions(); showTagSuggestions = true; })"
                       @click.stop="showTagSuggestions = true" @click.outside="showTagSuggestions = false"
                       class="bg-transparent p-0 border-none outline-none w-full h-6 text-theme-text text-xs placeholder-theme-text/40"
-                      placeholder="<?= _t('add_tag') ?>">
+                      placeholder="<?= h(_t('add_tag')) ?>">
                     <div x-show="showTagSuggestions && tagSuggestions.length > 0"
                       class="top-full left-0 z-50 absolute bg-theme-surface shadow-theme mt-1 border border-theme-border rounded-theme w-48 max-h-40 overflow-y-auto">
                       <template x-for="suggestion in tagSuggestions">
@@ -754,7 +755,7 @@ if (!isset($skin) || !is_array($skin)) {
                   <div x-show="metaForm.is_ai" x-collapse>
                     <textarea x-model="metaForm.prompt" rows="4"
                       class="bg-theme-bg border-theme-border w-full font-mono text-[10px] text-theme-text leading-relaxed form-control-sm"
-                      placeholder="<?= _t('ph_prompt') ?>"></textarea>
+                      placeholder="<?= h(_t('ph_prompt')) ?>"></textarea>
                   </div>
                 </div>
 

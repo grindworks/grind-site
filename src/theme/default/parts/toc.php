@@ -5,6 +5,8 @@ if (!defined('GRINDS_APP')) exit;
 /**
  * toc.php
  * Render Table of Contents.
+ *
+ * @var array $pageData
  */
 
 $contentData = $pageData['post']['content_decoded'] ?? [];

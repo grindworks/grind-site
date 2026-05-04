@@ -29,6 +29,9 @@ require_once $rootDir . '/config.php';
 require_once $rootDir . '/lib/functions.php';
 require_once $rootDir . '/lib/db.php';
 
+// Load user plugins AFTER DB is ready
+require_once $rootDir . '/lib/functions/plugins.php';
+
 if (function_exists('init_system')) {
     init_system();
 }

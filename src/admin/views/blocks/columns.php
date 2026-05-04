@@ -23,14 +23,14 @@ if (!defined('GRINDS_APP')) exit; ?>
       <textarea x-model="block.data.leftText" :id="'block-' + block.id + '-leftText'" rows="3"
         x-init="$nextTick(() => { $el.style.height = 'auto'; $el.style.height = $el.scrollHeight + 'px' })"
         @input="$el.style.height = 'auto'; $el.style.height = $el.scrollHeight + 'px'"
-        class="bg-transparent p-1 border-none focus:ring-0 w-full text-theme-text text-sm placeholder-theme-text/30 overflow-hidden resize-none" placeholder="<?= _t('ph_enter_text') ?>"></textarea>
+        class="bg-transparent p-1 border-none focus:ring-0 w-full text-theme-text text-sm placeholder-theme-text/30 overflow-hidden resize-none" placeholder="<?= h(_t('ph_enter_text')) ?>"></textarea>
     </div>
     <div class="bg-theme-bg/40 p-4 border border-theme-border border-dashed rounded-theme">
       <div class="opacity-50 mb-1 font-bold text-[10px] text-theme-text"><?= _t('col_right') ?></div>
       <textarea x-model="block.data.rightText" :id="'block-' + block.id + '-rightText'" rows="3"
         x-init="$nextTick(() => { $el.style.height = 'auto'; $el.style.height = $el.scrollHeight + 'px' })"
         @input="$el.style.height = 'auto'; $el.style.height = $el.scrollHeight + 'px'"
-        class="bg-transparent p-1 border-none focus:ring-0 w-full text-theme-text text-sm placeholder-theme-text/30 overflow-hidden resize-none" placeholder="<?= _t('ph_enter_text') ?>"></textarea>
+        class="bg-transparent p-1 border-none focus:ring-0 w-full text-theme-text text-sm placeholder-theme-text/30 overflow-hidden resize-none" placeholder="<?= h(_t('ph_enter_text')) ?>"></textarea>
     </div>
   </div>
 </div>

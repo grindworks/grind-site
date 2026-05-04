@@ -1,7 +1,10 @@
 <?php
 
 /**
- * _audit_logger.php
+ * Plugin Name: Audit Logger
+ *
+ * Author: Grind Works Inc.
+ * Version: 1.0.0
  *
  * [English]
  * Audit Trail Logger (Institutional Grade).
@@ -20,7 +23,7 @@ if (!defined('GRINDS_APP')) exit;
  * 監査ログをファイルに書き込むヘルパー関数
  */
 if (!function_exists('grinds_audit_log')) {
-    function grinds_audit_log($action, $details = '')
+    function grinds_audit_log(string $action, string $details = '')
     {
         $logDir = ROOT_PATH . '/data/logs';
         if (function_exists('grinds_secure_dir')) {

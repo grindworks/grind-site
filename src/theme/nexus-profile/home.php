@@ -6,7 +6,8 @@ if (empty($avatarUrl)) {
     $avatarUrl = get_option('site_ogp');
 }
 if (empty($avatarUrl)) {
-    $avatarUrl = grinds_asset_url('assets/img/default-avatar.png'); // Fallback image
+    $siteName = get_option('site_name', CMS_NAME);
+    $avatarUrl = 'https://ui-avatars.com/api/?name=' . urlencode($siteName) . '&background=6366f1&color=fff&size=160'; // Fallback image using ui-avatars
 }
 ?>
 

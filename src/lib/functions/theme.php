@@ -51,7 +51,7 @@ function grinds_get_active_theme(): string
  * @param string|null $theme Theme directory name. If null, active theme is used.
  */
 if (!function_exists('grinds_load_theme_functions')) {
-    function grinds_load_theme_functions($theme = null)
+    function grinds_load_theme_functions(?string $theme = null): void
     {
         if ($theme === null) {
             $theme = grinds_get_active_theme();
@@ -93,7 +93,7 @@ function grinds_get_current_language(): string
  * @param mixed ...$params Optional parameters for printf-style formatting.
  * @return string The translated string.
  */
-function theme_t(string $key, ...$params): string
+function theme_t(string $key, mixed ...$params): string
 {
     static $messages = null;
     static $loadedLang = null;
@@ -145,7 +145,7 @@ function theme_t(string $key, ...$params): string
 /**
  * Check if a menu URL is active.
  */
-function grinds_is_menu_active($menuUrl)
+function grinds_is_menu_active(string $menuUrl): bool
 {
     // Skip empty or fragment links
     if (empty($menuUrl) || $menuUrl === '#' || str_starts_with($menuUrl, 'javascript:')) {
@@ -818,7 +818,7 @@ function grinds_get_header_data(array $context = []): array
     // Sanitize HTML tags from description to prevent them from appearing in search results.
     $finalDesc = str_replace(["\r", "\n"], ' ', (string)$finalDesc);
     if (str_contains($finalDesc, '<')) {
-        $finalDesc = function_exists('grinds_extract_text_from_content') ? grinds_extract_text_from_content($finalDesc) : strip_tags($finalDesc);
+        $finalDesc = function_exists('grinds_extract_text_from_content') ? grinds_extract_text_from_content($finalDesc, false) : strip_tags($finalDesc);
     }
     // Always decode entities to pure plain text, as it will be safely re-escaped by h() in layout.php
     $finalDesc = html_entity_decode($finalDesc, ENT_QUOTES | ENT_HTML5, 'UTF-8');
@@ -882,7 +882,7 @@ function grinds_get_header_data(array $context = []): array
     $ogType = ($pageType === 'home') ? 'website' : 'article';
 
     // JSON-LD
-    $jsonLd = _theme_generate_json_ld($siteName, $pageType, $pageTitle ?? '', $canonicalUrl, $finalDesc, $ogImage, $pageData, $isFallbackImage);
+    $jsonLd = _theme_generate_json_ld($siteName, $pageType, $finalTitle, $canonicalUrl, $finalDesc, $ogImage, $pageData, $isFallbackImage);
 
     // Robots
     $stats = [];
@@ -971,7 +971,7 @@ function grinds_get_header_data(array $context = []): array
 /**
  * Get social share buttons data.
  */
-function grinds_get_share_buttons($url = null, $title = null)
+function grinds_get_share_buttons(?string $url = null, ?string $title = null): array
 {
     if ($url === null) {
         $protocol = (function_exists('is_ssl') && is_ssl()) ? 'https' : 'http';
@@ -1068,7 +1068,7 @@ if (!function_exists('grinds_get_theme_post_types')) {
  * @return mixed
  */
 if (!function_exists('get_custom_field')) {
-    function get_custom_field(array $item, string $key, $default = null)
+    function get_custom_field(array $item, string $key, mixed $default = null): mixed
     {
         if (empty($item['meta_data'])) {
             return $default;

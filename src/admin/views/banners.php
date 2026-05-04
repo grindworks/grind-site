@@ -4,6 +4,13 @@
  * banners.php
  *
  * Renders the user interface for managing promotional banners.
+ *
+ * @var string|null $edit_id
+ * @var array $edit_data
+ * @var array $banner_positions
+ * @var array $themes
+ * @var array $cats_list
+ * @var array $posts_list
  */
 if (!defined('GRINDS_APP')) exit;
 

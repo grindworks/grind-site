@@ -139,6 +139,30 @@ This CMS uses Tailwind CSS. To modify theme styles, use the following commands:
 # Development (Watch for changes)
 npm run watch:theme:my-theme
 
-# Production Build (Minified)
-npm run build:theme:my-theme
+ # Production Build (Minified)
+ npm run build:theme:my-theme
+```
+
+## 5. Common Customizations
+
+### Displaying a Specific Static Page as the Homepage
+
+By default, accessing the root URL (`/`) loads `home.php` and displays a list of the latest posts.
+If you want to display the content of a specific static page (e.g., a page with the slug `home-demo`) on the homepage, you can edit your theme's `home.php` to fetch and render that page from the database.
+
+**Example Implementation (`home.php`):**
+
+```php
+<?php
+$targetSlug = 'home-demo';
+$pdo = App::db();
+$stmt = $pdo->prepare("SELECT * FROM posts WHERE slug = ? AND status = 'published' LIMIT 1");
+$stmt->execute([$targetSlug]);
+$frontPage = $stmt->fetch();
+
+if ($frontPage) {
+    $renderer = new BlockRenderer();
+    echo $renderer->render($frontPage['content']);
+}
+?>
 ```

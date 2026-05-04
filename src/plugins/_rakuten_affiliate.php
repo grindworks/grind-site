@@ -1,7 +1,10 @@
 <?php
 
 /**
- * Rakuten Affiliate Shortcode Plugin
+ * Plugin Name: Rakuten Affiliate Shortcode
+ *
+ * Author: Grind Works Inc.
+ * Version: 1.0.0
  *
  * [English]
  * Converts [rakuten url="URL" title="Name" image="IMG_URL"] shortcodes into beautiful product cards.
@@ -18,7 +21,7 @@ if (!defined('GRINDS_APP')) exit;
 
 // Translation helper for this plugin
 if (!function_exists('grinds_rakuten_t')) {
-    function grinds_rakuten_t($key)
+    function grinds_rakuten_t(string $key)
     {
         $lang = function_exists('get_option') ? get_option('site_lang', 'en') : 'en';
         $texts = [
@@ -240,7 +243,7 @@ HTML;
 add_action('grinds_html_block_tools', function () {
     if (!class_exists('App') || !App::user()) return;
     $sprite_url = function_exists('grinds_asset_url') ? grinds_asset_url('assets/img/sprite.svg') : resolve_url('assets/img/sprite.svg');
-    $t_insert_tooltip = grinds_rakuten_t('insert_tooltip');
+    $t_insert_tooltip = htmlspecialchars(grinds_rakuten_t('insert_tooltip'), ENT_QUOTES, 'UTF-8');
     echo <<<HTML
       <button type="button" @click="
         const el = document.getElementById('block-' + block.id + '-code');

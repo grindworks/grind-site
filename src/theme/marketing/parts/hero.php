@@ -3,6 +3,9 @@
 /**
  * hero.php
  * Render hero section.
+ *
+ * @var array $pageData
+ * @var string $pageType
  */
 if (!defined('GRINDS_APP')) exit;
 

@@ -25,7 +25,7 @@ if (!defined('GRINDS_APP')) exit;
   $searchAction = (defined('GRINDS_IS_SSG') && GRINDS_IS_SSG) ? 'search.html' : resolve_url('/');
   ?>
   <form action="<?= h($searchAction) ?>" method="get" class="flex gap-2 mx-auto mb-8 w-full max-w-md grinds-search-form">
-    <input type="text" name="q" placeholder="<?= h(theme_t('Search...')) ?>" class="flex-1 px-4 py-2 border border-gray-300 focus:border-grinds-red rounded-full focus:outline-none transition-colors">
+    <input type="text" name="q" placeholder="<?= h(theme_t('Search...')) ?>" value="<?= h($_GET['q'] ?? '') ?>" class="flex-1 px-4 py-2 border border-gray-300 focus:border-grinds-red rounded-full focus:outline-none transition-colors">
     <button type="submit" class="bg-grinds-red hover:bg-red-700 shadow-sm px-6 py-2.5 rounded-full font-bold text-white transition-colors"><?= theme_t('Search') ?></button>
   </form>
 

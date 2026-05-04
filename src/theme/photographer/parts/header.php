@@ -146,7 +146,7 @@ $isHome = (isset($pageType) && $pageType === 'home');
 
     <!-- Search -->
     <form action="<?= h(resolve_url('/')) ?>" method="get" class="relative mb-8">
-      <input type="text" name="q" placeholder="<?= h(theme_t('search_placeholder')) ?>" class="bg-transparent py-1 pr-6 border-gray-300 focus:border-black border-b focus:outline-none w-full text-sm transition placeholder-gray-300">
+      <input type="text" name="q" value="<?= h($_GET['q'] ?? '') ?>" placeholder="<?= h(theme_t('search_placeholder')) ?>" class="bg-transparent py-1 pr-6 border-gray-300 focus:border-black border-b focus:outline-none w-full text-sm transition placeholder-gray-300">
       <button type="submit" class="right-0 bottom-1 absolute text-gray-400 hover:text-black transition-colors" aria-label="<?= h(theme_t('search')) ?>">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>

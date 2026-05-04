@@ -99,7 +99,7 @@ if (!defined('GRINDS_APP'))
     <div class="relative">
       <input type="text" x-model="keyword" :id="'block-' + block.id + '-keyword'" @input.debounce.300ms="performSearch()"
         @focus="if(keyword && results.length > 0) searching = true" class="w-full text-xs form-control-sm pr-8"
-        placeholder="<?= _t('ph_type_to_search') ?>...">
+        placeholder="<?= h(_t('ph_type_to_search')) ?>...">
       <div x-show="loading" class="absolute right-2 top-1/2 -translate-y-1/2 text-theme-text opacity-50" x-cloak>
         <svg class="animate-spin h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-arrow-path"></use>

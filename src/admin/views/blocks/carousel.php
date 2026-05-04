@@ -58,8 +58,8 @@ if (!defined('GRINDS_APP')) exit; ?>
                     <div class="bottom-1 left-1 absolute bg-theme-text/80 px-1.5 rounded-theme text-[10px] text-theme-bg" x-text="i+1"></div>
                 </div>
                 <!-- Caption and Alt inputs -->
-                <input type="text" x-model="img.caption" :id="'block-' + block.id + '-caption-' + i" class="w-full text-[10px] text-center form-control-sm" placeholder="<?= _t('ph_caption') ?>">
-                <input type="text" x-model="img.alt" :id="'block-' + block.id + '-alt-' + i" class="w-full text-[10px] text-center form-control-sm" placeholder="<?= _t('ph_alt_text') ?>">
+                <input type="text" x-model="img.caption" :id="'block-' + block.id + '-caption-' + i" class="w-full text-[10px] text-center form-control-sm" placeholder="<?= h(_t('ph_caption')) ?>">
+                <input type="text" x-model="img.alt" :id="'block-' + block.id + '-alt-' + i" class="w-full text-[10px] text-center form-control-sm" placeholder="<?= h(_t('ph_alt_text')) ?>">
             </div>
         </template>
 

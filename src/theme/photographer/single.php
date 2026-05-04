@@ -4,7 +4,9 @@ if (!defined('GRINDS_APP')) exit;
 
 /**
  * single.php
- * Display single post.
+ * Render single post layout.
+ *
+ * @var array $pageData
  */
 $post = $pageData['post'];
 $date = the_date($post['published_at'] ?? $post['created_at']);

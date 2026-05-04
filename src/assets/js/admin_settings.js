@@ -88,7 +88,7 @@ document.addEventListener('alpine:init', () => {
             this.processing = false;
             this.progress = 0;
           }, 3000);
-        }, 500); // 300ms(アニメーション) + 200ms(余韻)
+        }, 500);
       } catch (e) {
         window.showToast('Error: ' + e.message, 'error');
         this.processing = false;

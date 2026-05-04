@@ -18,23 +18,25 @@ require_once __DIR__ . '/../lib/sample_data.php';
 /**
  * Save options
  */
-function grinds_save_settings_from_post($keys = [], $checkboxes = [])
-{
-  foreach ($keys as $k) {
-    if (isset($_POST[$k])) {
-      $val = is_array($_POST[$k]) ? json_encode($_POST[$k], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_INVALID_UTF8_IGNORE) : $_POST[$k];
+if (!function_exists('grinds_save_settings_from_post')) {
+  function grinds_save_settings_from_post($keys = [], $checkboxes = [])
+  {
+    foreach ($keys as $k) {
+      if (isset($_POST[$k])) {
+        $val = is_array($_POST[$k]) ? json_encode($_POST[$k], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_INVALID_UTF8_IGNORE) : $_POST[$k];
 
-      // Allow HTML for specific keys, strip tags for everything else to prevent XSS and layout breaks
-      $allowHtmlKeys = ['site_footer_text', 'custom_head_scripts', 'custom_footer_scripts', 'maintenance_message'];
-      if (!in_array($k, $allowHtmlKeys, true)) {
-        $val = strip_tags((string)$val);
+        // Allow HTML for specific keys, strip tags for everything else to prevent XSS and layout breaks
+        $allowHtmlKeys = ['site_footer_text', 'custom_head_scripts', 'custom_footer_scripts', 'maintenance_message'];
+        if (!in_array($k, $allowHtmlKeys, true)) {
+          $val = strip_tags((string)$val);
+        }
+
+        update_option($k, trim((string)$val));
       }
-
-      update_option($k, trim((string)$val));
     }
-  }
-  foreach ($checkboxes as $k) {
-    update_option($k, isset($_POST[$k]) ? '1' : '0');
+    foreach ($checkboxes as $k) {
+      update_option($k, isset($_POST[$k]) ? '1' : '0');
+    }
   }
 }
 
@@ -82,7 +84,7 @@ if (is_dir($layout_dir)) {
   foreach (new DirectoryIterator($layout_dir) as $fileInfo) {
     if ($fileInfo->isFile() && $fileInfo->getExtension() === 'php') {
       $n = $fileInfo->getBasename('.php');
-      if (!in_array($n, ['header', 'footer', 'loader', 'toast', 'sidebar', 'topbar', 'assets_loader', 'index'])) {
+      if (!in_array($n, ['header', 'footer', 'loader', 'toast', 'sidebar', 'topbar', 'assets_loader', 'index'], true)) {
         $available_layouts[$n] = ucfirst($n);
       }
     }
@@ -143,6 +145,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   // Save htpasswd
   if ($action === 'save_htpasswd') {
     $content = Routing::getString($_POST, 'content');
+
+    // Strip newlines to prevent directive injection
+    $content = str_replace(["\r", "\n"], '', $content);
+
     $htpasswdPath = ROOT_PATH . '/.htpasswd';
 
     if (!empty($content) && file_put_contents($htpasswdPath, $content) !== false) {

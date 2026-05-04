@@ -5,6 +5,8 @@ if (!defined('GRINDS_APP')) exit;
 /**
  * single.php
  * Render single post layout.
+ *
+ * @var array $pageData
  */
 ?>
 
@@ -163,7 +165,6 @@ if (!defined('GRINDS_APP')) exit;
       <?php endif; ?>
 
       <?php
-      // デフォルトテーマで表示対応しているキーのみをチェックし、中身が空でないか判定する
       $displayKeys = ['price', 'event_date', 'product_type', 'cover_image'];
       $hasVisibleMeta = false;
       if (is_array($metaData)) {
@@ -175,7 +176,6 @@ if (!defined('GRINDS_APP')) exit;
         }
       }
 
-      // 表示すべき有効なデータがある場合のみ外枠を描画する
       if ($hasVisibleMeta):
       ?>
         <div class="mt-12 p-6 bg-gray-50 border border-gray-200 rounded-xl shadow-sm">

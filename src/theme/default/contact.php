@@ -3,6 +3,8 @@
 /**
  * contact.php
  * Handle contact form submission.
+ *
+ * @var array $pageData
  */
 // Prevent direct access
 if (!defined('GRINDS_APP')) exit;

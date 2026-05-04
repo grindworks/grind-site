@@ -17,7 +17,7 @@ $pb_colors = $block_config['library']['design']['items']['progress_bar']['colors
           </svg>
         </button>
         <div class="flex items-center gap-3">
-          <input type="text" x-model="item.label" :id="'block-' + block.id + '-item-' + i + '-label'" class="w-1/2 font-bold form-control-sm" placeholder="<?= _t('ph_skill_name') ?>">
+          <input type="text" x-model="item.label" :id="'block-' + block.id + '-item-' + i + '-label'" class="w-1/2 font-bold form-control-sm" placeholder="<?= h(_t('ph_skill_name')) ?>">
           <select x-model="item.color" class="w-1/4 text-xs cursor-pointer form-control-sm">
             <?php foreach ($pb_colors as $key => $details): ?>
               <option value="<?= h($key) ?>"><?= h($details['label']) ?></option>

@@ -5,6 +5,8 @@ if (!defined('GRINDS_APP')) exit;
 /**
  * single.php
  * Render single post layout.
+ *
+ * @var array $pageData
  */
 ?>
 <article class="bg-white shadow-sm mb-5 p-4 p-md-5 border rounded">

@@ -1,4 +1,11 @@
 <?php
+/**
+ * archive.php
+ * Render archive layout for visionary theme.
+ *
+ * @var array $pageData
+ * @var string|null $pageType
+ */
 if (!defined('GRINDS_APP')) exit;
 $isSearch = (isset($pageType) && $pageType === 'search');
 ?>

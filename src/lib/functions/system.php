@@ -9,7 +9,7 @@ if (!defined('GRINDS_APP'))
 /**
  * Initialize system.
  */
-function init_system()
+function init_system(): void
 {
     // Block execution if PHP version is strictly below 8.3
     if (version_compare(PHP_VERSION, '8.3.0', '<')) {
@@ -158,7 +158,7 @@ function init_system()
  * Check local environment.
  */
 if (!function_exists('is_local_environment')) {
-    function is_local_environment()
+    function is_local_environment(): bool
     {
         $host = isset($_SERVER['HTTP_HOST']) ? preg_replace('/:\d+$/', '', $_SERVER['HTTP_HOST']) : '';
         $local_domains = ['localhost'];
@@ -184,7 +184,7 @@ if (!function_exists('is_local_environment')) {
 /**
  * Detect language.
  */
-function grinds_detect_language()
+function grinds_detect_language(): string
 {
     if (defined('SITE_LANG')) {
         return SITE_LANG;
@@ -209,7 +209,7 @@ function grinds_detect_language()
 /**
  * Run garbage collection.
  */
-function grinds_run_garbage_collection()
+function grinds_run_garbage_collection(): void
 {
     $sessionPath = ROOT_PATH . '/data/sessions';
     if (is_dir($sessionPath)) {
@@ -312,6 +312,24 @@ function grinds_run_garbage_collection()
         }
     }
 
+    // Clean Windows locked temporary files globally
+    if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN' && defined('ROOT_PATH')) {
+        try {
+            $iterator = new RecursiveIteratorIterator(
+                new RecursiveDirectoryIterator(ROOT_PATH, RecursiveDirectoryIterator::SKIP_DOTS)
+            );
+            foreach ($iterator as $fileInfo) {
+                if ($fileInfo->isFile() && str_ends_with($fileInfo->getFilename(), '.grind-del')) {
+                    // Delete old temporary files safely (older than 1 hour)
+                    if ($fileInfo->getMTime() < time() - 3600) {
+                        @unlink($fileInfo->getRealPath());
+                    }
+                }
+            }
+        } catch (Exception $e) { /* Ignore */
+        }
+    }
+
     // Clean login attempts and tokens
     try {
         $pdo = App::db();
@@ -332,7 +350,7 @@ function grinds_run_garbage_collection()
  * Send noindex headers.
  */
 if (!function_exists('grinds_send_noindex_headers')) {
-    function grinds_send_noindex_headers()
+    function grinds_send_noindex_headers(): void
     {
         if (!headers_sent()) {
             header('X-Robots-Tag: noindex, nofollow, noarchive, nosnippet');
@@ -344,7 +362,7 @@ if (!function_exists('grinds_send_noindex_headers')) {
  * Get license status.
  */
 if (!function_exists('get_license_status')) {
-    function get_license_status()
+    function get_license_status(): string
     {
         $key = get_option('license_key', '');
 
@@ -432,7 +450,7 @@ if (!function_exists('get_license_status')) {
 }
 
 if (!function_exists('get_license_check_cache')) {
-    function get_license_check_cache()
+    function get_license_check_cache(): array
     {
         $cacheRaw = get_option('license_check_cache', '[]');
         if (empty($cacheRaw)) {
@@ -447,7 +465,7 @@ if (!function_exists('get_license_check_cache')) {
  * Check license validity.
  */
 if (!function_exists('is_licensed')) {
-    function is_licensed()
+    function is_licensed(): bool
     {
         return in_array(get_license_status(), ['pro', 'agency'], true);
     }
@@ -457,7 +475,7 @@ if (!function_exists('is_licensed')) {
  * Clear page cache.
  */
 if (!function_exists('clear_page_cache')) {
-    function clear_page_cache()
+    function clear_page_cache(): void
     {
         $cacheBase = ROOT_PATH . '/data/cache';
         $cacheDir = $cacheBase . '/pages';
@@ -500,7 +518,7 @@ if (!function_exists('clear_page_cache')) {
 /**
  * Check system health.
  */
-function check_system_health()
+function check_system_health(): array
 {
     return GrindsSystemCheck::getHealthReport();
 }
@@ -508,7 +526,7 @@ function check_system_health()
 /**
  * Get system status.
  */
-function get_system_status()
+function get_system_status(): array
 {
     $checks = check_system_health();
     $status = 'ok';
@@ -546,7 +564,7 @@ function get_system_status()
  * Scan dangerous files.
  */
 if (!function_exists('grinds_scan_dangerous_files')) {
-    function grinds_scan_dangerous_files()
+    function grinds_scan_dangerous_files(): array
     {
         static $cache = null;
         if ($cache !== null) {
@@ -727,7 +745,7 @@ if (!function_exists('grinds_scan_dangerous_files')) {
  * Set high load mode.
  */
 if (!function_exists('grinds_set_high_load_mode')) {
-    function grinds_set_high_load_mode()
+    function grinds_set_high_load_mode(): void
     {
         // Set memory limit
         @ini_set('memory_limit', '512M');
@@ -739,7 +757,7 @@ if (!function_exists('grinds_set_high_load_mode')) {
 /**
  * Secure directory.
  */
-function grinds_secure_dir($dir)
+function grinds_secure_dir(string $dir): bool
 {
     if (!is_dir($dir)) {
         if (!@mkdir($dir, 0775, true))
@@ -759,7 +777,7 @@ function grinds_secure_dir($dir)
 /**
  * Optimize database.
  */
-function grinds_optimize_database($switchToDeleteMode = false)
+function grinds_optimize_database(bool $switchToDeleteMode = false): void
 {
     ignore_user_abort(true);
     if (function_exists('grinds_set_high_load_mode')) {
@@ -786,7 +804,8 @@ function grinds_optimize_database($switchToDeleteMode = false)
     if (file_exists(DB_FILE) && function_exists('disk_free_space')) {
         clearstatcache(true, DB_FILE);
         $dbSize = filesize(DB_FILE);
-        $freeSpace = @disk_free_space(dirname(DB_FILE));
+        $dir = dirname(DB_FILE);
+        $freeSpace = is_dir($dir) ? @disk_free_space($dir) : false;
         if ($freeSpace !== false && $freeSpace < ($dbSize * 2)) {
             throw new Exception(_t('err_disk_full_vacuum'));
         }
@@ -805,7 +824,7 @@ function grinds_optimize_database($switchToDeleteMode = false)
 /**
  * Check RewriteBase.
  */
-function grinds_check_rewrite_base()
+function grinds_check_rewrite_base(): array
 {
     // Use cache
     if (
@@ -854,9 +873,9 @@ function grinds_check_rewrite_base()
  */
 class GrindsSystemCheck
 {
-    private static $cachedReport = null;
+    private static ?array $cachedReport = null;
 
-    public static function getCriticalPaths()
+    public static function getCriticalPaths(): array
     {
         return [
             '/../data',
@@ -868,17 +887,17 @@ class GrindsSystemCheck
         ];
     }
 
-    public static function getRequiredPhpVersion()
+    public static function getRequiredPhpVersion(): string
     {
         return '8.3.0';
     }
 
-    public static function getRequiredExtensions()
+    public static function getRequiredExtensions(): array
     {
         return ['mbstring', 'zip', 'gd', 'pdo_sqlite', 'dom', 'libxml', 'openssl', 'json'];
     }
 
-    public static function checkDirectory($path)
+    public static function checkDirectory(string $path): array
     {
         $fullPath = realpath(dirname(__DIR__) . $path) ?: (dirname(__DIR__) . $path);
 
@@ -903,7 +922,7 @@ class GrindsSystemCheck
         return ['status' => 'ok', 'path' => $fullPath];
     }
 
-    public static function getSqliteVersion()
+    public static function getSqliteVersion(): string
     {
         if (extension_loaded('pdo_sqlite')) {
             try {
@@ -916,7 +935,7 @@ class GrindsSystemCheck
         return '0.0.0';
     }
 
-    public static function getHealthReport()
+    public static function getHealthReport(): array
     {
         // Skip cache if installer exists
         $installerExists = defined('ROOT_PATH') && file_exists(ROOT_PATH . '/install.php');
@@ -1136,7 +1155,7 @@ class GrindsSystemCheck
  * Render error page.
  */
 if (!function_exists('grinds_render_error_page')) {
-    function grinds_render_error_page($title, $message, $status = 'System Error', $responseCode = 500, $options = [])
+    function grinds_render_error_page(string $title, string $message, string $status = 'System Error', int $responseCode = 500, array $options = []): void
     {
         if (!headers_sent()) {
             http_response_code($responseCode);
@@ -1171,7 +1190,7 @@ if (!function_exists('grinds_render_error_page')) {
  * Clear specific cache.
  */
 if (!function_exists('grinds_clear_specific_cache')) {
-    function grinds_clear_specific_cache(array $slugs)
+    function grinds_clear_specific_cache(array $slugs): void
     {
         $cacheDir = ROOT_PATH . '/data/cache/pages/';
         if (!is_dir($cacheDir)) return;
@@ -1238,7 +1257,7 @@ function grinds_prepare_migration_config(string $configContent, string $newDbNam
  * Clear media cache.
  */
 if (!function_exists('grinds_clear_media_cache')) {
-    function grinds_clear_media_cache()
+    function grinds_clear_media_cache(): void
     {
         $session_started_here = false;
 

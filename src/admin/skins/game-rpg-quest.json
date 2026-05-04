@@ -66,9 +66,7 @@
   "sidebar_mode": "dark",
   "nav_style": "terminal",
   "media_bg_css": "checker_dark",
-  "effects": [
-    "input_retro_box"
-  ],
+  "effects": ["input_retro_box"],
   "ai_paste": {
     "title": "つよさ を みる",
     "description": "まどうしょ（Markdown）を よみこむ",
@@ -83,7 +81,7 @@
     "icon": "outline-book-open"
   },
   "sidebar_custom_css": "border-right: 2px solid #fff !important; box-shadow: 2px 0 0 #000 !important;",
-  "css": "/* Remove Anti-aliasing */\n* { -webkit-font-smoothing: none !important; font-smooth: never !important; }\n/* Command Window Style for Panels */\n.bg-theme-surface, .card, .modal-content {\n  background-color: #000 !important;\n  border: 2px solid #fff !important;\n  border-radius: 4px !important;\n  box-shadow: 0 0 0 2px #000, 0 0 0 4px #fff, 6px 6px 0px rgba(0,0,0,0.8) !important;\n  margin: 4px;\n}\n/* Triangle Cursor for Active Menu */\n.skin-sidebar-item.active { position: relative; border: none !important; }\n.skin-sidebar-item.active::before { content: '▶'; position: absolute; left: 8px; color: #fff; font-size: 1.2rem; }\n.skin-sidebar-item.active span { padding-left: 12px; color: #ffff00 !important; }\n/* Buttons */\n.btn-primary {\n  background: #fff !important; color: #000 !important;\n  border: 2px solid #fff !important; box-shadow: none !important;\n}\n.btn-primary:hover { background: #ffff00 !important; }\n.btn-secondary { background: #000 !important; border: 2px solid #fff !important; color: #fff !important; }\n.btn-secondary:hover { color: #ffff00 !important; border-color: #ffff00 !important; }",
+  "css": "/* Remove Anti-aliasing */\n* { -webkit-font-smoothing: none !important; font-smooth: never !important; }\n/* Command Window Style for Panels */\n.bg-theme-surface, .card, .modal-content {\n  background-color: #000 !important;\n  border: 2px solid #fff !important;\n  border-radius: 4px !important;\n  box-shadow: 0 0 0 2px #000, 0 0 0 4px #fff, 6px 6px 0px rgba(0,0,0,0.8) !important;\n  margin: 4px;\n}\n/* Triangle Cursor for Active Menu */\n.skin-sidebar-item.active { position: relative; border: none !important; }\n.skin-sidebar-item.active svg, .skin-sidebar-item.active i { opacity: 0 !important; }\n.skin-sidebar-item.active::before { content: '▶'; position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #fff; font-size: 1.2rem; }\n.skin-sidebar-item.active span { padding-left: 12px; color: #ffff00 !important; }\n/* Buttons */\n.btn-primary {\n  background: #fff !important; color: #000 !important;\n  border: 2px solid #fff !important; box-shadow: none !important;\n}\n.btn-primary:hover { background: #ffff00 !important; }\n.btn-secondary { background: #000 !important; border: 2px solid #fff !important; color: #fff !important; }\n.btn-secondary:hover { color: #ffff00 !important; border-color: #ffff00 !important; }",
   "is_dark": true,
   "is_sidebar_dark": true
 }

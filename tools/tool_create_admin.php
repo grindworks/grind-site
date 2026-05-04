@@ -154,7 +154,7 @@ $trans = [
   ]
 ];
 
-function t($key)
+function t(string $key)
 {
   global $trans, $lang;
   return $trans[$lang][$key] ?? $key;
@@ -162,7 +162,7 @@ function t($key)
 
 // Define helper.
 if (!function_exists('h')) {
-  function h($s)
+  function h(string $s)
   {
     return htmlspecialchars((string)$s, ENT_QUOTES, 'UTF-8');
   }
@@ -206,6 +206,9 @@ try {
 
   // Process form.
   if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Throttle requests to prevent brute-force attacks on the APP_KEY
+    usleep(500000);
+
     if (!$is_writable) {
       throw new Exception(t('err_not_writable'));
     } elseif (!isset($_POST['csrf']) || $_POST['csrf'] !== $_SESSION['tool_csrf']) {

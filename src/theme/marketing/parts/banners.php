@@ -5,6 +5,9 @@ if (!defined('GRINDS_APP')) exit;
 /**
  * banners.php
  * Render banner images.
+ *
+ * @var string $position
+ * @var array $position_banners
  */
 if (!empty($position_banners)):
     $extraClass = ($position === 'header_top') ? 'pt-24 container mx-auto px-6' : '';

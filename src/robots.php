@@ -187,7 +187,7 @@ if (!class_exists('RobotsGenerator')) {
                     $lines[] = "Disallow: {$targetPath}";
                     $lines[] = "";
                 }
-            } else {
+            } elseif (!$this->isNoIndex) {
                 $lines[] = "";
                 $lines[] = "# AI Crawlers Policy (Transparency & Opt-In)";
                 $lines[] = "# We embrace AI technologies and allow ethical crawling.";

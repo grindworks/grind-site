@@ -8,6 +8,7 @@
  */
 require_once __DIR__ . '/api_bootstrap.php';
 
+/** @var \PDO $pdo */
 // Relax resource limits
 if (function_exists('grinds_set_high_load_mode')) {
     grinds_set_high_load_mode();
@@ -27,8 +28,9 @@ check_csrf_token();
 // Load Updater Class
 require_once ROOT_PATH . '/lib/updater.php';
 
-$step = $_POST['step'] ?? '';
-$inputData = json_decode($_POST['data'] ?? '{}', true) ?: [];
+$step = is_scalar($_POST['step'] ?? null) ? (string)$_POST['step'] : '';
+$rawPostData = is_scalar($_POST['data'] ?? null) ? (string)$_POST['data'] : '{}';
+$inputData = json_decode($rawPostData, true) ?: [];
 
 // Release session lock to prevent blocking
 session_write_close();

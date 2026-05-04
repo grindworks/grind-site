@@ -7,6 +7,7 @@
  */
 require_once __DIR__ . '/api_bootstrap.php';
 
+/** @var \PDO $pdo */
 // Check permissions
 if (!current_user_can('manage_posts')) {
   json_response(['success' => false, 'error' => 'Forbidden'], 403);
@@ -55,7 +56,7 @@ try {
       'content_is_base64' => !empty($input['content_is_base64']) ? '1' : '0',
       'type' => 'template',
       'status' => 'private',
-      'slug' => 'tpl-' . bin2hex(random_bytes(8))
+      'slug' => 'tpl-' . bin2hex(grinds_random_bytes(8))
     ];
 
     $result = grinds_save_post($pdo, $postData, [], 'new');

@@ -9,7 +9,7 @@ if (!defined('GRINDS_APP'))
 
 /** Escape string for HTML output. */
 if (!function_exists('h')) {
-    function h($s)
+    function h(mixed $s): string
     {
         // Set the 4th argument to false to prevent double-escaping of already escaped characters (e.g., &amp;)
         return htmlspecialchars((string)$s, ENT_QUOTES | ENT_HTML5, 'UTF-8', false);
@@ -18,7 +18,7 @@ if (!function_exists('h')) {
 
 /** Generate cryptographically secure pseudo-random bytes safely. */
 if (!function_exists('grinds_random_bytes')) {
-    function grinds_random_bytes($length)
+    function grinds_random_bytes(int $length): string
     {
         try {
             return random_bytes($length);
@@ -28,6 +28,7 @@ if (!function_exists('grinds_random_bytes')) {
                 $errTitle = function_exists('_t') ? _t('js_system_error') : 'System Error';
                 $errMsg = function_exists('_t') ? _t('err_random_bytes') : 'Cannot generate a secure random token. Please check your server environment.';
                 grinds_render_error_page($errTitle, $errMsg, 'Security Error', 500);
+                exit;
             } else {
                 die('System Error: Cannot generate a secure random token.');
             }
@@ -37,7 +38,7 @@ if (!function_exists('grinds_random_bytes')) {
 
 /** Generate CSRF token. */
 if (!function_exists('generate_csrf_token')) {
-    function generate_csrf_token()
+    function generate_csrf_token(): string
     {
         if (empty($_SESSION['csrf_token'])) {
             $_SESSION['csrf_token'] = bin2hex(grinds_random_bytes(32));
@@ -50,7 +51,7 @@ if (!function_exists('generate_csrf_token')) {
  * Validate CSRF token.
  */
 if (!function_exists('validate_csrf_token')) {
-    function validate_csrf_token($token)
+    function validate_csrf_token(mixed $token): bool
     {
         if (empty($_SESSION['csrf_token']) || empty($token)) {
             return false;
@@ -65,7 +66,7 @@ if (!function_exists('validate_csrf_token')) {
  * Enforce CSRF token check.
  */
 if (!function_exists('check_csrf_token')) {
-    function check_csrf_token()
+    function check_csrf_token(): void
     {
         // 1. Check POST data
         $token = $_POST['csrf_token'] ?? '';
@@ -98,7 +99,7 @@ if (!function_exists('check_csrf_token')) {
 
 /** Get the base path for cookies. */
 if (!function_exists('_grinds_get_cookie_path')) {
-    function _grinds_get_cookie_path()
+    function _grinds_get_cookie_path(): string
     {
         if (defined('COOKIE_PATH')) return constant('COOKIE_PATH');
         $path = parse_url(BASE_URL, PHP_URL_PATH) ?: '/';
@@ -108,7 +109,7 @@ if (!function_exists('_grinds_get_cookie_path')) {
 
 /** Set flash message. */
 if (!function_exists('set_flash')) {
-    function set_flash($msg, $type = 'success')
+    function set_flash(string $msg, string $type = 'success'): void
     {
         $_SESSION['flash'] = ['msg' => $msg, 'type' => $type];
     }
@@ -116,7 +117,7 @@ if (!function_exists('set_flash')) {
 
 /** Retrieve and clear flash message. */
 if (!function_exists('get_flash')) {
-    function get_flash()
+    function get_flash(): ?array
     {
         if (isset($_SESSION['flash'])) {
             $msg = $_SESSION['flash'];
@@ -129,7 +130,7 @@ if (!function_exists('get_flash')) {
 
 /** Start secure session. */
 if (!function_exists('_safe_session_start')) {
-    function _safe_session_start()
+    function _safe_session_start(): void
     {
         if (session_status() === PHP_SESSION_ACTIVE)
             return;
@@ -206,7 +207,7 @@ if (!function_exists('_safe_session_start')) {
  * Get encryption key.
  */
 if (!function_exists('_grinds_get_encryption_key')) {
-    function _grinds_get_encryption_key()
+    function _grinds_get_encryption_key(): string
     {
         $key = defined('APP_KEY') ? constant('APP_KEY') : '';
         return hash('sha256', $key, true);
@@ -217,7 +218,7 @@ if (!function_exists('_grinds_get_encryption_key')) {
  * Encrypt data.
  */
 if (!function_exists('grinds_encrypt')) {
-    function grinds_encrypt($data)
+    function grinds_encrypt(?string $data): ?string
     {
         if (empty($data))
             return $data;
@@ -239,7 +240,7 @@ if (!function_exists('grinds_encrypt')) {
  * Decrypt data.
  */
 if (!function_exists('grinds_decrypt')) {
-    function grinds_decrypt($data)
+    function grinds_decrypt(?string $data): ?string
     {
         if (empty($data))
             return $data;
@@ -311,7 +312,7 @@ if (!function_exists('grinds_decrypt')) {
  * Throws Exception if exceeded.
  */
 if (!function_exists('grinds_check_post_max_size')) {
-    function grinds_check_post_max_size()
+    function grinds_check_post_max_size(): void
     {
         if ($_SERVER['REQUEST_METHOD'] === 'POST' && empty($_POST) && empty($_FILES) && isset($_SERVER['CONTENT_LENGTH']) && $_SERVER['CONTENT_LENGTH'] > 0) {
 
@@ -337,7 +338,7 @@ if (!function_exists('grinds_check_post_max_size')) {
  * @return bool
  */
 if (!function_exists('grinds_is_trusted_url')) {
-    function grinds_is_trusted_url($url, $type = 'iframe')
+    function grinds_is_trusted_url(string $url, string $type = 'iframe'): bool
     {
         $allowed = [];
         if ($type === 'iframe') {
@@ -382,7 +383,7 @@ if (!function_exists('grinds_is_trusted_url')) {
  * Throws Exception if malicious or untrusted content is found.
  */
 if (!function_exists('grinds_validate_content_security')) {
-    function grinds_validate_content_security($content)
+    function grinds_validate_content_security(string $content): void
     {
         if (strlen($content) > 10 * 1024 * 1024) {
             throw new Exception(function_exists('_t') ? _t('err_security_malicious_code') : 'Security Error: Content exceeds maximum processing size.');
@@ -407,10 +408,11 @@ if (!function_exists('grinds_validate_content_security')) {
 }
 
 if (!function_exists('_grinds_validate_string_security')) {
-    function _grinds_validate_string_security($str)
+    function _grinds_validate_string_security(string $str): void
     {
         $checkStr = preg_replace_callback('/\\\\u([0-9a-fA-F]{4})/', function ($match) {
-            return json_decode('"\u' . $match[1] . '"');
+            $decoded = json_decode('"\u' . $match[1] . '"');
+            return $decoded !== null ? (string)$decoded : $match[0];
         }, $str);
 
         if (preg_match('/<\s*\/?\s*(object|embed|applet|form|link|meta)\b/i', $checkStr)) {
@@ -442,7 +444,7 @@ if (!function_exists('_grinds_validate_string_security')) {
  * @return string
  */
 if (!function_exists('grinds_sanitize_post_content')) {
-    function grinds_sanitize_post_content($content)
+    function grinds_sanitize_post_content(mixed $content): string
     {
         // 1. Try to decode as JSON (Block Editor content)
         $json = json_decode($content, true);
@@ -467,7 +469,7 @@ if (!function_exists('grinds_sanitize_post_content')) {
  * Sanitize decoded JSON array structure directly to optimize performance.
  */
 if (!function_exists('grinds_sanitize_post_content_array')) {
-    function grinds_sanitize_post_content_array(array $json)
+    function grinds_sanitize_post_content_array(array $json): array
     {
         if (isset($json['blocks']) && is_array($json['blocks'])) {
             foreach ($json['blocks'] as &$block) {
@@ -492,6 +494,7 @@ if (!function_exists('grinds_sanitize_post_content_array')) {
                     });
                 }
             }
+            unset($block); // Free the reference to prevent accidental modification in subsequent loops
         }
         return $json;
     }

@@ -17,7 +17,7 @@ if (!defined('GRINDS_APP')) exit;
 
     <!-- Render search. -->
     <form action="<?= h(resolve_url('/')) ?>" method="get" class="relative mb-10 grinds-search-form">
-      <input type="text" name="q" placeholder="<?= h(theme_t('search_placeholder')) ?>" class="shadow-sm py-4 pr-14 pl-6 border border-slate-300 focus:border-transparent rounded-full focus:outline-none focus:ring-2 focus:ring-brand-500 w-full">
+      <input type="text" name="q" placeholder="<?= h(theme_t('search_placeholder')) ?>" value="<?= h($_GET['q'] ?? '') ?>" class="shadow-sm py-4 pr-14 pl-6 border border-slate-300 focus:border-transparent rounded-full focus:outline-none focus:ring-2 focus:ring-brand-500 w-full">
       <button type="submit" class="top-2 right-2 absolute bg-brand-600 hover:bg-brand-700 p-2 rounded-full text-white transition" aria-label="<?= h(theme_t('search')) ?>">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />

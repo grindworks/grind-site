@@ -3,6 +3,9 @@
 /**
  * banners.php
  * Render banner images.
+ *
+ * @var string $position
+ * @var array $position_banners
  */
 if (!empty($position_banners)):
 ?>

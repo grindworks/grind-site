@@ -6,6 +6,8 @@ if (!defined('GRINDS_APP'))
 /**
  * page.php
  * Render page layout.
+ *
+ * @var array $pageData
  */
 ?>
 

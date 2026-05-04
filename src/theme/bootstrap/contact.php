@@ -3,6 +3,8 @@
 /**
  * contact.php
  * Handle contact form.
+ *
+ * @var array $pageData
  */
 if (!defined('GRINDS_APP')) exit;
 require_once ROOT_PATH . '/lib/mail.php';

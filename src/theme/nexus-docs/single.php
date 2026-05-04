@@ -1,4 +1,10 @@
 <?php
+/**
+ * single.php
+ * Render single post for nexus-docs theme.
+ *
+ * @var array $pageData
+ */
 if (!defined('GRINDS_APP')) exit;
 $post = $pageData['post'];
 $contentData = $post['content_decoded'] ?? json_decode($post['content'] ?? '{}', true);

@@ -33,7 +33,7 @@ if (!defined('PLACEHOLDER_IMG')) {
  * Convert database media path to absolute URL for frontend display.
  */
 if (!function_exists('get_media_url')) {
-  function get_media_url($path)
+  function get_media_url(string $path)
   {
     if (empty($path)) {
       return '';
@@ -57,6 +57,3 @@ require_once __DIR__ . '/functions/system.php';
 require_once __DIR__ . '/functions/posts.php';
 require_once __DIR__ . '/functions/users.php';
 require_once __DIR__ . '/functions/theme.php';
-
-// Load user plugins
-require_once __DIR__ . '/functions/plugins.php';

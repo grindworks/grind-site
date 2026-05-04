@@ -205,6 +205,11 @@ function grinds_process_bulk_actions(PDO $pdo, array $data): array
                 $stmtUpdateSimple = $pdo->prepare("UPDATE posts SET deleted_at = ? WHERE id = ?");
 
                 foreach ($targetIds as $tid) {
+                    // Queue for deletion before state changes to fetch metadata properly
+                    if (function_exists('grinds_queue_ssg_dependencies')) {
+                        grinds_queue_ssg_dependencies($pdo, $tid, 'delete');
+                    }
+
                     $stmtGet->execute([$tid]);
                     $slug = $stmtGet->fetchColumn();
                     if ($slug) {
@@ -272,6 +277,11 @@ function grinds_process_bulk_actions(PDO $pdo, array $data): array
                         }
 
                         if ($saved) {
+                            // Queue for build after restoration is complete
+                            if (function_exists('grinds_queue_ssg_dependencies')) {
+                                grinds_queue_ssg_dependencies($pdo, $tid, 'build');
+                            }
+
                             $count++;
                             $restoredIds[] = $tid;
                         }
@@ -286,6 +296,11 @@ function grinds_process_bulk_actions(PDO $pdo, array $data): array
 
                 $stmtPost = $pdo->prepare("DELETE FROM posts WHERE id = ?");
                 foreach ($targetIds as $tid) {
+                    // Queue for deletion before permanent removal
+                    if (function_exists('grinds_queue_ssg_dependencies')) {
+                        grinds_queue_ssg_dependencies($pdo, $tid, 'delete');
+                    }
+
                     $stmtPost->execute([$tid]);
                     $count++;
                     $deletedIds[] = $tid;
@@ -297,6 +312,11 @@ function grinds_process_bulk_actions(PDO $pdo, array $data): array
                 $stmt = $pdo->prepare("UPDATE posts SET status = 'published', published_at = COALESCE(published_at, ?), updated_at = ?, version = version + 1 WHERE id = ?");
                 foreach ($targetIds as $tid) {
                     $stmt->execute([$now, $now, $tid]);
+
+                    // Queue for build after publish state is saved
+                    if (function_exists('grinds_queue_ssg_dependencies')) {
+                        grinds_queue_ssg_dependencies($pdo, $tid, 'build');
+                    }
                     $count++;
                 }
                 $message = _t('msg_published_count', $count);
@@ -305,6 +325,11 @@ function grinds_process_bulk_actions(PDO $pdo, array $data): array
             case 'draft':
                 $stmt = $pdo->prepare("UPDATE posts SET status = 'draft', updated_at = ?, version = version + 1 WHERE id = ?");
                 foreach ($targetIds as $tid) {
+                    // Queue for deletion before it reverts to draft
+                    if (function_exists('grinds_queue_ssg_dependencies')) {
+                        grinds_queue_ssg_dependencies($pdo, $tid, 'delete');
+                    }
+
                     $stmt->execute([$now, $tid]);
                     $count++;
                 }
@@ -330,6 +355,11 @@ function grinds_process_bulk_actions(PDO $pdo, array $data): array
                 $stmt = $pdo->prepare("UPDATE posts SET category_id = ?, search_text = ?, updated_at = ?, version = version + 1 WHERE id = ?");
 
                 foreach ($targetIds as $tid) {
+                    // Queue old category dependencies before update
+                    if (function_exists('grinds_queue_ssg_dependencies')) {
+                        grinds_queue_ssg_dependencies($pdo, $tid, 'build');
+                    }
+
                     $stmtGet->execute([$tid]);
                     $post = $stmtGet->fetch(PDO::FETCH_ASSOC);
 
@@ -354,6 +384,11 @@ function grinds_process_bulk_actions(PDO $pdo, array $data): array
                     $searchDesc = trim($safeDescription . ' ' . implode(' ', $metaValues));
                     $searchText = grinds_generate_search_text($post['title'], $searchDesc, $post['content'], $newCatName, $tags);
                     $stmt->execute([$newCatId, $searchText, $now, $tid]);
+
+                    // Queue new category dependencies after update
+                    if (function_exists('grinds_queue_ssg_dependencies')) {
+                        grinds_queue_ssg_dependencies($pdo, $tid, 'build');
+                    }
                     $count++;
                 }
                 $message = _t('msg_saved') . " ($count items updated)";
@@ -459,7 +494,7 @@ function grinds_process_bulk_actions(PDO $pdo, array $data): array
  * @return array
  * @throws Exception
  */
-function grinds_build_hero_settings($data, $mobileImage = ''): array
+function grinds_build_hero_settings(array $data, string $mobileImage = ''): array
 {
     $hero_buttons = [];
     if (!empty($data['hero_buttons_json'])) {
@@ -1077,7 +1112,7 @@ function grinds_reassign_category_posts(PDO $pdo, int $fromCatId, int $toCatId):
  * @param int $offset Offset for batch processing.
  * @return int Number of processed items.
  */
-function grinds_rebuild_post_index(PDO $pdo, $post_id = null, $limit = 0, $offset = 0): int
+function grinds_rebuild_post_index(PDO $pdo, int|array|null $post_id = null, int $limit = 0, int $offset = 0): int
 {
     // Optimization: If array is provided, process in chunks
     if (is_array($post_id)) {
@@ -1118,7 +1153,7 @@ function grinds_rebuild_post_index(PDO $pdo, $post_id = null, $limit = 0, $offse
 /**
  * Internal helper to process a chunk of posts for index rebuilding.
  */
-function _grinds_rebuild_index_chunk(PDO $pdo, $post_id, $limit, $offset): int
+function _grinds_rebuild_index_chunk(PDO $pdo, int|array|null $post_id, int $limit, int $offset): int
 {
     $repo    = new PostRepository($pdo);
 
@@ -1203,7 +1238,7 @@ function _grinds_rebuild_index_chunk(PDO $pdo, $post_id, $limit, $offset): int
  * @param string $alias Table alias (e.g. 'p').
  * @return string SQL condition.
  */
-function grinds_get_post_search_condition($query, &$params, $alias = ''): string
+function grinds_get_post_search_condition(string|array $query, array &$params, string $alias = ''): string
 {
     $prefix = $alias ? $alias . '.' : '';
     return grinds_build_search_query($query, function ($word) use (&$params, $prefix) {
@@ -1249,7 +1284,7 @@ function grinds_get_post_search_condition($query, &$params, $alias = ''): string
  *   'use_fts' => bool
  * }
  */
-function grinds_prepare_search_query(PDO $pdo, $query): array
+function grinds_prepare_search_query(PDO $pdo, string|array $query): array
 {
     static $useFts = null;
 
@@ -1361,7 +1396,7 @@ function grinds_prepare_search_query(PDO $pdo, $query): array
  * @param array $tags
  * @return string
  */
-function grinds_generate_search_text($title, $description = '', $content = '', $category_name = '', $tags = []): string
+function grinds_generate_search_text(string $title, string $description = '', mixed $content = '', string $category_name = '', array $tags = []): string
 {
     $body = grinds_extract_text_from_content($content);
 
@@ -1379,7 +1414,7 @@ function grinds_generate_search_text($title, $description = '', $content = '', $
 /**
  * Attach tags to a list of posts to avoid N+1 queries.
  */
-function grinds_attach_tags(&$posts): void
+function grinds_attach_tags(array &$posts): void
 {
     $pdo = App::db();
 
@@ -1564,7 +1599,7 @@ if (!class_exists('PostRepository')) {
         /**
          * Build query components based on filters.
          */
-        protected function buildQuery(array $filters)
+        protected function buildQuery(array $filters): array
         {
             $where = [];
             $params = [];
@@ -1701,7 +1736,7 @@ if (!class_exists('PostRepository')) {
             ];
         }
 
-        public function count(array $filters = [])
+        public function count(array $filters = []): int
         {
             $q = $this->buildQuery($filters);
             $distinct = !empty($q['joins']) ? 'DISTINCT p.id' : '*';
@@ -1737,7 +1772,7 @@ if (!class_exists('PostRepository')) {
             ];
         }
 
-        public function paginate(array $filters = [], $page = 1, $limit = 10, $orderBy = 'p.published_at DESC', $select = 'p.*', $includeCategory = true)
+        public function paginate(array $filters = [], int $page = 1, int $limit = 10, string $orderBy = 'p.published_at DESC', string $select = 'p.*', bool $includeCategory = true): array
         {
             $total = $this->count($filters);
             $paginator = new Paginator($total, $limit, $page);
@@ -1756,7 +1791,7 @@ if (!class_exists('PostRepository')) {
             return ['posts' => $posts, 'paginator' => $paginator, 'total' => $total];
         }
 
-        public function fetch(array $filters = [], $limit = 0, $offset = 0, $orderBy = 'p.published_at DESC', $select = 'p.*', $includeCategory = true)
+        public function fetch(array $filters = [], int $limit = 0, int $offset = 0, string $orderBy = 'p.published_at DESC', string $select = 'p.*', bool $includeCategory = true): array
         {
             $q = $this->buildQuery($filters);
             $sql = $this->getBaseSql($select, $q, $orderBy, $limit, $offset, $includeCategory);
@@ -1777,7 +1812,7 @@ if (!class_exists('PostRepository')) {
          * @param bool $includeCategory
          * @return string
          */
-        protected function getBaseSql($select, $q, $orderBy, $limit = 0, $offset = 0, $includeCategory = true)
+        protected function getBaseSql(string $select, array $q, string $orderBy, int $limit = 0, int $offset = 0, bool $includeCategory = true): string
         {
             $catSelect = '';
             $catJoin = '';
@@ -1803,7 +1838,7 @@ if (!class_exists('PostRepository')) {
             return $sql;
         }
 
-        public function getLatestPostTimestamp(array $filters = [])
+        public function getLatestPostTimestamp(array $filters = []): ?string
         {
             $q = $this->buildQuery($filters);
             $sql = "SELECT MAX(p.updated_at), MAX(p.published_at) FROM posts p {$q['joins']} WHERE {$q['where']}";
@@ -1823,7 +1858,7 @@ if (!class_exists('PostRepository')) {
             return ($updated > $published) ? $updated : $published;
         }
 
-        public function findForSitemap(int $limit = 50000)
+        public function findForSitemap(int $limit = 50000): PDOStatement|false
         {
             $filters = [
                 'status' => 'published',
@@ -1841,7 +1876,7 @@ if (!class_exists('PostRepository')) {
             return $stmt;
         }
 
-        public function findCategoriesForSitemap()
+        public function findCategoriesForSitemap(): PDOStatement|false
         {
             $filters = [
                 'status' => 'published',
@@ -1863,7 +1898,7 @@ if (!class_exists('PostRepository')) {
             return $stmt;
         }
 
-        public function findTagsForSitemap()
+        public function findTagsForSitemap(): PDOStatement|false
         {
             $filters = ['status' => 'published', 'type' => 'post', 'is_noindex' => 0];
             $q = $this->buildQuery($filters);
@@ -1873,7 +1908,7 @@ if (!class_exists('PostRepository')) {
             return $stmt;
         }
 
-        public function findSlugs(array $filters = [])
+        public function findSlugs(array $filters = []): PDOStatement|false
         {
             $q = $this->buildQuery($filters);
             $sql = "SELECT p.slug FROM posts p {$q['joins']} WHERE {$q['where']}";
@@ -1882,7 +1917,7 @@ if (!class_exists('PostRepository')) {
             return $stmt;
         }
 
-        public function getDailyPostCounts($days = 30)
+        public function getDailyPostCounts(int $days = 30): array
         {
             $start = date('Y-m-d', strtotime("-" . ($days - 1) . " days"));
 
@@ -1905,7 +1940,7 @@ if (!class_exists('PostRepository')) {
             return ['daily' => $daily, 'total_before' => $totalBefore];
         }
 
-        public function getPostCountsForCategories(array $categoryIds, array $extraFilters = [])
+        public function getPostCountsForCategories(array $categoryIds, array $extraFilters = []): array
         {
             if (empty($categoryIds)) {
                 return [];
@@ -1926,7 +1961,7 @@ if (!class_exists('PostRepository')) {
             return $stmt->fetchAll(PDO::FETCH_KEY_PAIR);
         }
 
-        public function getPostCountsForTags(array $tagIds, array $extraFilters = [])
+        public function getPostCountsForTags(array $tagIds, array $extraFilters = []): array
         {
             if (empty($tagIds)) {
                 return [];

@@ -19,7 +19,7 @@ if (!defined('GRINDS_APP')) exit; ?>
   <!-- Code content -->
   <textarea x-model="block.data.code" :id="'block-' + block.id + '-code'" rows="12"
     class="w-full font-mono text-xs form-control-sm resize-y overflow-y-auto min-h-[10rem] max-h-[600px]"
-    placeholder="<?= _t('ph_code') ?>"
+    placeholder="<?= h(_t('ph_code')) ?>"
     @keydown.escape="$el.blur()" @keydown.tab.prevent="
       handleCodeIndent($event, index);
     "></textarea>

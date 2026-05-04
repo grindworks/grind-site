@@ -67,11 +67,7 @@
   "nav_style": "cyber",
   "texture": "tech_grid",
   "media_bg_css": "high_tech",
-  "effects": [
-    "nav_shape_cyber",
-    "corner_brackets",
-    "text_analog_glitch"
-  ],
+  "effects": ["nav_shape_cyber", "corner_brackets", "text_analog_glitch"],
   "ai_paste": {
     "title": "TOP SECRET",
     "description": "CLASSIFIED DATA INPUT",
@@ -86,7 +82,7 @@
     "icon": "outline-shield-check"
   },
   "sidebar_custom_css": "border-right: 1px solid #e62e00 !important; background: linear-gradient(90deg, #000 0%, #110000 100%) !important;",
-  "css": "* { text-transform: uppercase !important; }\n::selection { background: #e62e00 !important; color: #fff !important; }\n/* Angled cut corners for buttons and inputs */\n.btn-primary, .btn-secondary, input, textarea, select { clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px); border: none !important; border-bottom: 2px solid #e62e00 !important; background: #1a0000 !important; }\n.btn-primary { background: #e62e00 !important; color: #fff !important; border-bottom: 2px solid #ff8c00 !important; }\n.btn-primary:hover { background: #ff8c00 !important; color: #000 !important; }\n/* Danger/Warning Stripes */\nh2.flex.items-center, .border-b > h3.font-bold { border-bottom: 4px solid #e62e00; background: repeating-linear-gradient(45deg, #1a0000, #1a0000 10px, #000 10px, #000 20px); padding: 8px 16px; color: #ff8c00 !important; }",
+  "css": "* { text-transform: uppercase !important; }\n::selection { background: #e62e00 !important; color: #fff !important; }\n/* Angled cut corners for buttons and inputs */\n.btn-primary, .btn-secondary, input, textarea, select { clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px); border: none !important; border-bottom: 2px solid #e62e00 !important; background: #1a0000 !important; }\n.btn-primary { background: #e62e00 !important; color: #fff !important; border-bottom: 2px solid #ff8c00 !important; }\n.btn-primary:hover { background: #ff8c00 !important; color: #000 !important; }\n/* Danger/Warning Stripes */\nh2.flex.items-center, .border-b > h3.font-bold { border-bottom: 4px solid #e62e00; background: repeating-linear-gradient(45deg, #1a0000, #1a0000 10px, #000 10px, #000 20px); padding: 8px 16px; color: #ff8c00 !important; }\ninput, textarea, select { font-family: ui-monospace, SFMono-Regular, monospace !important; text-transform: none !important; }",
   "is_dark": true,
   "is_sidebar_dark": true
 }

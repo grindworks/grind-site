@@ -64,7 +64,7 @@ try {
           default      => 'jpg'
         };
 
-        $tmpFilename = 'preview_' . bin2hex(random_bytes(8)) . '.' . $safeExt;
+        $tmpFilename = 'preview_' . bin2hex(grinds_random_bytes(8)) . '.' . $safeExt;
 
         $tmpPreviewDir = ROOT_PATH . '/assets/uploads/_preview';
         if (!is_dir($tmpPreviewDir)) {
@@ -186,7 +186,7 @@ try {
             'image/svg+xml' => 'svg',
             default => 'jpg'
           };
-          $tmpFilename = 'preview_meta_' . bin2hex(random_bytes(8)) . '.' . $safeExt;
+          $tmpFilename = 'preview_meta_' . bin2hex(grinds_random_bytes(8)) . '.' . $safeExt;
           $tmpPreviewDir = ROOT_PATH . '/assets/uploads/_preview';
           if (!is_dir($tmpPreviewDir)) @mkdir($tmpPreviewDir, 0775, true);
 
@@ -245,7 +245,7 @@ try {
   }
 
   // Save preview data
-  $token = bin2hex(random_bytes(16));
+  $token = bin2hex(grinds_random_bytes(16));
   $filename = 'preview_' . $token . '.json';
   $savePath = $previewDir . '/' . $filename;
 

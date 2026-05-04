@@ -7,6 +7,8 @@
  */
 require_once __DIR__ . '/api_bootstrap.php';
 
+/** @var \PDO $pdo */
+
 // Check permissions
 if (!current_user_can('manage_media')) {
   json_response(['success' => false, 'error' => 'Forbidden'], 403);
@@ -29,9 +31,11 @@ try {
   // Release session lock to prevent blocking other requests during file processing
   session_write_close();
 
-  // Validate upload
-  if (!isset($_FILES['image']) || $_FILES['image']['error'] !== UPLOAD_ERR_OK) {
-    $errorCode = $_FILES['image']['error'] ?? UPLOAD_ERR_NO_FILE;
+  // Validate upload (Prevent Array injection from malicious input like name="image[]")
+  if (!isset($_FILES['image']) || is_array($_FILES['image']['error']) || $_FILES['image']['error'] !== UPLOAD_ERR_OK) {
+    $errorCode = isset($_FILES['image']['error']) && !is_array($_FILES['image']['error'])
+      ? $_FILES['image']['error']
+      : UPLOAD_ERR_NO_FILE;
 
     $errorMsg = match ($errorCode) {
       UPLOAD_ERR_INI_SIZE   => _t('err_upload_ini_size'),

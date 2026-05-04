@@ -35,7 +35,7 @@ $btn_colors = $block_config['library']['design']['items']['button']['colors'] ??
   <!-- Text and URL inputs -->
   <div class="flex-1 space-y-2">
     <div class="flex gap-2">
-      <input type="text" x-model="block.data.text" :id="'block-' + block.id + '-text'" class="flex-1 font-bold form-control-sm" placeholder="<?= _t('ph_btn_text') ?>">
+      <input type="text" x-model="block.data.text" :id="'block-' + block.id + '-text'" class="flex-1 font-bold form-control-sm" placeholder="<?= h(_t('ph_btn_text')) ?>">
       <!-- Style preview -->
       <div class="flex justify-center items-center px-3 py-1 border rounded-theme font-bold text-xs transition-colors shrink-0"
         :class="(colors[block.data.color] || {}).class"
@@ -44,7 +44,7 @@ $btn_colors = $block_config['library']['design']['items']['button']['colors'] ??
       </div>
     </div>
     <div class="relative">
-      <input type="text" x-model="block.data.url" :id="'block-' + block.id + '-url'" @focus="searching = true" @input.debounce.300ms="searchContent($event.target.value)" @blur="setTimeout(() => { block.data.url = normalizeUrl(block.data.url) }, 200)" class="w-full font-mono text-xs form-control-sm" placeholder="<?= _t('ph_btn_url') ?> (<?= _t('ph_type_to_search') ?>)">
+      <input type="text" x-model="block.data.url" :id="'block-' + block.id + '-url'" @focus="searching = true" @input.debounce.300ms="searchContent($event.target.value)" @blur="setTimeout(() => { block.data.url = normalizeUrl(block.data.url) }, 200)" class="w-full font-mono text-xs form-control-sm" placeholder="<?= h(_t('ph_btn_url')) ?> (<?= h(_t('ph_type_to_search')) ?>)">
       <div x-show="searching && searchResults.length > 0" x-cloak
         class="absolute left-0 right-0 z-50 bg-theme-surface shadow-theme mt-1 border border-theme-border rounded-theme max-h-40 overflow-y-auto">
         <template x-for="result in searchResults">

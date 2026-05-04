@@ -72,12 +72,13 @@ if ($action === 'download') {
 // Validate CSRF token
 check_csrf_token();
 
-$step = $_POST['step'] ?? 'init';
+$step = is_scalar($_POST['step'] ?? null) ? (string)$_POST['step'] : 'init';
 
 // Keep session open
 $currentCsrfToken = $_SESSION['csrf_token'] ?? '';
 
-$data = json_decode($_POST['data'] ?? '{}', true);
+$rawData = is_scalar($_POST['data'] ?? null) ? (string)$_POST['data'] : '{}';
+$data = json_decode($rawData, true);
 if (!is_array($data)) {
   $data = [];
 }
@@ -145,7 +146,8 @@ try {
       clearstatcache(true, $db_path);
       $dbSize = filesize($db_path);
 
-      $freeSpace = @disk_free_space(dirname($safeDbFile));
+      $dir = dirname($safeDbFile);
+      $freeSpace = is_dir($dir) ? @disk_free_space($dir) : false;
       // Estimate: Snapshot (DB) + ZIP (DB + Uploads) + Buffer
       $requiredSpace = ($dbSize * 2) + ($uploadsSize * 1.2);
 

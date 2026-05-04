@@ -3,6 +3,11 @@
 /**
  * sidebar_footer.php
  * Renders the sidebar footer with license and user info.
+ *
+ * @var string $licStatus
+ * @var array $sysStatus
+ * @var array $currentUser
+ * @var string $statusDot
  */
 if (!defined('GRINDS_APP'))
     exit;
@@ -78,7 +83,7 @@ if (!isset($statusDot) && isset($sysStatus)) {
                     <span class="font-mono text-[10px] whitespace-nowrap">v<?= h(CMS_VERSION) ?></span>
                 </span>
                 <?php if (!empty($hasUpdate)): ?>
-                    <a href="settings.php?tab=update" class="ml-auto text-theme-primary font-bold text-[10px] hover:underline animate-pulse" title="<?= _t('st_update_available') ?>">
+                    <a href="settings.php?tab=update" class="ml-auto text-theme-primary font-bold text-[10px] hover:underline animate-pulse" title="<?= h(_t('st_update_available')) ?>">
                         Update
                     </a>
                 <?php endif; ?>

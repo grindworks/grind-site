@@ -16,7 +16,7 @@ if (!defined('GRINDS_APP')) exit; ?>
                 <!-- Title input -->
                 <div>
                     <label class="block opacity-50 mb-1 font-bold text-[10px] text-theme-text" x-text="<?= htmlspecialchars(json_encode(_t('lbl_tab_title')), ENT_QUOTES) ?> + ' ' + (i+1)"></label>
-                    <input type="text" x-model="item.title" :id="'block-' + block.id + '-item-' + i + '-title'" class="w-full font-bold form-control-sm" placeholder="<?= _t('ph_tab_title') ?>">
+                    <input type="text" x-model="item.title" :id="'block-' + block.id + '-item-' + i + '-title'" class="w-full font-bold form-control-sm" placeholder="<?= h(_t('ph_tab_title')) ?>">
                 </div>
                 <!-- Content input -->
                 <div>
@@ -24,7 +24,7 @@ if (!defined('GRINDS_APP')) exit; ?>
                     <textarea x-model="item.content" :id="'block-' + block.id + '-item-' + i + '-content'" rows="4"
                         x-init="$nextTick(() => { $el.style.height = 'auto'; $el.style.height = $el.scrollHeight + 'px' })"
                         @input="$el.style.height = 'auto'; $el.style.height = $el.scrollHeight + 'px'"
-                        class="w-full text-xs form-control-sm leading-relaxed overflow-hidden resize-none" placeholder="<?= _t('ph_tab_content') ?>"></textarea>
+                        class="w-full text-xs form-control-sm leading-relaxed overflow-hidden resize-none" placeholder="<?= h(_t('ph_tab_content')) ?>"></textarea>
                 </div>
             </div>
         </div>

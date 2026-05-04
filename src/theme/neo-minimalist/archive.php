@@ -6,6 +6,9 @@ if (!defined('GRINDS_APP'))
 /**
  * archive.php
  * Display posts filtered by tag.
+ *
+ * @var array $pageData
+ * @var string|null $pageType
  */
 $isSearch = (isset($pageType) && $pageType === 'search');
 ?>

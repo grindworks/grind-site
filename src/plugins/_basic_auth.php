@@ -1,7 +1,10 @@
 <?php
 
 /**
- * _basic_auth.php
+ * Plugin Name: Basic Auth
+ *
+ * Author: Grind Works Inc.
+ * Version: 1.0.0
  *
  * [English]
  * Adds Basic Authentication to the entire site or specific pages.

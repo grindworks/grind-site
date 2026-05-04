@@ -7,20 +7,20 @@ if (!defined('GRINDS_APP')) exit;
 
 class SimpleMailer
 {
-    private $host;
-    private $port;
-    private $user;
-    private $pass;
-    private $from;
-    private $encryption;
-    private $allowSelfSigned;
+    private string $host;
+    private int $port;
+    private string $user;
+    private string $pass;
+    private string $from;
+    private string $encryption;
+    private bool $allowSelfSigned;
 
     /** Initialize SMTP settings. */
-    public function __construct($config = [])
+    public function __construct(array $config = [])
     {
-        $this->host = $config['smtp_host'] ?? get_option('smtp_host');
-        $this->port = $config['smtp_port'] ?? get_option('smtp_port', 587);
-        $this->user = $config['smtp_user'] ?? get_option('smtp_user');
+        $this->host = (string)($config['smtp_host'] ?? get_option('smtp_host', ''));
+        $this->port = (int)($config['smtp_port'] ?? get_option('smtp_port', 587));
+        $this->user = (string)($config['smtp_user'] ?? get_option('smtp_user', ''));
 
         // Handle password
         if (isset($config['smtp_pass'])) {
@@ -29,13 +29,13 @@ class SimpleMailer
             $this->pass = grinds_decrypt(get_option('smtp_pass'));
         }
 
-        $this->from = $config['smtp_from'] ?? get_option('smtp_from');
-        $this->encryption = $config['smtp_encryption'] ?? get_option('smtp_encryption', 'tls');
+        $this->from = (string)($config['smtp_from'] ?? get_option('smtp_from', ''));
+        $this->encryption = (string)($config['smtp_encryption'] ?? get_option('smtp_encryption', 'tls'));
         $this->allowSelfSigned = isset($config['smtp_allow_self_signed']) ? (bool)$config['smtp_allow_self_signed'] : (bool)get_option('smtp_allow_self_signed', false);
     }
 
     /** Send email. */
-    public function send($to, $subject, $body, $replyTo = '')
+    public function send(string $to, string $subject, string $body, string $replyTo = '')
     {
         $cleanFrom = str_replace(["\r", "\n"], '', $this->from);
         $cleanTo = str_replace(["\r", "\n"], '', $to);
@@ -158,13 +158,13 @@ class SimpleMailer
     }
 
     /** Write command. */
-    private function write($socket, $cmd)
+    private function write(mixed $socket, string $cmd)
     {
         fwrite($socket, $cmd . "\r\n");
     }
 
     /** Read response. */
-    private function read($socket, $expect)
+    private function read(mixed $socket, string $expect)
     {
         $response = "";
         $startTime = time();

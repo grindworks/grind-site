@@ -53,7 +53,7 @@ if (!function_exists('classic_the_share_buttons')) {
  * Get highlighted excerpt for search results.
  */
 if (!function_exists('classic_get_highlighted_excerpt')) {
-    function classic_get_highlighted_excerpt($post, $length = 100)
+    function classic_get_highlighted_excerpt(array $post, int $length = 100)
     {
         $excerpt = (!empty($post['description'])) ? h($post['description']) : get_excerpt($post['content'], $length);
         if (isset($_GET['q']) && $_GET['q'] !== '') {
@@ -79,7 +79,7 @@ if (!function_exists('classic_get_highlighted_excerpt')) {
  * Render content blocks.
  */
 if (!function_exists('classic_render_block')) {
-    function classic_render_block($block, $pathFixer)
+    function classic_render_block(array $block, callable $pathFixer)
     {
         $type = $block['type'] ?? '';
         $data = $block['data'] ?? [];
@@ -175,7 +175,7 @@ if (!function_exists('classic_render_block')) {
                     return '';
                 $url = resolve_url($rawUrl);
                 $target = !empty($data['external']) ? 'target="_blank" rel="noopener"' : '';
-                return "<div class='{$commonClass}'><a href='{$url}' {$target} class='btn'>{$text}</a></div>";
+                return "<div class='{$commonClass}'><a href='" . h($url) . "' {$target} class='btn'>{$text}</a></div>";
 
             case 'columns':
                 $left = nl2br($pathFixer($data['leftText'] ?? ''));
@@ -231,7 +231,7 @@ if (!function_exists('classic_render_block')) {
                 $img = $data['image'] ?? '';
                 if (empty($title) && empty($desc) && empty($img))
                     return '';
-                $html = "<div class='{$commonClass}'><a href='{$url}'>";
+                $html = "<div class='{$commonClass}'><a href='" . h($url) . "'>";
                 if ($img)
                     $html .= get_image_html($img, ['alt' => $title, 'loading' => 'lazy']);
                 if ($title)
@@ -264,7 +264,14 @@ if (!function_exists('classic_render_block')) {
             case 'map':
                 $code = $data['code'] ?? '';
                 if (preg_match('/<iframe\s+[^>]*src=["\']([^"\']+)["\']/i', $code, $matches)) {
-                    return "<div class='{$commonClass}'><iframe src='" . htmlspecialchars($matches[1], ENT_QUOTES, 'UTF-8') . "' width='100%' height='450' style='border:0' allowfullscreen loading='lazy'></iframe></div>";
+                    $src = $matches[1];
+                    $parsed = parse_url($src);
+                    $host = $parsed['host'] ?? '';
+                    $isGoogle = ($host === 'www.google.com' || $host === 'google.com') && str_starts_with($parsed['path'] ?? '', '/maps');
+                    $isOSM = ($host === 'www.openstreetmap.org' || $host === 'openstreetmap.org');
+                    if ($isGoogle || $isOSM) {
+                        return "<div class='{$commonClass}'><iframe src='" . htmlspecialchars($src, ENT_QUOTES, 'UTF-8') . "' width='100%' height='450' style='border:0' allowfullscreen loading='lazy'></iframe></div>";
+                    }
                 }
                 return '';
 
@@ -284,7 +291,7 @@ if (!function_exists('classic_render_block')) {
                 if (empty($rawUrl) || $rawUrl === '#')
                     return '';
                 $url = resolve_url($rawUrl);
-                return "<div class='{$commonClass}'><a href='{$url}' download>⬇️ {$title}</a></div>";
+                return "<div class='{$commonClass}'><a href='" . h($url) . "' download>⬇️ {$title}</a></div>";
 
             case 'timeline':
                 $items = $data['items'] ?? [];
@@ -330,16 +337,17 @@ if (!function_exists('classic_render_block')) {
                 $url = resolve_url($data['url'] ?? '');
                 if (!$url)
                     return '';
-                return "<div class='{$commonClass}'><audio controls src='{$url}'></audio></div>";
+                return "<div class='{$commonClass}'><audio controls src='" . h($url) . "'></audio></div>";
 
             case 'pdf':
                 $url = resolve_url($data['url'] ?? '');
                 if (!$url)
                     return '';
-                return "<div class='{$commonClass}'><a href='{$url}' aria-label='" . theme_t('Download PDF') . "'>" . theme_t('Download PDF') . "</a></div>";
+                return "<div class='{$commonClass}'><a href='" . h($url) . "' aria-label='" . h(theme_t('Download PDF')) . "'>" . theme_t('Download PDF') . "</a></div>";
 
             case 'search_box':
-                return "<div class='{$commonClass}'><form action='" . resolve_url('/') . "' method='get' class='grinds-search-form'><input type='text' name='q' placeholder='" . theme_t('Search...') . "'><button type='submit' aria-label='" . theme_t('Search') . "'><svg width='16' height='16' fill='currentColor' viewBox='0 0 16 16'><path d='M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z'/></svg></button></form></div>";
+                $q = h($_GET['q'] ?? '');
+                return "<div class='{$commonClass}'><form action='" . h(resolve_url('/')) . "' method='get' class='grinds-search-form'><input type='text' name='q' placeholder='" . h(theme_t('Search...')) . "' value='{$q}'><button type='submit' aria-label='" . h(theme_t('Search')) . "'><svg width='16' height='16' fill='currentColor' viewBox='0 0 16 16'><path d='M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z'/></svg></button></form></div>";
 
             case 'internal_card':
                 $id = $data['id'] ?? '';
@@ -356,7 +364,7 @@ if (!function_exists('classic_render_block')) {
                 $html = "<div class='{$commonClass}'>";
                 $html .= "<div class='conversation-avatar'>";
                 if ($img)
-                    $html .= "<img src='" . resolve_url($img) . "' alt='{$name}'>";
+                    $html .= "<img src='" . h(resolve_url($img)) . "' alt='{$name}'>";
                 else
                     $html .= "<span>👤</span>";
                 $html .= "</div><div class='conversation-body'><strong>{$name}</strong><p>{$text}</p></div></div>";
@@ -423,11 +431,13 @@ if (!function_exists('classic_render_block')) {
                 return $html;
 
             case 'countdown':
-                $deadline = h($data['deadline'] ?? '');
-                $msg = h($data['message'] ?? theme_t('Finished'));
+                $deadline = $data['deadline'] ?? '';
+                $msg = $data['message'] ?? theme_t('Finished');
                 $uid = 'timer-' . uniqid();
+                $jsDeadline = json_encode($deadline);
+                $jsMsg = json_encode($msg);
                 $html = "<div id='{$uid}' class='{$commonClass}'><div class='label'>" . theme_t('Time Remaining') . "</div><div class='timer-display'>00:00:00:00</div></div>";
-                $html .= "<script>(function () { const end = new Date('{$deadline}').getTime(); const el = document.querySelector('#{$uid} .timer-display'); const timer = setInterval(() => { const now = new Date().getTime(); const dist = end - now; if (dist < 0) { clearInterval(timer); el.innerHTML = '{$msg}'; return; } const d = Math.floor(dist / (1000 * 60 * 60 * 24)); const h = Math.floor((dist % (1000 * 60 * 60 * 24)) / (1000 * 60)); const m = Math.floor((dist % (1000 * 60 * 60)) / (1000 * 60)); const s = Math.floor((dist % (1000 * 60)) / 1000); el.innerText = d + 'd ' + h.toString().padStart(2, '0') + 'h ' + m.toString().padStart(2, '0') + 'm ' + s.toString().padStart(2, '0') + 's'; }, 1000); })();</script>";
+                $html .= "<script>(function () { const end = new Date({$jsDeadline}).getTime(); const el = document.querySelector('#{$uid} .timer-display'); const timer = setInterval(() => { const now = new Date().getTime(); const dist = end - now; if (dist < 0) { clearInterval(timer); el.innerHTML = {$jsMsg}; return; } const d = Math.floor(dist / (1000 * 60 * 60 * 24)); const h = Math.floor((dist % (1000 * 60 * 60 * 24)) / (1000 * 60)); const m = Math.floor((dist % (1000 * 60 * 60)) / (1000 * 60)); const s = Math.floor((dist % (1000 * 60)) / 1000); el.innerText = d + 'd ' + h.toString().padStart(2, '0') + 'h ' + m.toString().padStart(2, '0') + 'm ' + s.toString().padStart(2, '0') + 's'; }, 1000); })();</script>";
                 return $html;
 
             case 'qrcode':
@@ -566,7 +576,13 @@ if (!function_exists('the_pagination')) {
         global $pageData;
         if (isset($pageData['paginator'])) {
             $paginator = $pageData['paginator'];
-            get_template_part('parts/pagination');
+            if (is_object($paginator) && file_exists(__DIR__ . '/parts/pagination.php')) {
+                get_template_part('parts/pagination');
+            } elseif (is_object($paginator) && method_exists($paginator, 'renderFrontend')) {
+                echo $paginator->renderFrontend();
+            } else {
+                echo $paginator;
+            }
         }
     }
 }

@@ -3,8 +3,15 @@
 /**
  * pagination.php
  * Render pagination.
+ *
+ * @var \Paginator $paginator
  */
 if (!defined('GRINDS_APP')) exit;
+
+if (!is_object($paginator)) {
+    echo $paginator;
+    return;
+}
 
 $lang = defined('SITE_LANG') ? SITE_LANG : 'en';
 $txtPrev = ($lang === 'ja') ? '前へ' : 'Prev';

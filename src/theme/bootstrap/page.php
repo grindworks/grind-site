@@ -5,6 +5,8 @@ if (!defined('GRINDS_APP')) exit;
 /**
  * page.php
  * Render page layout.
+ *
+ * @var array $pageData
  */
 ?>
 <article class="bg-white shadow-sm mb-5 p-4 p-md-5 border rounded">

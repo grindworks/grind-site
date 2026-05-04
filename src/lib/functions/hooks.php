@@ -20,7 +20,7 @@ $GLOBALS['grinds_filters_sorted'] = [];
  * @param int      $priority        Execution priority (lower numbers run earlier). Default 10.
  */
 if (!function_exists('add_action')) {
-    function add_action($tag, $callback, $priority = 10)
+    function add_action(string $tag, callable $callback, int $priority = 10): void
     {
         $GLOBALS['grinds_hooks'][$tag][] = [
             'callback' => $callback,
@@ -37,7 +37,7 @@ if (!function_exists('add_action')) {
  * @param mixed  ...$args Arguments to pass to the callback functions.
  */
 if (!function_exists('do_action')) {
-    function do_action($tag, ...$args)
+    function do_action(string $tag, mixed ...$args): void
     {
         if (empty($GLOBALS['grinds_hooks'][$tag])) {
             return;
@@ -72,7 +72,7 @@ if (!function_exists('do_action')) {
  * @param int      $priority        Execution priority. Default 10.
  */
 if (!function_exists('add_filter')) {
-    function add_filter($tag, $callback, $priority = 10)
+    function add_filter(string $tag, callable $callback, int $priority = 10): void
     {
         $GLOBALS['grinds_filters'][$tag][] = [
             'callback' => $callback,
@@ -91,7 +91,7 @@ if (!function_exists('add_filter')) {
  * @return mixed          The filtered value.
  */
 if (!function_exists('apply_filters')) {
-    function apply_filters($tag, $value, ...$args)
+    function apply_filters(string $tag, mixed $value, mixed ...$args): mixed
     {
         if (empty($GLOBALS['grinds_filters'][$tag])) {
             return $value;

@@ -3,6 +3,9 @@
 /**
  * backup.php
  * Renders the interface for managing backups.
+ *
+ * @var array $opt
+ * @var array $backups
  */
 if (!defined('GRINDS_APP'))
   exit;
@@ -74,7 +77,7 @@ if (!isset($backups)) {
           this.processing = true;
           this.isMarkdown = true;
           this.progress = 0;
-          this.statusMsg = <?= htmlspecialchars(json_encode(_t('js_initializing') ?: 'Initializing...'), ENT_QUOTES, 'UTF-8') ?>;
+          this.statusMsg = <?= htmlspecialchars(json_encode(_t('js_initializing') ?: 'Initializing...', JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT), ENT_QUOTES, 'UTF-8') ?>;
 
           try {
               // 1. Initialize
@@ -83,7 +86,7 @@ if (!isset($backups)) {
 
               if (totalPosts === 0) {
                   this.progress = 100;
-                  this.statusMsg = <?= htmlspecialchars(json_encode(_t('js_done') ?: 'Done!'), ENT_QUOTES, 'UTF-8') ?>;
+                  this.statusMsg = <?= htmlspecialchars(json_encode(_t('js_done') ?: 'Done!', JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT), ENT_QUOTES, 'UTF-8') ?>;
                   this.processing = false;
                   return;
               }
@@ -95,7 +98,7 @@ if (!isset($backups)) {
               while (!done) {
                   // Calculate exact progress percentage
                   this.progress = Math.min(90, Math.round((offset / totalPosts) * 90));
-                  this.statusMsg = <?= htmlspecialchars(json_encode(_t('ssg_btn_generating') ?: 'Generating...'), ENT_QUOTES, 'UTF-8') ?> + ` (${Math.min(offset, totalPosts)}/${totalPosts})`;
+                  this.statusMsg = <?= htmlspecialchars(json_encode(_t('ssg_btn_generating') ?: 'Generating...', JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT), ENT_QUOTES, 'UTF-8') ?> + ` (${Math.min(offset, totalPosts)}/${totalPosts})`;
 
                   let batchRes = await this.callMarkdownApi('process_batch', { offset: offset });
                   offset = batchRes.next_offset;
@@ -103,12 +106,12 @@ if (!isset($backups)) {
               }
 
               // 3. Finalize
-              this.statusMsg = <?= htmlspecialchars(json_encode(_t('js_finalizing') ?: 'Finalizing...'), ENT_QUOTES, 'UTF-8') ?>;
+              this.statusMsg = <?= htmlspecialchars(json_encode(_t('js_finalizing') ?: 'Finalizing...', JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT), ENT_QUOTES, 'UTF-8') ?>;
               this.progress = 95;
               let finalRes = await this.callMarkdownApi('finalize');
 
               this.progress = 100;
-              this.statusMsg = <?= htmlspecialchars(json_encode(_t('js_done') ?: 'Done!'), ENT_QUOTES, 'UTF-8') ?>;
+              this.statusMsg = <?= htmlspecialchars(json_encode(_t('js_done') ?: 'Done!', JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT), ENT_QUOTES, 'UTF-8') ?>;
 
               // 4. Download
               setTimeout(() => {
@@ -290,7 +293,7 @@ if (!isset($backups)) {
               <?php endif; ?>
             </span>
             <div class="relative w-full md:w-1/2">
-              <input :type="showZipPass ? 'text' : 'password'" name="backup_zip_password" value="<?= h($opt['backup_zip_password'] ?? '') ?>" class="w-full font-mono text-sm pr-10 form-control border-theme-primary/30 focus:border-theme-primary bg-theme-surface" autocomplete="new-password" placeholder="<?= function_exists('_t') ? _t('ph_backup_zip_password') : 'Leave empty for no encryption' ?>">
+              <input :type="showZipPass ? 'text' : 'password'" name="backup_zip_password" value="<?= h($opt['backup_zip_password'] ?? '') ?>" class="w-full font-mono text-sm pr-10 form-control border-theme-primary/30 focus:border-theme-primary bg-theme-surface" autocomplete="new-password" placeholder="<?= h(function_exists('_t') ? _t('ph_backup_zip_password') : 'Leave empty for no encryption') ?>">
               <button type="button" @click="showZipPass = !showZipPass" class="absolute right-0 inset-y-0 px-3 flex items-center text-theme-primary opacity-50 hover:opacity-100 focus:outline-none">
                 <svg x-show="!showZipPass" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-eye"></use>
@@ -332,7 +335,7 @@ if (!isset($backups)) {
         checkLimit(e) {
           const newLimit = parseInt(this.$el.querySelector('[name=backup_retention_limit]').value);
           if (newLimit < this.currentLimit) {
-            if (!confirm(<?= htmlspecialchars(json_encode(_t('confirm_reduce_backup_limit')), ENT_QUOTES) ?>)) e.preventDefault();
+            if (!confirm(<?= htmlspecialchars(json_encode(_t('confirm_reduce_backup_limit'), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT), ENT_QUOTES, 'UTF-8') ?>)) e.preventDefault();
           }
         }
       }" @submit="checkLimit($event)">

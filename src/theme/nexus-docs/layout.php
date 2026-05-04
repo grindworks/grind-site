@@ -55,7 +55,7 @@ $searchIndexJson = json_encode($searchIndex, JSON_UNESCAPED_UNICODE);
 <body class="preload-transitions bg-zinc-50 text-zinc-900 flex flex-col min-h-screen" x-data="{
     mobileMenuOpen: false,
     searchOpen: false,
-    searchQuery: '',
+    searchQuery: '<?= h($_GET['q'] ?? '') ?>',
     searchIndex: <?= h($searchIndexJson) ?>,
     get searchResults() {
         if (this.searchQuery.trim() === '') return [];

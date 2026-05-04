@@ -78,7 +78,7 @@ $searchPlaceholder = (function_exists('get_option') && get_option('site_lang') =
             <div class="flex items-center gap-2">
                 <input type="text" x-model="keyword" @input.debounce.500ms="loadMedia(1)"
                     class="bg-theme-bg px-2 py-1 border border-theme-border rounded-theme text-xs text-theme-text w-full sm:w-64"
-                    placeholder="<?= $searchPlaceholder ?>">
+                    placeholder="<?= h($searchPlaceholder) ?>">
                 <button @click="open = false"
                     class="text-theme-text hover:text-theme-primary text-2xl leading-none">&times;</button>
             </div>

@@ -26,7 +26,7 @@ if (!defined('GRINDS_APP')) exit; ?>
       @input="$el.style.height = 'auto'; $el.style.height = $el.scrollHeight + 'px'"
       @keydown.escape="$el.blur()"
       @keydown.tab.prevent="handleCodeIndent($event, index)"
-      class="w-full font-mono text-xs form-control-sm overflow-hidden resize-none" placeholder="<?= _t('ph_math_code') ?>"></textarea>
+      class="w-full font-mono text-xs form-control-sm overflow-hidden resize-none" placeholder="<?= h(_t('ph_math_code')) ?>"></textarea>
   </div>
 
   <div class="mt-2 space-y-1">

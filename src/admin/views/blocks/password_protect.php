@@ -32,7 +32,7 @@ if (!defined('GRINDS_APP')) exit; ?>
             <div class="relative" x-data="{ show: false }">
                 <input :type="show ? 'text' : 'password'" x-model="block.data.password" :id="'block-' + block.id + '-password'"
                     autocomplete="new-password" data-lpignore="true" data-1p-ignore="true" data-form-type="other"
-                    class="w-full text-xs form-control-sm font-mono pr-8" placeholder="<?= _t('ph_password') ?>">
+                    class="w-full text-xs form-control-sm font-mono pr-8" placeholder="<?= h(_t('ph_password')) ?>">
                 <button type="button" @click="show = !show" class="absolute right-0 inset-y-0 px-2 flex items-center opacity-50 hover:opacity-100 focus:outline-none text-theme-text">
                     <svg x-show="!show" class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-eye"></use>
@@ -45,7 +45,7 @@ if (!defined('GRINDS_APP')) exit; ?>
         </div>
         <div>
             <label class="block opacity-70 mb-1 font-bold text-[10px] text-theme-text"><?= _t('lbl_unlock_msg') ?></label>
-            <input type="text" x-model="block.data.message" :id="'block-' + block.id + '-message'" class="w-full text-xs form-control-sm" placeholder="<?= _t('ph_unlock_msg') ?>">
+            <input type="text" x-model="block.data.message" :id="'block-' + block.id + '-message'" class="w-full text-xs form-control-sm" placeholder="<?= h(_t('ph_unlock_msg')) ?>">
         </div>
     </div>
 

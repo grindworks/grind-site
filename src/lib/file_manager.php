@@ -20,7 +20,7 @@ class FileManager
     public const THUMB_SIZE = 300;
     public const THUMB_QUALITY = 80;
 
-    private static $mime_map = [
+    private static array $mime_map = [
         'image/jpeg' => ['jpg', 'jpeg'],
         'image/png' => ['png'],
         'image/gif' => ['gif'],
@@ -71,7 +71,7 @@ class FileManager
     /**
      * Get list of allowed extensions.
      */
-    public static function getAllowedExtensions()
+    public static function getAllowedExtensions(): array
     {
         return array_unique(array_merge(...array_values(self::$mime_map)));
     }
@@ -82,7 +82,7 @@ class FileManager
      * @param string $ext File extension.
      * @return string|null MIME type or null if not found.
      */
-    public static function getMimeType($ext)
+    public static function getMimeType(?string $ext): ?string
     {
         $ext = strtolower($ext ?? '');
         foreach (self::$mime_map as $mime => $extensions) {
@@ -98,7 +98,7 @@ class FileManager
      * @param string $ext File extension.
      * @return array List of compatible MIME types.
      */
-    public static function getCompatibleMimes($ext)
+    public static function getCompatibleMimes(?string $ext): array
     {
         $ext = strtolower($ext ?? '');
         $mimes = [];
@@ -114,7 +114,7 @@ class FileManager
     /**
      * Handles file upload.
      */
-    public static function handleUpload($file, $pdo)
+    public static function handleUpload(array $file, PDO $pdo): string|false
     {
         $uploadResult = self::upload($file);
         $tempPath = $uploadResult['temp_path'] ?? null;
@@ -155,9 +155,9 @@ class FileManager
 
             // Ensure safe name length and uniqueness
             if (empty($safeName) || strlen($safeName) < 3) {
-                $safeName = 'media_' . bin2hex(random_bytes(6));
+                $safeName = 'media_' . bin2hex(grinds_random_bytes(6));
             } else {
-                $safeName = substr($safeName, 0, 30) . '_' . bin2hex(random_bytes(4));
+                $safeName = substr($safeName, 0, 30) . '_' . bin2hex(grinds_random_bytes(4));
             }
 
             $newFilename = $safeName . '.' . $ext;
@@ -179,12 +179,12 @@ class FileManager
             // Handle duplicates
             if ($isCollision($newFilename)) {
                 $retryCount = 0;
-                $newFilename = $safeName . '-' . bin2hex(random_bytes(6)) . '.' . $ext;
+                $newFilename = $safeName . '-' . bin2hex(grinds_random_bytes(6)) . '.' . $ext;
                 while ($isCollision($newFilename)) {
                     if ($retryCount >= 10) {
                         throw new Exception('Failed to generate a unique filename.');
                     }
-                    $newFilename = $safeName . '-' . bin2hex(random_bytes(6)) . '.' . $ext;
+                    $newFilename = $safeName . '-' . bin2hex(grinds_random_bytes(6)) . '.' . $ext;
                     $retryCount++;
                 }
             }
@@ -290,7 +290,7 @@ class FileManager
     /**
      * Creates thumbnail.
      */
-    private static function createThumbnail($sourceFullPath, $imageSize = null, $hasImagick = null, $hasGd = null)
+    private static function createThumbnail(string $sourceFullPath, ?array $imageSize = null, ?bool $hasImagick = null, ?bool $hasGd = null): ?string
     {
         $info = pathinfo($sourceFullPath);
         $thumbName = $info['filename'] . '_thumb.webp';
@@ -421,7 +421,7 @@ class FileManager
     /**
      * Detects AI metadata.
      */
-    private static function detectAiMetadata($rawMeta, &$metaToSave)
+    private static function detectAiMetadata(array $rawMeta, array &$metaToSave): void
     {
         // Check filename patterns
         if (isset($metaToSave['original_name'])) {
@@ -521,7 +521,7 @@ class FileManager
         }
     }
 
-    private static function upload($file)
+    private static function upload(array $file): array
     {
         $imageSize = null;
         // Increase memory limit
@@ -692,7 +692,7 @@ class FileManager
         }
 
         // Generate filename
-        $tempFilename = 'upload_' . bin2hex(random_bytes(8)) . '.' . $ext;
+        $tempFilename = 'upload_' . bin2hex(grinds_random_bytes(8)) . '.' . $ext;
         $uploadPath = $tempDir . $tempFilename;
 
         if (!move_uploaded_file($tmpPath, $uploadPath)) {
@@ -719,7 +719,7 @@ class FileManager
     /**
      * Process image.
      */
-    private static function processImage($filePath, $mime, $imageSize = null, $hasImagick = null, $hasGd = null)
+    private static function processImage(string $filePath, string $mime, ?array $imageSize = null, ?bool $hasImagick = null, ?bool $hasGd = null): ?array
     {
         $maxWidth = function_exists('get_option') ? (int)get_option('media_max_width', self::MAX_WIDTH) : self::MAX_WIDTH;
         if ($maxWidth <= 0) $maxWidth = self::MAX_WIDTH;
@@ -917,7 +917,7 @@ class FileManager
             }, $imageSize, $hasImagick, $hasGd);
         } catch (Exception $e) {
             if ($e->getMessage() === "GD not available")
-                return;
+                return null;
             throw $e;
         }
     }
@@ -925,7 +925,7 @@ class FileManager
     /**
      * Load GD image resource.
      */
-    private static function gdLoadImage($filePath, $mime)
+    private static function gdLoadImage(string $filePath, string $mime): \GdImage|false|null
     {
         try {
             switch ($mime) {
@@ -959,7 +959,7 @@ class FileManager
         return null;
     }
 
-    private static function extractPngMetadata($filePath)
+    private static function extractPngMetadata(string $filePath): array
     {
         $fp = @fopen($filePath, 'rb');
         if (!$fp)
@@ -1024,7 +1024,7 @@ class FileManager
         fclose($fp);
         return $metadata;
     }
-    private static function extractJpegMetadata($filePath)
+    private static function extractJpegMetadata(string $filePath): array
     {
         if (!function_exists('exif_read_data'))
             return [];
@@ -1050,7 +1050,7 @@ class FileManager
         return $metadata;
     }
 
-    private static function extractXmpRaw($filePath)
+    private static function extractXmpRaw(string $filePath): string
     {
         // Read header
         $fp = @fopen($filePath, 'rb');
@@ -1073,7 +1073,7 @@ class FileManager
         return substr($header, $startPos, $length);
     }
 
-    private static function sanitizeUtf8($string)
+    private static function sanitizeUtf8(string $string): string
     {
         return mb_convert_encoding($string, 'UTF-8', 'UTF-8');
     }
@@ -1084,7 +1084,7 @@ class FileManager
      * @param string $filePath Full path to the original file.
      * @return array List of full paths for derived files.
      */
-    public static function getDerivativePaths($filePath)
+    public static function getDerivativePaths(string $filePath): array
     {
         $paths = [];
         $info = pathinfo($filePath);
@@ -1108,7 +1108,7 @@ class FileManager
         return $paths;
     }
 
-    public static function delete($relativePath)
+    public static function delete(string $relativePath): bool
     {
         if (empty($relativePath) || str_contains($relativePath, "\0") || str_contains($relativePath, '..'))
             return false;
@@ -1150,7 +1150,16 @@ class FileManager
             if (strlen($normDirPath) <= strlen($normAllowedDir) || !str_starts_with(strtolower($normDirPath), strtolower($normAllowedDir))) {
                 break;
             }
-            if (count(array_diff(scandir($dirPath), ['.', '..'])) === 0) {
+
+            $isEmpty = false;
+            try {
+                $iterator = new FilesystemIterator($dirPath, FilesystemIterator::SKIP_DOTS);
+                $isEmpty = !$iterator->valid();
+            } catch (Exception $e) {
+                $isEmpty = false;
+            }
+
+            if ($isEmpty) {
                 @rmdir($dirPath);
                 $dirPath = dirname($dirPath); // Move up to parent
             } else {
@@ -1164,7 +1173,7 @@ class FileManager
     /**
      * Sanitize SVG content.
      */
-    private static function sanitizeSvg($filePath)
+    private static function sanitizeSvg(string $filePath): bool
     {
         if (!file_exists($filePath))
             return false;
@@ -1313,7 +1322,7 @@ class FileManager
     /**
      * Update media tags.
      */
-    public static function updateMediaTags($pdo, $mediaId, $tags)
+    public static function updateMediaTags(PDO $pdo, int|string $mediaId, array $tags): void
     {
         if (empty($mediaId))
             return;
@@ -1335,7 +1344,7 @@ class FileManager
     /**
      * Get media tags.
      */
-    public static function getMediaTags($pdo, $mediaId)
+    public static function getMediaTags(PDO $pdo, int|string $mediaId): array
     {
         $stmt = $pdo->prepare("SELECT t.name FROM tags t JOIN media_tags mt ON t.id = mt.tag_id WHERE mt.media_id = ?");
         $stmt->execute([$mediaId]);
@@ -1345,7 +1354,7 @@ class FileManager
     /**
      * Get tag suggestions.
      */
-    public static function getTagSuggestions($pdo)
+    public static function getTagSuggestions(PDO $pdo): array
     {
         $tags = $pdo->query("SELECT name FROM tags")->fetchAll(PDO::FETCH_COLUMN);
         $cats = $pdo->query("SELECT name FROM categories")->fetchAll(PDO::FETCH_COLUMN);
@@ -1358,7 +1367,7 @@ class FileManager
     /**
      * Check memory requirements.
      */
-    private static function checkMemoryRequirement($width, $height, $mime = 'image/jpeg')
+    private static function checkMemoryRequirement(int $width, int $height, string $mime = 'image/jpeg'): bool
     {
         $maxDimension = defined('MAX_IMAGE_DIMENSION') ? (int) constant('MAX_IMAGE_DIMENSION') : self::MAX_DIMENSION;
         if ($width > $maxDimension || $height > $maxDimension) {
@@ -1403,7 +1412,7 @@ class FileManager
      * @return mixed
      * @throws Exception
      */
-    private static function executeImageOperation($filePath, callable $imagickOp, callable $gdOp, $imageSize = null, $hasImagick = null, $hasGd = null)
+    private static function executeImageOperation(string $filePath, callable $imagickOp, callable $gdOp, ?array $imageSize = null, ?bool $hasImagick = null, ?bool $hasGd = null): mixed
     {
         // Estimate memory
         $size = $imageSize;
@@ -1447,7 +1456,7 @@ class FileManager
      * @param array $params Reference to parameters array.
      * @return string SQL condition.
      */
-    public static function getSearchCondition($query, &$params)
+    public static function getSearchCondition(string|array $query, array &$params): string
     {
         return grinds_build_search_query($query, function ($word) use (&$params) {
             $escapedKeyword = grinds_escape_like($word);
@@ -1470,7 +1479,7 @@ class FileManager
      * @param int $limit
      * @return array ['files' => [], 'has_more' => bool, 'next_offset' => int, 'total' => int]
      */
-    public static function scanDatabaseForFiles($pdo, $offset = 0, $limit = 100)
+    public static function scanDatabaseForFiles(PDO $pdo, int $offset = 0, int $limit = 100): array
     {
         $used_files = [];
 
@@ -1591,7 +1600,13 @@ class FileManager
                             str_contains($row['value'], 'assets\/uploads') ||
                             str_contains($row['value'], '{{CMS_URL}}')
                         )) {
-                            $used_files[] = self::normalizeDbPath($row['value']);
+                            // Extract paths recursively if the value is JSON (e.g. share_buttons array)
+                            $val = trim($row['value']);
+                            if (str_starts_with($val, '{') || str_starts_with($val, '[')) {
+                                self::extractPathsFromContent($val, $used_files);
+                            } else {
+                                $used_files[] = self::normalizeDbPath($val);
+                            }
                         }
                     }
                     $settingOffset += $settingLimit;
@@ -1646,7 +1661,7 @@ class FileManager
         ];
     }
 
-    private static function normalizeDbPath($path)
+    private static function normalizeDbPath(?string $path): string
     {
         if (empty($path))
             return '';
@@ -1663,7 +1678,7 @@ class FileManager
         return ltrim($path, '/');
     }
 
-    public static function extractPathsFromContent($content, &$used_files)
+    public static function extractPathsFromContent(mixed $content, array &$used_files): void
     {
         if (empty($content))
             return;
@@ -1694,7 +1709,7 @@ class FileManager
      * @param array $options Options: exclude_dirs, exclude_files, exclude_exts, include_exts, since.
      * @return \Generator<string> List of file paths.
      */
-    public static function scanDirectory($dir, $options = [])
+    public static function scanDirectory(string $dir, array $options = []): \Generator
     {
         if (!is_dir($dir)) {
             return;
@@ -1752,7 +1767,7 @@ class FileManager
      * @param array $filePaths
      * @return array Map of filePath => usageType
      */
-    public static function getBulkFileUsage($pdo, $filePaths)
+    public static function getBulkFileUsage(PDO $pdo, array $filePaths): array
     {
         $usageMap = [];
         if (empty($filePaths)) {
@@ -1856,7 +1871,7 @@ class FileManager
     /**
      * Check if path exists in content with boundary check.
      */
-    private static function isPathInContent($content, $path)
+    private static function isPathInContent(string $content, string $path): bool
     {
         if (empty($path)) {
             return false;

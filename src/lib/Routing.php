@@ -7,7 +7,7 @@ if (!defined('GRINDS_APP')) exit;
 
 class Routing
 {
-    private static $basePath = null;
+    private static ?string $basePath = null;
 
     /**
      * Determines the logical request path from GET parameters or the URI.
@@ -19,7 +19,7 @@ class Routing
      * @return string The resolved logical path (e.g., 'posts/view/1', 'search', 'home').
      * Determine logical request path.
      */
-    public static function getResolvedPath()
+    public static function getResolvedPath(): string
     {
         $params = self::getParams();
         if (!empty($params['q'])) return 'search';
@@ -31,7 +31,7 @@ class Routing
     /**
      * Get current request path (absolute path component).
      */
-    public static function getCurrentPath()
+    public static function getCurrentPath(): string
     {
         $uri = $_SERVER['REQUEST_URI'] ?? '/';
         $path = parse_url($uri, PHP_URL_PATH);
@@ -42,7 +42,7 @@ class Routing
     /**
      * Get current query parameters.
      */
-    public static function getParams()
+    public static function getParams(): array
     {
         return $_GET;
     }
@@ -53,7 +53,7 @@ class Routing
      * @param array $allowedParams List of parameters to include in the normalized query.
      * @return array ['query' => array, 'hasUnknownParams' => bool]
      */
-    public static function analyzeParams(array $allowedParams)
+    public static function analyzeParams(array $allowedParams): array
     {
         $params = self::getParams();
         $query = [];
@@ -71,7 +71,7 @@ class Routing
     /**
      * Get application base path.
      */
-    public static function getBasePath()
+    public static function getBasePath(): string
     {
         if (self::$basePath === null) {
             $base = defined('BASE_URL') ? rtrim((string)BASE_URL, '/') : '';
@@ -85,7 +85,7 @@ class Routing
     /**
      * Resolve relative request URI.
      */
-    public static function getRelativePath($requestUri)
+    public static function getRelativePath(string $requestUri): string
     {
         $requestPath = parse_url($requestUri, PHP_URL_PATH);
         $requestPath = is_string($requestPath) ? $requestPath : '';
@@ -97,7 +97,7 @@ class Routing
     /**
      * Resolve relative path to absolute URL.
      */
-    public static function resolveUrl($path = '')
+    public static function resolveUrl(mixed $path = ''): string
     {
         if ($path === '' || $path === null || is_bool($path)) return '';
 
@@ -138,7 +138,7 @@ class Routing
      * Convert absolute URL to database placeholder.
      * Enhanced to catch root-relative paths in subdirectories.
      */
-    public static function convertToDbUrl($content, $baseUrl = null)
+    public static function convertToDbUrl(mixed $content, ?string $baseUrl = null): mixed
     {
         if (empty($content) || !is_string($content)) return $content;
 
@@ -171,12 +171,12 @@ class Routing
      * Convert URLs directly within a decoded array structure.
      * Used for optimized data pipeline processing.
      */
-    public static function convertArrayToDbUrl(array $data, $baseUrl = null)
+    public static function convertArrayToDbUrl(array $data, ?string $baseUrl = null): array
     {
         return self::recursiveUrlConvert($data, $baseUrl);
     }
 
-    private static function recursiveUrlConvert($data, $baseUrl, $depth = 0)
+    private static function recursiveUrlConvert(mixed $data, ?string $baseUrl, int $depth = 0): mixed
     {
         if ($depth > 50) {
             return $data;
@@ -220,7 +220,7 @@ class Routing
         return $data;
     }
 
-    private static function processContentUrls($content, $baseUrl)
+    private static function processContentUrls(mixed $content, ?string $baseUrl): mixed
     {
         if (empty($content) || !is_string($content)) return $content;
 
@@ -347,7 +347,7 @@ class Routing
     /**
      * Restore URL from database placeholder.
      */
-    public static function restoreViewUrl($content, $baseUrl = null)
+    public static function restoreViewUrl(mixed $content, ?string $baseUrl = null): mixed
     {
         if (empty($content) || !is_string($content)) return $content;
 
@@ -374,7 +374,7 @@ class Routing
      * @param int $depth The depth of the current page.
      * @return string
      */
-    public static function toRelative($targetUrl, $depth = 0)
+    public static function toRelative(mixed $targetUrl, int $depth = 0): string
     {
         if (empty($targetUrl)) return $targetUrl;
 
@@ -472,7 +472,7 @@ class Routing
      * @param string $requestPath The path to process.
      * @return string The path with the base path stripped, or the original path.
      */
-    private static function stripBasePath($requestPath)
+    private static function stripBasePath(string $requestPath): string
     {
         $basePath = self::getBasePath();
         if ($basePath !== '' && $basePath !== '/' && str_starts_with($requestPath, $basePath)) {
@@ -489,7 +489,7 @@ class Routing
     /**
      * Internal helper to calculate relative path.
      */
-    private static function calculateRelativePath($path, $depth)
+    private static function calculateRelativePath(string $path, int $depth): string
     {
         $cleanPath = ltrim($path, '/');
         if ($depth <= 0) {
@@ -508,7 +508,7 @@ class Routing
      * @param string $default Default value
      * @return string
      */
-    public static function getString(array $array, $key, $default = '')
+    public static function getString(array $array, string|int $key, string $default = ''): string
     {
         return isset($array[$key]) && is_scalar($array[$key]) ? (string)$array[$key] : $default;
     }

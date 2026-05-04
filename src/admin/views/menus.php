@@ -4,6 +4,11 @@
  * menus.php
  *
  * Renders the user interface for managing navigation menus.
+ *
+ * @var string $current_location
+ * @var string|null $edit_id
+ * @var array $edit_data
+ * @var array $themes
  */
 if (!defined('GRINDS_APP')) exit;
 
@@ -424,11 +429,11 @@ include __DIR__ . '/parts/hidden_action_form.php';
 
         <div class="mb-4">
           <label class="block mb-2 font-bold text-theme-text text-sm"><?= _t('col_name') ?></label>
-          <input type="text" name="label" x-model="inputLabel" required class="form-control" placeholder="<?= _t('ph_menu_label') ?>">
+          <input type="text" name="label" x-model="inputLabel" required class="text-sm form-control" placeholder="<?= h(_t('col_name')) ?>">
         </div>
         <div class="mb-4">
           <label class="block mb-2 font-bold text-theme-text text-sm"><?= _t('col_url') ?></label>
-          <input type="text" name="url" x-model="inputUrl" required class="font-mono text-xs form-control" placeholder="<?= _t('ph_menu_url') ?>">
+          <input type="text" name="url" x-model="inputUrl" required class="font-mono text-xs form-control" placeholder="<?= h(_t('ph_menu_url')) ?>">
         </div>
 
         <!-- Theme selector. -->

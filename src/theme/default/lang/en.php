@@ -104,4 +104,9 @@ return [
     'Author Note' => 'Author Note',
     'This article contains promotional links.' => 'This article contains promotional links.',
     'View Sponsored Link' => 'View Sponsored Link',
+
+    // System / Admin Actions
+    'attention' => 'Attention',
+    'great' => 'Great!',
+    'warning_delete_self_responsibility' => 'Warning: Delete at your own risk (If the system breaks, you must recover it manually)',
 ];

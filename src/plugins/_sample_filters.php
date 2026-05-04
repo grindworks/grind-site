@@ -1,7 +1,10 @@
 <?php
 
 /**
- * _sample_filters.php
+ * Plugin Name: Sample Filters
+ *
+ * Author: Grind Works Inc.
+ * Version: 1.0.0
  *
  * [English]
  * Demonstrates how to use Filter Hooks (e.g., auto-linking keywords, custom shortcodes).

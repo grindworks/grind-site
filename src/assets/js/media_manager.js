@@ -601,7 +601,6 @@ document.addEventListener('alpine:init', () => {
       if (val) {
         if (!Array.isArray(this.metaForm.tags)) this.metaForm.tags = [];
 
-        // Split by comma or Japanese comma (読点) to match post editor behavior
         val.split(/[,、]/).forEach((t) => {
           const clean = t.trim();
           if (clean && !this.metaForm.tags.includes(clean)) {

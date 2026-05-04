@@ -17,7 +17,7 @@ if (!defined('GRINDS_APP'))
         <?= _t('lbl_file_title') ?>
       </label>
       <input type="text" x-model="block.data.title" :id="'block-' + block.id + '-title'" class="w-full font-bold form-control-sm"
-        placeholder="<?= _t('ph_doc_title') ?>">
+        placeholder="<?= h(_t('ph_doc_title')) ?>">
     </div>
     <!-- URL and size -->
     <div class="flex sm:flex-row flex-col gap-3">
@@ -26,14 +26,14 @@ if (!defined('GRINDS_APP'))
           <?= _t('lbl_file_url') ?>
         </label>
         <input type="text" x-model="block.data.url" :id="'block-' + block.id + '-url'" @blur="block.data.url = normalizeUrl(block.data.url)" class="w-full font-mono text-xs form-control-sm"
-          placeholder="<?= _t('ph_url_example') ?>">
+          placeholder="<?= h(_t('ph_url_example')) ?>">
       </div>
       <div class="space-y-1">
         <label class="block opacity-50 font-bold text-[10px] text-theme-text">
           <?= _t('lbl_file_size') ?>
         </label>
         <input type="text" x-model="block.data.fileSize" :id="'block-' + block.id + '-fileSize'" class="w-full text-xs form-control-sm"
-          placeholder="<?= _t('ph_size_example') ?>">
+          placeholder="<?= h(_t('ph_size_example')) ?>">
       </div>
     </div>
     <!-- Open media library -->

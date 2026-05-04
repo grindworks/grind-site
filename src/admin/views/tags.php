@@ -4,6 +4,9 @@
  * tags.php
  *
  * Renders the user interface for managing post tags.
+ *
+ * @var string|null $edit_id
+ * @var array $edit_data
  */
 if (!defined('GRINDS_APP')) exit;
 
@@ -63,7 +66,7 @@ $csrf_token = generate_csrf_token();
     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
       <!-- Search form. -->
       <form method="get" action="tags.php" class="relative w-full sm:w-auto">
-        <input type="text" name="q" value="<?= h($_GET['q'] ?? '') ?>" placeholder="<?= _t('search') ?>"
+        <input type="text" name="q" value="<?= h($_GET['q'] ?? '') ?>" placeholder="<?= h(_t('search')) ?>"
           class="bg-theme-bg pl-8 border-theme-border w-full sm:w-48 focus:w-64 text-theme-text text-xs transition-all form-control-sm">
         <svg class="top-1/2 left-2.5 absolute opacity-50 w-3.5 h-3.5 text-theme-text -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-magnifying-glass"></use>
@@ -263,7 +266,7 @@ $csrf_token = generate_csrf_token();
             <span class="inline-flex items-center bg-theme-bg opacity-60 px-3 border border-theme-border border-r-0 rounded-l-theme text-theme-text text-xs">/</span>
             <input type="text" name="slug" value="<?= h($edit_data['slug']) ?>"
               @blur="$el.value = $el.value.toLowerCase().trim().replace(/[\s_]+/g, '-').replace(/[^\p{L}\p{N}-]/gu, '').replace(/-+/g, '-').replace(/^-+|-+$/g, '')"
-              class="rounded-l-none font-mono text-sm form-control placeholder-theme-text/30" placeholder="<?= _t('ph_auto_generate') ?>">
+              class="rounded-l-none font-mono text-sm form-control placeholder-theme-text/30" placeholder="<?= h(_t('ph_auto_generate')) ?>">
           </div>
         </div>
 

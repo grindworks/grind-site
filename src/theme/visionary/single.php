@@ -1,4 +1,10 @@
 <?php
+/**
+ * single.php
+ * Render single post for visionary theme.
+ *
+ * @var array $pageData
+ */
 if (!defined('GRINDS_APP')) exit;
 ?>
 <article class="bg-white shadow-md rounded-lg overflow-hidden border border-gray-200">

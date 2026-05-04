@@ -70,9 +70,7 @@ $altText = !empty($hConf['title']) ? $hConf['title'] : ($pageData['post']['title
       </div>
     <?php else: ?>
       <div class="md:hidden z-[-1] absolute inset-0">
-        <?php if ($mobileImgUrl): ?>
-          <?= get_image_html($mobileImgUrl, ['alt' => $altText, 'class' => $bgCommonClass . ' ' . $radiusClass, 'loading' => 'eager', 'fetchpriority' => 'high']) ?>
-        <?php endif; ?>
+        <?= get_image_html($mobileImgUrl, ['alt' => $altText, 'class' => $bgCommonClass . ' ' . $radiusClass, 'loading' => 'eager', 'fetchpriority' => 'high']) ?>
         <?php if ($hasOverlay): ?><div class="absolute inset-0 bg-black/50 <?= $radiusClass ?>"></div><?php endif; ?>
       </div>
     <?php endif; ?>
@@ -84,9 +82,7 @@ $altText = !empty($hConf['title']) ? $hConf['title'] : ($pageData['post']['title
       </div>
     <?php else: ?>
       <div class="hidden md:block z-[-1] absolute inset-0">
-        <?php if ($imgUrl): ?>
-          <?= get_image_html($imgUrl, ['alt' => $altText, 'class' => $bgCommonClass . ' ' . $radiusClass, 'loading' => 'eager', 'fetchpriority' => 'high']) ?>
-        <?php endif; ?>
+        <?= get_image_html($imgUrl, ['alt' => $altText, 'class' => $bgCommonClass . ' ' . $radiusClass, 'loading' => 'eager', 'fetchpriority' => 'high']) ?>
         <?php if ($hasOverlay): ?><div class="absolute inset-0 bg-black/50 <?= $radiusClass ?>"></div><?php endif; ?>
       </div>
     <?php endif; ?>
@@ -99,9 +95,7 @@ $altText = !empty($hConf['title']) ? $hConf['title'] : ($pageData['post']['title
       </div>
     <?php else: ?>
       <div class="z-[-1] absolute inset-0">
-        <?php if ($imgUrl): ?>
-          <?= get_image_html($imgUrl, ['alt' => $altText, 'class' => $bgCommonClass . ' ' . $radiusClass, 'loading' => 'eager', 'fetchpriority' => 'high']) ?>
-        <?php endif; ?>
+        <?= get_image_html($imgUrl, ['alt' => $altText, 'class' => $bgCommonClass . ' ' . $radiusClass, 'loading' => 'eager', 'fetchpriority' => 'high']) ?>
         <?php if ($hasOverlay): ?>
           <div class="absolute inset-0 bg-black/50 <?= $radiusClass ?>"></div>
         <?php endif; ?>

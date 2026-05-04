@@ -14,7 +14,7 @@ if (!current_user_can('manage_posts')) {
 }
 
 // Validate URL
-$url = $_GET['url'] ?? '';
+$url = Routing::getString($_GET, 'url');
 
 if (!filter_var($url, FILTER_VALIDATE_URL)) {
   json_response(['success' => false, 'error' => 'Invalid URL']);

@@ -33,7 +33,7 @@ class BlockRenderer
      * Render JSON content into HTML.
      * Process blocks and return generated HTML string.
      */
-    public function render($content)
+    public function render(mixed $content): string
     {
         if ($content === '' || $content === null) return '';
 
@@ -83,28 +83,6 @@ class BlockRenderer
                 $bypass = false;
                 if (isset($_SESSION['admin_logged_in']) && $_SESSION['admin_logged_in']) {
                     $bypass = true;
-                } elseif (!empty($_GET['preview']) && preg_match('/^[a-f0-9]{32}$/', $_GET['preview'])) {
-                    global $pageData;
-
-                    // 1. Skip file I/O if preview data is already loaded in memory
-                    if (isset($pageData['post']['__expires_at'])) {
-                        if ($pageData['post']['__expires_at'] > time()) {
-                            $bypass = true;
-                        }
-                    } else {
-                        // 2. Fallback: Validate file if accessed directly
-                        $previewFile = defined('ROOT_PATH') ? ROOT_PATH . '/data/tmp/preview/preview_' . $_GET['preview'] . '.json' : '';
-                        if ($previewFile && file_exists($previewFile)) {
-                            $currentPostId = $pageData['post']['id'] ?? null;
-                            $pData = @json_decode(file_get_contents($previewFile), true);
-                            $previewIdMatch = ($currentPostId && isset($pData['id']) && $pData['id'] == $currentPostId) || (empty($currentPostId) && empty($pData['id']));
-                            if (is_array($pData) && $previewIdMatch) {
-                                if (!isset($pData['__expires_at']) || $pData['__expires_at'] > time()) {
-                                    $bypass = true;
-                                }
-                            }
-                        }
-                    }
                 }
 
                 if ($bypass && $password !== '') {
@@ -140,7 +118,7 @@ class BlockRenderer
      * Output unified frontend script block for interactive elements.
      * Keeps the main HTML body completely clean of script tags.
      */
-    public static function outputFooterScripts()
+    public static function outputFooterScripts(): void
     {
         $root = defined('ROOT_PATH') ? ROOT_PATH : '';
 
@@ -177,7 +155,7 @@ HTML;
      * Preload image metadata.
      * Extract URLs and fetch metadata for SEO/performance.
      */
-    private function preloadImages($blocks)
+    private function preloadImages(array $blocks): void
     {
         if (!function_exists('grinds_preload_image_meta')) return;
 
@@ -192,7 +170,7 @@ HTML;
      * Extract all image URLs from blocks.
      * Return array of unique image URLs found in block data.
      */
-    public static function extractImages($blocks)
+    public static function extractImages(array $blocks): array
     {
         $urls = [];
         if (empty($blocks) || !is_array($blocks)) return $urls;
@@ -203,11 +181,14 @@ HTML;
         $candidates = grinds_extract_urls(['blocks' => $blocks]);
 
         foreach ($candidates as $url) {
-            $path = parse_url($url, PHP_URL_PATH);
+            // Temporarily remove the {{CMS_URL}} placeholder before parsing
+            // to prevent parse_url() from returning false due to RFC 3986 violation.
+            $testUrl = str_replace('{{CMS_URL}}', '', $url);
+            $path = parse_url($testUrl, PHP_URL_PATH);
             if ($path) {
                 $ext = strtolower(pathinfo($path, PATHINFO_EXTENSION));
                 if (in_array($ext, $imgExts)) {
-                    $urls[] = $url;
+                    $urls[] = $url; // Return the original URL with placeholder
                 }
             }
         }
@@ -219,7 +200,7 @@ HTML;
      * Preload post data for internal cards.
      * Batch fetch posts to optimize database queries.
      */
-    private function preloadPosts($blocks)
+    private function preloadPosts(array $blocks): void
     {
         global $grinds_post_cache;
         if (!isset($grinds_post_cache)) $grinds_post_cache = [];
@@ -265,7 +246,7 @@ HTML;
      * Sanitize text for HTML output.
      * Apply HTML sanitization based on security settings.
      */
-    public function sanitizeText($text)
+    public function sanitizeText(mixed $text): string
     {
         return grinds_sanitize_html($text, $this->allowUnsafe);
     }
@@ -274,7 +255,7 @@ HTML;
      * Render a single block.
      * Dispatch rendering to theme, template, or core handler.
      */
-    private function renderBlock($block)
+    private function renderBlock(array $block): string
     {
         $type = $block['type'] ?? 'unknown';
 
@@ -334,7 +315,7 @@ HTML;
      * Render a block using a template file.
      * Extract data and include the template in output buffer.
      */
-    private function renderTemplate($_grinds_sys_target_file, $__data, $allowUnsafe = false)
+    private function renderTemplate(string $_grinds_sys_target_file, array $__data, bool $allowUnsafe = false): string
     {
         ob_start();
         $__data['allowUnsafe'] = $allowUnsafe;
@@ -347,7 +328,7 @@ HTML;
      * Render a core block as a fallback.
      * Handle built-in block types when no theme override exists.
      */
-    private function renderCoreBlock($block, $pathFixer, $allowUnsafe = false)
+    private function renderCoreBlock(array $block, callable $pathFixer, bool $allowUnsafe = false): ?string
     {
         $type = $block['type'] ?? '';
         $data = $block['data'] ?? [];
@@ -392,7 +373,7 @@ HTML;
                 if (!$beforeUrl || !$afterUrl) return '';
                 $beforeLabel = h($data['beforeLabel'] ?? '');
                 $afterLabel = h($data['afterLabel'] ?? '');
-                $uid = 'ba-' . bin2hex(random_bytes(4));
+                $uid = 'ba-' . bin2hex(grinds_random_bytes(4));
 
                 // Use Alpine.js to manage slider state and avoid inline scripts for CSP compliance.
                 $html = "<div class='{$commonClass} my-10 max-w-4xl mx-auto'>";
@@ -425,8 +406,8 @@ HTML;
                 return $html;
 
             case 'progress_bar':
-                $items = $data['items'] ?? [];
-                $validItems = array_filter($items, fn($item) => trim($item['label'] ?? '') !== '' || (int)($item['percentage'] ?? 0) > 0);
+                $items = is_array($data['items'] ?? null) ? $data['items'] : [];
+                $validItems = array_filter($items, fn($item) => is_array($item) && (trim($item['label'] ?? '') !== '' || (int)($item['percentage'] ?? 0) > 0));
                 if (empty($validItems)) return '';
 
                 $html = "<div class='{$commonClass} my-10 space-y-4 max-w-3xl mx-auto'>";
@@ -479,7 +460,7 @@ HTML;
                 $headers = function_exists('get_post_toc') ? get_post_toc($contentData) : [];
                 if (empty($headers)) return '';
                 $title = h($data['title'] ?? 'Contents');
-                $tocId = 'toc-' . bin2hex(random_bytes(4));
+                $tocId = 'toc-' . bin2hex(grinds_random_bytes(4));
                 $html = "<details id='{$tocId}' open class='{$commonClass} my-8 p-6 border border-gray-200 rounded-theme bg-gray-50 shadow-theme'>";
                 $html .= "<summary class='font-bold cursor-pointer text-gray-800 mb-4 text-lg outline-none'>{$title}</summary>";
                 $html .= "<nav aria-label='Table of Contents'><ul class='space-y-2 list-none m-0 p-0'>";
@@ -579,8 +560,8 @@ HTML;
                 // Removed inline script. KaTeX loader logic moved to outputFooterScripts().
                 return $html;
             case 'icon_list':
-                $items = $data['items'] ?? [];
-                $validItems = array_filter($items, fn($item) => trim($item ?? '') !== '');
+                $items = is_array($data['items'] ?? null) ? $data['items'] : [];
+                $validItems = array_filter($items, fn($item) => is_string($item) && trim($item) !== '');
                 if (empty($validItems)) return '';
 
                 $iconType = $data['icon'] ?? 'check';
@@ -615,8 +596,8 @@ HTML;
                 $html .= "</ul>";
                 return $html;
             case 'tabs':
-                $items = $data['items'] ?? [];
-                $validItems = array_values(array_filter($items, fn($item) => trim($item['title'] ?? '') !== '' || trim($item['content'] ?? '') !== ''));
+                $items = is_array($data['items'] ?? null) ? $data['items'] : [];
+                $validItems = array_values(array_filter($items, fn($item) => is_array($item) && (trim($item['title'] ?? '') !== '' || trim($item['content'] ?? '') !== '')));
                 if (empty($validItems)) return '';
 
                 $html = "<div class='{$commonClass} my-10' x-data=\"{ activeTab: 0 }\">";
@@ -893,8 +874,8 @@ HTML;
                 return "<div class='{$commonClass}' style='height:{$height}px' aria-hidden='true'></div>";
 
             case 'accordion':
-                $items = $data['items'] ?? [];
-                $validItems = array_filter($items, fn($item) => trim($item['title'] ?? '') !== '' || trim($item['content'] ?? '') !== '');
+                $items = is_array($data['items'] ?? null) ? $data['items'] : [];
+                $validItems = array_filter($items, fn($item) => is_array($item) && (trim($item['title'] ?? '') !== '' || trim($item['content'] ?? '') !== ''));
                 if (empty($validItems)) return '';
 
                 $html = "<div class='{$commonClass} my-8 border-gray-200 border-t'>";
@@ -915,8 +896,8 @@ HTML;
                 return $html;
 
             case 'gallery':
-                $images = $data['images'] ?? [];
-                $validImages = array_filter($images, fn($img) => !empty(resolve_url($img['url'] ?? '')));
+                $images = is_array($data['images'] ?? null) ? $data['images'] : [];
+                $validImages = array_filter($images, fn($img) => is_array($img) && !empty(resolve_url($img['url'] ?? '')));
                 if (empty($validImages)) return '';
 
                 $cols = (int)($data['columns'] ?? 3);
@@ -1007,8 +988,8 @@ HTML;
                 return '';
 
             case 'timeline':
-                $items = $data['items'] ?? [];
-                $validItems = array_filter($items, fn($item) => trim($item['date'] ?? '') !== '' || trim($item['title'] ?? '') !== '' || trim($item['content'] ?? '') !== '');
+                $items = is_array($data['items'] ?? null) ? $data['items'] : [];
+                $validItems = array_filter($items, fn($item) => is_array($item) && (trim($item['date'] ?? '') !== '' || trim($item['title'] ?? '') !== '' || trim($item['content'] ?? '') !== ''));
                 if (empty($validItems)) return '';
 
                 $html = "<ol class='{$commonClass} my-12 space-y-8 border-l-2 border-gray-200 ml-3 pl-8 relative list-none p-0'>";
@@ -1243,8 +1224,8 @@ HTML;
                 return $html;
 
             case 'step':
-                $items = $data['items'] ?? [];
-                $validItems = array_values(array_filter($items, fn($item) => trim($item['title'] ?? '') !== '' || trim($item['desc'] ?? '') !== ''));
+                $items = is_array($data['items'] ?? null) ? $data['items'] : [];
+                $validItems = array_values(array_filter($items, fn($item) => is_array($item) && (trim($item['title'] ?? '') !== '' || trim($item['desc'] ?? '') !== '')));
                 if (empty($validItems)) return '';
 
                 $html = "<ol class='{$commonClass} my-12 space-y-0 list-none p-0'>";
@@ -1266,8 +1247,8 @@ HTML;
                 return $html;
 
             case 'price':
-                $items = $data['items'] ?? (empty($data) ? [] : [$data]);
-                $validItems = array_filter($items, fn($item) => trim($item['plan'] ?? '') !== '' || trim($item['price'] ?? '') !== '' || trim($item['features'] ?? '') !== '');
+                $items = is_array($data['items'] ?? null) ? $data['items'] : (empty($data) ? [] : [$data]);
+                $validItems = array_filter($items, fn($item) => is_array($item) && (trim($item['plan'] ?? '') !== '' || trim($item['price'] ?? '') !== '' || trim($item['features'] ?? '') !== ''));
                 if (empty($validItems)) return '';
 
                 $count = count($validItems);
@@ -1339,7 +1320,7 @@ HTML;
                 $url = resolve_url($rawUrl);
                 $title = h($data['title'] ?? '');
                 if (!$url) return '';
-                $uid = 'audio-' . bin2hex(random_bytes(4));
+                $uid = 'audio-' . bin2hex(grinds_random_bytes(4));
                 $html = "<div id='{$uid}' class='{$commonClass} grinds-auto-stop bg-gray-100 my-6 p-4 rounded-theme'>";
                 if ($title) $html .= "<div class='mb-2 font-bold text-sm'>{$title}</div>";
                 $safeUrl = h($url);
@@ -1449,8 +1430,8 @@ HTML;
                 return '';
 
             case 'carousel':
-                $images = $data['images'] ?? [];
-                $validImages = array_values(array_filter($images, fn($img) => !empty(resolve_url($img['url'] ?? ''))));
+                $images = is_array($data['images'] ?? null) ? $data['images'] : [];
+                $validImages = array_values(array_filter($images, fn($img) => is_array($img) && !empty(resolve_url($img['url'] ?? ''))));
                 if (empty($validImages)) return '';
 
                 $count = count($validImages);
@@ -1497,7 +1478,7 @@ HTML;
     /**
      * Wrap content with client-side decryption logic using Web Crypto API.
      */
-    private function renderPasswordProtectWrapper($password, $message, $protectedHtml)
+    private function renderPasswordProtectWrapper(string $password, string $message, string $protectedHtml): string
     {
         if ($protectedHtml === '') {
             return '';
@@ -1507,11 +1488,11 @@ HTML;
             return $protectedHtml;
         }
 
-        $salt = random_bytes(16);
+        $salt = grinds_random_bytes(16);
         $iterations = 100000;
         $key = hash_pbkdf2('sha256', $password, $salt, $iterations, 32, true);
 
-        $iv = random_bytes(12);
+        $iv = grinds_random_bytes(12);
         $tag = '';
         $ciphertext = openssl_encrypt($protectedHtml, 'aes-256-gcm', $key, OPENSSL_RAW_DATA, $iv, $tag, "", 16);
 
@@ -1521,19 +1502,22 @@ HTML;
 
         $payload = base64_encode($salt . $iv . $tag . $ciphertext);
 
-        $uid = 'pwd-' . bin2hex(random_bytes(4));
+        $uid = 'pwd-' . bin2hex(grinds_random_bytes(4));
         $safeMsg = h($message);
         $btnText = h(function_exists('_t') ? _t('btn_unlock') : 'Unlock');
         $phText = h(function_exists('_t') ? _t('ph_password') : 'Password');
-        $errText = h(function_exists('_t') ? _t('err_wrong_password') : 'Incorrect password.');
-        $httpsErrText = h(function_exists('_t') ? _t('err_https_required') : 'HTTPS is required to unlock this content.');
+        $errTextRaw = function_exists('_t') ? _t('err_wrong_password') : 'Incorrect password.';
+        $httpsErrTextRaw = function_exists('_t') ? _t('err_https_required') : 'HTTPS is required to unlock this content.';
+
+        $errTextJs = htmlspecialchars(json_encode($errTextRaw, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT), ENT_QUOTES, 'UTF-8');
+        $httpsErrTextJs = json_encode($httpsErrTextRaw, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);
 
         // Add data-nosnippet attribute to prevent noise in search engine snippets
         $out = "<div id='{$uid}-container' class='cms-block-password-protect my-12' data-nosnippet>";
         $out .= "<div class='pwd-form bg-gray-50 border border-gray-200 rounded-theme p-8 text-center max-w-lg mx-auto shadow-theme'>";
         $out .= "<svg class='w-12 h-12 mx-auto mb-4 text-gray-400' fill='none' stroke='currentColor' viewBox='0 0 24 24'><use href='{$this->spriteUrl}#outline-lock-closed'></use></svg>";
         $out .= "<p class='mb-6 text-gray-700 font-bold leading-relaxed'>{$safeMsg}</p>";
-        $out .= "<form onsubmit=\"event.preventDefault(); window.grindsDecrypt('{$uid}', '{$payload}', '{$errText}');\" class='flex flex-col sm:flex-row gap-3'>";
+        $out .= "<form onsubmit=\"event.preventDefault(); window.grindsDecrypt('{$uid}', '{$payload}', {$errTextJs});\" class='flex flex-col sm:flex-row gap-3'>";
 
         $eyeIcon = "<svg class='w-5 h-5' fill='none' stroke='currentColor' viewBox='0 0 24 24'><use href='{$this->spriteUrl}#outline-eye'></use></svg>";
         $eyeSlashIcon = "<svg class='w-5 h-5' fill='none' stroke='currentColor' viewBox='0 0 24 24'><use href='{$this->spriteUrl}#outline-eye-slash'></use></svg>";
@@ -1568,7 +1552,7 @@ if (typeof window.grindsDecrypt !== 'function') {
         btnEl.disabled = true;
 
         if (!window.crypto || !window.crypto.subtle) {
-            const msg = '{$httpsErrText}';
+            const msg = {$httpsErrTextJs};
             if (errEl) {
                 errEl.innerText = msg;
                 errEl.style.display = 'block';

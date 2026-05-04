@@ -3,6 +3,10 @@
 /**
  * Render error page template
  * Display user-friendly error page for system failures.
+ *
+ * @var string $lang
+ * @var array $t
+ * @var array|null $actions
  */
 if (!defined('GRINDS_APP')) exit; ?>
 <!DOCTYPE html>

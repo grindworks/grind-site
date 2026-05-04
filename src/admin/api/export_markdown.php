@@ -34,7 +34,7 @@ session_write_close(); // Prevent session locking during export
 /**
  * Helper to safely convert GrindSite JSON blocks to clean Markdown.
  */
-function grinds_blocks_to_markdown($contentJson)
+function grinds_blocks_to_markdown(string $contentJson)
 {
     $data = json_decode($contentJson, true);
     if (!is_array($data) || empty($data['blocks'])) {
@@ -51,7 +51,7 @@ function grinds_blocks_to_markdown($contentJson)
             $result = @preg_replace($pattern, $replacement, $subject);
             return ($result === null) ? $subject : $result;
         };
-        $md = str_replace(['<br>', '<br/>', '<br />'], "\n", $html ?? '');
+        $md = str_replace(['<br>', '<br/>', '<br />'], "\n", is_string($html) ? $html : '');
         $md = $safeReplace('/<(b|strong)\b[^>]*+>((?:[^<]++|<(?!\/\1>))*+)<\/\1>/is', '**$2**', $md);
         $md = $safeReplace('/<(i|em)\b[^>]*+>((?:[^<]++|<(?!\/\1>))*+)<\/\1>/is', '*$2*', $md);
         $md = $safeReplace('/<(s|strike|del)\b[^>]*+>((?:[^<]++|<(?!\/\1>))*+)<\/\1>/is', '~~$2~~', $md);
@@ -62,13 +62,13 @@ function grinds_blocks_to_markdown($contentJson)
             $text = str_replace(['[', ']'], ['\[', '\]'], $m[2]);
             return "[{$text}]({$m[1]})";
         }, $md) ?? $md;
-        return strip_tags($md);
+        return html_entity_decode(strip_tags($md), ENT_QUOTES | ENT_HTML5, 'UTF-8');
     };
 
     $md = "";
     foreach ($data['blocks'] as $block) {
         $type = $block['type'] ?? '';
-        $bData = $block['data'] ?? [];
+        $bData = is_array($block['data'] ?? null) ? $block['data'] : [];
 
         if ($type === 'password_protect') {
             $md .= "\n\n> **[Password Protected Content Below]**\n\n";
@@ -77,22 +77,22 @@ function grinds_blocks_to_markdown($contentJson)
 
         switch ($type) {
             case 'header':
-                $levelStr = str_replace('h', '', $bData['level'] ?? '2');
+                $levelStr = str_replace('h', '', is_string($bData['level'] ?? null) ? $bData['level'] : '2');
                 $level = (int)$levelStr ?: 2;
                 $prefix = str_repeat('#', $level);
-                $text = $htmlToMarkdown($bData['text'] ?? '');
+                $text = $htmlToMarkdown(is_string($bData['text'] ?? null) ? $bData['text'] : '');
                 $md .= "\n\n{$prefix} {$text}\n\n";
                 break;
             case 'paragraph':
-                $text = $htmlToMarkdown($bData['text'] ?? '');
+                $text = $htmlToMarkdown(is_string($bData['text'] ?? null) ? $bData['text'] : '');
                 $md .= "\n\n{$text}\n\n";
                 break;
             case 'list':
-                $style = $bData['style'] ?? 'unordered';
-                $items = $bData['items'] ?? [];
+                $style = is_string($bData['style'] ?? null) ? $bData['style'] : 'unordered';
+                $items = is_array($bData['items'] ?? null) ? $bData['items'] : [];
                 $md .= "\n\n";
                 foreach ($items as $idx => $item) {
-                    $itemText = $htmlToMarkdown($item);
+                    $itemText = $htmlToMarkdown(is_string($item) ? $item : '');
                     if ($style === 'ordered') {
                         $md .= ($idx + 1) . ". {$itemText}\n";
                     } else {
@@ -102,19 +102,19 @@ function grinds_blocks_to_markdown($contentJson)
                 $md .= "\n\n";
                 break;
             case 'image':
-                $url = $bData['url'] ?? '';
-                $alt = $bData['alt'] ?? $bData['caption'] ?? 'image';
+                $url = is_string($bData['url'] ?? null) ? $bData['url'] : '';
+                $alt = is_string($bData['alt'] ?? $bData['caption'] ?? null) ? ($bData['alt'] ?? $bData['caption']) : 'image';
                 $safeAlt = str_replace(['[', ']'], ['\[', '\]'], $alt);
-                $md .= "\n\n!{$safeAlt}\n\n";
+                $md .= "\n\n![{$safeAlt}]({$url})\n\n";
                 break;
             case 'code':
-                $lang = $bData['language'] ?? 'plaintext';
-                $code = $bData['code'] ?? '';
+                $lang = is_string($bData['language'] ?? null) ? $bData['language'] : 'plaintext';
+                $code = is_string($bData['code'] ?? null) ? $bData['code'] : '';
                 $md .= "\n\n```{$lang}\n{$code}\n```\n\n";
                 break;
             case 'quote':
-                $text = $htmlToMarkdown($bData['text'] ?? '');
-                $cite = $bData['cite'] ?? '';
+                $text = $htmlToMarkdown(is_string($bData['text'] ?? null) ? $bData['text'] : '');
+                $cite = is_string($bData['cite'] ?? null) ? $bData['cite'] : '';
                 $md .= "\n\n> " . str_replace("\n", "\n> ", $text);
                 if ($cite) $md .= "\n> — {$cite}";
                 $md .= "\n\n";
@@ -123,15 +123,16 @@ function grinds_blocks_to_markdown($contentJson)
                 $md .= "\n\n---\n\n";
                 break;
             case 'html':
-                $md .= "\n\n" . ($bData['code'] ?? '') . "\n\n";
+                $md .= "\n\n" . (is_string($bData['code'] ?? null) ? $bData['code'] : '') . "\n\n";
                 break;
             case 'table':
                 if (!empty($bData['content']) && is_array($bData['content'])) {
                     $md .= "\n\n";
                     foreach ($bData['content'] as $rIdx => $row) {
+                        if (!is_array($row)) continue;
                         $md .= "|";
                         foreach ($row as $cell) {
-                            $cellText = str_replace('|', '&#124;', $htmlToMarkdown($cell ?? ''));
+                            $cellText = str_replace('|', '&#124;', $htmlToMarkdown(is_string($cell) ? $cell : ''));
                             $md .= " {$cellText} |";
                         }
                         $md .= "\n";
@@ -148,23 +149,29 @@ function grinds_blocks_to_markdown($contentJson)
                 }
                 break;
             case 'proscons':
-                $pTitle = $htmlToMarkdown($bData['pros_title'] ?? 'Pros');
-                $cTitle = $htmlToMarkdown($bData['cons_title'] ?? 'Cons');
+                $pTitle = $htmlToMarkdown(is_string($bData['pros_title'] ?? null) ? $bData['pros_title'] : 'Pros');
+                $cTitle = $htmlToMarkdown(is_string($bData['cons_title'] ?? null) ? $bData['cons_title'] : 'Cons');
                 $md .= "\n\n### {$pTitle}\n";
-                foreach ($bData['pros_items'] ?? [] as $item) {
-                    if (trim($item)) $md .= "- [x] " . $htmlToMarkdown($item) . "\n";
+                $prosItems = is_array($bData['pros_items'] ?? null) ? $bData['pros_items'] : [];
+                foreach ($prosItems as $item) {
+                    $itemText = is_string($item) ? $item : '';
+                    if (trim($itemText)) $md .= "- [x] " . $htmlToMarkdown($itemText) . "\n";
                 }
                 $md .= "\n### {$cTitle}\n";
-                foreach ($bData['cons_items'] ?? [] as $item) {
-                    if (trim($item)) $md .= "- [ ] " . $htmlToMarkdown($item) . "\n";
+                $consItems = is_array($bData['cons_items'] ?? null) ? $bData['cons_items'] : [];
+                foreach ($consItems as $item) {
+                    $itemText = is_string($item) ? $item : '';
+                    if (trim($itemText)) $md .= "- [ ] " . $htmlToMarkdown($itemText) . "\n";
                 }
                 $md .= "\n\n";
                 break;
             case 'step':
                 $md .= "\n\n";
-                foreach ($bData['items'] ?? [] as $idx => $item) {
-                    $stepTitle = $htmlToMarkdown($item['title'] ?? '');
-                    $stepDesc = $htmlToMarkdown($item['desc'] ?? '');
+                $items = is_array($bData['items'] ?? null) ? $bData['items'] : [];
+                foreach ($items as $idx => $item) {
+                    if (!is_array($item)) continue;
+                    $stepTitle = $htmlToMarkdown(is_string($item['title'] ?? null) ? $item['title'] : '');
+                    $stepDesc = $htmlToMarkdown(is_string($item['desc'] ?? null) ? $item['desc'] : '');
                     $md .= "#### Step " . ($idx + 1) . ": {$stepTitle}\n";
                     if ($stepDesc) $md .= "{$stepDesc}\n";
                     $md .= "\n";
@@ -173,9 +180,11 @@ function grinds_blocks_to_markdown($contentJson)
                 break;
             case 'accordion':
                 $md .= "\n\n";
-                foreach ($bData['items'] ?? [] as $item) {
-                    $q = $htmlToMarkdown($item['title'] ?? '');
-                    $a = $htmlToMarkdown($item['content'] ?? '');
+                $items = is_array($bData['items'] ?? null) ? $bData['items'] : [];
+                foreach ($items as $item) {
+                    if (!is_array($item)) continue;
+                    $q = $htmlToMarkdown(is_string($item['title'] ?? null) ? $item['title'] : '');
+                    $a = $htmlToMarkdown(is_string($item['content'] ?? null) ? $item['content'] : '');
                     $md .= "**Q. {$q}**\n\n> A. " . str_replace("\n", "\n> ", $a) . "\n\n";
                 }
                 $md .= "\n";
@@ -251,9 +260,10 @@ if (!$pdo) {
     json_response(['success' => false, 'error' => 'Database connection failed.'], 500);
 }
 
-$step = $_POST['step'] ?? 'init';
+$step = is_scalar($_POST['step'] ?? null) ? (string)$_POST['step'] : 'init';
 $currentCsrfToken = $_SESSION['csrf_token'] ?? '';
-$data = json_decode($_POST['data'] ?? '{}', true) ?: [];
+$rawData = is_scalar($_POST['data'] ?? null) ? (string)$_POST['data'] : '{}';
+$data = json_decode($rawData, true) ?: [];
 
 try {
     if ($step === 'init') {
@@ -305,9 +315,10 @@ try {
         }
 
         $zip = new ZipArchive();
-        // FIX: Require CREATE flag to avoid errors when an empty ZIP does not exist
-        if ($zip->open($zipPath, ZipArchive::CREATE) !== TRUE) {
-            throw new Exception("Cannot open zip file.");
+        // Open the ZIP file, creating it if it does not exist
+        $zipRes = $zip->open($zipPath, ZipArchive::CREATE);
+        if ($zipRes !== TRUE) {
+            throw new Exception("Cannot open zip file. Error code: " . $zipRes);
         }
 
         $zipPassword = function_exists('get_option') ? get_option('backup_zip_password', '') : '';

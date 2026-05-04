@@ -15,7 +15,7 @@ if (!defined('GRINDS_APP')) exit;
  * Render share buttons.
  */
 if (!function_exists('marketing_the_share_buttons')) {
-  function marketing_the_share_buttons($url, $title)
+  function marketing_the_share_buttons(?string $url, ?string $title)
   {
     // Use centralized helper
     $buttons = grinds_get_share_buttons($url, $title);
@@ -38,7 +38,7 @@ if (!function_exists('marketing_the_share_buttons')) {
  * Get highlighted excerpt for search results.
  */
 if (!function_exists('marketing_get_highlighted_excerpt')) {
-  function marketing_get_highlighted_excerpt($post, $length = 120)
+  function marketing_get_highlighted_excerpt(array $post, int $length = 120)
   {
     $excerpt = (!empty($post['description'])) ? h($post['description']) : h(get_excerpt($post['content'], $length));
     if (isset($_GET['q']) && $_GET['q'] !== '') {
@@ -64,7 +64,7 @@ if (!function_exists('marketing_get_highlighted_excerpt')) {
  * Render content block.
  */
 if (!function_exists('marketing_render_block')) {
-  function marketing_render_block($block, $pathFixer)
+  function marketing_render_block(array $block, callable $pathFixer)
   {
     $type = $block['type'] ?? '';
     $data = $block['data'] ?? [];
@@ -202,8 +202,9 @@ if (!function_exists('marketing_render_block')) {
       case 'search_box':
         $action = resolve_url('/');
         $ph = h($data['placeholder'] ?? theme_t('search_placeholder'));
+        $q = h($_GET['q'] ?? '');
         $html = "<form action='{$action}' method='get' class='flex my-8'>";
-        $html .= "<input type='text' name='q' placeholder='{$ph}' class='flex-1 p-2 border rounded-l'><button type='submit' class='bg-blue-600 px-4 rounded-r text-white'>" . theme_t('search') . "</button></form>";
+        $html .= "<input type='text' name='q' placeholder='{$ph}' value='{$q}' class='flex-1 p-2 border rounded-l'><button type='submit' class='bg-blue-600 px-4 rounded-r text-white'>" . theme_t('search') . "</button></form>";
         return $html;
 
       case 'carousel':
@@ -394,11 +395,13 @@ if (!function_exists('marketing_render_block')) {
         return $html;
 
       case 'countdown':
-        $deadline = h($data['deadline'] ?? '');
-        $msg = h($data['message'] ?? 'Finished');
+        $deadline = $data['deadline'] ?? '';
+        $msg = $data['message'] ?? 'Finished';
         $uid = 'timer-' . uniqid();
+        $jsDeadline = json_encode($deadline);
+        $jsMsg = json_encode($msg);
         $html = "<div id='{$uid}' class='bg-slate-900 shadow-xl my-10 p-8 rounded-2xl text-white text-center'><div class='opacity-70 mb-2 font-bold text-xs uppercase tracking-widest'>" . theme_t('time_remaining') . "</div><div class='font-mono font-black text-4xl md:text-6xl tracking-widest timer-display'>00:00:00:00</div></div>";
-        $html .= "<script>(function(){const end=new Date('{$deadline}').getTime();const el=document.querySelector('#{$uid} .timer-display');const timer=setInterval(()=>{const now=new Date().getTime();const dist=end-now;if(dist<0){clearInterval(timer);el.innerHTML='{$msg}';return;}const d=Math.floor(dist/(1000*60*60*24));const h=Math.floor((dist%(1000*60*60*24))/(1000*60));const m=Math.floor((dist%(1000*60*60))/(1000*60));const s=Math.floor((dist%(1000*60))/1000);el.innerText=d+'d '+h.toString().padStart(2,'0')+'h '+m.toString().padStart(2,'0')+'m '+s.toString().padStart(2,'0')+'s';},1000);})();</script>";
+        $html .= "<script>(function(){const end=new Date({$jsDeadline}).getTime();const el=document.querySelector('#{$uid} .timer-display');const timer=setInterval(()=>{const now=new Date().getTime();const dist=end-now;if(dist<0){clearInterval(timer);el.innerHTML={$jsMsg};return;}const d=Math.floor(dist/(1000*60*60*24));const h=Math.floor((dist%(1000*60*60*24))/(1000*60));const m=Math.floor((dist%(1000*60*60))/(1000*60));const s=Math.floor((dist%(1000*60))/1000);el.innerText=d+'d '+h.toString().padStart(2,'0')+'h '+m.toString().padStart(2,'0')+'m '+s.toString().padStart(2,'0')+'s';},1000);})();</script>";
         return $html;
 
       case 'qrcode':

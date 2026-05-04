@@ -8,7 +8,7 @@ if (!defined('GRINDS_APP')) exit;
 /**
  * Retrieve default settings.
  */
-function Grinds_GetDefaultSettings($lang = 'en', $overrides = [])
+function Grinds_GetDefaultSettings(string $lang = 'en', array $overrides = []): array
 {
     // Load options functions
     if (!function_exists('grinds_get_default_settings')) {
@@ -24,7 +24,7 @@ function Grinds_GetDefaultSettings($lang = 'en', $overrides = [])
 /**
  * Retrieve sample data.
  */
-function Grinds_GetSampleData($lang = 'en')
+function Grinds_GetSampleData(string $lang = 'en'): array
 {
     $isJa = ($lang === 'ja');
     $now = date('Y-m-d H:i:s');
@@ -45,16 +45,16 @@ function Grinds_GetSampleData($lang = 'en')
         'pages' => [
             // Define home page
             [
-                'title' => 'Home',
-                'slug'  => 'home',
+                'title' => $isJa ? 'ホーム (デモ)' : 'Home (Demo)',
+                'slug'  => 'home-demo',
                 'hero_image' => '',
                 'hero_settings' => [
                     'title' => $isJa ? 'ビジネスを加速させる次世代CMS' : 'Accelerate Your Business',
                     'subtext' => $isJa ? "GrindSiteは、直感的な操作と高いパフォーマンスを兼ね備えた、\nモダンなウェブサイト構築プラットフォームです。" : "GrindSite is a modern website building platform\ncombining intuitive operation with high performance.",
                     'layout' => 'standard',
                     'buttons' => [
-                        ['text' => $isJa ? '無料で始める' : 'Get Started Free', 'url' => '#', 'style' => 'primary'],
-                        ['text' => $isJa ? 'デモを見る' : 'View Demo', 'url' => '#', 'style' => 'white']
+                        ['text' => $isJa ? '無料で始める' : 'Get Started Free', 'url' => '/#', 'style' => 'primary'],
+                        ['text' => $isJa ? 'デモを見る' : 'View Demo', 'url' => '/#', 'style' => 'white']
                     ]
                 ],
                 'content' => [
@@ -95,7 +95,7 @@ function Grinds_GetSampleData($lang = 'en')
                                 ? "<div class='text-center'><b>準備はいいですか？</b><br>今すぐGrindSiteで新しいウェブサイト体験を始めましょう。</div>"
                                 : "<div class='text-center'><b>Ready to start?</b><br>Start your new website experience with GrindSite today.</div>"
                         ]],
-                        ['type' => 'button', 'data' => ['text' => $isJa ? '今すぐダウンロード' : 'Download Now', 'url' => '#', 'color' => 'primary']]
+                        ['type' => 'button', 'data' => ['text' => $isJa ? '今すぐダウンロード' : 'Download Now', 'url' => '/#', 'color' => 'primary']]
                     ]
                 ]
             ],
@@ -214,7 +214,7 @@ function Grinds_GetSampleData($lang = 'en')
                             $isJa ? '「外観」でテーマやスキンを変更' : 'Change themes and skins',
                             $isJa ? '新しい記事を投稿してみる' : 'Try creating a new post'
                         ]]],
-                        ['type' => 'button', 'data' => ['text' => $isJa ? 'ドキュメントを見る' : 'Read Documentation', 'url' => '#', 'color' => 'primary']]
+                        ['type' => 'button', 'data' => ['text' => $isJa ? 'ドキュメントを見る' : 'Read Documentation', 'url' => '/#', 'color' => 'primary']]
                     ]
                 ]
             ],
@@ -486,8 +486,8 @@ function Grinds_GetSampleData($lang = 'en')
             ['location' => 'header', 'label' => $isJa ? 'お問い合わせ' : 'Contact', 'url' => '/contact', 'sort' => 6],
 
             // Define footer menu
-            ['location' => 'footer', 'label' => $isJa ? 'プライバシーポリシー' : 'Privacy Policy', 'url' => '#', 'sort' => 1],
-            ['location' => 'footer', 'label' => $isJa ? '利用規約' : 'Terms', 'url' => '#', 'sort' => 2],
+            ['location' => 'footer', 'label' => $isJa ? 'プライバシーポリシー' : 'Privacy Policy', 'url' => '/#', 'sort' => 1],
+            ['location' => 'footer', 'label' => $isJa ? '利用規約' : 'Terms', 'url' => '/#', 'sort' => 2],
             ['location' => 'footer', 'label' => $isJa ? 'お問い合わせ' : 'Contact', 'url' => '/contact', 'sort' => 3],
         ],
 
@@ -533,7 +533,7 @@ function Grinds_GetSampleData($lang = 'en')
                 'settings' => json_encode([
                     'title' => $isJa ? '広告スペース' : 'Ad Space',
                     'image' => $dummyImg,
-                    'link' => '#',
+                    'link' => '/#',
                     'alt' => 'Ad Space'
                 ]),
                 'sort_order' => 5
@@ -545,7 +545,7 @@ function Grinds_GetSampleData($lang = 'en')
 /**
  * Install sample data.
  */
-function Grinds_InstallSampleData($pdo, $lang = 'en', $siteName = 'GrindSite')
+function Grinds_InstallSampleData(PDO $pdo, string $lang = 'en', string $siteName = 'GrindSite'): void
 {
     $data = Grinds_GetSampleData($lang);
     $now = date('Y-m-d H:i:s');
@@ -672,7 +672,7 @@ function Grinds_InstallSampleData($pdo, $lang = 'en', $siteName = 'GrindSite')
         $exists = $pdo->prepare("SELECT count(*) FROM posts WHERE type='template' AND title = ?");
         $exists->execute([$tpl['title']]);
         if (!$exists->fetchColumn()) {
-            $slug = 'tpl-' . bin2hex(random_bytes(6));
+            $slug = 'tpl-' . bin2hex(grinds_random_bytes(6));
             $json = json_encode($tpl['content'], JSON_UNESCAPED_UNICODE);
             $metaData = isset($tpl['meta_data']) ? json_encode($tpl['meta_data'], JSON_UNESCAPED_UNICODE) : '{}';
             // Exclude from search
@@ -743,7 +743,7 @@ function Grinds_InstallSampleData($pdo, $lang = 'en', $siteName = 'GrindSite')
 /**
  * Retrieve demo data.
  */
-function Grinds_GetKitchenSinkData($lang = 'en')
+function Grinds_GetKitchenSinkData(string $lang = 'en'): array
 {
     $isJa = ($lang === 'ja');
     $dummyImg = _grinds_ensure_sample_image('sample_sink.svg', 'Kitchen Sink', '#4a90e2', '#ffffff');
@@ -752,8 +752,8 @@ function Grinds_GetKitchenSinkData($lang = 'en')
         // Define text and headings
         ['type' => 'header', 'data' => ['text' => $isJa ? '全ブロック表示テスト (Kitchen Sink)' : 'All Blocks Demo (Kitchen Sink)', 'level' => 'h2']],
         ['type' => 'paragraph', 'data' => ['text' => $isJa
-            ? 'これはGrindSiteで利用可能なすべてのブロックを表示するテスト記事です。<br>テーマのCSSスタイリングや動作確認にご利用ください。<br><b>太字</b>、<i>斜体</i>、<s>打ち消し</s>、<a href="#">リンク</a>の表示確認。'
-            : 'This is a test post displaying all blocks available in GrindSite.<br>Use this to check theme CSS styling and block behavior.<br>Check <b>Bold</b>, <i>Italic</i>, <s>Strike</s>, and <a href="#">Link</a> styles.']],
+            ? 'これはGrindSiteで利用可能なすべてのブロックを表示するテスト記事です。<br>テーマのCSSスタイリングや動作確認にご利用ください。<br><b>太字</b>、<i>斜体</i>、<s>打ち消し</s>、<a href="/#">リンク</a>の表示確認。'
+            : 'This is a test post displaying all blocks available in GrindSite.<br>Use this to check theme CSS styling and block behavior.<br>Check <b>Bold</b>, <i>Italic</i>, <s>Strike</s>, and <a href="/#">Link</a> styles.']],
 
         ['type' => 'divider', 'data' => []],
 
@@ -815,13 +815,13 @@ function Grinds_GetKitchenSinkData($lang = 'en')
         ['type' => 'callout', 'data' => ['style' => 'warning', 'text' => $isJa ? '<b>注意:</b> 注意が必要です。' : '<b>Warning:</b> Attention required.']],
         ['type' => 'callout', 'data' => ['style' => 'danger', 'text' => $isJa ? '<b>警告:</b> エラーが発生しました。' : '<b>Alert:</b> An error occurred.']],
 
-        ['type' => 'button', 'data' => ['text' => $isJa ? 'プライマリボタン' : 'Primary Button', 'url' => '#', 'color' => 'primary']],
-        ['type' => 'button', 'data' => ['text' => $isJa ? '成功ボタン (Green)' : 'Success Button', 'url' => '#', 'color' => 'success']],
+        ['type' => 'button', 'data' => ['text' => $isJa ? 'プライマリボタン' : 'Primary Button', 'url' => '/#', 'color' => 'primary']],
+        ['type' => 'button', 'data' => ['text' => $isJa ? '成功ボタン (Green)' : 'Success Button', 'url' => '/#', 'color' => 'success']],
 
         ['type' => 'card', 'data' => [
             'title' => $isJa ? 'リンクカード' : 'Link Card',
             'description' => $isJa ? '外部サイトへのリンクをリッチに表示します。' : 'Displays a rich preview for external links.',
-            'url' => '#',
+            'url' => '/#',
             'image' => $dummyImg
         ]],
 
@@ -880,7 +880,7 @@ function Grinds_GetKitchenSinkData($lang = 'en')
 /**
  * Install Kitchen Sink data (Post, Tags, Menu).
  */
-function Grinds_InstallKitchenSink($pdo, $lang = 'en')
+function Grinds_InstallKitchenSink(PDO $pdo, string $lang = 'en'): int
 {
     $isJa = ($lang === 'ja');
     $now = date('Y-m-d H:i:s');
@@ -918,7 +918,7 @@ function Grinds_InstallKitchenSink($pdo, $lang = 'en')
         $metaData = json_encode(['product_type' => 'service', 'event_date' => date('Y-m-d', strtotime('+1 month'))], JSON_UNESCAPED_UNICODE);
         $stmtPost = $pdo->prepare("INSERT INTO posts (title, slug, content, type, status, meta_data, published_at, created_at, updated_at) VALUES (?, ?, ?, 'post', 'published', ?, ?, ?, ?)");
         $stmtPost->execute([$title, $slug, $jsonContent, $metaData, $now, $now, $now]);
-        $postId = $pdo->lastInsertId();
+        $postId = (int)$pdo->lastInsertId();
     }
 
     // Link tags
@@ -939,13 +939,13 @@ function Grinds_InstallKitchenSink($pdo, $lang = 'en')
         $stmtMenu->execute(['footer', $title, $menuUrl, 99]);
     }
 
-    return $postId;
+    return (int)$postId;
 }
 
 /**
  * Helper to generate sample SVG image.
  */
-function _grinds_ensure_sample_image($filename, $text, $bg, $fill)
+function _grinds_ensure_sample_image(string $filename, string $text, string $bg, string $fill): string
 {
     $dummyImg = defined('PLACEHOLDER_IMG') ? PLACEHOLDER_IMG : '';
 

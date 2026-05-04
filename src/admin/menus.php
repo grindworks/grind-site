@@ -24,7 +24,7 @@ if (!in_array($current_location, ['header', 'footer'])) {
 }
 
 // Generate URL
-function _grinds_menu_list_url($location)
+function _grinds_menu_list_url(string $location)
 {
   return 'menus.php?location=' . urlencode($location);
 }

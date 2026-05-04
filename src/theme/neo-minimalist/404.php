@@ -21,29 +21,29 @@ if (!defined('GRINDS_APP'))
   </div>
 
   <h1 class="mb-4 font-heading font-extrabold text-slate-900 text-3xl md:text-5xl uppercase tracking-tight z-10">
-    <?= theme_t('Page Not Found')?>
+    <?= theme_t('Page Not Found') ?>
   </h1>
   <p class="mx-auto mb-10 max-w-md text-slate-700 leading-relaxed font-medium z-10">
-    <?= theme_t('The page you are looking for does not exist.')?>
+    <?= theme_t('The page you are looking for does not exist.') ?>
   </p>
 
-  <form action="<?= h(resolve_url('/'))?>" method="get"
+  <form action="<?= h(resolve_url('/')) ?>" method="get"
     class="flex flex-col sm:flex-row gap-3 mx-auto mb-10 w-full max-w-md z-10">
-    <input type="text" name="q" placeholder="<?= h(theme_t('Search...'))?>"
+    <input type="text" name="q" placeholder="<?= h(theme_t('Search...')) ?>" value="<?= h($_GET['q'] ?? '') ?>"
       class="flex-1 px-5 py-3 border-2 border-slate-900 shadow-[2px_2px_0_0_rgba(15,23,42,1)] focus:shadow-[4px_4px_0_0_rgba(15,23,42,1)] rounded-none focus:outline-none transition-shadow font-bold text-slate-900 placeholder-slate-500">
     <button type="submit" class="neo-btn neo-btn-primary py-3">
-      <?= theme_t('Search')?>
+      <?= theme_t('Search') ?>
     </button>
   </form>
 
   <div class="flex sm:flex-row flex-col gap-4 z-10">
-    <a href="<?= h(resolve_url('/'))?>" class="neo-btn neo-btn-dark py-3">
+    <a href="<?= h(resolve_url('/')) ?>" class="neo-btn neo-btn-dark py-3">
       <svg class="mr-2 w-5 h-5 stroke-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round"
           d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6">
         </path>
       </svg>
-      <?= theme_t('Back to Home')?>
+      <?= theme_t('Back to Home') ?>
     </a>
   </div>
 </div>

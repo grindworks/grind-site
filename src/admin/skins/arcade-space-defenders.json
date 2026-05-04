@@ -67,11 +67,7 @@
   "nav_style": "terminal",
   "texture": "stars",
   "media_bg_css": "grid_dark",
-  "effects": [
-    "input_mono",
-    "btn_8bit",
-    "text_bloom_cyber"
-  ],
+  "effects": ["input_mono", "btn_8bit", "text_bloom_cyber"],
   "ai_paste": {
     "title": "INSERT COIN",
     "description": "TO CONTINUE...",
@@ -86,7 +82,7 @@
     "icon": "outline-arrow-down-tray"
   },
   "sidebar_custom_css": "border-right: 2px solid #39ff14 !important;",
-  "css": "* { text-transform: uppercase !important; -webkit-font-smoothing: none !important; font-smooth: never !important; }\n::selection { background: #39ff14 !important; color: #000 !important; }\n/* Shield bases */\n.bg-theme-surface, .card { border: 2px solid #fff !important; }\nh2.flex.items-center, .border-b > h3.font-bold { color: #39ff14 !important; text-shadow: 2px 2px 0 #000; border-bottom: 2px dashed #39ff14; padding-bottom: 8px; }\n/* Alien Hover */\ntr:hover td { background: #39ff14 !important; color: #000 !important; }\ntr:hover td a, tr:hover td span, tr:hover td svg { color: #000 !important; }",
+  "css": "* { text-transform: uppercase !important; -webkit-font-smoothing: none !important; font-smooth: never !important; }\n::selection { background: #39ff14 !important; color: #000 !important; }\n/* Shield bases */\n.bg-theme-surface, .card { border: 2px solid #fff !important; }\nh2.flex.items-center, .border-b > h3.font-bold { color: #39ff14 !important; text-shadow: 2px 2px 0 #000; border-bottom: 2px dashed #39ff14; padding-bottom: 8px; }\n/* Alien Hover */\ntr:hover td { background: #39ff14 !important; color: #000 !important; }\ntr:hover td a, tr:hover td span, tr:hover td svg { color: #000 !important; }\ninput, textarea, select { font-family: ui-monospace, SFMono-Regular, monospace !important; text-transform: none !important; }",
   "is_dark": true,
   "is_sidebar_dark": true
 }

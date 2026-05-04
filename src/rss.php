@@ -347,7 +347,7 @@ if (!class_exists('RssGenerator')) {
     private function createSummary(string $description, string $content): string
     {
       $raw = !empty($description) ? $description : $content;
-      $text = function_exists('grinds_extract_text_from_content') ? grinds_extract_text_from_content($raw) : strip_tags($raw);
+      $text = function_exists('grinds_extract_text_from_content') ? grinds_extract_text_from_content($raw, false) : strip_tags($raw);
       $text = $this->sanitizeString((string)$text, false); // Tags already stripped
       $text = trim(preg_replace('/\s+/u', ' ', $text));
       return htmlspecialchars(mb_strimwidth($text, 0, 200, '...', 'UTF-8'), ENT_XML1, 'UTF-8');

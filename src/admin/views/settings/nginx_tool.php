@@ -44,7 +44,7 @@ $templateConfig = str_replace(["\r\n", "\r"], "\n", grinds_get_nginx_config($ser
 
 <div class="bg-theme-surface shadow-theme mt-6 border border-theme-border rounded-theme" x-data="{
     open: true,
-    template: <?= htmlspecialchars(json_encode($templateConfig, JSON_UNESCAPED_UNICODE), ENT_QUOTES, 'UTF-8') ?>,
+    template: <?= htmlspecialchars(json_encode($templateConfig, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT), ENT_QUOTES, 'UTF-8') ?>,
     mode: 'sock',
     phpVer: '<?= $phpVer ?>',
     custom: '127.0.0.1:9000',

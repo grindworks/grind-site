@@ -3,6 +3,9 @@
 /**
  * profile.php
  * Renders the interface for updating user profile.
+ *
+ * @var array $available_layouts
+ * @var array $available_admin_skins
  */
 if (!defined('GRINDS_APP'))
   exit;
@@ -20,7 +23,7 @@ if (!isset($myUser)) {
 <div class="space-y-6 bg-theme-surface shadow-theme p-4 sm:p-6 border border-theme-border rounded-theme">
   <form method="post" enctype="multipart/form-data" class="warn-on-unsaved" x-data="{
     isSubmitting: false,
-    avatarPreview: <?= htmlspecialchars(json_encode(get_media_url($myUser['avatar'] ?? '')), ENT_QUOTES) ?>,
+    avatarPreview: <?= htmlspecialchars(json_encode(get_media_url($myUser['avatar'] ?? ''), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT), ENT_QUOTES, 'UTF-8') ?>,
     fileName: '',
     isDeleted: false
   }" @submit="setTimeout(() => isSubmitting = true, 10)">
@@ -160,7 +163,7 @@ if (!isset($myUser)) {
                 <input :type="show ? 'text' : 'password'" name="new_password" id="new_password" x-model="pass"
                   @input="reqLength = pass.length >= 8; reqLetter = /[a-zA-Z]/.test(pass); reqNumber = /[0-9]/.test(pass);"
                   class="font-mono pr-10 text-sm form-control"
-                  placeholder="<?= _t('ph_pass_8_chars') ?>" autocomplete="new-password">
+                  placeholder="<?= h(_t('ph_pass_8_chars')) ?>" autocomplete="new-password">
                 <button type="button" @click="show = !show"
                   class="right-0 absolute inset-y-0 flex items-center opacity-50 hover:opacity-100 px-3 focus:outline-none text-theme-text">
                   <svg x-show="!show" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -208,7 +211,7 @@ if (!isset($myUser)) {
               </label>
               <div class="relative">
                 <input :type="show ? 'text' : 'password'" name="new_password_confirm" id="new_password_confirm" class="font-mono pr-10 text-sm form-control"
-                  placeholder="<?= _t('ph_pass_confirm') ?>" autocomplete="new-password">
+                  placeholder="<?= h(_t('ph_pass_confirm')) ?>" autocomplete="new-password">
                 <button type="button" @click="show = !show"
                   class="right-0 absolute inset-y-0 flex items-center opacity-50 hover:opacity-100 px-3 focus:outline-none text-theme-text">
                   <svg x-show="!show" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

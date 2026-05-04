@@ -5,6 +5,8 @@ if (!defined('GRINDS_APP')) exit;
 /**
  * tag.php
  * Display tag archive.
+ *
+ * @var array $pageData
  */
 ?>
 <!-- Render header. -->
@@ -47,6 +49,14 @@ if (!defined('GRINDS_APP')) exit;
   </div>
 
   <div class="mt-12">
-    <?php if (isset($pageData['paginator'])) echo $pageData['paginator']->renderFrontend(); ?>
+    <?php
+    if (isset($pageData['paginator'])) {
+      if (is_object($pageData['paginator']) && method_exists($pageData['paginator'], 'renderFrontend')) {
+        echo $pageData['paginator']->renderFrontend();
+      } else {
+        echo $pageData['paginator'];
+      }
+    }
+    ?>
   </div>
 <?php endif; ?>

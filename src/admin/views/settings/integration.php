@@ -3,6 +3,8 @@
 /**
  * integration.php
  * Renders the interface for managing integrations.
+ *
+ * @var array $opt
  */
 if (!defined('GRINDS_APP')) exit;
 
@@ -44,7 +46,7 @@ if (!is_array($shareButtons) || empty($shareButtons)) {
         add() {
             this.buttons.push({
                 id: 'custom' + Date.now(),
-                name: <?= htmlspecialchars(json_encode(_t('st_sns_new')), ENT_QUOTES) ?>,
+                name: <?= htmlspecialchars(json_encode(_t('st_sns_new'), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT), ENT_QUOTES, 'UTF-8') ?>,
                 url: '',
                 icon: 'outline-link',
                 color: '#888888',
@@ -52,7 +54,7 @@ if (!is_array($shareButtons) || empty($shareButtons)) {
             });
         },
         remove(index) {
-            if (confirm(<?= htmlspecialchars(json_encode(_t('confirm_delete')), ENT_QUOTES) ?>)) {
+            if (confirm(<?= htmlspecialchars(json_encode(_t('confirm_delete'), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT), ENT_QUOTES, 'UTF-8') ?>)) {
                 this.buttons.splice(index, 1);
             }
         }
@@ -133,7 +135,7 @@ if (!is_array($shareButtons) || empty($shareButtons)) {
             <div class="flex items-center gap-2">
               <div class="w-8 h-8 rounded-theme flex items-center justify-center text-white shadow-theme border border-theme-border shrink-0" :style="`background-color: ${btn.color}`">
                 <svg class="w-5 h-5">
-                  <use :href="<?= htmlspecialchars(json_encode(grinds_asset_url('assets/img/sprite.svg') . '#'), ENT_QUOTES) ?> + btn.icon"></use>
+                  <use :href="<?= htmlspecialchars(json_encode(grinds_asset_url('assets/img/sprite.svg') . '#', JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT), ENT_QUOTES, 'UTF-8') ?> + btn.icon"></use>
                 </svg>
               </div>
               <div class="flex flex-col gap-1">
@@ -159,9 +161,9 @@ if (!is_array($shareButtons) || empty($shareButtons)) {
             </div>
 
             <div class="flex-1 grid grid-cols-1 md:grid-cols-3 gap-3">
-              <input type="text" x-model="btn.name" class="form-control-sm" placeholder="<?= _t('st_sns_name') ?>">
+              <input type="text" x-model="btn.name" class="form-control-sm" placeholder="<?= h(_t('st_sns_name')) ?>">
               <div class="md:col-span-2">
-                <input type="text" x-model="btn.url" class="form-control-sm font-mono text-xs w-full" placeholder="<?= _t('st_sns_url') ?>">
+                <input type="text" x-model="btn.url" class="form-control-sm font-mono text-xs w-full" placeholder="<?= h(_t('st_sns_url')) ?>">
               </div>
             </div>
 

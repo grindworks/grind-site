@@ -3,6 +3,9 @@
 /**
  * card-post.php
  * Render post card.
+ *
+ * @var array $post
+ * @var int|null $index
  */
 if (!defined('GRINDS_APP')) exit;
 ?>

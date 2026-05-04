@@ -39,7 +39,7 @@ $isSearch = (isset($pageType) && $pageType === 'search');
                 <svg class="pointer-events-none absolute top-4 left-5 h-6 w-6 text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-magnifying-glass"></use>
                 </svg>
-                <input type="text" name="q" class="h-14 w-full rounded-2xl border border-zinc-200 bg-white pl-14 pr-4 text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-lg" placeholder="Search docs (e.g. Installation, API...)" required>
+                <input type="text" name="q" class="h-14 w-full rounded-2xl border border-zinc-200 bg-white pl-14 pr-4 text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-lg" placeholder="Search docs (e.g. Installation, API...)" value="<?= h($_GET['q'] ?? '') ?>" required>
                 <button type="submit" class="absolute right-2 top-2 bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-xl font-bold transition-colors">Search</button>
             </form>
         </div>

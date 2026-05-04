@@ -86,7 +86,7 @@ if (!isset($userList)) {
                   <?= strtoupper(substr($u['username'], 0, 1)) ?>
                 </div>
                 <?= h($u['username']) ?>
-                <?php if ($u['id'] == $_SESSION['user_id']): ?>
+                <?php if ((int)$u['id'] === (int)$_SESSION['user_id']): ?>
                   <span
                     class="bg-theme-success/10 px-1.5 py-0.5 border border-theme-success/20 rounded-theme font-bold text-[10px] text-theme-success">
                     <?= _t('st_myself') ?>
@@ -107,11 +107,11 @@ if (!isset($userList)) {
               <div class="flex justify-end items-center gap-4 h-full">
                 <button type="button" @click="$dispatch('open-user-modal', {
                       mode: 'edit',
-                      id: <?= htmlspecialchars(json_encode($u['id']), ENT_QUOTES) ?>,
-                      username: <?= htmlspecialchars(json_encode($u['username']), ENT_QUOTES) ?>,
-                      email: <?= htmlspecialchars(json_encode($u['email']), ENT_QUOTES) ?>,
-                      role: <?= htmlspecialchars(json_encode($uRole), ENT_QUOTES) ?>,
-                      permissions: <?= htmlspecialchars(json_encode($u['permissions'] ?? null), ENT_QUOTES) ?>
+                      id: <?= htmlspecialchars(json_encode($u['id'], JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT), ENT_QUOTES, 'UTF-8') ?>,
+                      username: <?= htmlspecialchars(json_encode($u['username'], JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT), ENT_QUOTES, 'UTF-8') ?>,
+                      email: <?= htmlspecialchars(json_encode($u['email'], JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT), ENT_QUOTES, 'UTF-8') ?>,
+                      role: <?= htmlspecialchars(json_encode($uRole, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT), ENT_QUOTES, 'UTF-8') ?>,
+                      permissions: <?= htmlspecialchars(json_encode($u['permissions'] ?? null, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT), ENT_QUOTES, 'UTF-8') ?>
                   })"
                   class="inline-flex items-center gap-1 bg-transparent p-0 border-none font-bold text-theme-primary text-xs hover:underline cursor-pointer">
                   <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -120,7 +120,7 @@ if (!isset($userList)) {
                   <?= _t('edit') ?>
                 </button>
 
-                <?php if ($u['id'] != $_SESSION['user_id']): ?>
+                <?php if ((int)$u['id'] !== (int)$_SESSION['user_id']): ?>
                   <form method="post" style="display:inline-flex;">
                     <input type="hidden" name="csrf_token" value="<?= h(generate_csrf_token()) ?>">
                     <input type="hidden" name="action" value="delete_user">
@@ -168,7 +168,7 @@ if (!isset($userList)) {
             <div>
               <div class="flex items-center gap-2 font-bold text-theme-text text-sm">
                 <?= h($u['username']) ?>
-                <?php if ($u['id'] == $_SESSION['user_id']): ?>
+                <?php if ((int)$u['id'] === (int)$_SESSION['user_id']): ?>
                   <span
                     class="bg-theme-success/10 px-1.5 py-0.5 border border-theme-success/20 rounded font-bold text-[10px] text-theme-success">
                     <?= _t('st_myself') ?>
@@ -193,11 +193,11 @@ if (!isset($userList)) {
         <div class="flex justify-end gap-4 pl-10">
           <button type="button" @click="$dispatch('open-user-modal', {
                 mode: 'edit',
-                id: <?= htmlspecialchars(json_encode($u['id']), ENT_QUOTES) ?>,
-                username: <?= htmlspecialchars(json_encode($u['username']), ENT_QUOTES) ?>,
-                email: <?= htmlspecialchars(json_encode($u['email']), ENT_QUOTES) ?>,
-                role: <?= htmlspecialchars(json_encode($uRole), ENT_QUOTES) ?>,
-                permissions: <?= htmlspecialchars(json_encode($u['permissions'] ?? null), ENT_QUOTES) ?>
+                id: <?= htmlspecialchars(json_encode($u['id'], JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT), ENT_QUOTES, 'UTF-8') ?>,
+                username: <?= htmlspecialchars(json_encode($u['username'], JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT), ENT_QUOTES, 'UTF-8') ?>,
+                email: <?= htmlspecialchars(json_encode($u['email'], JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT), ENT_QUOTES, 'UTF-8') ?>,
+                role: <?= htmlspecialchars(json_encode($uRole, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT), ENT_QUOTES, 'UTF-8') ?>,
+                permissions: <?= htmlspecialchars(json_encode($u['permissions'] ?? null, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT), ENT_QUOTES, 'UTF-8') ?>
             })"
             class="flex items-center gap-1 bg-transparent p-0 border-none font-bold text-theme-primary text-xs hover:underline cursor-pointer">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -206,7 +206,7 @@ if (!isset($userList)) {
             <?= _t('edit') ?>
           </button>
 
-          <?php if ($u['id'] != $_SESSION['user_id']): ?>
+          <?php if ((int)$u['id'] !== (int)$_SESSION['user_id']): ?>
             <form method="post" style="display:inline-flex;">
               <input type="hidden" name="csrf_token" value="<?= h(generate_csrf_token()) ?>">
               <input type="hidden" name="action" value="delete_user">
@@ -253,7 +253,7 @@ if (!isset($userList)) {
       <input type="hidden" name="csrf_token" value="<?= h(generate_csrf_token()) ?>">
       <input type="hidden" name="action" value="update_permissions">
 
-      <div class="gap-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 mb-6">
+      <div class="gap-3 grid grid-cols-1 sm:grid-cols-2 mb-6">
 
         <label
           class="flex items-center gap-3 bg-theme-surface p-3 border border-theme-border hover:border-theme-primary rounded-theme transition-colors cursor-pointer">
@@ -378,8 +378,8 @@ if (!isset($userList)) {
               <div class="font-bold text-theme-text text-sm leading-tight">
                 <?= _t('menu_settings') ?>
               </div>
-              <div class="opacity-50 text-theme-text text-xs leading-tight truncate">
-                <?= _t('perm_manage_settings') ?>
+              <div class="opacity-50 text-theme-text text-xs leading-tight">
+                <?= _t('perm_manage_settings') ?> / <?= _t('menu_plugins') ?>
               </div>
             </div>
           </div>
@@ -442,7 +442,7 @@ if (!isset($userList)) {
 
         <div class="flex justify-between items-center bg-theme-bg px-6 py-4 border-theme-border border-b shrink-0">
           <h3 class="font-bold text-theme-text text-lg"
-            x-text="mode === 'add' ? <?= htmlspecialchars(json_encode(_t('st_add_user')), ENT_QUOTES) ?> : <?= htmlspecialchars(json_encode(_t('st_edit_user')), ENT_QUOTES) ?>">
+            x-text="mode === 'add' ? <?= htmlspecialchars(json_encode(_t('st_add_user'), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT), ENT_QUOTES, 'UTF-8') ?> : <?= htmlspecialchars(json_encode(_t('st_edit_user'), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT), ENT_QUOTES, 'UTF-8') ?>">
           </h3>
           <button type="button" @click="isOpen = false"
             class="opacity-50 hover:opacity-100 text-theme-text text-2xl leading-none">&times;</button>
@@ -522,7 +522,7 @@ if (!isset($userList)) {
                 <label class="flex items-start gap-2 cursor-pointer">
                   <input type="checkbox" name="user_perms[]" value="manage_settings" x-model="userPerms" class="mt-0.5 bg-theme-bg border-theme-danger/30 rounded focus:ring-theme-danger w-4 h-4 text-theme-danger form-checkbox">
                   <div>
-                    <div class="font-bold text-sm leading-tight text-theme-danger"><?= _t('menu_settings') ?></div>
+                    <div class="font-bold text-sm leading-tight text-theme-danger"><?= _t('menu_settings') ?> / <?= _t('menu_plugins') ?></div>
                   </div>
                 </label>
               </div>
@@ -542,7 +542,7 @@ if (!isset($userList)) {
                 </label>
                 <div class="relative">
                   <input :type="show ? 'text' : 'password'" name="password" id="password" x-model="password"
-                    class="font-mono pr-10 text-sm form-control" placeholder="<?= _t('ph_pass_8_chars') ?>"
+                    class="font-mono pr-10 text-sm form-control" placeholder="<?= h(_t('ph_pass_8_chars')) ?>"
                     :required="mode === 'add'" autocomplete="new-password">
                   <button type="button" @click="show = !show"
                     class="right-0 absolute inset-y-0 flex items-center opacity-50 hover:opacity-100 px-3 focus:outline-none text-theme-text"
@@ -564,7 +564,7 @@ if (!isset($userList)) {
                 </label>
                 <div class="relative">
                   <input :type="show ? 'text' : 'password'" name="password_confirm" id="password_confirm" x-model="passwordConfirm"
-                    class="font-mono pr-10 text-sm form-control" placeholder="<?= _t('ph_pass_confirm') ?>"
+                    class="font-mono pr-10 text-sm form-control" placeholder="<?= h(_t('ph_pass_confirm')) ?>"
                     :required="mode === 'add'" autocomplete="new-password">
                   <button type="button" @click="show = !show"
                     class="right-0 absolute inset-y-0 flex items-center opacity-50 hover:opacity-100 px-3 focus:outline-none text-theme-text"
@@ -644,7 +644,7 @@ if (!isset($userList)) {
             </button>
             <button type="submit"
               class="shadow-theme px-6 py-2.5 rounded-theme font-bold text-sm transition-all btn-primary"
-              x-text="mode === 'add' ? <?= htmlspecialchars(json_encode(_t('add')), ENT_QUOTES) ?> : <?= htmlspecialchars(json_encode(_t('update')), ENT_QUOTES) ?>"></button>
+              x-text="mode === 'add' ? <?= htmlspecialchars(json_encode(_t('add'), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT), ENT_QUOTES, 'UTF-8') ?> : <?= htmlspecialchars(json_encode(_t('update'), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT), ENT_QUOTES, 'UTF-8') ?>"></button>
           </div>
         </div>
       </form>

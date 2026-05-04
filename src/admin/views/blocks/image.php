@@ -14,7 +14,7 @@ if (!defined('GRINDS_APP')) exit; ?>
   <!-- Source controls -->
   <div class="flex gap-2">
     <!-- URL input -->
-    <input type="text" x-model="block.data.url" :id="'block-' + block.id + '-url'" @blur="block.data.url = normalizeUrl(block.data.url)" class="flex-1 font-mono text-xs form-control-sm" placeholder="<?= _t('ph_image_url') ?>">
+    <input type="text" x-model="block.data.url" :id="'block-' + block.id + '-url'" @blur="block.data.url = normalizeUrl(block.data.url)" class="flex-1 font-mono text-xs form-control-sm" placeholder="<?= h(_t('ph_image_url')) ?>">
     <!-- Open media library -->
     <button type="button" @click="openMediaLibrary(block.id, null, 'url')" class="flex items-center gap-1 px-3 py-1 text-xs btn-secondary shrink-0">
       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -45,10 +45,10 @@ if (!defined('GRINDS_APP')) exit; ?>
     <span class="w-12 font-mono text-[10px] text-theme-text text-right"><span x-text="previewWidth"></span>%</span>
   </div>
   <!-- Caption input -->
-  <input type="text" x-model="block.data.caption" :id="'block-' + block.id + '-caption'" class="w-full text-xs text-center transition-colors form-control-sm" placeholder="<?= _t('ph_caption') ?>">
+  <input type="text" x-model="block.data.caption" :id="'block-' + block.id + '-caption'" class="w-full text-xs text-center transition-colors form-control-sm" placeholder="<?= h(_t('ph_caption')) ?>">
   <!-- Alt text input -->
   <div class="relative">
-    <input type="text" x-model="block.data.alt" :id="'block-' + block.id + '-alt'" class="w-full text-xs text-center transition-colors form-control-sm" placeholder="<?= _t('ph_alt_text') ?>">
+    <input type="text" x-model="block.data.alt" :id="'block-' + block.id + '-alt'" class="w-full text-xs text-center transition-colors form-control-sm" placeholder="<?= h(_t('ph_alt_text')) ?>">
     <p class="opacity-50 mt-1 text-[10px] text-theme-text text-center">
       <span><?= _t('msg_alt_help') ?></span>
     </p>

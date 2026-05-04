@@ -1,7 +1,10 @@
 <?php
 
 /**
- * _strict_session.php
+ * Plugin Name: Strict Session
+ *
+ * Author: Grind Works Inc.
+ * Version: 1.0.0
  *
  * [English]
  * Strict Session Management (Institutional Grade).

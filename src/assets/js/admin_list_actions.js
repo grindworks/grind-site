@@ -68,13 +68,20 @@ window.ToastManager = {
 
     const contentHtml = opts.customHtml || `<p class="text-sm font-bold text-theme-text">${safeMessage}</p>`;
 
+    // [FIXED] Add smooth fade-out animation logic to the close button
     div.innerHTML = `
         <div class="flex-shrink-0">${iconHtml}</div>
         <div class="ml-3 min-w-0 flex-1 pt-0.5">
             ${contentHtml}
         </div>
         <div class="ml-4 flex-shrink-0 flex">
-            <button class="bg-transparent rounded-theme inline-flex text-theme-text opacity-40 hover:opacity-100 focus:outline-none" onclick="this.parentElement.parentElement.remove()"><span class="sr-only">Close</span><svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="${spriteUrl}#outline-x-mark"></use></svg></button>
+            <button class="bg-transparent rounded-theme inline-flex text-theme-text opacity-40 hover:opacity-100 focus:outline-none"
+              onclick="
+                const toastEl = this.parentElement.parentElement;
+                toastEl.classList.remove('translate-y-0', 'opacity-100');
+                toastEl.classList.add('-translate-y-4', 'sm:translate-y-4', 'opacity-0');
+                setTimeout(() => toastEl.remove(), 300);
+              "><span class="sr-only">Close</span><svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="${spriteUrl}#outline-x-mark"></use></svg></button>
         </div>
     `;
 

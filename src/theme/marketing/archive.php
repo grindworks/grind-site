@@ -6,6 +6,9 @@ if (!defined('GRINDS_APP'))
 /**
  * archive.php
  * Display general archive.
+ *
+ * @var array $pageData
+ * @var string $pageType
  */
 ?>
 <!-- Render header. -->
@@ -104,7 +107,14 @@ if (!defined('GRINDS_APP'))
 
   <!-- Render pagination. -->
   <div class="mt-12">
-    <?php if (isset($pageData['paginator']))
-      echo $pageData['paginator']->renderFrontend(); ?>
+    <?php
+    if (isset($pageData['paginator'])) {
+      if (is_object($pageData['paginator']) && method_exists($pageData['paginator'], 'renderFrontend')) {
+        echo $pageData['paginator']->renderFrontend();
+      } else {
+        echo $pageData['paginator'];
+      }
+    }
+    ?>
   </div>
 <?php endif; ?>

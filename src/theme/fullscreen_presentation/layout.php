@@ -8,6 +8,17 @@ if (!defined('GRINDS_APP')) exit;
 // Extract header context data
 $ctx = grinds_get_header_data(['type' => $GLOBALS['pageType'] ?? 'home', 'data' => $GLOBALS['pageData'] ?? []]);
 extract($ctx);
+
+// Check if this post contains a presentation embed block
+$isPresentation = false;
+if (isset($GLOBALS['pageData']['post']['content_decoded']['blocks']) && is_array($GLOBALS['pageData']['post']['content_decoded']['blocks'])) {
+  foreach ($GLOBALS['pageData']['post']['content_decoded']['blocks'] as $block) {
+    if (($block['type'] ?? '') === 'embed') {
+      $isPresentation = true;
+      break;
+    }
+  }
+}
 ?>
 <!DOCTYPE html>
 <html lang="<?= h($htmlLang) ?>">
@@ -29,10 +40,37 @@ extract($ctx);
   <meta property="og:image" content="<?= h($ogImage) ?>">
   <?php grinds_head(); ?>
   <style>
+    /* Default fallback styles for accidentally set themes */
     html,
     body {
       margin: 0;
       padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: #f9fafb;
+      color: #1f2937;
+      line-height: 1.6;
+    }
+
+    .fallback-container {
+      max-width: 800px;
+      margin: 2rem auto;
+      padding: 2.5rem;
+      background-color: #ffffff;
+      border-radius: 12px;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    }
+
+    .fallback-container img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 8px;
+    }
+
+    <?php if ($isPresentation): ?>
+
+    /* Presentation mode styles */
+    html,
+    body {
       width: 100%;
       height: 100%;
       overflow: hidden;
@@ -70,6 +108,8 @@ extract($ctx);
       width: 100% !important;
       height: 100% !important;
     }
+
+    <?php endif; ?>
   </style>
 </head>
 

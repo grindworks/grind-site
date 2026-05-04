@@ -7,6 +7,7 @@
  */
 require_once __DIR__ . '/api_bootstrap.php';
 
+/** @var \PDO $pdo */
 // Check request method
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
   json_response(['success' => false, 'error' => _t('err_method_not_allowed')], 405);
@@ -68,7 +69,7 @@ try {
         $existingMeta = [];
       }
 
-      $mergedMeta = array_merge($existingMeta, $metadata);
+      $mergedMeta = array_replace_recursive($existingMeta, $metadata);
       $jsonMeta = json_encode(empty($mergedMeta) ? new stdClass() : $mergedMeta, JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_IGNORE);
 
       $stmt = $pdo->prepare("UPDATE media SET metadata = ? WHERE id = ?");
