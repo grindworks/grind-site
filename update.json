@@ -1,7 +1,7 @@
 {
-  "version": "1.6.9",
-  "release_date": "2026-04-20",
-  "message": "New Affiliate Block (Amazon/Rakuten/eBay) & Editor UX Improvements",
-  "download_url": "https://github.com/grindworks/grind-site/releases/download/v1.6.9/grindsite-v1.6.9.zip",
-  "sha256": "eb1c346ad9ef8bce2c423ea6b781f5330f3a3e4a2d8fbb1fef4a2217764154f4"
+  "version": "1.7.0",
+  "release_date": "2026-05-04",
+  "message": "Plugin Management UI & Fullscreen Presentation Theme",
+  "download_url": "https://github.com/grindworks/grind-site/releases/download/v1.7.0/grindsite-v1.7.0.zip",
+  "sha256": "aeee2b725ad43477f9015cad4c9a39d2ff3d4bd89764e994f5d7ef4a8a9024d7"
 }
