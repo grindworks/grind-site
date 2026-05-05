@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GrindSite Admin Skins Preview</title>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-5X4R5LY88T"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() {
+      dataLayer.push(arguments);
+    }
+    gtag('js', new Date());
+
+    gtag('config', 'G-5X4R5LY88T');
+  </script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: {
+              300: "#93c5fd",
+              400: "#60a5fa",
+              500: "#3b82f6",
+              600: "#0f62fe",
+            }
+          },
+          animation: {
+            blob: "blob 7s infinite",
+            "text-gradient": "textGradient 5s linear infinite",
+            shimmer: "shimmer 3s ease-in-out infinite",
+          },
+          keyframes: {
+            blob: {
+              "0%": { transform: "translate(0px, 0px) scale(1)" },
+              "33%": { transform: "translate(30px, -50px) scale(1.1)" },
+              "66%": { transform: "translate(-20px, 20px) scale(0.9)" },
+              "100%": { transform: "translate(0px, 0px) scale(1)" },
+            },
+            textGradient: {
+              "0%": { backgroundPosition: "0% 50%" },
+              "100%": { backgroundPosition: "200% 50%" },
+            },
+            shimmer: {
+              "0%": { transform: "translateX(-150%) skewX(-20deg)" },
+              "20%, 100%": { transform: "translateX(200%) skewX(-20deg)" }
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+  <!-- Web Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;700&family=Noto+Sans+JP:wght@400;500;700;900&display=swap"
+    rel="stylesheet">
+
+  <style>
+    body {
+      font-family: 'Inter', 'Noto Sans JP', sans-serif;
+      margin: 0;
+      background: #020617;
+    }
+
+    .font-mono {
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* Background Grid (Animated) */
+    .hero-grid {
+      background-size: 60px 60px;
+      background-image:
+        linear-gradient(rgba(59, 130, 246, 0.08) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(59, 130, 246, 0.08) 1px, transparent 1px);
+      -webkit-mask-image: radial-gradient(circle at center, black 30%, transparent 80%);
+      mask-image: radial-gradient(circle at center, black 30%, transparent 80%);
+      animation: gridPulse 8s ease-in-out infinite;
+    }
+
+    @keyframes gridPulse {
+
+      0%,
+      100% {
+        opacity: 0.3;
+      }
+
+      50% {
+        opacity: 0.7;
+      }
+    }
+
+    /* Gradient Border (LP Style) */
+    .gradient-border {
+      position: relative;
+      background: rgba(15, 23, 42, 0.7);
+      border: none !important;
+    }
+
+    .gradient-border::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      padding: 1px;
+      background: linear-gradient(135deg, rgba(59, 130, 246, 0.4), rgba(139, 92, 246, 0.15), rgba(255, 255, 255, 0.1));
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      pointer-events: none;
+    }
+
+    /* 3D Container */
+    .preview-wrapper {
+      transform-style: preserve-3d;
+      box-shadow:
+        -20px 20px 60px rgba(0, 0, 0, 0.9),
+        0 0 40px rgba(59, 130, 246, 0.15),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+      /* Top highlight for depth */
+      border-radius: 16px;
+      position: relative;
+    }
+
+    /* Glitch Animations */
+    .glitch-enter {
+      animation: glitch-in 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+      z-index: 10;
+    }
+
+    .glitch-leave {
+      animation: glitch-out 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+      z-index: 20;
+    }
+
+    @keyframes glitch-out {
+      0% {
+        clip-path: inset(0 0 0 0);
+        transform: translateX(0);
+        filter: drop-shadow(0 0 0 transparent);
+        opacity: 1;
+      }
+
+      20% {
+        clip-path: inset(20% 0 60% 0);
+        transform: translateX(-5px);
+        filter: drop-shadow(-6px 0 0 rgba(255, 0, 40, 0.9)) drop-shadow(6px 0 0 rgba(0, 255, 255, 0.9)) brightness(1.5);
+      }
+
+      40% {
+        clip-path: inset(70% 0 10% 0);
+        transform: translateX(5px);
+        filter: drop-shadow(-4px 0 0 rgba(0, 255, 100, 0.9)) drop-shadow(4px 0 0 rgba(255, 0, 255, 0.9)) invert(0.1);
+      }
+
+      60% {
+        clip-path: inset(10% 0 80% 0);
+        transform: translateX(-3px);
+        filter: drop-shadow(6px 0 0 rgba(255, 0, 40, 0.9)) drop-shadow(-6px 0 0 rgba(0, 255, 255, 0.9));
+      }
+
+      80% {
+        clip-path: inset(40% 0 40% 0);
+        transform: translateX(3px);
+        filter: drop-shadow(-5px 0 0 rgba(255, 0, 40, 0.9));
+      }
+
+      100% {
+        clip-path: inset(50% 0 50% 0);
+        transform: translateX(0);
+        opacity: 0;
+      }
+    }
+
+    @keyframes glitch-in {
+
+      0%,
+      40% {
+        opacity: 0;
+      }
+
+      41% {
+        opacity: 1;
+        clip-path: inset(10% 0 80% 0);
+        transform: translateX(5px);
+        filter: drop-shadow(-6px 0 0 rgba(255, 0, 40, 0.9)) drop-shadow(6px 0 0 rgba(0, 255, 255, 0.9)) brightness(2);
+      }
+
+      60% {
+        clip-path: inset(80% 0 10% 0);
+        transform: translateX(-5px);
+        filter: drop-shadow(-4px 0 0 rgba(0, 255, 100, 0.9)) drop-shadow(4px 0 0 rgba(255, 0, 255, 0.9));
+      }
+
+      80% {
+        clip-path: inset(30% 0 50% 0);
+        transform: translateX(3px);
+        filter: drop-shadow(6px 0 0 rgba(255, 0, 40, 0.9)) drop-shadow(-6px 0 0 rgba(0, 255, 255, 0.9));
+      }
+
+      100% {
+        clip-path: inset(0 0 0 0);
+        transform: translateX(0);
+        filter: drop-shadow(0 0 0 transparent);
+      }
+    }
+
+    @keyframes fade-in-up {
+      0% {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+
+      100% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes sweep {
+      0% {
+        transform: translateX(-150%) skewX(-20deg);
+      }
+
+      30%,
+      100% {
+        transform: translateX(200%) skewX(-20deg);
+      }
+    }
+  </style>
+</head>
+
+<body class="p-4 md:p-10 min-h-screen flex items-center justify-center antialiased">
+
+  <div
+    class="banner-container relative bg-slate-950 overflow-hidden flex flex-col lg:flex-row text-white shadow-[0_0_100px_rgba(0,0,0,0.8)] gradient-border rounded-2xl w-full max-w-[1200px] lg:min-h-[630px] pb-24 lg:pb-0"
+    x-data="{
+        currentIndex: 0,
+        mouseX: 0,
+        mouseY: 0,
+        posX: 50,
+        posY: 50,
+        isHovering: false,
+        intervalId: null,
+        skins: [
+            '8bit-arcade-2', '8bit-arcade', '16bit-console-2', '16bit-console', 'academy-2', 'academy',
+            'alien-amber-2', 'alien-amber', 'alien-gold-2', 'alien-gold', 'alien-green-2', 'alien-green',
+            'alien-volt-2', 'alien-volt', 'arcade-jungle-barrel-2', 'arcade-jungle-barrel', 'arcade-maze-eater-2',
+            'arcade-maze-eater', 'arcade-space-defenders-2', 'arcade-space-defenders', 'arcade-star-fighter-2',
+            'arcade-star-fighter', 'art-deco-jazz-2', 'art-deco-jazz', 'art-deco-luxury-2', 'art-deco-luxury',
+            'bebop-jazz-2', 'bebop-jazz', 'blueprint-architect-2', 'blueprint-architect', 'candy-pop-2', 'candy-pop',
+            'castle-green-2', 'castle-green', 'clarity-enterprise-2', 'clarity-enterprise-dark-2', 'clarity-enterprise-dark',
+            'clarity-enterprise-mono-2', 'clarity-enterprise-mono', 'clarity-enterprise', 'classic-os-2', 'classic-os',
+            'cockpit-pilot-2', 'cockpit-pilot', 'core-system-2', 'core-system', 'corporate-modern-2', 'corporate-modern',
+            'corporate-standard-blue-2', 'corporate-standard-blue', 'cyber-net-protocol-2', 'cyber-net-protocol',
+            'default-2', 'default-glass-dark-2', 'default-glass-dark', 'default', 'dreamy-cloud-2', 'dreamy-cloud',
+            'emerald-elegance-2', 'emerald-elegance', 'galaxy-guardian-2', 'galaxy-guardian', 'galaxy-nebula-2',
+            'galaxy-nebula', 'game-rpg-quest-2', 'game-rpg-quest', 'ivory-palace-2', 'ivory-palace', 'kingdom-royal-2',
+            'kingdom-royal', 'legacy-system-2', 'legacy-system', 'luminous-canvas-2', 'luminous-canvas', 'matcha-tea-2',
+            'matcha-tea', 'mecha-red-2', 'mecha-red', 'mecha-white-2', 'mecha-white', 'miami-nights-2', 'miami-nights',
+            'mid-century-2', 'mid-century', 'retro-system-7-2', 'retro-system-7', 'sage-system-2', 'sage-system',
+            'solarpunk-oasis-2', 'solarpunk-oasis', 'steampunk-gear-2', 'steampunk-gear', 'summer-ocean-2', 'summer-ocean',
+            'techno-core-2', 'techno-core', 'time-bureau-2', 'time-bureau', 'treasure-radar-2', 'treasure-radar',
+            'ukiyo-e-wave-2', 'ukiyo-e-wave', 'voxel-builder-2', 'voxel-builder'
+        ],
+        formatName(str) {
+            if (!str) return '';
+            return str.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+        },
+        init() {
+            // Fisher-Yatesアルゴリズムによる厳密なシャッフル
+            for (let i = this.skins.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [this.skins[i], this.skins[j]] = [this.skins[j], this.skins[i]];
+            }
+            this.intervalId = setInterval(() => {
+                this.currentIndex = (this.currentIndex + 1) % this.skins.length;
+            }, 3500); // 少し長めに調整してアニメーションを堪能させる
+        },
+        destroy() {
+            if (this.intervalId) clearInterval(this.intervalId);
+        },
+        handleMouseMove(e) {
+            const rect = this.$el.getBoundingClientRect();
+            // 3D Tilt Coordinates
+            this.mouseX = (e.clientX - rect.left - rect.width / 2) / 60;
+            this.mouseY = -(e.clientY - rect.top - rect.height / 2) / 60;
+            // Glare Lighting Coordinates
+            this.posX = ((e.clientX - rect.left) / rect.width) * 100;
+            this.posY = ((e.clientY - rect.top) / rect.height) * 100;
+        },
+        handleMouseLeave() {
+            this.isHovering = false;
+            this.mouseX = 0;
+            this.mouseY = 0;
+            this.posX = 50;
+            this.posY = 50;
+        }
+    }" @mouseenter="isHovering = true" @mousemove="handleMouseMove" @mouseleave="handleMouseLeave">
+
+    <!-- Noise Overlay (Transparency adjusted for minimal look) -->
+    <div class="absolute inset-0 z-[100] pointer-events-none opacity-[0.035] mix-blend-overlay"
+      style="background-image: url('data:image/svg+xml,%3Csvg viewBox=%220 0 200 200%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22noiseFilter%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.65%22 numOctaves=%223%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23noiseFilter)%22/%3E%3C/svg%3E');">
+    </div>
+
+    <!-- Background Effects (Desaturated for sophisticated dark mode) -->
+    <div
+      class="absolute top-[-10%] lg:top-[-20%] left-[-10%] w-[400px] lg:w-[600px] h-[400px] lg:h-[600px] bg-primary-600/15 rounded-full mix-blend-screen filter blur-[80px] lg:blur-[100px] pointer-events-none z-10 animate-blob will-change-transform transform-gpu">
+    </div>
+    <div
+      class="absolute bottom-[10%] lg:bottom-[-20%] right-[-10%] w-[400px] lg:w-[600px] h-[400px] lg:h-[600px] bg-purple-600/15 rounded-full mix-blend-screen filter blur-[100px] pointer-events-none z-10 animate-blob[animation-delay:2s] will-change-transform transform-gpu">
+    </div>
+
+    <!-- Background Grid -->
+    <div class="absolute inset-0 hero-grid pointer-events-none z-10 opacity-60"></div>
+
+    <!-- Left Content -->
+    <div
+      class="relative z-40 w-full lg:w-[55%] flex flex-col justify-center pl-10 pr-6 pt-20 pb-12 sm:pl-12 lg:pl-16 lg:pr-2 lg:pt-16 lg:pb-28">
+
+      <!-- Label Badge with Shimmer -->
+      <div
+        class="relative overflow-hidden inline-flex items-center gap-2 px-3 py-1 mb-4 lg:mb-5 rounded-full border border-primary-500/30 bg-primary-500/10 text-primary-400 font-semibold tracking-wide text-[12px] lg:text-[14px] w-max shadow-[0_0_15px_rgba(59,130,246,0.15)] group">
+        <span
+          class="w-2 h-2 rounded-full bg-primary-400 animate-pulse relative -top-[1px] shadow-[0_0_8px_rgba(96,165,250,0.8)]"></span>
+        <span class="relative z-10">Flat-File Modern CMS</span>
+        <!-- Shimmer Ray -->
+        <div
+          class="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-shimmer pointer-events-none">
+        </div>
+      </div>
+
+      <!-- Title (Tighter tracking, bolder weight) -->
+      <h1
+        class="text-[3.5rem] sm:text-[4.5rem] lg:text-[6.5rem] font-extrabold leading-none mb-3 lg:mb-4 text-white tracking-[-0.04em]">
+        GrindSite
+      </h1>
+
+      <!-- Main Copy with Animated Gradient Text -->
+      <div class="mb-6 lg:mb-8 font-medium">
+        <p
+          class="text-[1.2rem] sm:text-[1.4rem] lg:text-[1.6rem] text-slate-300 mb-2 lg:mb-3 leading-tight lg:leading-snug">
+          <span class="inline-block">The</span>
+          <span class="inline-block">
+            <span
+              class="text-transparent bg-clip-text bg-gradient-to-r from-primary-400 via-purple-400 to-primary-400 bg-[length:200%_auto] animate-text-gradient font-bold text-[2rem] lg:text-[2.6rem] mx-1 lg:mx-2 tracking-tight">simplest</span>
+            CMS on earth.
+          </span>
+        </p>
+        <p class="text-[13px] lg:text-[15px] text-slate-400 opacity-90 leading-relaxed font-normal">
+          No database needed. Just upload files and your ultra-fast website is live.
+        </p>
+      </div>
+
+      <!-- Info Panel with Hover Spotlights -->
+      <div
+        class="gradient-border rounded-2xl pt-6 pb-8 px-5 lg:pl-6 lg:pr-6 relative shadow-2xl w-full lg:w-[95%] max-w-[540px] backdrop-blur-md">
+
+        <!-- Feature List -->
+        <div class="flex flex-col gap-2">
+
+          <div
+            class="group flex items-start gap-4 p-3 -mx-3 rounded-xl hover:bg-white/[0.04] hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.05)] transition-all duration-300 cursor-default">
+            <div
+              class="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center shrink-0 border border-emerald-500/20 group-hover:bg-emerald-500/20 group-hover:scale-110 transition-all duration-300 shadow-[0_0_15px_transparent] group-hover:shadow-emerald-500/20">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z">
+                </path>
+              </svg>
+            </div>
+            <div class="flex flex-col justify-center">
+              <div
+                class="text-white font-bold text-[14px] lg:text-[15px] mb-0.5 group-hover:text-emerald-300 transition-colors">
+                Zero Configuration & SSG</div>
+              <div
+                class="text-slate-400 text-[12px] lg:text-[13px] leading-snug group-hover:text-slate-300 transition-colors">
+                Runs instantly with zero DB setup. Blazing fast static output.</div>
+            </div>
+          </div>
+
+          <div
+            class="group flex items-start gap-4 p-3 -mx-3 rounded-xl hover:bg-white/[0.04] hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.05)] transition-all duration-300 cursor-default">
+            <div
+              class="w-10 h-10 rounded-xl bg-primary-500/10 text-primary-400 flex items-center justify-center shrink-0 border border-primary-500/20 group-hover:bg-primary-500/20 group-hover:scale-110 transition-all duration-300 shadow-[0_0_15px_transparent] group-hover:shadow-primary-500/20">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09l2.846.813-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456zM16.894 20.567L16.5 21.75l-.394-1.183a2.25 2.25 0 00-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 001.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 001.423 1.423l1.183.394-1.183.394a2.25 2.25 0 00-1.423 1.423z">
+                </path>
+              </svg>
+            </div>
+            <div class="flex flex-col justify-center">
+              <div
+                class="text-white font-bold text-[14px] lg:text-[15px] mb-0.5 group-hover:text-primary-300 transition-colors">
+                AI Ready & Smart Paste</div>
+              <div
+                class="text-slate-400 text-[12px] lg:text-[13px] leading-snug group-hover:text-slate-300 transition-colors">
+                Native llms.txt support. Auto-converts pasted content into blocks.</div>
+            </div>
+          </div>
+
+          <div
+            class="group flex items-start gap-4 p-3 -mx-3 rounded-xl hover:bg-white/[0.04] hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.05)] transition-all duration-300 cursor-default">
+            <div
+              class="w-10 h-10 rounded-xl bg-purple-500/10 text-purple-400 flex items-center justify-center shrink-0 border border-purple-500/20 group-hover:bg-purple-500/20 group-hover:scale-110 transition-all duration-300 shadow-[0_0_15px_transparent] group-hover:shadow-purple-500/20">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M12 21a9.004 9.004 0 0 0 8.716-6.747M12 21a9.004 9.004 0 0 1-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 0 1 7.843 4.582M12 3a8.997 8.997 0 0 0-7.843 4.582m15.686 0A11.953 11.953 0 0 1 12 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0 1 21 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0 1 12 16.5c-3.162 0-6.133-.815-8.716-2.247m0 0A9.015 9.015 0 0 1 3 12c0-1.605.42-3.113 1.157-4.418">
+                </path>
+              </svg>
+            </div>
+            <div class="flex flex-col justify-center">
+              <div
+                class="text-white font-bold text-[14px] lg:text-[15px] mb-0.5 group-hover:text-purple-300 transition-colors">
+                Enterprise Security</div>
+              <div
+                class="text-slate-400 text-[12px] lg:text-[13px] leading-snug group-hover:text-slate-300 transition-colors">
+                Robust design minimizing vulnerabilities, with password protection.</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- Right 3D Preview with Glare Effect -->
+    <div
+      class="relative lg:absolute lg:right-[-60px] lg:top-[14%] w-[90%] sm:w-[80%] lg:w-[720px] z-30 group perspective-[1200px] mx-auto mt-6 lg:mt-0 mb-12 lg:mb-0">
+
+      <!-- Current Skin Name -->
+      <div
+        class="absolute -top-8 lg:-top-10 left-[10px] lg:left-[40px] bg-slate-900/90 border border-white/10 backdrop-blur-xl px-3 lg:px-4 py-1.5 rounded-full text-slate-300 text-[10px] lg:text-xs font-medium flex items-center gap-2 z-40 shadow-[0_5px_20px_rgba(0,0,0,0.5)] animate-[fade-in-up_0.5s_ease-out]">
+        <svg class="w-3 h-3 lg:w-4 lg:h-4 text-primary-400 animate-spin-slow" fill="none" stroke="currentColor"
+          viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M10.343 3.94c.09-.542.56-.94 1.11-.94h1.093c.55 0 1.02.398 1.11.94l.149.894c.07.424.384.764.78.93.398.164.855.142 1.205-.108l.737-.527a1.125 1.125 0 0 1 1.45.12l.773.774c.39.389.44 1.002.12 1.45l-.527.737c-.25.35-.272.806-.107 1.204.165.397.505.71.93.78l.893.15c.543.09.94.559.94 1.109v1.094c0 .55-.397 1.02-.94 1.11l-.894.149c-.424.07-.764.383-.929.78-.165.398-.143.854.107 1.204l.527.738c.32.447.269 1.06-.12 1.45l-.774.773a1.125 1.125 0 0 1-1.449.12l-.738-.527c-.35-.25-.806-.272-1.203-.107-.398.165-.71.505-.781.929l-.149.894c-.09.542-.56.94-1.11.94h-1.094c-.55 0-1.019-.398-1.11-.94l-.148-.894c-.071-.424-.384-.764-.781-.93-.398-.164-.854-.142-1.204.108l-.738.527c-.447.32-1.06.269-1.45-.12l-.773-.774a1.125 1.125 0 0 1-.12-1.45l.527-.737c.25-.35.272-.806.108-1.204-.165-.397-.506-.71-.93-.78l-.894-.15c-.542-.09-.94-.56-.94-1.109v-1.094c0-.55.398-1.02.94-1.11l.894-.149c.424-.07.765-.383.93-.78.165-.398.143-.854-.108-1.204l-.526-.738a1.125 1.125 0 0 1 .12-1.45l.773-.773a1.125 1.125 0 0 1 1.45-.12l.737.527c.35.25.807.272 1.204.107.397-.165.71-.505.78-.929l.15-.894Z">
+          </path>
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z">
+          </path>
+        </svg>
+        <span class="text-white">Admin Skin:</span>
+        <span x-text="formatName(skins[currentIndex])"
+          class="inline-block font-mono text-primary-300 min-w-[100px]"></span>
+      </div>
+
+      <!-- Preview Images & Glitch/Glare Effects -->
+      <div
+        class="preview-wrapper overflow-hidden bg-slate-900 relative aspect-[16/10] transition-transform duration-200 ease-out"
+        :style="`transform: perspective(1200px) rotateY(${-22 + mouseX}deg) rotateX(${4 + mouseY}deg) rotateZ(1deg) scale(1.05)`">
+
+        <template x-for="(skin, index) in skins" :key="index">
+          <picture x-show="currentIndex === index" x-transition:enter="glitch-enter" x-transition:leave="glitch-leave"
+            class="absolute inset-0 w-full h-full rounded-2xl will-change-transform block">
+            <source :srcset="`https://grindsite.com/img/skins/${skin}.webp`" type="image/webp" />
+            <img :src="`https://grindsite.com/img/skins/${skin}.jpg`" :alt="formatName(skin)"
+              class="w-full h-full object-cover object-left-top rounded-2xl">
+          </picture>
+        </template>
+
+        <!-- Dynamic Glare Overlay (Light Reflection) -->
+        <div
+          class="absolute inset-0 z-40 pointer-events-none rounded-2xl mix-blend-overlay transition-opacity duration-500 ease-out"
+          :class="isHovering ? 'opacity-100' : 'opacity-0'"
+          :style="`background: radial-gradient(600px circle at ${posX}% ${posY}%, rgba(255,255,255,0.2), transparent 40%)`">
+        </div>
+
+        <!-- Effect Layers -->
+        <div
+          class="absolute inset-0 z-30 pointer-events-none bg-gradient-to-tr from-transparent via-white/5 to-transparent -translate-x-[150%] animate-[sweep_4s_ease-in-out_infinite]">
+        </div>
+
+        <!-- Hardware Glass Border Highlight -->
+        <div class="absolute inset-0 z-50 rounded-2xl border border-white/5 border-t-white/20 pointer-events-none">
+        </div>
+
+        <!-- Action Button on Hover -->
+        <div
+          class="absolute inset-0 z-[60] flex items-center justify-center pointer-events-none transition-all duration-500 ease-out"
+          :class="isHovering ? 'opacity-100 scale-100' : 'opacity-0 scale-95'">
+          <a href="https://grindsite.com/" target="_blank"
+            class="pointer-events-auto relative overflow-hidden bg-slate-900/80 backdrop-blur-xl border border-white/20 px-8 py-3.5 rounded-full font-bold text-white text-sm lg:text-base flex items-center justify-center gap-2 shadow-[0_0_40px_rgba(59,130,246,0.4)] hover:shadow-[0_0_60px_rgba(59,130,246,0.6)] hover:-translate-y-1 transition-all duration-300 group">
+            <div
+              class="absolute inset-0 bg-gradient-to-r from-primary-600/50 to-purple-600/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+            </div>
+            <svg aria-hidden="true" class="w-5 h-5 relative z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z">
+              </path>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <span class="relative z-10 tracking-wider">Learn More</span>
+          </a>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div
+      class="absolute bottom-0 left-0 right-0 border-t border-white/5 bg-slate-950/80 backdrop-blur-xl py-3 lg:py-4 z-50 shadow-[0_-10px_30px_rgba(0,0,0,0.4)]">
+      <div
+        class="flex justify-center items-center gap-3 md:gap-8 flex-wrap px-4 text-slate-400 text-[11px] lg:text-[14px] font-bold tracking-wider uppercase">
+        <span class="hover:text-white transition-colors cursor-default">PHP 8.3+</span>
+        <span class="text-slate-700 hidden sm:inline">•</span>
+        <span class="hover:text-white transition-colors cursor-default">SQLite 3</span>
+        <span class="text-slate-700 hidden sm:inline">•</span>
+        <span class="hover:text-white transition-colors cursor-default">Tailwind CSS</span>
+        <span class="text-slate-700 hidden sm:inline">•</span>
+        <span class="hover:text-white transition-colors cursor-default">Alpine.js</span>
+        <span class="text-slate-700 hidden sm:inline">•</span>
+        <span class="hover:text-white transition-colors cursor-default">SSG</span>
+      </div>
+    </div>
+
+  </div>
+
+</body>
+
+</html>
