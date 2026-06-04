@@ -2,7 +2,7 @@
   "name": "grind-site",
   "version": "1.7.1",
   "private": true,
-  "description": "The simplest CMS on earth. Developed by Koji Udagawa (Grind Works Inc.)",
+  "description": "The AI-Native CMS built for the Generative AI workflow. Developed by Koji Udagawa (Grind Works Inc.)",
   "author": "Koji Udagawa (Grind Works Inc.)",
   "license": "UNLICENSED",
   "scripts": {
