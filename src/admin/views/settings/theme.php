@@ -367,7 +367,7 @@ if (!defined('GRINDS_APP'))
                       <div class="gap-3 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
                         <?php foreach ($keys as $key):
                           $val = $getColorVal($key); ?>
-                          <div x-data="colorPicker('<?= h($val) ?>')" x-effect="groupColors['<?= h($key) ?>'] = val"
+                          <div x-data="colorPicker(<?= htmlspecialchars(json_encode($val, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT), ENT_QUOTES, 'UTF-8') ?>)" x-effect="groupColors['<?= h($key) ?>'] = val"
                             class="flex flex-col gap-1.5 bg-theme-surface/30 p-2 border border-theme-border/30 rounded-theme">
                             <div class="flex items-center gap-2">
                               <input type="color" x-model="hex" @input="updateVal"

@@ -374,6 +374,10 @@ window.addEventListener('pageshow', (event) => {
     // Fallback for native buttons
     document.querySelectorAll('button[type="submit"], button:disabled').forEach((btn) => {
       btn.disabled = false;
+      btn.classList.remove('opacity-70', 'cursor-not-allowed');
+      if (btn.hasAttribute('data-original-text')) {
+        btn.innerHTML = btn.getAttribute('data-original-text');
+      }
     });
   }
 });

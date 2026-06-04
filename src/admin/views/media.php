@@ -48,8 +48,8 @@ if (!isset($skin) || !is_array($skin)) {
   @dragleave.prevent="dragCount--; if (dragCount === 0) isDragging = false"
   @dragover.prevent=""
   @drop.prevent="dragCount = 0; handleDrop($event)"
-  @keydown.window.escape="detailModalOpen = false" @keydown.window.arrow-left="if(detailModalOpen) prevFile()"
-  @keydown.window.arrow-right="if(detailModalOpen) nextFile()">
+  @keydown.window.escape="detailModalOpen = false" @keydown.window.arrow-left="if(detailModalOpen && !['INPUT', 'TEXTAREA'].includes(document.activeElement?.tagName)) prevFile()"
+  @keydown.window.arrow-right="if(detailModalOpen && !['INPUT', 'TEXTAREA'].includes(document.activeElement?.tagName)) nextFile()">
 
   <!-- Page Header -->
   <div class="flex sm:flex-row flex-col justify-between items-start sm:items-center gap-4">

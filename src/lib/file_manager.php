@@ -651,16 +651,16 @@ class FileManager
         $isSvg = ($mime === 'image/svg+xml');
         $isText = in_array($mime, ['text/plain', 'text/csv', 'text/markdown', 'application/json', 'application/xml', 'text/xml']);
 
+        // Increase scan limit to 2MB to prevent malicious code hidden in files
+        $scanLimit = 2 * 1024 * 1024;
+        $content = file_get_contents($tmpPath, false, null, 0, $scanLimit);
+
+        // Check PHP tags in ALL uploaded files (Defense in Depth against Polyglot/LFI to RCE)
+        if (preg_match('/<\?(?!xml)/i', $content) || preg_match('/<\s*script\s+language\s*=\s*["\']php["\']/i', $content)) {
+            throw new Exception(_t('err_security_malicious_code') . ' (PHP tag detected in uploaded file)');
+        }
+
         if ($isSvg || $isText) {
-            // Increase scan limit to 2MB to prevent malicious code hidden in files
-            $scanLimit = 2 * 1024 * 1024;
-            $content = file_get_contents($tmpPath, false, null, 0, $scanLimit);
-
-            // Check PHP tags
-            if (preg_match('/<\?(?!xml)/', $content)) {
-                throw new Exception(_t('err_security_malicious_code'));
-            }
-
             // Check SVG
             if ($isSvg) {
                 // SVG content will be sanitized later by sanitizeSvg()

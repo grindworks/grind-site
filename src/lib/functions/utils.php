@@ -1182,6 +1182,11 @@ if (!function_exists('grinds_fetch_url')) {
                 curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, $verifySsl);
                 curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, $verifySsl ? 2 : 0);
 
+                // Enforce IPv4 when blocking private IPs to prevent DNS rebinding via IPv6
+                if ($blockPrivateIp) {
+                    curl_setopt($ch, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
+                }
+
                 // Restrict protocols to HTTP/HTTPS for security hardening (SSRF prevention)
                 if (defined('CURLOPT_PROTOCOLS_STR')) {
                     curl_setopt($ch, CURLOPT_PROTOCOLS_STR, 'http,https');
@@ -2296,6 +2301,11 @@ if (!function_exists('grinds_download_file')) {
             curl_setopt($ch, CURLOPT_USERAGENT, $userAgent);
             curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, $verifySsl);
             curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, $verifySsl ? 2 : 0);
+
+            // Enforce IPv4 when blocking private IPs to prevent DNS rebinding via IPv6
+            if ($blockPrivateIp) {
+                curl_setopt($ch, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
+            }
 
             if (!empty($resolveRules)) {
                 curl_setopt($ch, CURLOPT_RESOLVE, $resolveRules);

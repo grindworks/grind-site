@@ -1,29 +1,33 @@
 Release title
-v1.7.0 - Plugin Management UI & Fullscreen Presentation Theme
+v1.7.1 - Security Hardening & S-Rank UX Improvements
 
 Release notes
-This release introduces a brand new **Plugin Management UI**, allowing administrators to easily enable and disable plugins directly from the dashboard. We've also added a new **Fullscreen Presentation** theme, new admin skins, and completed comprehensive translation synchronizations.
+This patch release focuses on enterprise-level security hardening and polishing the user experience to ensure GrindSite remains smooth, robust, and completely secure.
 
-### ✨ New Features & Enhancements
-- **Plugin Management UI:** A new dashboard interface to securely toggle system plugins on and off without touching server files.
-- **New Theme & Skins:** Added the `fullscreen_presentation` theme and several new retro-arcade admin skins (e.g., `arcade-lode-digger`).
-- **Translation Sync:** Complete synchronization of English, Japanese, French, Spanish, Portuguese, and German translation keys across the core and all 10 themes.
+### 🛡️ Security & Defense in Depth
+- **SSRF Protection:** Enforced IPv4 resolution to prevent DNS rebinding bypasses via IPv6.
+- **Polyglot & LFI Prevention:** Added 2MB content scanning for all uploaded files (including images) to detect and block hidden PHP payloads.
+- **XSS Prevention:** Enhanced escaping for Alpine.js attributes using JSON encoding.
 
-### 🛡️ Bug Fixes & Maintenance
-- **System Stability:** Resolved translation key discrepancies and verified perfect HTML/SVG rendering syntax across the system.
-- **Easter Egg:** Added a new developer-focused Easter egg plugin that outputs a cool system boot sequence in the browser console.
+### ✨ UX / UI Polishing (S-Rank)
+- **BFCache Recovery:** Fixed an issue where native form buttons would remain disabled after navigating back in iOS Safari.
+- **Editor UX:** Fixed the auto-resize bug for textareas, ensuring a smooth writing experience.
+- **Media Modal:** Prevented arrow keys from accidentally switching images while typing in input fields.
+- **Layout Fix:** Adjusted Z-index to prevent header dropdowns from clipping behind the editor toolbar.
 
 ---
 
 ## 🇯🇵 日本語 (Japanese)
 
-このリリースでは、ダッシュボードから直接プラグインを有効・無効化できる **「プラグイン管理UI」** を新たに搭載しました。また、新しい「フルスクリーンプレゼンテーション」テーマや管理画面スキンを追加し、全言語の翻訳同期を完了しました。
+このパッチリリースは、エンタープライズレベルのセキュリティ強化と、操作性を「Sランク」に引き上げるためのUX改善（ポリッシュ）に焦点を当てています。
 
-### ✨ 新機能・改善
-- **プラグイン管理UI:** サーバーのファイルを直接操作することなく、管理画面から安全にプラグインの有効/無効を切り替えられるインターフェースを追加しました。
-- **新テーマ・スキン:** 新しいテーマ `fullscreen_presentation` と、レトロアーケード風の管理画面スキン（`arcade-lode-digger` など）を追加しました。
-- **翻訳の完全同期:** コアおよび全10テーマにおいて、英語・日本語・フランス語・スペイン語・ポルトガル語・ドイツ語のすべての翻訳キーを完全に同期しました。
+### 🛡️ セキュリティと多層防御
+- **SSRF対策の強化:** IPv6のDNSリバインディングを利用したバイパスを防ぐため、IP解決をIPv4に強制する防御を追加しました。
+- **Polyglot/LFI対策:** 画像を含むすべてのアップロードファイルに対して、先頭2MBの走査を行い、隠されたPHPコード（ペイロード）を遮断するフェイルセーフを追加しました。
+- **XSS対策:** Alpine.jsの属性展開において、JSONエンコードを活用したより強固なエスケープ処理を実装しました。
 
-### 🛡️ バグ修正・メンテナンス
-- **システムの安定性:** 翻訳キーの不足を解消し、HTML構文やSVGレンダリングの細かな問題を検証・修正しました。
-- **イースターエッグ:** ブラウザのコンソールにシステム起動シーケンスを出力する、開発者向けの新しいイースターエッグプラグインを追加しました。
+### ✨ UX / UI の改善
+- **BFCache（戻るボタン）対策:** iOS Safari等で「戻る」操作をした際、送信ボタンが「Processing...」のまま凍結してしまう問題を完全に解消しました。
+- **エディタの操作性向上:** テキストエリアの自動リサイズ機能が初期描画時に動作しないバグを修正しました。
+- **メディア管理の競合解消:** 画像の詳細画面で文字入力中に矢印キーを押すと、意図せず別の画像に切り替わってしまう不快な挙動を防止しました。
+- **レイアウト修正:** ヘッダーのドロップダウンメニューがエディタのツールバーの裏に隠れてしまうZ-indexの重なりバグを修正しました。

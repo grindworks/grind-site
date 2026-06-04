@@ -99,7 +99,8 @@ class Routing
      */
     public static function resolveUrl(mixed $path = ''): string
     {
-        if ($path === '' || $path === null || is_bool($path)) return '';
+        if ($path === '' || $path === null || is_bool($path) || !is_scalar($path)) return '';
+        $path = (string)$path;
 
         $base = defined('BASE_URL') ? rtrim((string)BASE_URL, '/') : '';
 

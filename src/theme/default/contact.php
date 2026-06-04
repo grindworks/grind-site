@@ -247,6 +247,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$maintenanceMode) {
         <form method="post" action="?" class="max-w-2xl mx-auto space-y-6" onsubmit="
           var btn = this.querySelector('button[type=submit]');
           if(btn) {
+              if(!btn.hasAttribute('data-original-text')) {
+                  btn.setAttribute('data-original-text', btn.innerHTML);
+              }
               btn.disabled = true;
               btn.innerHTML = '<?= theme_t('Processing...') ?>';
               btn.classList.add('opacity-70', 'cursor-not-allowed');

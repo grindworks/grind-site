@@ -197,10 +197,9 @@ document.addEventListener('alpine:init', () => {
      */
     recalculateTextareas(container = document) {
       container.querySelectorAll('textarea').forEach((ta) => {
-        if (ta.style.overflow === 'hidden') {
-          ta.style.height = 'auto';
-          ta.style.height = ta.scrollHeight + 'px';
-        }
+        ta.style.overflow = 'hidden';
+        ta.style.height = 'auto';
+        ta.style.height = ta.scrollHeight + 'px';
       });
     },
 
@@ -849,7 +848,8 @@ document.addEventListener('alpine:init', () => {
 
       // Auto-resize textareas during typing for better UX
       document.addEventListener('input', (e) => {
-        if (e.target.tagName === 'TEXTAREA' && e.target.style.overflow === 'hidden') {
+        if (e.target.tagName === 'TEXTAREA') {
+          e.target.style.overflow = 'hidden';
           e.target.style.height = 'auto';
           e.target.style.height = e.target.scrollHeight + 'px';
         }
@@ -1068,8 +1068,8 @@ document.addEventListener('alpine:init', () => {
       let resizeTimeout;
       const resizeTextareas = () => {
         document.querySelectorAll('#post-form textarea').forEach((ta) => {
-          // Only target textareas with auto-height behavior AND are currently visible
-          if (ta.style.overflow === 'hidden' && ta.scrollHeight > 0) {
+          if (ta.scrollHeight > 0) {
+            ta.style.overflow = 'hidden';
             ta.style.height = 'auto';
             ta.style.height = ta.scrollHeight + 'px';
           }
@@ -2130,8 +2130,8 @@ document.addEventListener('alpine:init', () => {
             const textareas = blockEl.querySelectorAll('textarea');
             const resizeTA = () => {
               textareas.forEach((ta) => {
-                // Only target textareas with auto-height behavior (identified by overflow:hidden)
-                if (ta.style.overflow === 'hidden') {
+                if (ta.scrollHeight > 0) {
+                  ta.style.overflow = 'hidden';
                   ta.style.height = 'auto';
                   ta.style.height = ta.scrollHeight + 'px';
                 }
@@ -2162,7 +2162,8 @@ document.addEventListener('alpine:init', () => {
         const textareas = document.querySelectorAll('#post-form textarea');
         const resizeTA = () => {
           textareas.forEach((ta) => {
-            if (ta.style.overflow === 'hidden') {
+            if (ta.scrollHeight > 0) {
+              ta.style.overflow = 'hidden';
               ta.style.height = 'auto';
               ta.style.height = ta.scrollHeight + 'px';
             }

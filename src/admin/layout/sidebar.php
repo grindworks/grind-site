@@ -151,7 +151,7 @@ $activeClass = 'bg-theme-primary border-theme-primary text-theme-on-primary font
     <!-- Main content -->
     <div class="flex flex-col flex-1 overflow-hidden" :class="sidebarOpen ? 'overflow-hidden' : ''">
       <header
-        class="top-0 z-30 sticky flex justify-between items-center bg-theme-surface shadow-theme px-4 sm:px-6 border-theme-border border-b h-16">
+        class="top-0 z-40 sticky flex justify-between items-center bg-theme-surface shadow-theme px-4 sm:px-6 border-theme-border border-b h-16">
         <div class="flex items-center">
           <button @click="sidebarOpen = !sidebarOpen"
             class="md:hidden hover:bg-theme-bg mr-4 p-2 rounded-theme focus:outline-none text-theme-text transition-colors"
