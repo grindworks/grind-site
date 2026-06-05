@@ -10,6 +10,7 @@
 ![Smart Paste Demo](https://grindsite.com/img/smart-paste-demo.gif)
 
 [![PHP Version](https://img.shields.io/badge/php-8.3%2B-blue.svg)](https://www.php.net/)
+[![Database](https://img.shields.io/badge/database-SQLite_3-blue.svg)](#-creator-focused-experience)
 [![License](https://img.shields.io/badge/license-Commercial%2FFree-green.svg)](#-license--support-policy)
 [![Version](https://img.shields.io/badge/version-1.7.1-blue.svg)](https://github.com/grindworks/grind-site/releases)
 
@@ -653,6 +654,7 @@ server {
     }
 }
 ```
+</details>
 
 ### 📂 ディレクトリ構成
 
@@ -689,3 +691,8 @@ grind-site/
 ## © Copyright
 
 Developed by **Koji Udagawa (Grind Works Inc.)**
+
+### Contact & Links
+- **GitHub:** [@grindworks](https://github.com/grindworks)
+- **Official Website:** [grindsite.com](https://grindsite.com/)
+- **Email:** contact@grindsite.com (For commercial inquiries, partnerships, and security reports)
