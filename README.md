@@ -1,5 +1,7 @@
 # GrindSite v1.7.1 - The AI-Native CMS
 
+![GrindSite](./grind-site.jpg)
+
 **The CMS built for the Generative AI workflow.**
 **生成AI時代のワークフローのために作られたCMS。**
 
