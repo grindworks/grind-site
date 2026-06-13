@@ -57,7 +57,7 @@ try {
             // Clear stat cache to ensure accurate filesize reading for newly generated files
             clearstatcache(true, $zipFile);
 
-            // God-Rank Polish: Release session lock before long-running file download to prevent tab freeze
+            // Gold-Rank Polish: Release session lock before long-running file download to prevent tab freeze
             session_write_close();
 
             grinds_clean_output_buffer();

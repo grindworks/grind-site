@@ -73,7 +73,7 @@ To enable 2FA:
 
 ### ⚠️ License & Support Policy
 
-GrindSite is available for free, but a **Commercial License** is required for professional use on public production servers.
+GrindSite is free for local development and evaluation, but a **Commercial License** is strictly required for use on publicly accessible production servers.
 
 ### 💎 Commercial Licenses
 
@@ -412,7 +412,7 @@ GrindSiteには、セキュリティを強化するための「メールOTP（�
 
 ### ⚠️ ライセンスとサポートについて
 
-本ソフトウェアは無償で利用可能ですが、**公開サーバーでの本格運用には「商用ライセンス」の購入を推奨します。**
+本ソフトウェアはローカル環境やテスト目的では無償で利用可能ですが、**インターネット上で公開される本番環境（公開サーバー）での運用には「商用ライセンス」の購入が必要です。**
 
 ### 💎 商用ライセンスの種類
 
