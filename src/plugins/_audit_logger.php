@@ -92,8 +92,8 @@ add_action('grinds_trash_emptied', function ($count) {
 // 6. Log when settings are updated (monitor POST requests).
 // 6. 設定が変更された時のログ (POSTリクエストを監視)
 add_action('grinds_init', function () {
-    $requestUri = $_SERVER['REQUEST_URI'] ?? '';
-    if (str_contains($requestUri, 'settings.php') && $_SERVER['REQUEST_METHOD'] === 'POST') {
+    $requestPath = parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH) ?? '';
+    if (str_contains($requestPath, 'settings.php') && $_SERVER['REQUEST_METHOD'] === 'POST') {
         $action = $_POST['action'] ?? 'unknown_setting_action';
         // Exclude sensitive information like passwords and tokens from the log.
         // パスワードやトークンなどの機密情報を除外して記録
@@ -114,9 +114,9 @@ add_action('grinds_post_login', function ($userId) {
 // 8. Log on manual logout.
 // 8. ログアウト時のログ
 add_action('grinds_init', function () {
-    $requestUri = $_SERVER['REQUEST_URI'] ?? '';
+    $requestPath = parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH) ?? '';
     $scriptName = $_SERVER['SCRIPT_NAME'] ?? '';
-    if ((str_contains($requestUri, 'logout.php') || str_contains($scriptName, 'logout.php')) && $_SERVER['REQUEST_METHOD'] === 'POST') {
+    if ((str_contains($requestPath, 'logout.php') || str_contains($scriptName, 'logout.php')) && $_SERVER['REQUEST_METHOD'] === 'POST') {
         grinds_audit_log('USER_LOGOUT', "User logged out manually");
     }
 });

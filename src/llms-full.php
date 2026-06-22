@@ -476,8 +476,7 @@ if (!class_exists('LlmsFullGenerator')) {
                 $html = str_replace((string)$placeholder, "\n\n```" . $data['lang'] . "\n" . trim($data['code']) . "\n```\n\n", $html);
             }
 
-            // Decode HTML entities to maximize LLM token efficiency
-            $html = html_entity_decode($html, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+            // Decode HTML entities to maximize LLM token efficiency removed to prevent html structure corruption
 
             $html = preg_replace('/<\s*([a-zA-Z0-9]+)\s+>/i', '<$1>', $html) ?? $html;
             $html = str_replace('&nbsp;', ' ', $html);

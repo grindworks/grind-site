@@ -454,7 +454,7 @@ if (!isset($userList)) {
               <span class="block opacity-70 mb-1 font-bold text-theme-text text-xs">
                 <?= _t('st_username') ?> <span class="text-theme-danger" x-show="mode === 'add'">*</span>
               </span>
-              <input type="text" name="new_username" x-model="username" class="text-sm form-control"
+              <input type="text" name="new_username" x-model="username" class="text-sm form-control" autocomplete="username"
                 :required="mode === 'add'" :readonly="mode === 'edit'"
                 :class="mode === 'edit' ? 'bg-theme-bg opacity-70 cursor-not-allowed' : ''">
             </label>
@@ -478,7 +478,7 @@ if (!isset($userList)) {
                 <?= _t('st_email') ?> <span class="text-theme-danger">*</span>
               </span>
               <input type="email" name="new_email" x-model="email" class="text-sm form-control"
-                placeholder="user@example.com" :required="mode === 'add'">
+                placeholder="user@example.com" :required="mode === 'add'" autocomplete="email">
             </label>
 
             <div x-show="role === 'editor'" x-cloak>

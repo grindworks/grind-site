@@ -22,8 +22,8 @@ $statusLabel = strtoupper($sysStatus['status']);
 ?>
 
 <body class="flex flex-col bg-theme-bg h-[100dvh] overflow-hidden antialiased" x-data="alpineSearchData"
-  @keydown.window.prevent.cmd.k="searchOpen = true; reset(); $refs.searchInput.focus();"
-  @keydown.window.prevent.ctrl.k="searchOpen = true; reset(); $refs.searchInput.focus();"
+  @keydown.window.prevent.cmd.k="searchOpen = true; reset(); $nextTick(() => $refs.searchInput.focus());"
+  @keydown.window.prevent.ctrl.k="searchOpen = true; reset(); $nextTick(() => $refs.searchInput.focus());"
   @keydown.window.escape="searchOpen = false">
 
   <?php require __DIR__ . '/../views/parts/alert_installer.php'; ?>

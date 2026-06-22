@@ -415,7 +415,7 @@ if (!function_exists('_grinds_validate_string_security')) {
             return $decoded !== null ? (string)$decoded : $match[0];
         }, $str);
 
-        if (preg_match('/<\s*\/?\s*(object|embed|applet|form|link|meta)\b/i', $checkStr)) {
+        if (preg_match('/<\s*+\/?\s*+(object|embed|applet|form|link|meta)\b/i', $checkStr)) {
             throw new Exception(function_exists('_t') ? _t('err_security_malicious_code') : 'Security Error: Restricted tags detected.');
         }
         if (preg_match('/(javascript:|vbscript:|data:text\/html)/i', $checkStr) || preg_match('/\bon[a-z]+\s*=/i', $checkStr)) {
@@ -430,7 +430,7 @@ if (!function_exists('_grinds_validate_string_security')) {
                 }
             }
         }
-        if (preg_match('/<\s*script\b(?![^>]*+\bsrc\s*=)/i', $checkStr)) {
+        if (preg_match('/<\s*+script\b(?![^>]*+\bsrc\s*+=)/i', $checkStr)) {
             throw new Exception(function_exists('_t') ? _t('err_security_malicious_code') : 'Security Error: Inline scripts are not allowed.');
         }
     }

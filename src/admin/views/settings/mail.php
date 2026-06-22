@@ -43,7 +43,7 @@ if (!defined('GRINDS_APP')) exit; ?>
       </label>
       <label class="block">
         <span class="block mb-2 font-bold text-theme-text text-sm"><?= _t('st_smtp_user') ?></span>
-        <input type="text" name="smtp_user" value="<?= h($opt['smtp_user']) ?>" class="form-control">
+        <input type="text" name="smtp_user" value="<?= h($opt['smtp_user']) ?>" class="form-control" autocomplete="username">
         <p class="opacity-60 mt-1 text-theme-text text-xs"><?= _t('st_smtp_user_h') ?></p>
       </label>
     </div>

@@ -151,6 +151,15 @@ if (!defined('GRINDS_APP')) exit;
           headers: {
             'X-Requested-With': 'XMLHttpRequest'
           }
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data && data.success && data.csrf_token) {
+                window.grindsCsrfToken = data.csrf_token;
+                document.querySelectorAll('input[name="csrf_token"]').forEach(el => {
+                    if (el.value !== data.csrf_token) el.value = data.csrf_token;
+                });
+            }
         }).catch(() => {});
       }
     }, 15 * 60 * 1000); // 15 minutes

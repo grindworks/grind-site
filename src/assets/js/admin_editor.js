@@ -1910,6 +1910,72 @@ document.addEventListener('alpine:init', () => {
     },
 
     /**
+     * Preview HTML Block.
+     * Toggles between edit and preview mode for HTML blocks.
+     * Sends code Base64-encoded to bypass WAF restrictions.
+     * @param {number} index
+     */
+    async previewHtmlBlock(index) {
+      const block = this.blocks[index];
+      if (!block) return;
+
+      // Toggle back to edit mode
+      if (block.previewMode) {
+        block.previewMode = false;
+        return;
+      }
+
+      // Switch to preview mode with loading state
+      block.previewMode = true;
+      block.previewHtml = '<div class="flex justify-center items-center p-6 text-theme-text/40"><svg class="w-5 h-5 animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10" stroke-width="2" opacity="0.25"/><path d="M12 2a10 10 0 0 1 10 10" stroke-width="2" stroke-linecap="round"/></svg></div>';
+
+      const code = block.data.code || '';
+      if (!code.trim()) {
+        block.previewHtml = '<div class="text-theme-text/30 text-sm p-4 text-center italic">' + (window.grindsTranslations?.empty_preview || 'No content to preview') + '</div>';
+        return;
+      }
+
+      try {
+        const res = await fetch(this.getApiUrl('preview_html.php'), {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest',
+          },
+          body: JSON.stringify({
+            csrf_token: window.grindsCsrfToken,
+            code: this.base64Encode(code),
+            is_base64: true,
+          }),
+        });
+
+        if (res.status === 401 || res.status === 403) {
+          this.handleSessionExpiry();
+          block.previewMode = false;
+          block.previewHtml = '';
+          return;
+        }
+
+        const data = await res.json();
+        if (data.success) {
+          block.previewHtml = data.html;
+
+          // Initialize dynamic blocks (KaTeX, Prism, etc.) inside the preview
+          this.$nextTick(() => {
+            if (typeof window.grindsInitDynamicBlocks === 'function') {
+              const wrapper = document.getElementById('block-wrapper-' + block.id);
+              if (wrapper) window.grindsInitDynamicBlocks(wrapper);
+            }
+          });
+        } else {
+          block.previewHtml = '<div class="text-theme-danger text-sm p-4 text-center">' + this.escapeHtml(data.error || 'Preview failed') + '</div>';
+        }
+      } catch (e) {
+        block.previewHtml = '<div class="text-theme-danger text-sm p-4 text-center">' + this.escapeHtml(e.message || 'Network error') + '</div>';
+      }
+    },
+
+    /**
      * Add new block.
      * @param {string} type
      */
@@ -2837,11 +2903,38 @@ document.addEventListener('alpine:init', () => {
         const data = await res.json();
         if (data.success && data.data.content) {
           let content = JSON.parse(data.data.content);
-          const newBlocks = content.blocks.map((b) => ({
-            ...b,
-            id: this.generateId(),
-            collapsed: false,
-          }));
+          const newBlocks = content.blocks.map((b) => {
+            const newBlock = {
+              ...b,
+              id: this.generateId(),
+              collapsed: false,
+            };
+
+            if (newBlock.data) {
+              if (Array.isArray(newBlock.data.items)) {
+                newBlock.data.items.forEach((item) => {
+                  if (typeof item === 'object' && item !== null && item.id) {
+                    item.id = this.generateId();
+                  }
+                });
+              }
+              if (Array.isArray(newBlock.data.images)) {
+                newBlock.data.images.forEach((img) => {
+                  if (typeof img === 'object' && img !== null && img.id) {
+                    img.id = this.generateId();
+                  }
+                });
+              }
+              if (Array.isArray(newBlock.data.content)) {
+                newBlock.data.content.forEach((row) => {
+                  if (typeof row === 'object' && row !== null) {
+                    Object.defineProperty(row, '_id', { value: this.generateId(), enumerable: false, writable: true });
+                  }
+                });
+              }
+            }
+            return newBlock;
+          });
           this.blocks = [...this.blocks, ...newBlocks];
           this.templateModalOpen = false;
         }

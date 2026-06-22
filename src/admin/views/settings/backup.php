@@ -278,6 +278,7 @@ if (!isset($backups)) {
       <form method="post" action="settings.php?tab=backup" class="flex flex-col md:flex-row md:items-start gap-4 warn-on-unsaved">
         <input type="hidden" name="csrf_token" value="<?= h(generate_csrf_token()) ?>">
         <input type="hidden" name="action" value="update_backup_settings">
+        <input type="text" autocomplete="username" value="" style="display:none;" tabindex="-1">
 
         <div class="flex-1 w-full" x-data="{ showZipPass: false }">
           <label class="block">

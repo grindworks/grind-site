@@ -28,15 +28,15 @@ add_action('grinds_init', function () {
 
     // 2. Set the target scope
     // 2. 認証をかける範囲を設定
-    $requestUri = $_SERVER['REQUEST_URI'] ?? '';
+    $requestPath = parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH) ?? '';
 
     // Example: Apply only to specific pages (e.g., /secret-page/)
     // 例: 特定のページにのみ適用する場合
-    // $isTargetPage = str_contains($requestUri, '/secret-page/');
+    // $isTargetPage = str_contains($requestPath, '/secret-page/');
 
     // By default, apply to the entire site (excluding the admin area)
     // デフォルトでは、サイト全体（管理画面を除く）に適用します
-    $isTargetPage = !str_contains($requestUri, '/admin/');
+    $isTargetPage = !str_contains($requestPath, '/admin/');
 
     if ($isTargetPage) {
         $user = $_SERVER['PHP_AUTH_USER'] ?? '';

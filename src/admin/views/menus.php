@@ -278,7 +278,10 @@ include __DIR__ . '/parts/hidden_action_form.php';
               </div>
 
               <div class="flex justify-between items-center mt-3 pt-3 border-theme-border border-t">
-                <div class="opacity-60 font-mono text-theme-text text-xs">Order: <?= $row['sort_order'] ?></div>
+                <div class="flex items-center gap-2">
+                  <span class="opacity-60 font-mono text-theme-text text-xs">Order:</span>
+                  <input type="number" name="orders[<?= $row['id'] ?>]" value="<?= $row['sort_order'] ?>" form="save-orders-form" class="w-16 text-center form-control-sm bg-theme-bg/50">
+                </div>
 
                 <div class="flex items-center gap-4">
                   <a href="?location=<?= $current_location ?>&edit_id=<?= $row['id'] ?>" class="flex items-center gap-1 py-1 font-bold text-theme-primary text-xs hover:underline">

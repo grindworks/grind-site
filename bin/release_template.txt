@@ -1,33 +1,53 @@
 Release title
-v1.7.1 - Security Hardening & S-Rank UX Improvements
+v1.7.2 - Security & Plugin Enhancements
 
 Release notes
-This patch release focuses on enterprise-level security hardening and polishing the user experience to ensure GrindSite remains smooth, robust, and completely secure.
+This patch release focuses on hardening security features, strengthening plugin capabilities, and improving admin panel usability.
 
-### 🛡️ Security & Defense in Depth
-- **SSRF Protection:** Enforced IPv4 resolution to prevent DNS rebinding bypasses via IPv6.
-- **Polyglot & LFI Prevention:** Added 2MB content scanning for all uploaded files (including images) to detect and block hidden PHP payloads.
-- **XSS Prevention:** Enhanced escaping for Alpine.js attributes using JSON encoding.
+### 🛡️ Security & Plugin Hardening
+- **Admin IP Restriction:** Enhanced IP filtering and whitelist management for restricted access control.
+- **Basic Authentication:** Improved credential handling and session validation mechanisms.
+- **2FA (Mail OTP):** Strengthened email-based two-factor authentication workflows.
+- **Session Security:** Stricter session isolation and validation protocols to prevent session hijacking.
+- **Rate Limiting:** Enhanced rate limiting logic for API and form submission protection.
+- **Audit Logging:** Improved logging accuracy and security event tracking.
 
-### ✨ UX / UI Polishing (S-Rank)
-- **BFCache Recovery:** Fixed an issue where native form buttons would remain disabled after navigating back in iOS Safari.
-- **Editor UX:** Fixed the auto-resize bug for textareas, ensuring a smooth writing experience.
-- **Media Modal:** Prevented arrow keys from accidentally switching images while typing in input fields.
-- **Layout Fix:** Adjusted Z-index to prevent header dropdowns from clipping behind the editor toolbar.
+### ✨ Admin Panel UX Improvements
+- **Layout Refinements:** Optimized header, sidebar, and footer layouts for better navigation.
+- **Editor Enhancements:** Improved block editor functionality and data handling.
+- **Settings Panels:** Enhanced UI for backup, mail, profile, and security settings.
+- **List Actions:** Improved bulk operations and action handling in admin lists.
+- **CSS/JS Optimization:** Refined admin stylesheet and JavaScript event handling.
+
+### 🔧 Core Improvements
+- **Export & Preview:** Enhanced Markdown export and HTML preview functionality.
+- **Update Process:** Improved release update mechanisms and version checking.
+- **LLM Integration:** Optimized LLMS utility functions.
+- **Utility Functions:** Enhanced security and theme utility functions.
 
 ---
 
 ## 🇯🇵 日本語 (Japanese)
 
-このパッチリリースは、エンタープライズレベルのセキュリティ強化と、操作性を「Sランク」に引き上げるためのUX改善（ポリッシュ）に焦点を当てています。
+このパッチリリースは、セキュリティ機能の強化、プラグイン機能の向上、管理画面の操作性改善に焦点を当てています。
 
-### 🛡️ セキュリティと多層防御
-- **SSRF対策の強化:** IPv6のDNSリバインディングを利用したバイパスを防ぐため、IP解決をIPv4に強制する防御を追加しました。
-- **Polyglot/LFI対策:** 画像を含むすべてのアップロードファイルに対して、先頭2MBの走査を行い、隠されたPHPコード（ペイロード）を遮断するフェイルセーフを追加しました。
-- **XSS対策:** Alpine.jsの属性展開において、JSONエンコードを活用したより強固なエスケープ処理を実装しました。
+### 🛡️ セキュリティ & プラグイン強化
+- **Admin IP制限機能:** IPフィルタリングと許可リスト管理を強化し、より厳密なアクセス制御を実現。
+- **ベーシック認証:** 認証情報の取り扱いとセッション検証メカニズムを改善。
+- **2FA（メールOTP）:** メールベースの二要素認証ワークフローを強化。
+- **セッションセキュリティ:** セッション分離と検証プロトコルを厳格化し、セッション乗っ取りを防止。
+- **レート制限:** APIとフォーム送信に対するレート制限ロジックを強化。
+- **監査ログ:** ロギング精度とセキュリティイベント追跡機能を向上。
 
-### ✨ UX / UI の改善
-- **BFCache（戻るボタン）対策:** iOS Safari等で「戻る」操作をした際、送信ボタンが「Processing...」のまま凍結してしまう問題を完全に解消しました。
-- **エディタの操作性向上:** テキストエリアの自動リサイズ機能が初期描画時に動作しないバグを修正しました。
-- **メディア管理の競合解消:** 画像の詳細画面で文字入力中に矢印キーを押すと、意図せず別の画像に切り替わってしまう不快な挙動を防止しました。
-- **レイアウト修正:** ヘッダーのドロップダウンメニューがエディタのツールバーの裏に隠れてしまうZ-indexの重なりバグを修正しました。
+### ✨ 管理画面UX改善
+- **レイアウト最適化:** ヘッダー、サイドバー、フッターのレイアウトを最適化し、ナビゲーションを改善。
+- **エディタ機能強化:** ブロックエディタの機能とデータ処理を改善。
+- **設定パネル:** バックアップ、メール、プロフィール、セキュリティ設定UIを強化。
+- **リスト操作:** 管理画面リストの一括操作と操作ハンドリングを改善。
+- **CSS/JS最適化:** 管理画面スタイルシートとJavaScriptイベント処理を最適化。
+
+### 🔧 コア機能改善
+- **エクスポート＆プレビュー:** MarkdownエクスポートとHTMLプレビュー機能を強化。
+- **更新プロセス:** リリース更新メカニズムとバージョンチェック機能を改善。
+- **LLM連携:** LLMSユーティリティ関数を最適化。
+- **ユーティリティ関数:** セキュリティとテーマのユーティリティ関数を強化。

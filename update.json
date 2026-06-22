@@ -1,7 +1,7 @@
 {
-  "version": "1.7.1",
-  "release_date": "2026-06-04",
-  "message": "Security Hardening & S-Rank UX Improvements",
-  "download_url": "https://github.com/grindworks/grind-site/releases/download/v1.7.1/grindsite-v1.7.1.zip",
-  "sha256": "6c30822f1931d7869370bea74253bea9222fcb7b1ddb98b4a04b40fb8ed64531"
+  "version": "1.7.2",
+  "release_date": "2026-06-22",
+  "message": "Security & Plugin Enhancements",
+  "download_url": "https://github.com/grindworks/grind-site/releases/download/v1.7.2/grindsite-v1.7.2.zip",
+  "sha256": "987259c78655d079a2e95d2f241099f09998e13d1ccf8fe35791c4502ea56618"
 }

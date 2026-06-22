@@ -27,15 +27,15 @@ if (!defined('GRINDS_APP')) exit;
 add_action('grinds_init', function () {
     // Target only access to the admin area
     // 管理画面へのアクセスのみを対象
-    $requestUri = $_SERVER['REQUEST_URI'] ?? '';
+    $requestPath = parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH) ?? '';
     $scriptName = $_SERVER['SCRIPT_NAME'] ?? '';
-    $isAdminArea = str_contains($requestUri, '/admin/') || str_contains($scriptName, '/admin/');
+    $isAdminArea = str_contains($requestPath, '/admin/') || str_contains($scriptName, '/admin/');
 
     if (!$isAdminArea) return;
 
     // Skip during logout process
     // ログアウト処理中はスキップ
-    if (str_contains($requestUri, 'logout.php') || str_contains($scriptName, 'logout.php')) return;
+    if (str_contains($requestPath, 'logout.php') || str_contains($scriptName, 'logout.php')) return;
 
     // Check only if already logged in
     // ログイン済みの場合のみチェック
@@ -68,19 +68,17 @@ add_action('grinds_init', function () {
         $pdo = App::db();
         if ($pdo) {
             $sessionId = session_id();
-            $stmt = $pdo->prepare("SELECT permissions FROM users WHERE id = ?");
-            $stmt->execute([$userId]);
-            $permsJson = $stmt->fetchColumn();
-            $perms = json_decode($permsJson ?: '{}', true) ?: [];
+            $sessionKey = 'active_session_user_' . $userId;
+            $stmt = $pdo->prepare("SELECT value FROM settings WHERE key = ?");
+            $stmt->execute([$sessionKey]);
+            $recordedSession = $stmt->fetchColumn();
 
-            if (!isset($perms['_active_session'])) {
-                // If no session ID is recorded (just logged in)
-                // セッションIDが記録されていない場合（ログイン直後）
-                $perms['_active_session'] = $sessionId;
-                $pdo->prepare("UPDATE users SET permissions = ? WHERE id = ?")->execute([json_encode($perms), $userId]);
-            } elseif ($perms['_active_session'] !== $sessionId) {
-                // If recorded session ID is different (logged in from another device)
-                // 記録されているセッションIDと異なる場合（別の端末でログインされた）
+            if (!$recordedSession) {
+                // 初回ログイン時
+                $pdo->prepare("INSERT OR REPLACE INTO settings (key, value, autoload) VALUES (?, ?, 0)")
+                    ->execute([$sessionKey, $sessionId]);
+            } elseif ($recordedSession !== $sessionId) {
+                // 別のセッションIDが記録されている場合（別の端末でログインされた）
                 if (class_exists('GrindsLogger')) {
                     GrindsLogger::log("Security Alert: Concurrent login detected. Terminating older session for User ID: {$userId}", 'WARNING');
                 }
@@ -96,12 +94,8 @@ add_action('grinds_init', function () {
 add_action('grinds_post_login', function ($userId) {
     $pdo = App::db();
     if ($pdo) {
-        $stmt = $pdo->prepare("SELECT permissions FROM users WHERE id = ?");
-        $stmt->execute([$userId]);
-        $permsJson = $stmt->fetchColumn();
-        $perms = json_decode($permsJson ?: '{}', true) ?: [];
-
-        $perms['_active_session'] = session_id();
-        $pdo->prepare("UPDATE users SET permissions = ? WHERE id = ?")->execute([json_encode($perms), $userId]);
+        $sessionKey = 'active_session_user_' . $userId;
+        $pdo->prepare("INSERT OR REPLACE INTO settings (key, value, autoload) VALUES (?, ?, 0)")
+            ->execute([$sessionKey, session_id()]);
     }
 });

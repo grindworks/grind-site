@@ -19,15 +19,15 @@
 if (!defined('GRINDS_APP')) exit;
 
 add_action('grinds_init', function () {
-    $requestUri = $_SERVER['REQUEST_URI'] ?? '';
+    $requestPath = parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH) ?? '';
     $scriptName = $_SERVER['SCRIPT_NAME'] ?? '';
-    $isAdminArea = str_contains($requestUri, '/admin/') || str_contains($scriptName, '/admin/');
+    $isAdminArea = str_contains($requestPath, '/admin/') || str_contains($scriptName, '/admin/');
 
     if (!$isAdminArea) return;
 
     // Allow logout to prevent users from getting stuck.
     // ユーザーがスタックするのを防ぐため、ログアウトは許可します
-    if (str_contains($requestUri, 'logout.php') || str_contains($scriptName, 'logout.php')) return;
+    if (str_contains($requestPath, 'logout.php') || str_contains($scriptName, 'logout.php')) return;
 
     // Check if the user has passed the primary login.
     // ユーザーがプライマリログイン（ID/パスワード）を通過しているか確認

@@ -90,11 +90,14 @@ add_filter('grinds_the_content', function ($content) {
     // 管理画面で設定されたトラッキングIDを取得
     $tracking_id = function_exists('get_option') ? get_option('amazon_tracking_id', '') : '';
 
+    // ↓ 【追加・修正】DBからデフォルトリージョンを取得する
+    $saved_default_region = function_exists('get_option') ? get_option('amazon_default_region', '') : '';
+
     // Robust attribute parser (supports id, title, region in any order)
     // 属性の順序に依存しない堅牢なパーサー（id, title, region を取得）
     $pattern = '/\[amazon\s+([^\]]+)\]/i';
 
-    return preg_replace_callback($pattern, function ($matches) use ($tracking_id) {
+    return preg_replace_callback($pattern, function ($matches) use ($tracking_id, $saved_default_region) {
         preg_match_all('/([a-zA-Z0-9_]+)="([^"]*)"/', $matches[1], $attr_matches);
         $atts = [];
         foreach ($attr_matches[1] as $index => $key) {
@@ -104,17 +107,21 @@ add_filter('grinds_the_content', function ($content) {
         $asin = $atts['id'] ?? '';
         $title = $atts['title'] ?? 'View on Amazon';
 
-        // Dynamically set the default region based on the site's language.
-        // サイトの言語設定に基づいて、デフォルトのリージョンを動的に設定します。
-        $lang = function_exists('get_option') ? get_option('site_lang', 'en') : 'en';
-        $region_map = [
-            'ja' => 'co.jp',
-            'de' => 'de',
-            'es' => 'es',
-            'fr' => 'fr',
-            'pt-br' => 'com.br',
-        ];
-        $default_region = $region_map[$lang] ?? 'com'; // Default to .com for English and others
+        // ↓ 【修正】設定値がない場合のみ言語判定を行う
+        if (empty($saved_default_region)) {
+            $lang = function_exists('get_option') ? get_option('site_lang', 'en') : 'en';
+            $region_map = [
+                'ja' => 'co.jp',
+                'de' => 'de',
+                'es' => 'es',
+                'fr' => 'fr',
+                'pt-br' => 'com.br',
+            ];
+            $default_region = $region_map[$lang] ?? 'com';
+        } else {
+            $default_region = $saved_default_region;
+        }
+
         $region = $atts['region'] ?? $default_region;
         // XSS Prevention: Safely escape user inputs and DB value
         // XSS対策: ユーザー入力とDB値を安全にエスケープ
@@ -179,9 +186,9 @@ HTML;
 // 2. Save settings process (Admin area only)
 // 2. 設定の保存処理（管理画面のみ）
 add_action('grinds_init', function () {
-    $requestUri = $_SERVER['REQUEST_URI'] ?? '';
+    $requestPath = parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH) ?? '';
     $scriptName = $_SERVER['SCRIPT_NAME'] ?? '';
-    $isAdminArea = str_contains($requestUri, '/admin/') || str_contains($scriptName, '/admin/');
+    $isAdminArea = str_contains($requestPath, '/admin/') || str_contains($scriptName, '/admin/');
 
     // Receive POST request from the modal and save securely to GrindSite DB
     // モーダルからのPOSTリクエストを受け取り、GrindSiteのDBに安全に保存する
@@ -226,9 +233,9 @@ add_action('grinds_footer', function () {
     $user = class_exists('App') ? App::user() : null;
     if (!$user) return;
 
-    $requestUri = $_SERVER['REQUEST_URI'] ?? '';
+    $requestPath = parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH) ?? '';
     $scriptName = $_SERVER['SCRIPT_NAME'] ?? '';
-    if (!(str_contains($requestUri, '/admin/') || str_contains($scriptName, '/admin/'))) return;
+    if (!(str_contains($requestPath, '/admin/') || str_contains($scriptName, '/admin/'))) return;
 
     $tracking_id = function_exists('get_option') ? get_option('amazon_tracking_id', '') : '';
     $default_region = function_exists('get_option') ? get_option('amazon_default_region', 'com') : 'com';
@@ -321,7 +328,8 @@ add_action('grinds_html_block_tools', function () {
     $sprite_url = function_exists('grinds_asset_url') ? grinds_asset_url('assets/img/sprite.svg') : resolve_url('assets/img/sprite.svg');
 
     $t_insert_tooltip = htmlspecialchars(grinds_amazon_t('insert_tooltip'), ENT_QUOTES, 'UTF-8');
-    $t_insert_product = addslashes(grinds_amazon_t('insert_product')); // Escape for JS string
+    // Escape for JS string
+    $t_insert_product = trim(json_encode(grinds_amazon_t('insert_product'), JSON_UNESCAPED_UNICODE), '"');
 
     echo <<<HTML
       <button type="button" @click="

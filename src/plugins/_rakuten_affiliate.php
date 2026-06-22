@@ -159,9 +159,9 @@ HTML;
 
 // 2. Save settings process (Admin area only)
 add_action('grinds_init', function () {
-    $requestUri = $_SERVER['REQUEST_URI'] ?? '';
+    $requestPath = parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH) ?? '';
     $scriptName = $_SERVER['SCRIPT_NAME'] ?? '';
-    $isAdminArea = str_contains($requestUri, '/admin/') || str_contains($scriptName, '/admin/');
+    $isAdminArea = str_contains($requestPath, '/admin/') || str_contains($scriptName, '/admin/');
 
     if ($isAdminArea && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['rakuten_affiliate_id_action'])) {
         if (!function_exists('validate_csrf_token') || !validate_csrf_token($_POST['csrf_token'] ?? '')) {
@@ -190,9 +190,9 @@ HTML;
 // 4. Add settings UI (Modal) to the admin area
 add_action('grinds_footer', function () {
     if (!class_exists('App') || !App::user()) return;
-    $requestUri = $_SERVER['REQUEST_URI'] ?? '';
+    $requestPath = parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH) ?? '';
     $scriptName = $_SERVER['SCRIPT_NAME'] ?? '';
-    if (!(str_contains($requestUri, '/admin/') || str_contains($scriptName, '/admin/'))) return;
+    if (!(str_contains($requestPath, '/admin/') || str_contains($scriptName, '/admin/'))) return;
 
     $aff_id = function_exists('get_option') ? get_option('rakuten_affiliate_id', '') : '';
     $csrfToken = function_exists('generate_csrf_token') ? generate_csrf_token() : '';

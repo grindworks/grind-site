@@ -1210,6 +1210,7 @@ function grinds_cli_blocks_to_markdown(string $contentJson): string
             case 'image':
                 $url = is_string($bData['url'] ?? null) ? $bData['url'] : '';
                 $alt = is_string($bData['alt'] ?? $bData['caption'] ?? null) ? ($bData['alt'] ?? $bData['caption']) : 'image';
+                $alt = html_entity_decode(strip_tags($alt), ENT_QUOTES | ENT_HTML5, 'UTF-8');
                 $safeAlt = str_replace(['[', ']'], ['\[', '\]'], $alt);
                 $md .= "\n\n![{$safeAlt}]({$url})\n\n";
                 break;

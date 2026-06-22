@@ -68,6 +68,11 @@ $alpineSearchData = <<<'JS'
 
     init() {
         this.$watch('searchQuery', (val) => this.performSearch(val));
+        this.$watch('mobileOpen', (val) => { 
+            if (typeof window.toggleScrollLock === 'function') {
+                window.toggleScrollLock(val); 
+            }
+        });
     },
 
     performSearch(query) {

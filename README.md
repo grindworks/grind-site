@@ -1,4 +1,4 @@
-# GrindSite v1.7.1 - The AI-Native CMS
+# GrindSite v1.7.2
 
 ![GrindSite](./grind-site.jpg)
 
@@ -14,7 +14,7 @@
 [![PHP Version](https://img.shields.io/badge/php-8.3%2B-blue.svg)](https://www.php.net/)
 [![Database](https://img.shields.io/badge/database-SQLite_3-blue.svg)](#-creator-focused-experience)
 [![License](https://img.shields.io/badge/license-Commercial%2FFree-green.svg)](#-license--support-policy)
-[![Version](https://img.shields.io/badge/version-1.7.1-blue.svg)](https://github.com/grindworks/grind-site/releases)
+[![Version](https://img.shields.io/badge/version-1.7.2-blue.svg)](https://github.com/grindworks/grind-site/releases)
 
 ---
 

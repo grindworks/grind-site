@@ -27,9 +27,11 @@ add_action('grinds_init', function () {
     // 現在のリクエストURIを取得
     $requestUri = $_SERVER['REQUEST_URI'] ?? '';
 
+    $path = parse_url($requestUri, PHP_URL_PATH) ?? '';
+
     // 2. Exclude admin areas and login pages from maintenance mode
     // 2. 管理画面やログインページはメンテナンスモードから除外する
-    $isAdminArea = str_contains($requestUri, '/admin/') || str_contains($requestUri, 'login');
+    $isAdminArea = str_contains($path, '/admin/') || str_ends_with($path, 'login.php');
 
     // 3. If not logged in and not in the admin area, show maintenance screen
     // 3. 未ログインかつ管理画面へのアクセスでなければ、メンテナンス画面を表示

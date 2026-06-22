@@ -130,7 +130,7 @@ if (!isset($myUser)) {
               <?= _t('st_username') ?>
             </span>
             <input type="text" value="<?= h($myUser['username']) ?>"
-              class="bg-theme-bg/50 text-theme-text/70 cursor-not-allowed form-control" disabled>
+              class="bg-theme-bg/50 text-theme-text/70 cursor-not-allowed form-control" disabled autocomplete="username">
           </label>
 
           <label class="block">
@@ -138,7 +138,7 @@ if (!isset($myUser)) {
               <?= _t('st_email') ?>
             </span>
             <input type="email" name="email" value="<?= h($myUser['email']) ?>" class="form-control"
-              placeholder="user@example.com">
+              placeholder="user@example.com" autocomplete="email">
           </label>
         </div>
 

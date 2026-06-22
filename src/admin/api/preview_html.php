@@ -23,6 +23,14 @@ try {
     // The raw HTML code to preview
     $rawCode = $input['code'] ?? '';
 
+    // Decode Base64 if the client encoded it to bypass WAF restrictions
+    if (!empty($input['is_base64']) && $rawCode !== '') {
+        $decoded = base64_decode($rawCode, true);
+        if ($decoded !== false) {
+            $rawCode = $decoded;
+        }
+    }
+
     if (empty(trim($rawCode))) {
         json_response(['success' => true, 'html' => '']);
     }

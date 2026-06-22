@@ -29,19 +29,19 @@ add_action('grinds_init', function () {
         'contact' => ['limit' => 3, 'window' => 300],
     ];
 
-    $requestUri = $_SERVER['REQUEST_URI'] ?? '';
+    $requestPath = parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH) ?? '';
     $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
 
     $ruleType = null;
 
     // Determine if it's an API access
     // APIへのアクセスか判定
-    if (str_contains($requestUri, '/api/')) {
+    if (str_contains($requestPath, '/api/')) {
         $ruleType = 'api';
     }
     // Determine if it's a contact form submission (POST request containing 'contact')
     // コンタクトフォームの送信か判定（POSTリクエストかつ、contactという文字が含まれるパス）
-    elseif ($method === 'POST' && str_contains($requestUri, '/contact')) {
+    elseif ($method === 'POST' && str_contains($requestPath, '/contact')) {
         $ruleType = 'contact';
     }
 

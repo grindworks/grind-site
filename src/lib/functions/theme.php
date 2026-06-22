@@ -588,7 +588,10 @@ function _theme_generate_json_ld(string $siteName, string $pageType, string $pag
                 if ($bType === 'accordion' && !empty($bData['items'])) {
                     foreach ($bData['items'] as $item) {
                         $q = trim(function_exists('grinds_extract_text_from_content') ? grinds_extract_text_from_content($item['title'] ?? '') : strip_tags($item['title'] ?? ''));
-                        $a = trim(function_exists('grinds_extract_text_from_content') ? grinds_extract_text_from_content($item['content'] ?? '') : strip_tags($item['content'] ?? ''));
+                        
+                        $aHtml = function_exists('grinds_url_to_view') ? grinds_url_to_view($item['content'] ?? '') : ($item['content'] ?? '');
+                        $a = trim(function_exists('grinds_sanitize_html') ? grinds_sanitize_html($aHtml) : strip_tags($aHtml));
+                        
                         if ($q !== '' && $a !== '') {
                             $faqs[] = [
                                 "@type" => "Question",
@@ -606,7 +609,10 @@ function _theme_generate_json_ld(string $siteName, string $pageType, string $pag
                     $steps = [];
                     foreach ($bData['items'] as $index => $item) {
                         $stepTitle = trim(function_exists('grinds_extract_text_from_content') ? grinds_extract_text_from_content($item['title'] ?? '') : strip_tags($item['title'] ?? ''));
-                        $stepDesc = trim(function_exists('grinds_extract_text_from_content') ? grinds_extract_text_from_content($item['desc'] ?? '') : strip_tags($item['desc'] ?? ''));
+                        
+                        $stepDescHtml = function_exists('grinds_url_to_view') ? grinds_url_to_view($item['desc'] ?? '') : ($item['desc'] ?? '');
+                        $stepDesc = trim(function_exists('grinds_sanitize_html') ? grinds_sanitize_html($stepDescHtml) : strip_tags($stepDescHtml));
+                        
                         if ($stepTitle !== '') {
                             $stepNode = [
                                 "@type" => "HowToStep",

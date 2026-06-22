@@ -293,7 +293,18 @@ document.addEventListener('DOMContentLoaded', () => {
   if (bulkApply) {
     bulkApply.addEventListener('click', function (e) {
       e.preventDefault();
+
+      if (this.disabled) return;
+
       executeAction();
+
+      setTimeout(() => {
+        if (document.getElementById('form-action-input')?.value) {
+          this.disabled = true;
+          this.classList.add('opacity-50', 'cursor-not-allowed');
+          this.textContent = '...';
+        }
+      }, 50);
     });
   }
 

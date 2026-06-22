@@ -53,8 +53,8 @@ $activeClass = 'bg-theme-primary border-theme-primary text-theme-on-primary font
 
 <body class="flex flex-col h-[100dvh] antialiased" :class="searchOpen ? 'overflow-hidden' : ''"
   x-data="alpineSearchData"
-  @keydown.window.prevent.cmd.k="searchOpen = true; reset(); $refs.searchInput.focus();"
-  @keydown.window.prevent.ctrl.k="searchOpen = true; reset(); $refs.searchInput.focus();"
+  @keydown.window.prevent.cmd.k="searchOpen = true; reset(); $nextTick(() => $refs.searchInput.focus());"
+  @keydown.window.prevent.ctrl.k="searchOpen = true; reset(); $nextTick(() => $refs.searchInput.focus());"
   @keydown.window.escape="searchOpen = false">
 
   <?php require __DIR__ . '/../views/parts/alert_installer.php'; ?>

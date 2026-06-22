@@ -21,8 +21,12 @@ if (!defined('GRINDS_APP')) exit;
 // Hook into the admin footer using the GrindSite Hook System
 add_action('grinds_footer', function () {
     // Return early if not in admin area to prevent showing on frontend
-    $requestUri = $_SERVER['REQUEST_URI'] ?? '';
-    if (strpos($requestUri, '/admin/') === false) {
+    $requestPath = parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH) ?? '';
+    $scriptName = $_SERVER['SCRIPT_NAME'] ?? '';
+    $isAdminArea = str_contains($requestPath, '/admin/') || str_contains($scriptName, '/admin/');
+    $isLoggedIn = !empty($_SESSION['admin_logged_in']);
+
+    if (!$isAdminArea || !$isLoggedIn) {
         return;
     }
 
@@ -47,11 +51,11 @@ add_action('grinds_footer', function () {
 
         console.log("\n");
         console.log("%c✦ GRINDSITE CORE ONLINE", titleStyle);
-        await sleep(400);
+        await sleep(800);
         console.log("%c[ SYSTEM ]%c All primary modules initialized successfully.", tagStyle + " color: #10b981;", textStyle);
-        await sleep(400);
+        await sleep(800);
         console.log("%c[  AUTH  ]%c Administrator privileges verified.", tagStyle + " color: #eab308;", textStyle);
-        await sleep(600);
+        await sleep(1200);
         console.log("%c[  INFO  ]%c Awaiting further instructions...", tagStyle + " color: #64748b;", textStyle);
         console.log("\n");
     })();

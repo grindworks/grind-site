@@ -31,12 +31,12 @@ add_action('grinds_init', function () {
 
     // Get the current request URI and script name
     // 現在のリクエストURIを取得
-    $requestUri = $_SERVER['REQUEST_URI'] ?? '';
+    $requestPath = parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH) ?? '';
     $scriptName = $_SERVER['SCRIPT_NAME'] ?? '';
 
     // Check if the URL or script path contains '/admin/'
     // URLやスクリプトパスに '/admin/' が含まれているか判定
-    $isAdminArea = str_contains($requestUri, '/admin/') || str_contains($scriptName, '/admin/');
+    $isAdminArea = str_contains($requestPath, '/admin/') || str_contains($scriptName, '/admin/');
 
     // If you want to exclude API endpoints (e.g., AJAX requests), add the following condition:
     // APIエンドポイントへのアクセス（AJAX通信など）は除外したい場合は以下の条件を追加します

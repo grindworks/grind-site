@@ -98,6 +98,20 @@ try {
             $url = $inputData['url'] ?? '';
             $expectedHash = $inputData['sha256'] ?? '';
             if (empty($url)) throw new Exception("Download URL is missing.");
+
+            // ↓ 【セキュリティ強化】公式のアップデート情報と照合し、不正なURLからのダウンロードを防止
+            $info = $updater->check();
+            $officialUrl = $info['remote']['download_url'] ?? '';
+            $officialHash = $info['remote']['sha256'] ?? '';
+
+            if (empty($officialUrl) || $url !== $officialUrl) {
+                throw new Exception("Security Error: Invalid or untrusted download URL. Update aborted.");
+            }
+            if (!empty($officialHash) && $expectedHash !== $officialHash) {
+                throw new Exception("Security Error: Hash mismatch detected before download. Update aborted.");
+            }
+            // ↑ ここまで
+
             if (!is_dir($tmpBase)) @mkdir($tmpBase, 0775, true);
 
             $success = $updater->downloadDirect($url, $zipFilePath);

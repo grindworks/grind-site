@@ -234,8 +234,8 @@ if (!function_exists('grinds_extract_text_from_content')) {
             }
 
             // Add spaces after block-level closing and break tags to prevent word merging
-            $s = preg_replace('/<(br|hr)\s*\/?\s*>/i', ' ', $s) ?? $s;
-            $s = preg_replace('/(<\/(p|div|h[1-6]|li|dt|dd|blockquote|td|th|section|article|aside|nav|details|summary)\s*>)/i', '$1 ', $s) ?? $s;
+            $s = preg_replace('/<(br|hr)\s*+\/?\s*+>/i', ' ', $s) ?? $s;
+            $s = preg_replace('/(<\/(p|div|h[1-6]|li|dt|dd|blockquote|td|th|section|article|aside|nav|details|summary)\s*+>)/i', '$1 ', $s) ?? $s;
             // Add spaces before block-level opening tags to prevent word merging
             $s = preg_replace('/(<(p|div|h[1-6]|li|dt|dd|blockquote|td|th|section|article|aside|nav|details|summary)\b[^>]*+>)/i', ' $1', $s) ?? $s;
 
