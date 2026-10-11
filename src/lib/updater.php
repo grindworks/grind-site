@@ -9,7 +9,7 @@ if (!defined('GRINDS_APP'))
 
 class GrindsUpdater
 {
-  const UPDATE_URL = 'https://raw.githubusercontent.com/grindworks/grind-site/main/update.json';
+  const UPDATE_URL = 'https://raw.githubusercontent.com/grindworks/grind-site-core/main/update.json';
 
   private ?PDO $pdo;
 

@@ -92,7 +92,7 @@ if (!isset($statusDot) && isset($sysStatus)) {
                 <span class="opacity-60 font-mono text-[10px] whitespace-nowrap <?= $text_class ?>">v<?= h(CMS_VERSION) ?>
                 </span>
                 <?php if (!empty($hasUpdate)): ?>
-                    <a href="https://github.com/grindworks/grind-site/releases" target="_blank" class="ml-auto text-theme-warning font-bold text-[10px] hover:underline" title="Manual Update Required">
+                    <a href="https://github.com/grindworks/grind-site-core/releases" target="_blank" class="ml-auto text-theme-warning font-bold text-[10px] hover:underline" title="Manual Update Required">
                         Update (Manual)
                     </a>
                 <?php endif; ?>

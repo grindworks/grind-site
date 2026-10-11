@@ -469,7 +469,7 @@ $statusLabel = strtoupper($sysStatus['status']);
                 <span class="font-mono text-[10px] whitespace-nowrap">v<?= h(CMS_VERSION) ?></span>
               </span>
               <?php if (!empty($hasUpdate)): ?>
-                <a href="https://github.com/grindworks/grind-site/releases" target="_blank"
+                <a href="https://github.com/grindworks/grind-site-core/releases" target="_blank"
                   class="flex items-center gap-1 ml-3 text-theme-warning font-bold text-xs hover:underline"
                   title="Manual Update Required">
                   <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">

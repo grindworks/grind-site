@@ -552,7 +552,7 @@ function Grinds_InstallSampleData(PDO $pdo, string $lang = 'en', string $siteNam
 
     // Insert/Update settings for sample data (e.g. for llms.txt)
     $stmtSetting = $pdo->prepare("INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)");
-    $stmtSetting->execute(['official_social_links', "https://x.com/GrindSite\nhttps://github.com/grindworks/grind-site"]);
+    $stmtSetting->execute(['official_social_links', "https://x.com/GrindSite\nhttps://github.com/grindworks/grind-site-core"]);
 
     // Insert tags
     $stmtTag = $pdo->prepare("INSERT INTO tags (name, slug) VALUES (?, ?)");

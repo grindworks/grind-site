@@ -49,7 +49,7 @@ sed -i '' 's/"version": "[^"]*"/"version": "'"$RAW_VERSION"'"/' update.json
 sed -i '' 's/"release_date": "[^"]*"/"release_date": "'"$TODAY"'"/' update.json
 SAFE_MESSAGE=${MESSAGE//&/\\&}
 sed -i '' 's|"message": "[^"]*"|"message": "'"$SAFE_MESSAGE"'"|' update.json
-sed -i '' 's|"download_url": "[^"]*"|"download_url": "https://github.com/grindworks/grind-site/releases/download/'"$VERSION"'/grindsite-'"$VERSION"'.zip"|' update.json
+sed -i '' 's|"download_url": "[^"]*"|"download_url": "https://github.com/grindworks/grind-site-core/releases/download/'"$VERSION"'/grindsite-'"$VERSION"'.zip"|' update.json
 sed -i '' 's/"sha256": "[^"]*"/"sha256": "'"$HASH"'"/' update.json
 
 # 5. Amend commit with update.json changes (keeping history clean)
