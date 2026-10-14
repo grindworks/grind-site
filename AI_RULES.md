@@ -1,5 +1,7 @@
 # GrindSite AI Rules
 
+> Shared rules for every Grind product: [`../AGENTS.md`](../AGENTS.md). This file adds GrindSite Core rules and wins where the two differ.
+
 ## 1. Environment & Architecture
 
 - **PHP 8.3+** & **SQLite 3.27+** (FTS5 recommended).
