@@ -1,7 +1,7 @@
 {
-  "version": "1.7.2",
-  "release_date": "2026-06-22",
-  "message": "Security & Plugin Enhancements",
-  "download_url": "https://github.com/grindworks/grind-site-core/releases/download/v1.7.2/grindsite-v1.7.2.zip",
-  "sha256": "987259c78655d079a2e95d2f241099f09998e13d1ccf8fe35791c4502ea56618"
+  "version": "1.7.3",
+  "release_date": "2026-10-19",
+  "message": "Security Fixes",
+  "download_url": "https://github.com/grindworks/grind-site-core/releases/download/v1.7.3/grindsite-v1.7.3.zip",
+  "sha256": "f73d44ccd216dc25ffcf6041f50d67f4121a9fbbe2e1c134b2b9069336d30f90"
 }
