@@ -1121,7 +1121,7 @@ return [
     'st_sect_colors' => 'Colors',
     'st_sect_crt' => 'CRT Effects',
     'st_disable_external' => 'Disable External Assets (Local Fallback)',
-    'st_disable_external_desc' => 'Blocks default external CDN requests (Google Fonts, Alpine.js, etc.) for intranet/GDPR compliance, switching to local bundled files.<br><span style="font-size:0.9em; opacity:0.8;">* Basic admin files are bundled. For a completely offline environment, manually place <code>chart.min.js</code>, <code>katex.min.js</code>, etc., into <code>assets/js/vendor/</code>. If missing, it will automatically fallback to CDN.<br>* Note: QR Code, Map, and Embed blocks will still connect to external services when used.</span>',
+    'st_disable_external_desc' => 'Blocks external requests that themes make by default (Google Fonts, CDN fallbacks, etc.) for intranet/GDPR compliance.<br><span style="font-size:0.9em; opacity:0.8;">* Bundled libraries (Alpine.js, Chart.js, Flatpickr, KaTeX, Prism.js) are always loaded from the server. A CDN is used only if a bundled file is missing and this option is off.<br>* Note: QR Code, Map, and Embed blocks will still connect to external services when used.</span>',
     'st_crt_monitor' => 'CRT Monitor',
     'st_crt_color' => 'CRT Color',
     'st_crt_shadow' => 'CRT Shadow',

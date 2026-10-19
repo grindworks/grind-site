@@ -496,7 +496,9 @@ class GrindsSSG
         $totalFiles = 0;
 
         // Scan assets (excluding uploads directory)
+        // Keep assets/js/vendor and assets/css/vendor: pages load bundled libraries from them
         $assetsScanOptions = $scanOptions;
+        $assetsScanOptions['exclude_dirs'] = array_values(array_diff($assetsScanOptions['exclude_dirs'], ['vendor']));
         $assetsScanOptions['exclude_dirs'][] = 'uploads';
 
         if (!class_exists('FileManager')) {

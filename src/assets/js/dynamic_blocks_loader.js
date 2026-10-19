@@ -135,6 +135,10 @@ window.grindsInitDynamicBlocks = function (rootNode, config) {
     var highlightCode = function (retries) {
       retries = retries || 0;
       if (typeof Prism !== 'undefined') {
+        // Use bundled language definitions when available
+        if (config.prism_lang && Prism.plugins && Prism.plugins.autoloader) {
+          Prism.plugins.autoloader.languages_path = config.prism_lang;
+        }
         Prism.highlightAllUnder(rootNode);
       } else if (retries < 50) {
         setTimeout(function () {

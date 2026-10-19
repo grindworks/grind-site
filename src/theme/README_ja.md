@@ -4,12 +4,12 @@
 
 > [!WARNING]
 > **同梱テーマを直接編集しないでください**
-> 同梱されているテーマ（`default` や `bootstrap` など）は、GrindSite のアップデート時に上書きされ、それらのファイルに加えた変更も上書きされます。
+> 同梱されているテーマ（`default` や `corporate` など）は、GrindSite のアップデート時に上書きされ、それらのファイルに加えた変更も上書きされます。
 > カスタマイズする場合は、必ずフォルダを**複製**（例: `corporate` をコピーして `my-corporate` にリネーム）してから編集してください。GrindSite に同梱されていないフォルダは、アップデートで変更されることはありません。
 
 #### `functions.php` を持つテーマを複製する場合
 
-一部の同梱テーマ（`bootstrap`、`classic`、`corporate`、`marketing`、`neo-minimalist`、`photographer`）は、テーマのフォルダ名を付けた関数（例: `corporate_render_block()`）でブロックの出力をカスタマイズしています。GrindSite は「フォルダ名 + `_render_block()`」という名前の関数を呼び出します。フォルダ名のハイフン（`-`）は、関数名ではアンダースコア（`_`）に置き換えます。
+一部の同梱テーマ（`classic`、`corporate`、`marketing`、`neo-minimalist`、`photographer`）は、テーマのフォルダ名を付けた関数（例: `corporate_render_block()`）でブロックの出力をカスタマイズしています。GrindSite は「フォルダ名 + `_render_block()`」という名前の関数を呼び出します。フォルダ名のハイフン（`-`）は、関数名ではアンダースコア（`_`）に置き換えます。
 
 `corporate` を `my-corporate` にコピーした場合は、コピーした `functions.php` 内の関数名を、次の2か所とも書き換えてください。
 

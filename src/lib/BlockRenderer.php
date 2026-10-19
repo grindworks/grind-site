@@ -123,31 +123,37 @@ class BlockRenderer
         $root = defined('ROOT_PATH') ? ROOT_PATH : '';
 
         // KaTeX
-        $katex_css = file_exists($root . '/assets/css/vendor/katex.min.css') ? resolve_url('assets/css/vendor/katex.min.css') : 'https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css';
-        $katex_js = file_exists($root . '/assets/js/vendor/katex.min.js') ? resolve_url('assets/js/vendor/katex.min.js') : 'https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js';
-        $katex_auto = file_exists($root . '/assets/js/vendor/auto-render.min.js') ? resolve_url('assets/js/vendor/auto-render.min.js') : 'https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js';
+        $katex_css = file_exists($root . '/assets/css/vendor/katex.min.css') ? resolve_url('assets/css/vendor/katex.min.css') : 'https://cdn.jsdelivr.net/npm/katex@0.16.47/dist/katex.min.css';
+        $katex_js = file_exists($root . '/assets/js/vendor/katex.min.js') ? resolve_url('assets/js/vendor/katex.min.js') : 'https://cdn.jsdelivr.net/npm/katex@0.16.47/dist/katex.min.js';
+        $katex_auto = file_exists($root . '/assets/js/vendor/auto-render.min.js') ? resolve_url('assets/js/vendor/auto-render.min.js') : 'https://cdn.jsdelivr.net/npm/katex@0.16.47/dist/contrib/auto-render.min.js';
 
         // Prism.js
-        $prism_css = file_exists($root . '/assets/css/vendor/prism-tomorrow.min.css') ? resolve_url('assets/css/vendor/prism-tomorrow.min.css') : 'https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css';
-        $prism_js = file_exists($root . '/assets/js/vendor/prism.min.js') ? resolve_url('assets/js/vendor/prism.min.js') : 'https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js';
-        $prism_auto = file_exists($root . '/assets/js/vendor/prism-autoloader.min.js') ? resolve_url('assets/js/vendor/prism-autoloader.min.js') : 'https://cdn.jsdelivr.net/npm/prismjs@1.29.0/plugins/autoloader/prism-autoloader.min.js';
+        $prism_css = file_exists($root . '/assets/css/vendor/prism-tomorrow.min.css') ? resolve_url('assets/css/vendor/prism-tomorrow.min.css') : 'https://cdn.jsdelivr.net/npm/prismjs@1.30.0/themes/prism-tomorrow.min.css';
+        $prism_js = file_exists($root . '/assets/js/vendor/prism.min.js') ? resolve_url('assets/js/vendor/prism.min.js') : 'https://cdn.jsdelivr.net/npm/prismjs@1.30.0/prism.min.js';
+        $prism_auto = file_exists($root . '/assets/js/vendor/prism-autoloader.min.js') ? resolve_url('assets/js/vendor/prism-autoloader.min.js') : 'https://cdn.jsdelivr.net/npm/prismjs@1.30.0/plugins/autoloader/prism-autoloader.min.js';
+        // Load language definitions from the bundled folder; an empty path keeps the autoloader default (CDN)
+        $prism_lang = (str_starts_with($prism_auto, 'https://cdn.') || !is_dir($root . '/assets/js/vendor/prism-components')) ? '' : rtrim(resolve_url('assets/js/vendor/prism-components'), '/') . '/';
 
         // JavaScript loader URL
         $loader_js = resolve_url('assets/js/dynamic_blocks_loader.js');
 
         // Output configuration JSON and load external script
+        $config_json = json_encode([
+            'katex_css' => $katex_css,
+            'katex_js' => $katex_js,
+            'katex_auto' => $katex_auto,
+            'prism_css' => $prism_css,
+            'prism_js' => $prism_js,
+            'prism_auto' => $prism_auto,
+            'prism_lang' => $prism_lang,
+        ], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNESCAPED_SLASHES);
+        $loader_js_attr = h($loader_js);
+
         echo <<<HTML
 <script>
-window.grindsDynamicConfig = {
-    katex_css: "{$katex_css}",
-    katex_js: "{$katex_js}",
-    katex_auto: "{$katex_auto}",
-    prism_css: "{$prism_css}",
-    prism_js: "{$prism_js}",
-    prism_auto: "{$prism_auto}"
-};
+window.grindsDynamicConfig = {$config_json};
 </script>
-<script src="{$loader_js}" defer></script>
+<script src="{$loader_js_attr}" defer></script>
 HTML;
     }
 

@@ -1121,7 +1121,7 @@ return [
     'st_sect_colors' => 'カラー設定',
     'st_sect_crt' => 'CRTエフェクト',
     'st_disable_external' => '外部アセットを無効化（ローカルフォールバック）',
-    'st_disable_external_desc' => 'イントラネット環境やGDPR対応のため、テーマ標準で読み込まれる外部CDN（Google Fonts、Alpine.js等）への通信をブロックし、サーバー内蔵ファイルに切り替えます。<br><span style="font-size:0.9em; opacity:0.8;">※ 管理画面の基本動作に必要なファイルは同梱されていますが、完全なオフライン環境を構築するには <code>chart.min.js</code>, <code>katex.min.js</code> などを <code>assets/js/vendor/</code> に手動で配置してください。ファイルがない場合は自動的にCDNが使用されます。<br>※ QRコード、地図、埋め込みブロックなどを利用する際は外部通信が発生します。</span>',
+    'st_disable_external_desc' => 'イントラネット環境やGDPR対応のため、テーマ標準で読み込まれる外部通信（Google Fonts、CDNへのフォールバック等）をブロックします。<br><span style="font-size:0.9em; opacity:0.8;">※ 同梱ライブラリ（Alpine.js、Chart.js、Flatpickr、KaTeX、Prism.js）は常にサーバー内のファイルを使用します。CDN は同梱ファイルが無く、かつこの設定がオフの場合にのみ使用されます。<br>※ QRコード、地図、埋め込みブロックなどを利用する際は外部通信が発生します。</span>',
     'st_crt_monitor' => 'CRTモニター風',
     'st_crt_color' => 'CRT色',
     'st_crt_shadow' => 'CRT影色',

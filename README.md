@@ -75,6 +75,8 @@ To enable 2FA:
 
 GrindSite is free for local development and evaluation, but a **Commercial License** is strictly required for use on publicly accessible production servers.
 
+Third-party open source components bundled with GrindSite are licensed under their own terms. See [`THIRD_PARTY_LICENSES.txt`](THIRD_PARTY_LICENSES.txt).
+
 ### 💎 Commercial Licenses
 
 | Feature              |   Free (Trial/Dev)   |  Early Bird ($99)   |     Pro ($149)      |   Agency ($399/yr)    |
@@ -155,15 +157,15 @@ Do not edit bundled themes directly. Duplicate the theme folder under a new name
 
 ### 🔌 Completely Offline / Intranet Usage
 
-For strict privacy compliance (GDPR) or closed intranet environments, GrindSite is designed to be fully functional offline.
-The core Admin UI (Alpine.js, Flatpickr, and Chart.js) is pre-bundled and prioritized locally. Even if the "Disable External Assets" setting is not checked, the system will automatically use local assets if they are found in the vendor directory.
+GrindSite can be installed and run on a closed network with no internet access. The libraries it needs are bundled and always loaded from your server:
 
-If you want heavier specialized features like **Math blocks** or **Code Highlighting** to work completely offline, you need to manually download and place the following files into the `src/assets/js/vendor/` and `src/assets/css/vendor/` directories:
+- **Admin panel:** Alpine.js, Flatpickr, Chart.js
+- **Themes:** Alpine.js
+- **Blocks:** KaTeX (Math blocks) and Prism.js with all language definitions (Code highlighting)
 
-- `katex.min.js`, `katex.min.css`, `auto-render.min.js` (KaTeX)
-- `prism.min.js`, `prism-tomorrow.min.css`, `prism-autoloader.min.js` (Prism.js)
+For a fully offline site, also check **"Offline Mode (Local Fallback)"** in the installer, or **Settings → Theme → "Disable External Assets (Local Fallback)"** later. This stops themes from loading Google Fonts and from falling back to a CDN. Some themes then show their maintenance page with simplified styling.
 
-_(If these files are missing, the system will safely fallback to using CDN without any errors.)_
+These features still need the internet: QR Code, Map and Embed blocks, link cards, the avatar in the nexus-profile theme, update checks and license verification. Password-protected blocks need HTTPS (or `localhost`), because browsers only allow the Web Crypto API there.
 
 ### 🚚 Server Migration & Directory Move
 
@@ -448,6 +450,8 @@ GrindSiteには、セキュリティを強化するための「メールOTP（�
 
 本ソフトウェアはローカル環境やテスト目的では無償で利用可能ですが、**インターネット上で公開される本番環境（公開サーバー）での運用には「商用ライセンス」の購入が必要です。**
 
+GrindSite に同梱している第三者のオープンソースコンポーネントには、それぞれのライセンスが適用されます。詳しくは [`THIRD_PARTY_LICENSES.txt`](THIRD_PARTY_LICENSES.txt) を参照してください。
+
 ### 💎 商用ライセンスの種類
 
 | 機能                 |      Free (無料版)       | アーリーバード ($99)  |      Pro ($149)       | エージェンシー ($399/年) |
@@ -526,15 +530,15 @@ GrindSite に同梱されていないテーマやスキン（ご自身で作成�
 
 ### 🔌 完全なオフライン（イントラネット）環境での利用
 
-GrindSiteは、プライバシー保護（GDPR対応）や外部接続が制限された環境（イントラネット）でも追加設定なしで動作するように設計されています。
-管理画面の基本動作に必要なアセット（Alpine.js, Flatpickr, Chart.js）は標準で同梱され、ローカルファイルが優先的に読み込まれるようになっています。
+GrindSite は、インターネットに接続できない閉じたネットワークでもインストール・運用できます。必要なライブラリは同梱されており、常にサーバー内のファイルが読み込まれます。
 
-さらに、**数式ブロック**や**コードハイライト**などの特殊な機能も完全にオフラインで動作させたい場合は、以下のファイルを公式サイトからダウンロードし、`src/assets/js/vendor/` および `src/assets/css/vendor/` ディレクトリに手動で配置してください。
+- **管理画面:** Alpine.js、Flatpickr、Chart.js
+- **テーマ:** Alpine.js
+- **ブロック:** KaTeX（数式ブロック）、全言語定義を含む Prism.js（コードハイライト）
 
-- `katex.min.js`, `katex.min.css`, `auto-render.min.js` (KaTeX)
-- `prism.min.js`, `prism-tomorrow.min.css`, `prism-autoloader.min.js` (Prism.js)
+完全にオフラインで運用する場合は、インストール時に **「オフラインモード（ローカル優先）」** をチェックするか、後から **「システム設定 → テーマ → 外部アセットを無効化（ローカルフォールバック）」** を有効にしてください。テーマが Google Fonts を読み込んだり、CDN にフォールバックしたりしなくなります。一部のテーマのメンテナンス画面は簡易的な表示になります。
 
-※ ファイルが配置されていない場合は、自動的にCDNへフォールバックして読み込まれます（エラーで停止することはありません）。
+次の機能はインターネット接続が必要です: QRコード・地図・埋め込みブロック、リンクカード、nexus-profile テーマのアバター、更新の確認、ライセンス認証。パスワード保護ブロックは HTTPS（または `localhost`）が必要です。ブラウザが Web Crypto API をその環境でしか許可しないためです。
 
 ### 🚚 サーバー移転・ディレクトリ移動時の手順
 

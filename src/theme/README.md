@@ -4,12 +4,12 @@
 
 > [!WARNING]
 > **DO NOT EDIT DEFAULT THEMES DIRECTLY**
-> Bundled themes (e.g., `default`, `bootstrap`) are overwritten when you update GrindSite, and your edits to their files are overwritten too.
+> Bundled themes (e.g., `default`, `corporate`) are overwritten when you update GrindSite, and your edits to their files are overwritten too.
 > To create a custom theme, **duplicate** the folder (e.g., copy `corporate` to `my-corporate`) and edit the copy. Folders that are not bundled with GrindSite are never touched by updates.
 
 #### When you duplicate a theme that has `functions.php`
 
-Some bundled themes (`bootstrap`, `classic`, `corporate`, `marketing`, `neo-minimalist`, `photographer`) customize block output with a function named after the theme folder, such as `corporate_render_block()`. GrindSite calls `<folder name>_render_block()` with hyphens in the folder name replaced by underscores.
+Some bundled themes (`classic`, `corporate`, `marketing`, `neo-minimalist`, `photographer`) customize block output with a function named after the theme folder, such as `corporate_render_block()`. GrindSite calls `<folder name>_render_block()` with hyphens in the folder name replaced by underscores.
 
 After copying `corporate` to `my-corporate`, rename the function in the copied `functions.php` in both places:
 

@@ -1121,7 +1121,7 @@ return [
     'st_sect_colors' => 'Cores',
     'st_sect_crt' => 'Efeitos CRT',
     'st_disable_external' => 'Desativar Recursos Externos (Fallback Local)',
-    'st_disable_external_desc' => 'Bloqueia solicitações de CDN externas padrão (Google Fonts, Alpine.js, etc.) para conformidade de intranet/GDPR, mudando para arquivos locais embutidos.<br><span style="font-size:0.9em; opacity:0.8;">* Os arquivos básicos de administração estão incluídos. Para um ambiente totalmente offline, coloque manualmente <code>chart.min.js</code>, <code>katex.min.js</code>, etc., em <code>assets/js/vendor/</code>. Se ausente, fará o fallback automático para a CDN.<br>* Nota: Os blocos de Código QR, Mapa e Incorporações continuarão se conectando a serviços externos quando usados.</span>',
+    'st_disable_external_desc' => 'Bloqueia as solicitações externas que os temas fazem por padrão (Google Fonts, fallback de CDN etc.) para ambientes de intranet ou conformidade com a LGPD/GDPR.<br><span style="font-size:0.9em; opacity:0.8;">* As bibliotecas incluídas (Alpine.js, Chart.js, Flatpickr, KaTeX, Prism.js) são sempre carregadas do servidor. Um CDN só é usado se um arquivo incluído estiver ausente e esta opção estiver desativada.<br>* Observação: os blocos de QR Code, mapa e incorporação ainda se conectarão a serviços externos quando usados.</span>',
     'st_crt_monitor' => 'Monitor CRT',
     'st_crt_color' => 'Cor CRT',
     'st_crt_shadow' => 'Sombra CRT',

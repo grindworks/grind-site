@@ -93,11 +93,7 @@ extract($headerData);
   <?php
   endif; ?>
 
-  <?php if (get_option('disable_external_assets')): ?>
-    <script defer src="<?= grinds_asset_url('assets/js/vendor/collapse.min.js') ?>"></script>
-    <script defer src="<?= grinds_asset_url('assets/js/vendor/alpine.min.js') ?>"></script>
-  <?php
-  else: ?>
+  <?php if (!get_option('disable_external_assets')): ?>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap"
@@ -105,8 +101,16 @@ extract($headerData);
     <noscript>
       <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
     </noscript>
-    <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/collapse@3.x.x/dist/cdn.min.js"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <?php
+  endif; ?>
+
+  <?php if (file_exists(ROOT_PATH . '/assets/js/vendor/alpine.min.js') && file_exists(ROOT_PATH . '/assets/js/vendor/collapse.min.js')): ?>
+    <script defer src="<?= grinds_asset_url('assets/js/vendor/collapse.min.js') ?>"></script>
+    <script defer src="<?= grinds_asset_url('assets/js/vendor/alpine.min.js') ?>"></script>
+  <?php
+  else: ?>
+    <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/collapse@3.15.9/dist/cdn.min.js" integrity="sha384-NArNwzWsUSF+kY2lgW4YriEkjLqi+J+za6HrENUn/3nZqkBnWbxV22kCJEK5Uu6n" crossorigin="anonymous"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.15.9/dist/cdn.min.js" integrity="sha384-MEh8ZMZhsmD6/1Bd3kfTiGZoYIKR9u+BilQQWl5DOonh+pvKg6fP2AejtOozsZK8" crossorigin="anonymous"></script>
   <?php
   endif; ?>
 
