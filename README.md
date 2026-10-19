@@ -5,7 +5,7 @@
 **The CMS built for the Generative AI workflow.**
 **生成AI時代のワークフローのために作られたCMS。**
 
-**✨ [Admin Skins Preview / 管理画面スキンプレビュー](https://grindworks.github.io/grind-site-core/)**
+**✨ [Admin Skins Preview / 管理画面スキンプレビュー](https://grindworks.github.io/grind-site/)**
 
 <!-- TODO: Replace this URL with actual GIF of Smart Paste in action -->
 
@@ -14,7 +14,7 @@
 [![PHP Version](https://img.shields.io/badge/php-8.3%2B-blue.svg)](https://www.php.net/)
 [![Database](https://img.shields.io/badge/database-SQLite_3-blue.svg)](#-creator-focused-experience)
 [![License](https://img.shields.io/badge/license-Commercial%2FFree-green.svg)](#-license--support-policy)
-[![Version](https://img.shields.io/badge/version-1.7.3-blue.svg)](https://github.com/grindworks/grind-site-core/releases)
+[![Version](https://img.shields.io/badge/version-1.7.3-blue.svg)](https://github.com/grindworks/grind-site/releases)
 
 ---
 
@@ -57,7 +57,7 @@ Paste content directly from **ChatGPT, Claude, or Gemini**. Drop images from **M
 
 ### 📦 Installation
 
-1. Download the latest source code (ZIP) from the **[Releases](https://github.com/grindworks/grind-site-core/releases)** page or "Code > Download ZIP".
+1. Download the latest source code (ZIP) from the **[Releases](https://github.com/grindworks/grind-site/releases)** page or "Code > Download ZIP".
 2. **Important:** Upload **only the contents of the `src` folder** to your web server's public directory.
    _(Do not upload the `tools` folder or `README.md` to your public server.)_
 3. Access the site URL in your browser.
@@ -95,8 +95,8 @@ GrindSite is free for local development and evaluation, but a **Commercial Licen
 > **⚠️ NO TECHNICAL SUPPORT is provided.**
 > However, **Bug Reports are welcome!** We appreciate your help in making GrindSite stable.
 
-- **🐛 Bug Reports:** Please use [GitHub Issues](https://github.com/grindworks/grind-site-core/issues).
-- **💬 Questions & Community:** Please use [GitHub Discussions](https://github.com/grindworks/grind-site-core/discussions).
+- **🐛 Bug Reports:** Please use [GitHub Issues](https://github.com/grindworks/grind-site/issues).
+- **💬 Questions & Community:** Please use [GitHub Discussions](https://github.com/grindworks/grind-site/discussions).
 
 **Note:** Issues regarding feature requests, "how-to" questions, or server configuration help will be closed. Please use the Discussions forum for those topics.
 
@@ -396,7 +396,7 @@ GrindSiteは、現代のコンテンツ制作者のワークフローのため�
 
 ### 📦 インストール方法
 
-1. GitHub の **[Releases](https://github.com/grindworks/grind-site-core/releases)** または「Code > Download ZIP」から最新版をダウンロードします。
+1. GitHub の **[Releases](https://github.com/grindworks/grind-site/releases)** または「Code > Download ZIP」から最新版をダウンロードします。
 2. **【重要】** `src` フォルダの中身**だけ**を、サーバーの公開ディレクトリにアップロードしてください。
    _（`tools` フォルダやこの `README.md` はサーバーに上げないでください）_
 3. ブラウザでその URL にアクセスします。
@@ -434,8 +434,8 @@ GrindSiteには、セキュリティを強化するための「メールOTP（�
 > **⚠️ 技術サポートは提供しておりません。**
 > ただし、**バグ報告は歓迎します！** GrindSiteの品質向上のため、ご協力をお願いいたします。
 
-- **🐛 バグ報告:** [GitHub Issues](https://github.com/grindworks/grind-site-core/issues) をご利用ください。
-- **💬 質問・雑談:** [GitHub Discussions](https://github.com/grindworks/grind-site-core/discussions)（フォーラム）をご利用ください。
+- **🐛 バグ報告:** [GitHub Issues](https://github.com/grindworks/grind-site/issues) をご利用ください。
+- **💬 質問・雑談:** [GitHub Discussions](https://github.com/grindworks/grind-site/discussions)（フォーラム）をご利用ください。
 
 **注意:** 「使い方がわからない」「サーバー設定を教えてほしい」といった内容は Issue では受け付けておりません。Discussions をご活用ください。
 
