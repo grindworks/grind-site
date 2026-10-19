@@ -1,7 +1,7 @@
 {
-  "version": "1.7.3",
+  "version": "1.7.4",
   "release_date": "2026-10-19",
-  "message": "Security Fixes",
-  "download_url": "https://github.com/grindworks/grind-site/releases/download/v1.7.3/grindsite-v1.7.3.zip",
-  "sha256": "f73d44ccd216dc25ffcf6041f50d67f4121a9fbbe2e1c134b2b9069336d30f90"
+  "message": "Safer Theme Updates",
+  "download_url": "https://github.com/grindworks/grind-site/releases/download/v1.7.4/grindsite-v1.7.4.zip",
+  "sha256": "e8eb590e70751fc0b4914407a1187d06c72ddbf96ace9aa9268407248ca6274c"
 }

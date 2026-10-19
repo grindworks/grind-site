@@ -1,11 +1,11 @@
 #!/bin/bash
 
 # GrindSite Release Automation Script
-# Usage: ./bin/release.sh v1.7.3 "New Affiliate Block (Amazon/Rakuten/eBay) & Editor UX Improvements"
+# Usage: ./bin/release.sh v1.7.4 "New Affiliate Block (Amazon/Rakuten/eBay) & Editor UX Improvements"
 
 if [ -z "$1" ]; then
   echo "❌ Error: Version tag is required."
-  echo "Usage: ./bin/release.sh v1.7.3 \"Release message\""
+  echo "Usage: ./bin/release.sh v1.7.4 \"Release message\""
   exit 1
 fi
 
