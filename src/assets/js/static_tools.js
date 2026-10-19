@@ -1,6 +1,6 @@
 /**
  * static_tools.js
- * GrindSite - Static Site Search & Form Handler
+ * GrindSite Core - Static Site Search & Form Handler
  */
 document.addEventListener('DOMContentLoaded', () => {
   // Read config injected by SSG (provides localized labels and settings)

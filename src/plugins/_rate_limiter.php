@@ -49,8 +49,8 @@ add_action('grinds_init', function () {
         $limit = $config[$ruleType]['limit'];
         $window = $config[$ruleType]['window'];
 
-        // Get the client's IP address (using GrindSite core function)
-        // クライアントのIPアドレスを取得（GrindSiteコア関数を使用）
+        // Get the client's IP address (using GrindSite Core core function)
+        // クライアントのIPアドレスを取得（GrindSite Coreコア関数を使用）
         $ip = function_exists('get_client_ip') ? get_client_ip() : ($_SERVER['REMOTE_ADDR'] ?? 'unknown');
 
         // Hash IP and rule type for the filename to reduce collisions

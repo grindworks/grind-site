@@ -7,11 +7,11 @@
  * Version: 1.0.0
  *
  * [English]
- * Sample plugin demonstrating the Hook System (Actions & Filters) of GrindSite.
+ * Sample plugin demonstrating the Hook System (Actions & Filters) of GrindSite Core.
  * To enable this, rename this file to "sample_hooks.php" (remove the underscore).
  *
  * [Japanese]
- * GrindSiteのフックシステム（アクション＆フィルター）を実演するサンプルプラグインです。
+ * GrindSite Coreのフックシステム（アクション＆フィルター）を実演するサンプルプラグインです。
  * 有効にするには、ファイル名の先頭の "_" (アンダースコア) を削除してください。
  */
 if (!defined('GRINDS_APP')) exit;
@@ -106,7 +106,7 @@ add_action('grinds_footer', function () {
     echo '</div>';
 
     // Example: Add custom JS
-    // echo '<script>console.log("GrindSite Plugin Loaded");</script>';
+    // echo '<script>console.log("GrindSite Core Plugin Loaded");</script>';
 });
 
 // =========================================================================

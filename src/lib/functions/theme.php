@@ -34,7 +34,7 @@ function grinds_get_active_theme(): string
     // Validate existence (Fail-safe)
     if (!is_dir(ROOT_PATH . '/theme/' . $theme)) {
         if ($theme !== 'default') {
-            error_log("GrindSite Warning: Theme '$theme' not found. Falling back to default.");
+            error_log("GrindSite Core Warning: Theme '$theme' not found. Falling back to default.");
         }
         $theme = 'default';
     }

@@ -108,9 +108,6 @@ return [
     'close_menu' => 'Menü schließen',
     'system' => 'SYSTEM',
     'administrator' => 'Administrator',
-    'pro' => 'PRO',
-    'unregistered' => 'FREE',
-    'get_pro_key' => 'Pro-Schlüssel anfordern',
 
     // Define admin menu items.
     'menu_dashboard' => 'Dashboard',
@@ -735,7 +732,6 @@ return [
     'err_update_no_license' => 'Update abgelehnt. Eine gültige Lizenz ist erforderlich.',
     'err_download_failed' => 'Download fehlgeschlagen.',
     'err_no_update' => 'Kein Update erforderlich.',
-    'st_update_pro_feature' => '1-Klick-Update ist eine Pro-Funktion.',
     'st_update_manual_desc' => 'Um manuell zu aktualisieren, laden Sie bitte die neueste ZIP-Datei herunter und überschreiben Sie Ihre Installation.',
     'st_update_download_link' => 'v%s herunterladen',
     'st_admin_title' => 'Name des Admin-Panels',

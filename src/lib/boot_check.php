@@ -110,7 +110,7 @@ $trans = [
         'msg_nginx'    => 'Nginx detected. PHP execution in uploads directory must be blocked.',
         'advice_nginx' => 'Nginx ignores .htaccess files. You must add the following rules to your server configuration:<br><code class="block my-2 p-2 bg-red-100 rounded">' . $nginxRules . '</code>After configuring, create an empty file named <strong>.nginx_confirmed</strong> inside the <strong>data</strong> directory.',
         'btn_reload'   => 'Resolved, Reload Page',
-        'footer'       => 'GrindSite Self-Diagnostic Tool',
+        'footer'       => 'GrindSite Core Self-Diagnostic Tool',
     ],
     'ja' => [
         'title' => '起動エラー',
@@ -134,7 +134,7 @@ $trans = [
         'msg_nginx'    => 'Nginx 環境が検知されました。アップロードディレクトリでのPHP実行禁止設定が必要です。',
         'advice_nginx' => 'Nginx は .htaccess を無視するため、以下の設定を追加してセキュリティを確保してください：<br><code class="block my-2 p-2 bg-red-100 rounded">' . $nginxRules . '</code>設定完了後、<strong>data</strong> ディレクトリ内に <strong>.nginx_confirmed</strong> という空ファイルを作成すると、この警告は解除されます。',
         'btn_reload'   => '解決したので再読み込みする',
-        'footer'       => 'GrindSite 自己診断ツール',
+        'footer'       => 'GrindSite Core 自己診断ツール',
     ]
 ];
 

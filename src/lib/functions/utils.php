@@ -1415,7 +1415,7 @@ if (!function_exists('grinds_sanitize_html')) {
         }
 
         if (!class_exists('DOMDocument')) {
-            error_log('GrindSite Security Warning: DOM extension missing. Sanitize fallback triggered (stripping all tags).');
+            error_log('GrindSite Core Security Warning: DOM extension missing. Sanitize fallback triggered (stripping all tags).');
             return strip_tags($text);
         }
 

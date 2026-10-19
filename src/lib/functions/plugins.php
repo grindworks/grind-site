@@ -38,7 +38,7 @@ if (!function_exists('grinds_get_plugin_data')) {
         }
         unset($value);
 
-        // 2. Native DocBlock Fallback (GrindSite format)
+        // 2. Native DocBlock Fallback (GrindSite Core format)
         if (empty($all_headers['Description']) || empty($all_headers['Name'])) {
             if (preg_match('/\/\*\*(.*?)\*\//s', $file_data, $docBlockMatch)) {
                 $cleanText = preg_replace('/^[ \t]*\*[ \t]?/m', '', $docBlockMatch[1]);

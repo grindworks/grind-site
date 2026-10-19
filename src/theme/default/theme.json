@@ -1,7 +1,7 @@
 {
   "name": "Default Theme",
   "version": "1.0.0",
-  "description": "The default theme for GrindSite.",
+  "description": "The default theme for GrindSite Core.",
   "post_types": {
     "product": {
       "label": "Products",

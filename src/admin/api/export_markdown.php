@@ -32,7 +32,7 @@ check_csrf_token();
 session_write_close(); // Prevent session locking during export
 
 /**
- * Helper to safely convert GrindSite JSON blocks to clean Markdown.
+ * Helper to safely convert GrindSite Core JSON blocks to clean Markdown.
  */
 function grinds_blocks_to_markdown(string $contentJson)
 {

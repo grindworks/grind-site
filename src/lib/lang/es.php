@@ -108,9 +108,6 @@ return [
     'close_menu' => 'Cerrar menú',
     'system' => 'SISTEMA',
     'administrator' => 'Administrador',
-    'pro' => 'PRO',
-    'unregistered' => 'FREE',
-    'get_pro_key' => 'Obtener clave Pro',
 
     // Define admin menu items.
     'menu_dashboard' => 'Escritorio',
@@ -735,7 +732,6 @@ return [
     'err_update_no_license' => 'Actualización denegada. Se requiere una licencia válida.',
     'err_download_failed' => 'La descarga ha fallado.',
     'err_no_update' => 'No es necesario actualizar.',
-    'st_update_pro_feature' => 'La actualización con un clic es una función Pro.',
     'st_update_manual_desc' => 'Para actualizar manualmente, por favor descargue el archivo zip más reciente y sobrescriba su instalación.',
     'st_update_download_link' => 'Descargar v%s',
     'st_admin_title' => 'Nombre del Panel de Admin',

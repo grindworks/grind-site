@@ -133,7 +133,7 @@ try {
       if (class_exists('FileManager')) {
         // If deletion fails (e.g. permission), it's an orphaned file, not a broken link.
         if (!FileManager::delete($path)) {
-          error_log("GrindSite Warning: Failed to delete physical file: " . $path);
+          error_log("GrindSite Core Warning: Failed to delete physical file: " . $path);
         }
       }
     }

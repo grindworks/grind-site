@@ -255,7 +255,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$is_locked) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="robots" content="noindex, nofollow, noarchive, nosnippet">
     <title>Login |
-        <?= defined('SITE_NAME') ? h(SITE_NAME) : 'GrindSite' ?>
+        <?= defined('SITE_NAME') ? h(SITE_NAME) : 'GrindSite Core' ?>
     </title>
     <link rel="icon" href="<?= h(get_favicon_url()) ?>">
     <link rel="apple-touch-icon" href="<?= h(get_favicon_url()) ?>">

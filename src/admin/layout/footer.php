@@ -106,7 +106,7 @@ if (!defined('GRINDS_APP')) exit;
           </div>
 
           <div class="opacity-40 font-bold text-[10px] text-theme-text uppercase tracking-widest">
-            GrindSite
+            GrindSite Core
           </div>
         </div>
 

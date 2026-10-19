@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# GrindSite Release Automation Script
+# GrindSite Core Release Automation Script
 # Usage: ./bin/release.sh vX.Y.Z "Release title"
 #        CO_AUTHOR="Name <email>" ./bin/release.sh vX.Y.Z "Release title"
 #        (CO_AUTHOR adds a Co-Authored-By trailer to the release commit; AI agents set it)

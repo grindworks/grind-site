@@ -154,8 +154,8 @@ add_filter('grinds_the_content', function ($content) {
         $btn_text = grinds_amazon_t('buy_on_amazon');
         $sprite_url = resolve_url('assets/img/sprite.svg');
 
-        // HTML to output (Card design using GrindSite Tailwind CSS classes)
-        // 出力するHTML（GrindSiteのTailwind CSSクラスを利用したカードデザイン）
+        // HTML to output (Card design using GrindSite Core Tailwind CSS classes)
+        // 出力するHTML（GrindSite CoreのTailwind CSSクラスを利用したカードデザイン）
         return <<<HTML
 <div class="cms-block-amazon-card bg-theme-surface border border-theme-border rounded-theme p-4 sm:p-5 my-6 shadow-theme transition-all hover:shadow-lg group">
     <div class="flex flex-col sm:flex-row gap-4 sm:gap-6 items-center sm:items-start">
@@ -190,8 +190,8 @@ add_action('grinds_init', function () {
     $scriptName = $_SERVER['SCRIPT_NAME'] ?? '';
     $isAdminArea = str_contains($requestPath, '/admin/') || str_contains($scriptName, '/admin/');
 
-    // Receive POST request from the modal and save securely to GrindSite DB
-    // モーダルからのPOSTリクエストを受け取り、GrindSiteのDBに安全に保存する
+    // Receive POST request from the modal and save securely to GrindSite Core DB
+    // モーダルからのPOSTリクエストを受け取り、GrindSite CoreのDBに安全に保存する
     if ($isAdminArea && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['amazon_tracking_id_action'])) {
         if (!function_exists('validate_csrf_token') || !validate_csrf_token($_POST['csrf_token'] ?? '')) {
             die('Security Error: Invalid CSRF token.');

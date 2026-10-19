@@ -108,9 +108,6 @@ return [
     'close_menu' => 'メニューを閉じる',
     'system' => 'システム',
     'administrator' => '管理者',
-    'pro' => 'PRO',
-    'unregistered' => 'FREE',
-    'get_pro_key' => 'Proキーを取得',
 
     // Define admin menu items.
     'menu_dashboard' => 'ダッシュボード',
@@ -735,7 +732,6 @@ return [
     'err_update_no_license' => 'アップデートが拒否されました。有効なライセンスが必要です。',
     'err_download_failed' => 'ダウンロードに失敗しました。',
     'err_no_update' => 'アップデートは不要です。',
-    'st_update_pro_feature' => 'ワンクリック更新はPro版の機能です。',
     'st_update_manual_desc' => '手動で更新するには、最新のzipファイルをダウンロードし、現在のファイルを上書きしてください。',
     'st_update_download_link' => 'v%s をダウンロード',
     'st_admin_title' => '管理画面の表示名',

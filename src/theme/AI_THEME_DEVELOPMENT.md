@@ -79,7 +79,7 @@ Once the AI reads the prompt above, give it a specific design request.
 
 _Tip: This is just an example. Try experimenting with different styles and instructions to find what works best for you!_
 
-### 🎨 3. Overriding Block HTML (Pro Feature)
+### 🎨 3. Overriding Block HTML (Advanced)
 
 You can completely override how the block editor outputs HTML (e.g., headings, quotes, buttons) to perfectly match your theme's design.
 **Example Prompt:**
@@ -202,7 +202,7 @@ _（これは基本テンプレートです。プロジェクトの要件に合�
 
 _ヒント: これはあくまで一例です。あなたの感性で自由に指示を書き換えて、最高の設定を見つけてください！_
 
-### 🎨 3. ブロック出力の完全オーバーライド（プロ向け機能）
+### 🎨 3. ブロック出力の完全オーバーライド（上級者向け）
 
 GrindSite Core のエディタで作成した「見出し」や「引用」「ボタン」などのHTML出力は、テーマ側で**完全に上書き**することができます。AIにこのカスタマイズを行わせることで、記事の中身まで完璧にデザインされたテーマが完成します。
 

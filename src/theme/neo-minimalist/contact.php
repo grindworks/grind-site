@@ -13,7 +13,7 @@ if (!defined('GRINDS_APP')) exit;
 require_once ROOT_PATH . '/lib/mail.php';
 
 // Load settings
-$siteName = get_option('site_name', 'GrindSite');
+$siteName = get_option('site_name', 'GrindSite Core');
 $adminEmail = trim((string)get_option('smtp_admin_email'));
 $recipientEmail = trim((string)get_option('contact_recipient_email')) ?: $adminEmail;
 

@@ -108,9 +108,6 @@ return [
     'close_menu' => 'Close menu',
     'system' => 'SYSTEM',
     'administrator' => 'Administrator',
-    'pro' => 'PRO',
-    'unregistered' => 'FREE',
-    'get_pro_key' => 'Get Pro Key',
 
     // Define admin menu items.
     'menu_dashboard' => 'Dashboard',
@@ -735,7 +732,6 @@ return [
     'err_update_no_license' => 'Update denied. A valid license is required.',
     'err_download_failed' => 'Download failed.',
     'err_no_update' => 'No update needed.',
-    'st_update_pro_feature' => 'One-click update is a Pro feature.',
     'st_update_manual_desc' => 'To update manually, please download the latest zip file and overwrite your installation.',
     'st_update_download_link' => 'Download v%s',
     'st_admin_title' => 'Admin Panel Name',

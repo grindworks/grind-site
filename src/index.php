@@ -7,7 +7,7 @@ if (version_compare(PHP_VERSION, '8.3.0', '<')) {
   http_response_code(500);
   header('Content-Type: text/html; charset=utf-8');
   die(sprintf(
-    '<div style="font-family:sans-serif;padding:2em;text-align:center;color:#d32f2f;"><h1>PHP Version Error</h1><p>GrindSite requires <strong>PHP 8.3</strong> or higher.</p><p>Your current PHP version is: <strong>%s</strong></p></div>',
+    '<div style="font-family:sans-serif;padding:2em;text-align:center;color:#d32f2f;"><h1>PHP Version Error</h1><p>GrindSite Core requires <strong>PHP 8.3</strong> or higher.</p><p>Your current PHP version is: <strong>%s</strong></p></div>',
     htmlspecialchars(PHP_VERSION)
   ));
 }

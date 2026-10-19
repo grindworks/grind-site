@@ -2,14 +2,14 @@
 <?php
 
 /**
- * GrindSite CLI Tool
+ * GrindSite Core CLI Tool
  *
- * A command-line interface for managing the GrindSite CMS.
+ * A command-line interface for managing the GrindSite Core.
  * Runs independently without external dependencies.
  */
 
 if (version_compare(PHP_VERSION, '8.3.0', '<')) {
-    echo "\033[0;31mError: GrindSite CLI requires PHP 8.3.0 or higher. Your server is running PHP " . PHP_VERSION . ".\033[0m\n";
+    echo "\033[0;31mError: GrindSite Core CLI requires PHP 8.3.0 or higher. Your server is running PHP " . PHP_VERSION . ".\033[0m\n";
     exit(1);
 }
 
@@ -42,7 +42,7 @@ foreach ($possiblePaths as $path) {
 
 if (!$srcPath) {
     echo "\033[0;31mError: config.php not found.\033[0m\n";
-    echo "\033[0;33mPlease ensure GrindSite is installed and this tool is placed near your document root.\033[0m\n";
+    echo "\033[0;33mPlease ensure GrindSite Core is installed and this tool is placed near your document root.\033[0m\n";
     exit(1);
 }
 
@@ -138,7 +138,7 @@ function promptSilent(string $message): string
 function displayHelp(): void
 {
     $version = defined('CMS_VERSION') ? CMS_VERSION : 'N/A';
-    $cmsName = defined('CMS_NAME') ? CMS_NAME : 'GrindSite';
+    $cmsName = defined('CMS_NAME') ? CMS_NAME : 'GrindSite Core';
     $scriptName = basename($_SERVER['argv'][0] ?? 'grind');
 
     echo ConsoleColor::bold("{$cmsName} CLI Tool ") . ConsoleColor::green("v{$version}") . "\n\n";
@@ -185,7 +185,7 @@ function displayHelp(): void
 function handleStatus(string $srcPath): void
 {
     $version = defined('CMS_VERSION') ? CMS_VERSION : 'N/A';
-    $cmsName = defined('CMS_NAME') ? CMS_NAME : 'GrindSite';
+    $cmsName = defined('CMS_NAME') ? CMS_NAME : 'GrindSite Core';
     $isMaintenance = file_exists($srcPath . '/.maintenance');
 
     echo ConsoleColor::bold(ConsoleColor::blue("{$cmsName} System Status")) . "\n";
@@ -246,7 +246,7 @@ function handleMaintenance(string $srcPath, bool $enable): void
  */
 function handleCacheClear(string $srcPath): void
 {
-    echo ConsoleColor::yellow("Clearing GrindSite cache...\n");
+    echo ConsoleColor::yellow("Clearing GrindSite Core cache...\n");
     $success = true;
 
     if (function_exists('clear_page_cache')) {

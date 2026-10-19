@@ -108,9 +108,6 @@ return [
     'close_menu' => 'Fechar menu',
     'system' => 'SISTEMA',
     'administrator' => 'Administrador',
-    'pro' => 'PRO',
-    'unregistered' => 'FREE',
-    'get_pro_key' => 'Obter Chave Pro',
 
     // Define admin menu items.
     'menu_dashboard' => 'Painel',
@@ -735,7 +732,6 @@ return [
     'err_update_no_license' => 'Atualização negada. Uma licença válida é necessária.',
     'err_download_failed' => 'O download falhou.',
     'err_no_update' => 'Nenhuma atualização necessária.',
-    'st_update_pro_feature' => 'A atualização com um clique é um recurso Pro.',
     'st_update_manual_desc' => 'Para atualizar manualmente, baixe o arquivo zip mais recente e sobrescreva a sua instalação.',
     'st_update_download_link' => 'Baixar v%s',
     'st_admin_title' => 'Nome do Painel de Admin',

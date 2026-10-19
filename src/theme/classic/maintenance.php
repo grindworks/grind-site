@@ -17,7 +17,7 @@ $defaultMsg = 'We are currently updating the system. Please check back in a few 
 $title = get_option('maintenance_title') ?: (function_exists('theme_t') ? theme_t('System Maintenance') : $defaultTitle);
 $message = get_option('maintenance_message') ?: (function_exists('theme_t') ? theme_t('We are currently updating the system. Please check back in a few minutes.') : $defaultMsg);
 
-$siteName = h(get_option('site_name', 'GrindSite'));
+$siteName = h(get_option('site_name', 'GrindSite Core'));
 ?>
 <!DOCTYPE html>
 <html lang="<?= h($lang) ?>">

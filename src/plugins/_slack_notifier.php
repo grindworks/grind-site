@@ -35,7 +35,7 @@ add_action('grinds_post_saved', function ($postId, $postData) {
 
         // Get site name and post information
         // サイト名や記事情報を取得
-        $siteName = function_exists('get_option') ? get_option('site_name', 'GrindSite') : 'GrindSite';
+        $siteName = function_exists('get_option') ? get_option('site_name', 'GrindSite Core') : 'GrindSite Core';
         $title = $postData['title'] ?? 'No Title';
         $slug = $postData['slug'] ?? '';
 

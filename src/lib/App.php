@@ -7,7 +7,7 @@ declare(strict_types=1);
  *
  * A simple service container for managing global application state and dependencies.
  *
- * @package GrindSite
+ * @package GrindSite Core
  */
 
 if (!defined('GRINDS_APP')) {

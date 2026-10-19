@@ -43,8 +43,8 @@ add_action('grinds_init', function () {
     // $isApi = str_contains($requestUri, '/api/') || str_contains($scriptName, '/api/');
 
     if ($isAdminArea) {
-        // Use GrindSite core's get_client_ip() function to get accurate IP even behind proxies
-        // GrindSiteコアの get_client_ip() 関数を利用して、プロキシ越しのIPも正確に取得
+        // Use GrindSite Core core's get_client_ip() function to get accurate IP even behind proxies
+        // GrindSite Coreコアの get_client_ip() 関数を利用して、プロキシ越しのIPも正確に取得
         $client_ip = function_exists('get_client_ip') ? get_client_ip() : ($_SERVER['REMOTE_ADDR'] ?? '');
 
         $is_allowed = false;

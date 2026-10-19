@@ -484,7 +484,7 @@ ob_start();
                 </div>
             </div>
             <div class="hidden sm:block text-right">
-                <p class="text-xs font-mono opacity-40 text-theme-text">GrindSite v
+                <p class="text-xs font-mono opacity-40 text-theme-text">GrindSite Core v
                     <?= defined('CMS_VERSION') ? CMS_VERSION : '' ?>
                 </p>
                 <p class="text-xs font-mono opacity-40 text-theme-text">PHP

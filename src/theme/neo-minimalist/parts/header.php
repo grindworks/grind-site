@@ -194,7 +194,7 @@ if (!empty($headerMenus)) {
             <?= theme_t('search_placeholder') ?>
           </span>
           <div class="flex items-center gap-2">
-            <span class="font-bold text-gray-400 tracking-widest">GrindSite</span>
+            <span class="font-bold text-gray-400 tracking-widest">GrindSite Core</span>
           </div>
         </div>
       </div>

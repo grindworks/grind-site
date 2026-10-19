@@ -1,5 +1,5 @@
 =========================================================================
- GrindSite - RESCUE TOOL KIT
+ GrindSite Core - RESCUE TOOL KIT
 =========================================================================
 
 [WARNING]
@@ -56,7 +56,7 @@ CASE 3: All accounts deleted / Site taken over
    (Note: The `check/` directory in this folder contains internal developer/testing tools and is not meant for regular users.)
 
 =========================================================================
- 【日本語】 GrindSite レスキューツールキット
+ 【日本語】 GrindSite Core レスキューツールキット
 =========================================================================
 
 [注意]

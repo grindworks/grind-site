@@ -11,18 +11,19 @@ GrindSite is now **GrindSite Core**, and it is **free to use** on any number of 
 > - **From v1.7.4:** Leave **"Do not update themes and skins"** unchecked (the default). Theme files that change are saved to `data/theme_backups/<date_time>/` first.
 > - **From v1.7.3 or earlier:** The option is labeled **"Do not update/add themes and skins"** and is **checked** by default. While it is checked, the theme changes below are not applied. If you uncheck it, all bundled themes and skins are overwritten without saving copies, and deleted ones are restored, so copy any bundled theme you edited first.
 >
-> If you keep themes from updating, you can apply the theme change manually by replacing these files with the ones in `grindsite-v1.8.0.zip` (skip any theme you deleted, and re-apply your own edits). This is not a security fix:
-> - `theme/default/layout.php`
-> - `theme/corporate/layout.php`
-> - `theme/marketing/layout.php`
-> - `theme/neo-minimalist/layout.php`
+> If you keep themes from updating, you can apply the theme changes manually by replacing these files with the ones in `grindsite-v1.8.0.zip` (skip any theme you deleted, and re-apply your own edits). They load the bundled Alpine.js first and use the GrindSite Core name; none of them is a security fix:
+> - `theme/default/`: `layout.php`, `contact.php`, `maintenance.php`, `parts/header.php`, `theme.json`
+> - `theme/corporate/`: `layout.php`, `contact.php`, `maintenance.php`
+> - `theme/marketing/`: `layout.php`, `contact.php`, `maintenance.php`
+> - `theme/neo-minimalist/`: `layout.php`, `contact.php`, `maintenance.php`, `parts/header.php`
+> - `theme/photographer/`: `layout.php`, `contact.php`, `maintenance.php`
 > - `theme/nexus-docs/layout.php`
-> - `theme/photographer/layout.php`
+> - `theme/classic/maintenance.php`
 
 ### 🆓 Free to Use: GrindSite Core
 - **No license key needed:** The license check, the license key field in **Settings → General**, the "TRIAL" notice in the admin sidebar and footer, and the purchase link are removed. The admin panel no longer contacts the license server.
 - **One-click update for everyone:** The "Update" link in the admin footer and sidebar now opens **Settings → Update** on every site. Previously, sites without a license saw "Update (Manual)", which opened the GitHub releases page.
-- **New name:** The admin panel, installer and documentation now call the CMS **GrindSite Core**. The repository, the download file name (`grindsite-vX.Y.Z.zip`) and the update address do not change.
+- **New name:** The admin panel, installer, error and diagnostic pages, RSS feeds, `llms.txt`, the CLI, the rescue tools and the documentation now call the CMS **GrindSite Core**. The repository, the download file name (`grindsite-vX.Y.Z.zip`) and the update address do not change.
 - A license key you entered earlier stays in the database but is no longer used.
 
 ### 🔌 Offline / Intranet Use
@@ -72,18 +73,19 @@ GrindSite は **GrindSite Core** に名称を変更し、公開サーバーを�
 > - **v1.7.4 から:** **「テーマとスキンを更新しない」** をチェックなし（初期状態）のままにしてください。変更されるテーマのファイルは、事前に `data/theme_backups/<日付_時刻>/` に保存されます。
 > - **v1.7.3 以前から:** オプション名は **「テーマとスキンを更新・追加しない」** で、初期状態で**チェックが入っています**。チェックが入ったままだと、下記のテーマの変更は適用されません。チェックを外すと、同梱テーマとスキンはすべて上書きされ（コピーは保存されません）、削除したものも復活します。同梱テーマを独自に変更している場合は、事前にコピーしておいてください。
 >
-> テーマを更新しない場合は、次のファイルを `grindsite-v1.8.0.zip` 内の同じファイルで置き換えると、テーマの変更を手動で適用できます（削除済みのテーマは対応不要です。独自の変更は反映し直してください）。セキュリティ修正ではありません。
-> - `theme/default/layout.php`
-> - `theme/corporate/layout.php`
-> - `theme/marketing/layout.php`
-> - `theme/neo-minimalist/layout.php`
+> テーマを更新しない場合は、次のファイルを `grindsite-v1.8.0.zip` 内の同じファイルで置き換えると、テーマの変更を手動で適用できます（削除済みのテーマは対応不要です。独自の変更は反映し直してください）。同梱の Alpine.js を優先する変更と、GrindSite Core への名称変更で、いずれもセキュリティ修正ではありません。
+> - `theme/default/`: `layout.php`, `contact.php`, `maintenance.php`, `parts/header.php`, `theme.json`
+> - `theme/corporate/`: `layout.php`, `contact.php`, `maintenance.php`
+> - `theme/marketing/`: `layout.php`, `contact.php`, `maintenance.php`
+> - `theme/neo-minimalist/`: `layout.php`, `contact.php`, `maintenance.php`, `parts/header.php`
+> - `theme/photographer/`: `layout.php`, `contact.php`, `maintenance.php`
 > - `theme/nexus-docs/layout.php`
-> - `theme/photographer/layout.php`
+> - `theme/classic/maintenance.php`
 
 ### 🆓 無料化: GrindSite Core
 - **ライセンスキーが不要に:** ライセンスの確認、**「システム設定 → 一般設定」** のライセンスキー入力欄、管理画面のサイドバーとフッターの「TRIAL」表示、購入ページへのリンクを削除しました。管理画面がライセンスサーバーと通信することはなくなりました。
 - **すべてのサイトでワンクリック更新:** 管理画面のフッターとサイドバーの「Update」リンクは、すべてのサイトで **「システム設定 → アップデート」** を開くようになりました。これまでライセンス未登録のサイトでは「Update (Manual)」と表示され、GitHub のリリースページが開いていました。
-- **名称の変更:** 管理画面、インストーラ、ドキュメントでの名称を **GrindSite Core** に変更しました。リポジトリ、ダウンロードファイル名（`grindsite-vX.Y.Z.zip`）、更新の取得先は変わりません。
+- **名称の変更:** 管理画面、インストーラ、エラー・診断画面、RSS フィード、`llms.txt`、CLI、レスキューツール、ドキュメントでの名称を **GrindSite Core** に変更しました。リポジトリ、ダウンロードファイル名（`grindsite-vX.Y.Z.zip`）、更新の取得先は変わりません。
 - 以前に入力したライセンスキーはデータベースに残りますが、使用されません。
 
 ### 🔌 オフライン・イントラネットでの利用

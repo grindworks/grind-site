@@ -108,9 +108,6 @@ return [
     'close_menu' => 'Fermer le menu',
     'system' => 'SYSTÈME',
     'administrator' => 'Administrateur',
-    'pro' => 'PRO',
-    'unregistered' => 'FREE',
-    'get_pro_key' => 'Obtenir la clé Pro',
 
     // Define admin menu items.
     'menu_dashboard' => 'Tableau de bord',
@@ -735,7 +732,6 @@ return [
     'err_update_no_license' => 'Mise à jour refusée. Une licence valide est requise.',
     'err_download_failed' => 'Le téléchargement a échoué.',
     'err_no_update' => 'Aucune mise à jour nécessaire.',
-    'st_update_pro_feature' => 'La mise à jour en un clic est une fonctionnalité Pro.',
     'st_update_manual_desc' => 'Pour mettre à jour manuellement, veuillez télécharger le dernier fichier zip et écraser votre installation.',
     'st_update_download_link' => 'Télécharger la v%s',
     'st_admin_title' => 'Nom du Panneau d\'Admin',

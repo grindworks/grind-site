@@ -417,7 +417,7 @@ class Installer
     }
 
     if (empty($uploadsContent)) {
-      $uploadsContent = "# GrindSite - Uploads Security\n" .
+      $uploadsContent = "# GrindSite Core - Uploads Security\n" .
         "<IfModule mod_headers.c>\n" .
         "    Header always set X-Content-Type-Options \"nosniff\"\n" .
         "    <FilesMatch \"\.(?i:svg|xml|htm|html)$\">\n" .

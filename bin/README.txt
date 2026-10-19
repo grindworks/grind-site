@@ -1,5 +1,5 @@
 =========================================================================
- GrindSite - Developer CLI & Tool Directory
+ GrindSite Core - Developer CLI & Tool Directory
 =========================================================================
 
 [English]
@@ -7,7 +7,7 @@ This directory contains command-line tools for developers and server administrat
 These scripts are intended for use in a local development environment or via SSH on a server.
 
 - grind.php:
-  The powerful main CLI tool for GrindSite. It allows full management of the system
+  The powerful main CLI tool for GrindSite Core. It allows full management of the system
   without using the web interface.
   Key features:
   - Cache management (clear page caches and temporary files)
@@ -53,7 +53,7 @@ These scripts are intended for use in a local development environment or via SSH
 ローカル開発環境や、サーバーへSSH接続して使用することを想定しています。
 
 - grind.php:
-  GrindSiteの強力なメインCLIツールです。Web画面を開くことなく、サーバー運用に必要な
+  GrindSite Coreの強力なメインCLIツールです。Web画面を開くことなく、サーバー運用に必要な
   ほとんどの操作を完結させることができます。
   主な機能:
   - キャッシュ管理（ページキャッシュや一時ファイルのクリア）

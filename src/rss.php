@@ -51,7 +51,7 @@ if (!class_exists('RssGenerator')) {
         ? $urlParts['scheme'] . '://' . $urlParts['host'] . (isset($urlParts['port']) ? ':' . $urlParts['port'] : '')
         : $this->baseUrl;
 
-      $this->siteName = function_exists('get_option') ? (string)get_option('site_name', 'GrindSite') : 'GrindSite';
+      $this->siteName = function_exists('get_option') ? (string)get_option('site_name', 'GrindSite Core') : 'GrindSite Core';
       $this->siteDesc = function_exists('get_option') ? (string)get_option('site_description', '') : '';
       $this->siteLang = function_exists('get_option') ? (string)get_option('site_lang', 'en') : 'en';
 
@@ -94,7 +94,7 @@ if (!class_exists('RssGenerator')) {
           <language><?= htmlspecialchars($this->siteLang, ENT_XML1, 'UTF-8') ?></language>
           <atom:link href="<?= htmlspecialchars($this->baseUrl . '/rss.xml', ENT_XML1, 'UTF-8') ?>" rel="self" type="application/rss+xml" />
           <lastBuildDate><?= date(DATE_RSS) ?></lastBuildDate>
-          <generator>GrindSite</generator>
+          <generator>GrindSite Core</generator>
           <?php $this->generateFeedItems(); ?>
         </channel>
       </rss>
@@ -116,7 +116,7 @@ if (!class_exists('RssGenerator')) {
           <language><?= htmlspecialchars($this->siteLang, ENT_XML1, 'UTF-8') ?></language>
           <atom:link href="<?= htmlspecialchars($this->baseUrl . '/rss.xml', ENT_XML1, 'UTF-8') ?>" rel="self" type="application/rss+xml" />
           <lastBuildDate><?= date(DATE_RSS) ?></lastBuildDate>
-          <generator>GrindSite</generator>
+          <generator>GrindSite Core</generator>
           <?php $this->generateFeedItems(); ?>
         </channel>
       </rss>

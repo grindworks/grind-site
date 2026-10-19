@@ -50,8 +50,8 @@ if (!function_exists('dd')) {
 if (!function_exists('the_reading_time')) {
     function the_reading_time(string $content)
     {
-        // Fallback to strip_tags() if the GrindSite core function is unavailable
-        // GrindSiteコアの関数が存在しない場合は標準の strip_tags() を使用するフォールバック
+        // Fallback to strip_tags() if the GrindSite Core core function is unavailable
+        // GrindSite Coreコアの関数が存在しない場合は標準の strip_tags() を使用するフォールバック
         $text_content = function_exists('grinds_extract_text_from_content') ? grinds_extract_text_from_content($content) : strip_tags($content);
         $length = mb_strlen($text_content, 'UTF-8');
 

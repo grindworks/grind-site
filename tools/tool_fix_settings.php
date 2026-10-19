@@ -14,7 +14,7 @@ define('GRINDS_APP', true);
 // Check PHP Version
 if (version_compare(PHP_VERSION, '8.3.0', '<')) {
   http_response_code(500);
-  die('GrindSite requires PHP 8.3.0 or higher. Your server is running PHP ' . PHP_VERSION . '.');
+  die('GrindSite Core requires PHP 8.3.0 or higher. Your server is running PHP ' . PHP_VERSION . '.');
 }
 
 // Locate root directory.
@@ -31,7 +31,7 @@ if (!$rootPath) {
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>System Error | GrindSite</title>
+    <title>System Error | GrindSite Core</title>
     <script src="https://cdn.tailwindcss.com">
     </script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
@@ -82,7 +82,7 @@ if (file_exists($rootPath . '/lib/info.php')) {
   require_once $rootPath . '/lib/info.php';
 }
 if (!defined('CMS_NAME'))
-  define('CMS_NAME', 'GrindSite');
+  define('CMS_NAME', 'GrindSite Core');
 
 // Determine base URL.
 if (file_exists($rootPath . '/lib/bootstrap_url.php')) {

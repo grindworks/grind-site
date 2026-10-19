@@ -25,7 +25,7 @@ $colors = $skin['colors'] ?? [];
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="icon" href="<?= h(get_favicon_url()) ?>">
-  <title><?= h($title) ?> | <?= h(get_option('site_name', 'GrindSite')) ?></title>
+  <title><?= h($title) ?> | <?= h(get_option('site_name', 'GrindSite Core')) ?></title>
 
   <?php if (!get_option('disable_external_assets')): ?>
     <!-- Load fonts -->

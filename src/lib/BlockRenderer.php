@@ -1493,7 +1493,7 @@ HTML;
 
         // Fail closed: never output protected content unencrypted
         if (!extension_loaded('openssl') || !in_array('aes-256-gcm', openssl_get_cipher_methods())) {
-            error_log('GrindSite: password-protected content hidden because OpenSSL aes-256-gcm is unavailable.');
+            error_log('GrindSite Core: password-protected content hidden because OpenSSL aes-256-gcm is unavailable.');
             return '';
         }
 
@@ -1506,7 +1506,7 @@ HTML;
         $ciphertext = openssl_encrypt($protectedHtml, 'aes-256-gcm', $key, OPENSSL_RAW_DATA, $iv, $tag, "", 16);
 
         if ($ciphertext === false) {
-            error_log('GrindSite: password-protected content hidden because encryption failed.');
+            error_log('GrindSite Core: password-protected content hidden because encryption failed.');
             return '';
         }
 

@@ -393,7 +393,7 @@ if (!function_exists('grinds_footer')) {
 
         // Output debug info if enabled
         if ((defined('DEBUG_MODE') && constant('DEBUG_MODE')) || (function_exists('get_option') && get_option('debug_mode'))) {
-            echo '<!-- GrindSite Debug: ' . round(memory_get_peak_usage() / 1024 / 1024, 2) . 'MB used -->';
+            echo '<!-- GrindSite Core Debug: ' . round(memory_get_peak_usage() / 1024 / 1024, 2) . 'MB used -->';
         }
     }
 }
@@ -1215,7 +1215,7 @@ if (!function_exists('grinds_admin_bar')) {
                         style="color: inherit; text-decoration: none;">
                         <span
                             style="width:8px; height:8px; background-color: <?= $barAccent ?>; border-radius: 1px; display:inline-block;"></span>
-                        <span class="grinds-hide-mobile">GrindSite</span>
+                        <span class="grinds-hide-mobile">GrindSite Core</span>
                         <span class="grinds-show-mobile">GS</span>
                     </a>
 

@@ -15,7 +15,7 @@ if (!defined('GRINDS_APP')) exit; ?>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= $t['title'] ?> | GrindSite</title>
+    <title><?= $t['title'] ?> | GrindSite Core</title>
     <style>
         /* Standalone CSS for Offline/Intranet Support */
         body {
@@ -314,7 +314,7 @@ if (!defined('GRINDS_APP')) exit; ?>
         <?php endif; ?>
 
         <div class="footer">
-            <p>GrindSite</p>
+            <p>GrindSite Core</p>
         </div>
 
     </div>

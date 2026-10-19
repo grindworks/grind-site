@@ -719,7 +719,7 @@ document.addEventListener('alpine:init', () => {
             localStorage.setItem(this.draftKey, json);
             localStorage.setItem(this.draftKey + '_time', Date.now());
           } catch (e) {
-            console.warn('GrindSite: LocalStorage limit exceeded. Draft not saved.', e);
+            console.warn('GrindSite Core: LocalStorage limit exceeded. Draft not saved.', e);
           }
         }
         const now = new Date();

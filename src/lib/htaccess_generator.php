@@ -51,7 +51,7 @@ if (!function_exists('grinds_get_htaccess_content')) {
 
         return <<<EOT
 # =================================================================
-# GrindSite - Main .htaccess (Portable & Secure)
+# GrindSite Core - Main .htaccess (Portable & Secure)
 # =================================================================
 
 # ----------------------------------------------------------------------

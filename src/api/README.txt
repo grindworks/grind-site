@@ -1,9 +1,9 @@
 =========================================================================
- GrindSite API Directory
+ GrindSite Core API Directory
 =========================================================================
 
 [English]
-This directory contains public API endpoints for GrindSite.
+This directory contains public API endpoints for GrindSite Core.
 
 - posts.php:
   A read-only API that returns published posts in JSON format.
@@ -53,7 +53,7 @@ This directory contains public API endpoints for GrindSite.
 -------------------------------------------------------------------------
 
 [Japanese]
-このディレクトリは、GrindSiteの公開APIエンドポイントを配置する場所です。
+このディレクトリは、GrindSite Coreの公開APIエンドポイントを配置する場所です。
 
 - posts.php:
   公開済みの記事データをJSON形式で返す読み取り専用APIです。

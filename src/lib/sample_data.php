@@ -322,8 +322,8 @@ function Grinds_GetSampleData(string $lang = 'en'): array
                         ['type' => 'callout', 'data' => [
                             'style' => 'info',
                             'text' => $isJa
-                                ? '<b>プロ向けの機能:</b> GrindSite Coreは、PHPファイルひとつでブロックのHTML構造を完全に制御できます。Tailwind以外のフレームワーク（Bootstrapなど）を使用する場合に特に便利です。'
-                                : '<b>Pro Feature:</b> GrindSite Core allows full control over block HTML structure via simple PHP files. Especially useful when using frameworks other than Tailwind (e.g., Bootstrap).'
+                                ? '<b>上級者向けの機能:</b> GrindSite Coreは、PHPファイルひとつでブロックのHTML構造を完全に制御できます。Tailwind以外のフレームワーク（Bootstrapなど）を使用する場合に特に便利です。'
+                                : '<b>Advanced:</b> GrindSite Core allows full control over block HTML structure via simple PHP files. Especially useful when using frameworks other than Tailwind (e.g., Bootstrap).'
                         ]],
                         ['type' => 'header', 'data' => ['text' => $isJa ? '仕組み' : 'How it works', 'level' => 'h2']],
                         ['type' => 'paragraph', 'data' => ['text' => $isJa

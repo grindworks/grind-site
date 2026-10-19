@@ -13,7 +13,7 @@ function init_system(): void
 {
     // Block execution if PHP version is strictly below 8.3
     if (version_compare(PHP_VERSION, '8.3.0', '<')) {
-        $msg = 'GrindSite requires PHP 8.3.0 or higher. Your server is running PHP ' . PHP_VERSION . '. Please upgrade your PHP version via your hosting control panel.';
+        $msg = 'GrindSite Core requires PHP 8.3.0 or higher. Your server is running PHP ' . PHP_VERSION . '. Please upgrade your PHP version via your hosting control panel.';
         if (function_exists('grinds_render_error_page')) {
             grinds_render_error_page('PHP Version Error', $msg, 'System Error', 500);
         } else {

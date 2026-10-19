@@ -8,12 +8,12 @@
  *
  * [English]
  * Two-Factor Authentication (2FA) via Email OTP (One-Time Password).
- * Requires valid SMTP settings in GrindSite to function.
+ * Requires valid SMTP settings in GrindSite Core to function.
  * If SMTP is not configured, it safely falls back to standard login (Fail-safe).
  *
  * [Japanese]
  * メールによるワンタイムパスワード(OTP)を利用した2要素認証プラグインです。
- * GrindSiteのSMTP設定が正しく完了している場合のみ動作します。
+ * GrindSite CoreのSMTP設定が正しく完了している場合のみ動作します。
  * SMTPが未設定の場合は、安全のため通常のログインへフォールバックします。
  */
 if (!defined('GRINDS_APP')) exit;
@@ -127,7 +127,7 @@ add_action('grinds_init', function () {
         require_once ROOT_PATH . '/lib/mail.php';
         try {
             $mailer = new SimpleMailer();
-            $siteName = get_option('site_name', 'GrindSite');
+            $siteName = get_option('site_name', 'GrindSite Core');
 
             if ($isJa) {
                 $subject = "[{$siteName}] ログイン認証コード";
@@ -159,7 +159,7 @@ add_action('grinds_init', function () {
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <meta name="robots" content="noindex, nofollow">
-        <title><?= $isJa ? '2段階認証' : '2FA Verification' ?> | GrindSite</title>
+        <title><?= $isJa ? '2段階認証' : '2FA Verification' ?> | GrindSite Core</title>
         <link href="<?= htmlspecialchars($cssUrl, ENT_QUOTES, 'UTF-8') ?>" rel="stylesheet">
         <style>
             :root {

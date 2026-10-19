@@ -135,7 +135,7 @@ if (!class_exists('RobotsGenerator')) {
         private function generateContent(): string
         {
             $lines = [];
-            $lines[] = "# GrindSite";
+            $lines[] = "# GrindSite Core";
 
             if ($this->path !== '' && $this->path !== '/') {
                 $lines[] = "# Note: If installed in a subdirectory, add 'Sitemap: {$this->baseUrl}/sitemap.xml' to your root robots.txt";

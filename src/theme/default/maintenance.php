@@ -21,7 +21,7 @@ $font_family = !empty($skin['font']) ? $skin['font'] : 'sans-serif';
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title><?= h($title) ?> | <?= h(get_option('site_name', 'GrindSite')) ?></title>
+  <title><?= h($title) ?> | <?= h(get_option('site_name', 'GrindSite Core')) ?></title>
 
   <!-- Load font if specified -->
   <?php if (!empty($skin['font_url']) && !get_option('disable_external_assets')): ?>

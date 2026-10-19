@@ -128,7 +128,7 @@ add_filter('grinds_the_content', function ($content) {
             $image_html = '<svg class="w-12 h-12 text-theme-text/20 transition-transform group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24"><use href="' . $sprite_url . '#outline-shopping-bag"></use></svg>';
         }
 
-        // HTML to output (Card design using GrindSite Tailwind CSS classes with Rakuten Red #bf0000)
+        // HTML to output (Card design using GrindSite Core Tailwind CSS classes with Rakuten Red #bf0000)
         // 楽天カラー（#bf0000）を使用したリッチなカードデザインの出力
         return <<<HTML
 <div class="cms-block-rakuten-card bg-theme-surface border border-theme-border rounded-theme p-4 sm:p-5 my-6 shadow-theme transition-all hover:shadow-lg group">

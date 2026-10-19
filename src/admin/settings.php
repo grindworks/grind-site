@@ -994,7 +994,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $siteName = get_option('site_name', CMS_NAME);
             $subject = "[{$siteName}] SMTP Test Mail";
             $body = "Hello,\n\n";
-            $body .= "This is a test email sent from your GrindSite installation.\n";
+            $body .= "This is a test email sent from your GrindSite Core installation.\n";
             $body .= "If you are reading this, your SMTP settings are configured correctly!\n\n";
             $body .= "Site: {$siteName}\n";
             $body .= "URL: " . resolve_url('/') . "\n";
@@ -1325,7 +1325,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $pdo->beginTransaction();
         try {
           // Load sample data
-          Grinds_InstallSampleData($pdo, get_option('site_lang', 'en'), get_option('site_name', 'GrindSite'));
+          Grinds_InstallSampleData($pdo, get_option('site_lang', 'en'), get_option('site_name', 'GrindSite Core'));
           $pdo->commit();
           set_flash(_t('msg_sample_data_installed'));
         } catch (Exception $e) {
@@ -1356,7 +1356,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $initLang = defined('SITE_LANG') ? SITE_LANG : 'en';
         $stmtInit = $pdo->prepare("INSERT INTO settings (key, value) VALUES (?, ?)");
         $stmtInit->execute(['site_lang', $initLang]);
-        $stmtInit->execute(['site_name', defined('SITE_NAME') ? SITE_NAME : 'GrindSite']);
+        $stmtInit->execute(['site_name', defined('SITE_NAME') ? SITE_NAME : 'GrindSite Core']);
         $stmtInit->execute(['db_version', $dbVersion]);
         grinds_logout();
         redirect('admin/login.php');
