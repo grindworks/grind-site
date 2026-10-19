@@ -43,6 +43,7 @@ This release bundles every library GrindSite needs, so a site can be installed a
 
 ### 📄 Licenses
 - **`THIRD_PARTY_LICENSES.txt`:** New file listing every bundled third-party component (Alpine.js, Chart.js, flatpickr, KaTeX, Prism, Heroicons, Tailwind CSS and others) with its full license text.
+- **Brand icons:** The social icons (X, Facebook, Instagram, LINE, Discord, TikTok, Pinterest, LinkedIn, GitHub, Threads, Twitch) now all come from Simple Icons (CC0), so their origin is documented. They keep the same names, so existing share buttons and themes keep working. The LINE icon is now single-color like the others.
 - **`LICENSE.txt`:** Added Section 8, "Third-Party Components": bundled open source components are licensed under their own licenses, and this Agreement does not restrict those rights. The updater never changes `LICENSE.txt`, so download `grindsite-v1.8.0.zip` to read the new version.
 
 ### 📖 Documentation
@@ -94,6 +95,7 @@ This release bundles every library GrindSite needs, so a site can be installed a
 
 ### 📄 ライセンス
 - **`THIRD_PARTY_LICENSES.txt`:** 同梱している第三者コンポーネント（Alpine.js、Chart.js、flatpickr、KaTeX、Prism、Heroicons、Tailwind CSS など）の一覧と、各ライセンスの全文を収録したファイルを追加しました。
+- **ブランドアイコン:** SNS アイコン（X、Facebook、Instagram、LINE、Discord、TikTok、Pinterest、LinkedIn、GitHub、Threads、Twitch）をすべて Simple Icons（CC0）のデータに統一し、出典を明確にしました。アイコン名は変わらないため、既存の共有ボタンやテーマはそのまま動作します。LINE アイコンは他と同じ単色になりました。
 - **`LICENSE.txt`:** 第8条「第三者コンポーネント」を追加しました。同梱のオープンソースコンポーネントにはそれぞれのライセンスが適用され、本契約はその権利を制限しません。更新機能は `LICENSE.txt` を変更しないため、新しい内容は `grindsite-v1.8.0.zip` をダウンロードしてご確認ください。
 
 ### 📖 ドキュメント

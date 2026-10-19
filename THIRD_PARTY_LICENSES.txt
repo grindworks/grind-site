@@ -57,7 +57,7 @@ Components
     Files:   assets/img/sprite.svg (symbols whose id starts with "outline-")
     Website: https://heroicons.com/
  9. Simple Icons
-    Version: -
+    Version: 16.34.0 (LinkedIn: 13.21.0, the last release that includes it)
     License: CC0 1.0 Universal
     Files:   assets/img/sprite.svg (brand symbols whose id starts with "icon-")
     Website: https://simpleicons.org/
@@ -237,7 +237,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 =============================================================================
-9. Simple Icons -
+9. Simple Icons 16.34.0
 =============================================================================
 
 CC0 1.0 Universal (Public Domain Dedication)
