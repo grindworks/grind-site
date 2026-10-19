@@ -1,73 +1,101 @@
 Release title
-v1.7.4 - Safer Theme Updates
+v1.8.0 - Offline-Ready Libraries & Security Hardening
 
 Release notes
-This release makes one-click updates deliver fixes to bundled themes and skins by default, while keeping a copy of every theme or skin file the update changes.
+This release bundles every library GrindSite needs, so a site can be installed and run on a network with no internet access. It also fixes several security and reliability issues found in an audit, adds third-party license notices, and stops shipping the Bootstrap theme.
 
 > [!IMPORTANT]
-> **The new update behavior starts with your next update after this one.**
+> **An update is performed by the version that is currently installed.** When you update to v1.8.0, your current version's updater is used, so the safer rollback described under "Updater" takes effect from your next update after this one.
 >
-> An update is performed by the version that is currently installed. So when you update **from v1.7.3 or earlier to v1.7.4**, the old update screen and behavior are used:
-> - The option is labeled **"Do not update/add themes and skins"** and is **checked** by default. While it is checked, nothing under `theme/` or `admin/skins/` is updated.
-> - If you uncheck it, all bundled themes and skins are overwritten (including changes you made to their files), bundled themes and skins you deleted are restored, and **no copies are saved**.
+> **Theme files are updated only when themes are allowed to update:**
+> - **From v1.7.4:** Leave **"Do not update themes and skins"** unchecked (the default). Theme files that change are saved to `data/theme_backups/<date_time>/` first.
+> - **From v1.7.3 or earlier:** The option is labeled **"Do not update/add themes and skins"** and is **checked** by default. While it is checked, the theme changes below are not applied. If you uncheck it, all bundled themes and skins are overwritten without saving copies, and deleted ones are restored, so copy any bundled theme you edited first.
 >
-> **If you updated to v1.7.3 with the option checked**, the v1.7.3 security fixes for the Bootstrap, Classic, Corporate, Marketing and Photographer themes are not yet on your site. Do one of the following:
-> - Uncheck the option when you update to v1.7.4. If you edited a bundled theme, copy that theme folder to a safe place first.
-> - Or keep the option checked, and after the update replace these files on your server with the same files from `grindsite-v1.7.4.zip`. If you edited any of them, re-apply your changes. If you deleted one of these themes, skip its file.
->   - `theme/bootstrap/functions.php`
->   - `theme/classic/functions.php`
->   - `theme/corporate/functions.php`
->   - `theme/marketing/functions.php`
->   - `theme/photographer/functions.php`
->   - `theme/neo-minimalist/functions.php` (not a security fix; see Themes below)
+> If you keep themes from updating, you can apply the theme change manually by replacing these files with the ones in `grindsite-v1.8.0.zip` (skip any theme you deleted, and re-apply your own edits). This is not a security fix:
+> - `theme/default/layout.php`
+> - `theme/corporate/layout.php`
+> - `theme/marketing/layout.php`
+> - `theme/neo-minimalist/layout.php`
+> - `theme/nexus-docs/layout.php`
+> - `theme/photographer/layout.php`
 
-### ⬆️ Updater (applies to updates performed by v1.7.4 or later)
-- **Themes and skins are updated by default:** The option is renamed **"Do not update themes and skins"** and is now **unchecked** by default.
-  - **Unchecked:** Bundled themes and skins that exist on your site are updated, including their security fixes. Bundled themes and skins that are not on your site (for example, ones you deleted) are not added. Before a theme or skin file is overwritten, its previous version is saved to `data/theme_backups/<date_time>/`, and the update screen shows where. The five most recent folders are kept.
-  - **Checked:** Themes and skins are not changed, so their security fixes are not applied.
-  - Themes and skins that are not bundled with GrindSite are never changed by an update.
-- **Clearer error message:** When an update failed but the automatic rollback succeeded, the updater wrongly reported that the rollback had also failed. It now reports the rollback correctly.
+### 🔌 Offline / Intranet Use
+- **KaTeX and Prism.js are bundled:** Math blocks and code highlighting (all Prism languages) now work without internet access. Prism is updated from 1.29.0 to 1.30.0, which fixes a known vulnerability (CVE-2024-53382).
+- **Themes load the bundled Alpine.js first:** Previously, themes used the bundled copy only when "Disable External Assets (Local Fallback)" was checked. A CDN is now used only if the bundled file is missing.
+- **Static export includes bundled libraries:** Static export skipped every folder named `vendor`, so exported sites were missing `assets/js/vendor/` and `assets/css/vendor/`. They are now exported.
+- **CDN fallbacks are pinned:** When a bundled file is missing, the admin panel and themes load a fixed library version with Subresource Integrity, instead of "latest".
+- For a fully offline site, check **"Offline Mode (Local Fallback)"** in the installer, or **Settings → Theme → "Disable External Assets (Local Fallback)"**. QR Code, Map and Embed blocks, link cards, update checks and license verification still need the internet.
+
+### 🔒 Security & Reliability
+- **Password-protected blocks fail closed:** If the server cannot encrypt the protected content (OpenSSL or AES-256-GCM unavailable), the content is now hidden instead of being shown unencrypted.
+- **SVG sanitizer:** Dangerous namespaced attributes such as `xlink:href="javascript:..."` are now removed, and `@import` inside `<style>` is blocked. SVG upload remains admin-only.
+- **Login page:** The "Back to site" link now rejects `redirect_to` values containing a backslash, like the post-login redirect already did.
+- **License check:** A failed license check is now cached for one hour, so the admin panel no longer retries (and waits up to 5 seconds) on every page. After you save the General settings, a failed result is cleared and the key is checked again on the next page load.
+- **Trusted proxy ranges:** Invalid prefix lengths (for example `/33`) are now rejected instead of causing errors.
+- **Email 2FA plugin:** One-time codes are compared in constant time.
+
+### ⬆️ Updater (applies to updates performed by v1.8.0 or later)
+- **Honest rollback:** If an update fails, the rollback now checks every restored file and reports a failure instead of claiming success. Files that the failed update added are removed, so the site does not end up with a mix of old and new files.
+- **Backup failures stop the update:** If a file cannot be backed up, the update stops before anything is changed.
 
 ### 🎨 Themes
-- **Neo-Minimalist:** The theme's own design for YouTube, Canva and Figma embeds is now used. GrindSite previously could not find block render functions for theme folders whose names contain hyphens. Other embeds are displayed as before.
+- **Bootstrap theme removed:** The Bootstrap theme is no longer bundled. Updates never delete files, so if your site has `theme/bootstrap/`, it stays and keeps working as before, but it will not receive fixes and still loads Bootstrap from a CDN. We recommend switching to another theme.
+
+### 📄 Licenses
+- **`THIRD_PARTY_LICENSES.txt`:** New file listing every bundled third-party component (Alpine.js, Chart.js, flatpickr, KaTeX, Prism, Heroicons, Tailwind CSS and others) with its full license text.
+- **`LICENSE.txt`:** Added Section 8, "Third-Party Components": bundled open source components are licensed under their own licenses, and this Agreement does not restrict those rights. The updater never changes `LICENSE.txt`, so download `grindsite-v1.8.0.zip` to read the new version.
 
 ### 📖 Documentation
-- **README:** Added an "Updating" section that explains what each update method changes.
-- **Theme guide (`theme/README.md`):** Explains how to duplicate a bundled theme safely, including renaming its `_render_block()` function.
+- **README:** Updated the offline/intranet section, linked the third-party notices, and corrected the database file name (`data/grinds_*.db`).
+- **Settings → Theme:** The description of "Disable External Assets (Local Fallback)" now matches the new behavior (all languages).
 
 ---
 
 ## 🇯🇵 日本語 (Japanese)
 
-このリリースでは、ワンクリック更新で同梱テーマとスキンの修正が標準で適用されるようにしました。あわせて、更新で変更されるテーマ・スキンのファイルは、更新前の内容をすべて保存するようにしました。
+このリリースでは、GrindSite に必要なライブラリをすべて同梱し、インターネットに接続できないネットワークでもインストール・運用できるようにしました。あわせて、監査で見つかったセキュリティ・信頼性の問題の修正、第三者ライセンス表示の追加、Bootstrap テーマの同梱終了を行いました。
 
 > [!IMPORTANT]
-> **新しい更新の動作が有効になるのは、今回の次の更新からです。**
+> **更新処理は、現在インストールされているバージョンが行います。** v1.8.0 への更新には現在のバージョンの更新機能が使われるため、下記「更新機能」の安全なロールバックが有効になるのは、今回の次の更新からです。
 >
-> 更新処理は、現在インストールされているバージョンが行います。そのため、**v1.7.3 以前から v1.7.4 に更新する場合**は、従来の更新画面と動作になります。
-> - オプション名は **「テーマとスキンを更新・追加しない」** で、初期状態で**チェックが入っています**。チェックが入ったままだと、`theme/` と `admin/skins/` 以下は更新されません。
-> - チェックを外すと、同梱テーマとスキンはすべて上書きされ（それらのファイルに加えた独自の変更も上書きされます）、削除した同梱テーマやスキンが復活し、更新前のファイルは**保存されません**。
+> **テーマのファイルは、テーマの更新を許可している場合にのみ更新されます。**
+> - **v1.7.4 から:** **「テーマとスキンを更新しない」** をチェックなし（初期状態）のままにしてください。変更されるテーマのファイルは、事前に `data/theme_backups/<日付_時刻>/` に保存されます。
+> - **v1.7.3 以前から:** オプション名は **「テーマとスキンを更新・追加しない」** で、初期状態で**チェックが入っています**。チェックが入ったままだと、下記のテーマの変更は適用されません。チェックを外すと、同梱テーマとスキンはすべて上書きされ（コピーは保存されません）、削除したものも復活します。同梱テーマを独自に変更している場合は、事前にコピーしておいてください。
 >
-> **チェックが入ったまま v1.7.3 に更新した場合**、Bootstrap・Classic・Corporate・Marketing・Photographer テーマに対する v1.7.3 のセキュリティ修正は、まだサイトに適用されていません。次のどちらかを行ってください。
-> - v1.7.4 に更新するときにチェックを外す。同梱テーマを独自に変更している場合は、事前にそのテーマのフォルダを別の場所にコピーしておいてください。
-> - または、チェックを入れたまま更新し、更新後にサーバー上の次のファイルを `grindsite-v1.7.4.zip` 内の同じファイルで置き換える。独自に変更していたファイルは、変更を反映し直してください。削除済みのテーマは対応不要です。
->   - `theme/bootstrap/functions.php`
->   - `theme/classic/functions.php`
->   - `theme/corporate/functions.php`
->   - `theme/marketing/functions.php`
->   - `theme/photographer/functions.php`
->   - `theme/neo-minimalist/functions.php`（セキュリティ修正ではありません。下記「テーマ」を参照）
+> テーマを更新しない場合は、次のファイルを `grindsite-v1.8.0.zip` 内の同じファイルで置き換えると、テーマの変更を手動で適用できます（削除済みのテーマは対応不要です。独自の変更は反映し直してください）。セキュリティ修正ではありません。
+> - `theme/default/layout.php`
+> - `theme/corporate/layout.php`
+> - `theme/marketing/layout.php`
+> - `theme/neo-minimalist/layout.php`
+> - `theme/nexus-docs/layout.php`
+> - `theme/photographer/layout.php`
 
-### ⬆️ 更新機能（v1.7.4 以降が行う更新に適用）
-- **テーマとスキンを標準で更新:** オプション名を **「テーマとスキンを更新しない」** に変更し、初期状態を**チェックなし**にしました。
-  - **チェックなし:** サイトにある同梱テーマとスキンを、セキュリティ修正を含めて更新します。サイトに無い同梱テーマとスキン（削除したものなど）は追加しません。テーマ・スキンのファイルを上書きする前に、更新前の内容を `data/theme_backups/<日付_時刻>/` に保存し、保存先を更新画面に表示します。保存するのは直近5回分です。
-  - **チェックあり:** テーマとスキンを変更しません。そのため、それらのセキュリティ修正は適用されません。
-  - GrindSite に同梱されていないテーマやスキンは、アップデートで変更されることはありません。
-- **エラー表示の修正:** 更新に失敗して自動ロールバックには成功した場合に、「ロールバックにも失敗した」と誤って表示されていた問題を修正しました。
+### 🔌 オフライン・イントラネットでの利用
+- **KaTeX と Prism.js を同梱:** 数式ブロックとコードハイライト（Prism の全言語）が、インターネット接続なしで動作するようになりました。Prism は 1.29.0 から 1.30.0 に更新し、既知の脆弱性（CVE-2024-53382）を解消しました。
+- **テーマは同梱の Alpine.js を優先:** これまでテーマは「外部アセットを無効化（ローカルフォールバック）」がオンのときだけ同梱版を使っていました。今後は同梱ファイルが無い場合にのみ CDN を使います。
+- **静的書き出しに同梱ライブラリを含める:** 静的書き出しが `vendor` という名前のフォルダをすべて除外していたため、書き出したサイトに `assets/js/vendor/` と `assets/css/vendor/` が含まれていませんでした。今後は書き出されます。
+- **CDN フォールバックのバージョン固定:** 同梱ファイルが無い場合、管理画面とテーマは「最新版」ではなく、バージョンを固定し SRI（サブリソース完全性）を付けたライブラリを読み込みます。
+- 完全にオフラインで運用する場合は、インストール時に **「オフラインモード（ローカル優先）」** をチェックするか、**「システム設定 → テーマ → 外部アセットを無効化（ローカルフォールバック）」** を有効にしてください。QRコード・地図・埋め込みブロック、リンクカード、更新の確認、ライセンス認証はインターネット接続が必要です。
+
+### 🔒 セキュリティ・信頼性
+- **パスワード保護ブロックを fail-closed に:** サーバーが保護対象の内容を暗号化できない場合（OpenSSL または AES-256-GCM が使えない場合）、暗号化せずに表示するのではなく、表示しないようにしました。
+- **SVG サニタイザ:** `xlink:href="javascript:..."` などの名前空間付きの危険な属性を除去し、`<style>` 内の `@import` をブロックするようにしました。SVG のアップロードは引き続き管理者のみです。
+- **ログイン画面:** 「サイトに戻る」リンクで、バックスラッシュを含む `redirect_to` を拒否するようにしました（ログイン後のリダイレクトと同じ検査）。
+- **ライセンス確認:** 確認に失敗した結果を1時間キャッシュするようにしました。管理画面を開くたびに再試行して最大5秒待たされることがなくなります。一般設定を保存すると失敗した結果が消去され、次にページを開いたときに再確認します。
+- **信頼するプロキシの範囲指定:** `/33` などの不正なプレフィックス長を、エラーにならずに拒否するようにしました。
+- **メール 2FA プラグイン:** ワンタイムコードを定数時間で比較するようにしました。
+
+### ⬆️ 更新機能（v1.8.0 以降が行う更新に適用）
+- **正確なロールバック:** 更新に失敗した場合、ロールバックで復元したファイルをすべて確認し、失敗があれば成功と表示せずに失敗として報告します。失敗した更新が追加したファイルは削除されるため、新旧のファイルが混在した状態になりません。
+- **バックアップの失敗で更新を中止:** ファイルをバックアップできない場合は、何も変更する前に更新を中止します。
 
 ### 🎨 テーマ
-- **Neo-Minimalist:** YouTube・Canva・Figma の埋め込みで、テーマ独自のデザインが使われるようになりました。フォルダ名にハイフンを含むテーマでは、ブロック描画用の関数が見つからない不具合がありました。その他の埋め込みの表示は従来どおりです。
+- **Bootstrap テーマの同梱を終了:** Bootstrap テーマは同梱されなくなりました。更新でファイルが削除されることはないため、サイトに `theme/bootstrap/` がある場合はそのまま残り、従来どおり動作します。ただし今後は修正が届かず、Bootstrap も引き続き CDN から読み込みます。別のテーマへの切り替えをおすすめします。
+
+### 📄 ライセンス
+- **`THIRD_PARTY_LICENSES.txt`:** 同梱している第三者コンポーネント（Alpine.js、Chart.js、flatpickr、KaTeX、Prism、Heroicons、Tailwind CSS など）の一覧と、各ライセンスの全文を収録したファイルを追加しました。
+- **`LICENSE.txt`:** 第8条「第三者コンポーネント」を追加しました。同梱のオープンソースコンポーネントにはそれぞれのライセンスが適用され、本契約はその権利を制限しません。更新機能は `LICENSE.txt` を変更しないため、新しい内容は `grindsite-v1.8.0.zip` をダウンロードしてご確認ください。
 
 ### 📖 ドキュメント
-- **README:** 更新方法ごとに何が変更されるかを説明する「アップデート」の節を追加しました。
-- **テーマガイド（`theme/README_ja.md`）:** 同梱テーマを安全に複製する方法（`_render_block()` 関数名の変更を含む）を追記しました。
+- **README:** オフライン・イントラネットの節を更新し、第三者ライセンス表示へのリンクを追加し、データベースのファイル名（`data/grinds_*.db`）を訂正しました。
+- **システム設定 → テーマ:** 「外部アセットを無効化（ローカルフォールバック）」の説明文を新しい動作に合わせました（全言語）。
