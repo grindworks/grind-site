@@ -59,6 +59,7 @@
 
 ## 6. Updates & Releases
 
+- **Releases are performed by the AI agent on the owner's request.** Get explicit approval before anything is pushed or published. Run the script with your own attribution: `CO_AUTHOR="<model name> <noreply@anthropic.com>" ./bin/release.sh vX.Y.Z "Title"`.
 - **Release only with `./bin/release.sh vX.Y.Z "Title"`** after writing `bin/release_template.txt`: line 2 is `vX.Y.Z - Title`, the body starts on line 5, English first, then Japanese. The script checks, tags, creates the GitHub Release, verifies the uploaded asset hash and pushes `main` last, so sites never see a release whose ZIP is not downloadable yet.
 - **Installed sites poll `https://raw.githubusercontent.com/grindworks/grind-site/main/update.json`** (hardcoded in every release). Never rename the repository, and never create another repository named `grind-site-core` (that would break the redirect v1.7.3 relies on).
 - **`update.json` MUST carry `sha256`.** v1.7.3+ updaters refuse an update without it.

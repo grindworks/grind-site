@@ -2,6 +2,8 @@
 
 # GrindSite Release Automation Script
 # Usage: ./bin/release.sh vX.Y.Z "Release title"
+#        CO_AUTHOR="Name <email>" ./bin/release.sh vX.Y.Z "Release title"
+#        (CO_AUTHOR adds a Co-Authored-By trailer to the release commit; AI agents set it)
 #
 # Before running:
 #   1. Write bin/release_template.txt for this version (line 2 must start with "vX.Y.Z ").
@@ -89,7 +91,13 @@ sed -i '' 's/version-[0-9\.]*-blue\.svg/version-'"$RAW_VERSION"'-blue.svg/' READ
 
 echo "📦 Committing changes..."
 git add -A
-git commit -q -m "feat: release $VERSION - $MESSAGE"
+COMMIT_MSG="feat: release $VERSION - $MESSAGE"
+if [ -n "${CO_AUTHOR:-}" ]; then
+  COMMIT_MSG="$COMMIT_MSG
+
+Co-Authored-By: $CO_AUTHOR"
+fi
+git commit -q -m "$COMMIT_MSG"
 
 # ---------------------------------------------------------------
 # 2. Build the ZIP from src/ and record its hash in update.json
