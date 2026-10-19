@@ -116,7 +116,7 @@ _This project is maintained by an independent developer. These boundaries exist 
 GrindSite is designed for easy synchronization.
 
 1.  **Develop Locally:** Create content and customize themes on your local machine.
-2.  **Deploy:** Upload the modified files and `data/data.db` to your production server via FTP.
+2.  **Deploy:** Upload the modified files and the database in `data/` (`grinds_*.db`) to your production server via FTP.
 3.  **Update:** Download the latest version from GitHub and overwrite the core files manually, or use the "One-Click Update" feature from the admin panel.
 
 ### ⬆️ Updating
@@ -487,7 +487,7 @@ _本プロジェクトは個人開発者によって維持されています。�
 ### 🔄 運用フロー（推奨）
 
 1.  **ローカルで開発:** MAMP や XAMPP などのローカル環境で記事作成やデザイン調整を行います。
-2.  **アップロード:** 変更したファイルと `data/data.db` を FTP で本番サーバーへ上書きします。
+2.  **アップロード:** 変更したファイルと `data/` 内のデータベース（`grinds_*.db`）を FTP で本番サーバーへ上書きします。
 3.  **アップデート:** 最新版の zip をダウンロードし手動でファイルを上書きするか、管理画面から「ワンクリック更新」を使用することでアップデート可能です。
 
 ### ⬆️ アップデート

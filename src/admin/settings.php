@@ -492,6 +492,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
               }
             }
           }
+          // Re-check the license on the next page load unless it is already confirmed
+          if (function_exists('get_license_check_cache') && !in_array(get_license_check_cache()['status'] ?? '', ['pro', 'agency'], true)) {
+            update_option('license_check_cache', '[]');
+          }
+
           $pdo->commit();
         } catch (Exception $e) {
           $pdo->rollBack();

@@ -477,10 +477,15 @@ if (!function_exists('grinds_ip_in_range')) {
         if (!str_contains($range, '/')) {
             return $ip === $range;
         }
-        list($subnet, $bits) = explode('/', $range);
+        list($subnet, $bits) = explode('/', $range, 2);
+        if (!ctype_digit($bits)) {
+            return false;
+        }
         $bits = (int)$bits;
 
         if (str_contains($ip, '.') && str_contains($subnet, '.')) {
+            if ($bits > 32)
+                return false;
             $ipLong = ip2long($ip);
             $subnetLong = ip2long($subnet);
             if ($ipLong === false || $subnetLong === false)
@@ -490,6 +495,8 @@ if (!function_exists('grinds_ip_in_range')) {
         }
 
         if (str_contains($ip, ':') && str_contains($subnet, ':') && defined('AF_INET6')) {
+            if ($bits > 128)
+                return false;
             $ip = inet_pton($ip);
             $subnet = inet_pton($subnet);
             if ($ip === false || $subnet === false)

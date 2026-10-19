@@ -1485,8 +1485,10 @@ HTML;
             return '';
         }
 
+        // Fail closed: never output protected content unencrypted
         if (!extension_loaded('openssl') || !in_array('aes-256-gcm', openssl_get_cipher_methods())) {
-            return $protectedHtml;
+            error_log('GrindSite: password-protected content hidden because OpenSSL aes-256-gcm is unavailable.');
+            return '';
         }
 
         $salt = grinds_random_bytes(16);
@@ -1498,7 +1500,8 @@ HTML;
         $ciphertext = openssl_encrypt($protectedHtml, 'aes-256-gcm', $key, OPENSSL_RAW_DATA, $iv, $tag, "", 16);
 
         if ($ciphertext === false) {
-            return $protectedHtml;
+            error_log('GrindSite: password-protected content hidden because encryption failed.');
+            return '';
         }
 
         $payload = base64_encode($salt . $iv . $tag . $ciphertext);

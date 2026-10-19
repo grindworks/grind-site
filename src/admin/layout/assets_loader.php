@@ -168,10 +168,10 @@ endif; ?>
 <?php
 else: ?>
     <?php if (!$is_login_page): ?>
-        <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/collapse@3.x.x/dist/cdn.min.js"></script>
+        <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/collapse@3.15.9/dist/cdn.min.js" integrity="sha384-NArNwzWsUSF+kY2lgW4YriEkjLqi+J+za6HrENUn/3nZqkBnWbxV22kCJEK5Uu6n" crossorigin="anonymous"></script>
     <?php
     endif; ?>
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.15.9/dist/cdn.min.js" integrity="sha384-MEh8ZMZhsmD6/1Bd3kfTiGZoYIKR9u+BilQQWl5DOonh+pvKg6fP2AejtOozsZK8" crossorigin="anonymous"></script>
 <?php
 endif; ?>
 

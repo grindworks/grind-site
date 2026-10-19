@@ -1268,32 +1268,34 @@ class FileManager
 
             $attrsToRemove = [];
             foreach ($node->attributes as $attr) {
-                $name = strtolower($attr->name);
+                // Use the qualified name so namespaced attributes (xlink:href) are matched
+                $name = strtolower($attr->nodeName);
                 $val = $attr->value;
                 $decodedVal = html_entity_decode($val, ENT_QUOTES | ENT_HTML5, 'UTF-8');
                 $valClean = strtolower(preg_replace('/[\s\x00-\x1f]/', '', $decodedVal));
 
                 // Remove event handlers (on*)
-                if (str_starts_with($name, 'on')) {
-                    $attrsToRemove[] = $attr->name;
+                if (str_starts_with(strtolower($attr->localName ?? $name), 'on')) {
+                    $attrsToRemove[] = $attr;
                     continue;
                 }
 
                 // Remove script execution in href/xlink:href
-                if ($name === 'href' || str_contains($name, 'xlink:href')) {
+                if ($name === 'href' || str_ends_with($name, ':href')) {
                     if (str_contains($valClean, 'javascript:') || (str_contains($valClean, 'data:') && !str_starts_with($valClean, 'data:image/'))) {
-                        $attrsToRemove[] = $attr->name;
+                        $attrsToRemove[] = $attr;
                     }
                     continue;
                 }
 
                 // Check for javascript: in any attribute
                 if (str_contains($valClean, 'javascript:')) {
-                    $attrsToRemove[] = $attr->name;
+                    $attrsToRemove[] = $attr;
                 }
             }
-            foreach ($attrsToRemove as $attrName) {
-                $node->removeAttribute($attrName);
+            // Remove by node so namespaced attributes are removed too
+            foreach ($attrsToRemove as $attrNode) {
+                $node->removeAttributeNode($attrNode);
             }
         }
 
@@ -1304,7 +1306,7 @@ class FileManager
             $decodedVal = html_entity_decode($val, ENT_QUOTES | ENT_HTML5, 'UTF-8');
             $valClean = strtolower(preg_replace('/[\s\x00-\x1f]/', '', $decodedVal));
 
-            if (str_contains($valClean, 'javascript:') || str_contains($valClean, 'expression(') || str_contains($valClean, 'vbscript:')) {
+            if (str_contains($valClean, 'javascript:') || str_contains($valClean, 'expression(') || str_contains($valClean, 'vbscript:') || str_contains($valClean, '@import')) {
                 if ($node->parentNode) {
                     $node->parentNode->removeChild($node);
                 }

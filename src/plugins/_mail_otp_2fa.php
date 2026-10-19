@@ -89,7 +89,7 @@ add_action('grinds_init', function () {
             if (time() > $expiresAt) {
                 $errorMsg = $isJa ? '認証コードの有効期限が切れました。ページを再読み込みして再発行してください。' : 'The authentication code has expired. Please request a new one.';
                 unset($_SESSION['grinds_2fa_code']);
-            } elseif ($inputCode === $savedCode && !empty($savedCode)) {
+            } elseif (!empty($savedCode) && is_string($savedCode) && is_string($inputCode) && hash_equals($savedCode, $inputCode)) {
                 // Success: Mark session as verified.
                 // 成功: セッションを検証済みとしてマーク
                 $_SESSION['grinds_2fa_verified'] = true;

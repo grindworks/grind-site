@@ -443,6 +443,10 @@ if (!function_exists('get_license_status')) {
                 update_option('license_check_cache', json_encode($cache, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_INVALID_UTF8_IGNORE));
                 return $cache['status'];
             }
+
+            // Cache the failure briefly so every admin page load does not retry and wait for the timeout
+            $cacheData['expires'] = time() + 3600;
+            update_option('license_check_cache', json_encode($cacheData, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_INVALID_UTF8_IGNORE));
         }
 
         return 'unregistered';

@@ -86,6 +86,17 @@ echo "📝 Bumping versions to $RAW_VERSION..."
 sed -i '' "s/define('CMS_VERSION', '[^']*');/define('CMS_VERSION', '$RAW_VERSION');/" src/lib/info.php
 sed -i '' 's/"version": "[^"]*"/"version": "'"$RAW_VERSION"'"/' composer.json
 sed -i '' 's/"version": "[^"]*"/"version": "'"$RAW_VERSION"'"/' package.json
+# Keep the lock files in step with the bumped manifests
+if command -v node >/dev/null; then
+  node -e 'const fs=require("fs"),f="package-lock.json",v=process.argv[1],j=JSON.parse(fs.readFileSync(f,"utf8"));j.version=v;j.packages[""].version=v;fs.writeFileSync(f,JSON.stringify(j,null,2)+"\n")' "$RAW_VERSION"
+else
+  echo "⚠️  node not found: package-lock.json version was not updated."
+fi
+if command -v composer >/dev/null; then
+  composer update --lock --no-install --no-interaction -q
+else
+  echo "⚠️  composer not found: composer.lock content-hash was not updated."
+fi
 sed -i '' 's/# GrindSite v.*/# GrindSite v'"$RAW_VERSION"'/' README.md
 sed -i '' 's/version-[0-9\.]*-blue\.svg/version-'"$RAW_VERSION"'-blue.svg/' README.md
 

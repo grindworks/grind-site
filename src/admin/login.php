@@ -476,7 +476,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$is_locked) {
             $back_url = resolve_url('/');
             if (!empty($queryParams['redirect_to'])) {
                 $rt = $queryParams['redirect_to'];
-                if (strpos($rt, '/') === 0 && strpos($rt, '//') !== 0) {
+                if (is_string($rt) && strpos($rt, '/') === 0 && strpos($rt, '//') !== 0 && strpos($rt, '\\') === false) {
                     $back_url = $rt;
                 }
             }

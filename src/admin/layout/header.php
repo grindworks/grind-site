@@ -180,10 +180,10 @@ $lang = grinds_detect_language();
         <script src="<?= grinds_asset_url('assets/js/vendor/flatpickr_ja.js') ?>"></script>
       <?php endif; ?>
     <?php else: ?>
-      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-      <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.css" integrity="sha384-RkASv+6KfBMW9eknReJIJ6b3UnjKOKC5bOUaNgIY778NFbQ8MtWq9Lr/khUgqtTt" crossorigin="anonymous">
+      <script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.js" integrity="sha384-5JqMv4L/Xa0hfvtF06qboNdhvuYXUku9ZrhZh3bSk8VXF0A/RuSLHpLsSV9Zqhl6" crossorigin="anonymous"></script>
       <?php if ($lang === 'ja'): ?>
-        <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/ja.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/l10n/ja.js" integrity="sha384-mKor8U8jwukUkfxaFPCsxKF9S62PXq4gG7zcZ5yQ2x3KL1msprJZeFlKFEDeeb5V" crossorigin="anonymous"></script>
       <?php endif; ?>
     <?php endif; ?>
   <?php

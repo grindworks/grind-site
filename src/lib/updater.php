@@ -13,6 +13,9 @@ class GrindsUpdater
 
   private ?PDO $pdo;
 
+  /** @var string[] Files that applyUpdate() created and rollback() must remove. */
+  private array $createdFiles = [];
+
   public function __construct(?PDO $pdo)
   {
     $this->pdo = $pdo;
@@ -208,7 +211,9 @@ class GrindsUpdater
       if (file_exists($currentTarget)) {
         $bDir = dirname($backupTarget);
         if (!is_dir($bDir)) @mkdir($bDir, 0775, true);
-        @copy($currentTarget, $backupTarget);
+        if (!@copy($currentTarget, $backupTarget)) {
+          throw new Exception("Failed to back up: " . $relPath);
+        }
       }
     }
   }
@@ -290,6 +295,7 @@ class GrindsUpdater
     $iterator = $this->getFilteredIterator($sourceDir, $exclude);
     $sourceLen = strlen(str_replace('\\', '/', realpath($sourceDir) ?: $sourceDir));
     $isWindows = (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN');
+    $this->createdFiles = [];
 
     foreach ($iterator as $item) {
       $itemPath = str_replace('\\', '/', $item->getPathname());
@@ -328,6 +334,7 @@ class GrindsUpdater
           }
         } else {
           if (!@copy($sourceFile, $target)) throw new Exception("Failed to write: " . $relPath);
+          $this->createdFiles[] = $relPath;
         }
       }
     }
@@ -338,7 +345,19 @@ class GrindsUpdater
    */
   public function rollback(string $backupDir, string $targetDir): void
   {
-    if (!is_dir($backupDir)) return;
+    $failed = [];
+
+    // Remove files the failed update added
+    foreach ($this->createdFiles as $relPath) {
+      $target = $targetDir . '/' . $relPath;
+      if (is_file($target) && !@unlink($target)) $failed[] = $relPath;
+    }
+    $this->createdFiles = [];
+
+    if (!is_dir($backupDir)) {
+      if ($failed) throw new Exception("Failed to restore: " . implode(', ', $failed));
+      return;
+    }
     $iterator = new RecursiveIteratorIterator(
       new RecursiveDirectoryIterator($backupDir, RecursiveDirectoryIterator::SKIP_DOTS),
       RecursiveIteratorIterator::SELF_FIRST
@@ -351,10 +370,14 @@ class GrindsUpdater
       $relPath = ltrim(substr($itemPath, $backupLen), '/');
       $target = $targetDir . '/' . $relPath;
 
-      if (file_exists($item->getPathname())) {
-        @unlink($target); // Safely remove failed new file
-        @copy($item->getPathname(), $target); // Restore old file
-      }
+      // Restore old file over the failed new one
+      if (is_file($target) && hash_file('sha256', $target) === hash_file('sha256', $item->getPathname())) continue;
+      if (is_file($target)) @unlink($target);
+      if (!@copy($item->getPathname(), $target)) $failed[] = $relPath;
+    }
+
+    if ($failed) {
+      throw new Exception("Failed to restore: " . implode(', ', array_slice($failed, 0, 20)) . (count($failed) > 20 ? ' ...' : ''));
     }
   }
 

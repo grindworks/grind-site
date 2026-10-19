@@ -332,7 +332,7 @@ ob_start();
 <?php if (file_exists(ROOT_PATH . '/assets/js/vendor/chart.min.js')): ?>
     <script src="<?= grinds_asset_url('assets/js/vendor/chart.min.js') ?>"></script>
 <?php else: ?>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js" integrity="sha384-jb8JQMbMoBUzgWatfe6COACi2ljcDdZQ2OxczGA3bGNeWe+6DChMTBJemed7ZnvJ" crossorigin="anonymous"></script>
 <?php endif; ?>
 
 <?php if ($is_fresh_install): ?>
