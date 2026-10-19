@@ -786,7 +786,7 @@ function grinds_get_header_data(array $context = []): array
     $pageType = $context['type'] ?? 'home';
     $pageData = $context['data'] ?? [];
 
-    $siteName = get_option('site_name', defined('CMS_NAME') ? CMS_NAME : 'GrindSite');
+    $siteName = get_option('site_name', defined('CMS_NAME') ? CMS_NAME : 'GrindSite Core');
 
     // Page Title
     global $pageTitle;

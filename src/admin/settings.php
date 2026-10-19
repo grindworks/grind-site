@@ -467,7 +467,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $pdo->beginTransaction();
         try {
           grinds_save_settings_from_post(
-            ['site_name', 'admin_title', 'site_description', 'site_footer_text', 'license_key', 'media_max_width', 'media_quality'],
+            ['site_name', 'admin_title', 'site_description', 'site_footer_text', 'media_max_width', 'media_quality'],
             ['site_noindex', 'site_block_ai', 'admin_show_site_name', 'admin_show_logo_login']
           );
 
@@ -492,11 +492,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
               }
             }
           }
-          // Re-check the license on the next page load unless it is already confirmed
-          if (function_exists('get_license_check_cache') && !in_array(get_license_check_cache()['status'] ?? '', ['pro', 'agency'], true)) {
-            update_option('license_check_cache', '[]');
-          }
-
           $pdo->commit();
         } catch (Exception $e) {
           $pdo->rollBack();
@@ -1355,8 +1350,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         break;
 
       case 'reset_settings':
-        // Preserve license key
-        $licenseKey = get_option('license_key');
         $dbVersion = get_option('db_version', defined('GRINDS_DB_SCHEMA_VERSION') ? GRINDS_DB_SCHEMA_VERSION : 1);
 
         $pdo->exec("DELETE FROM settings");
@@ -1365,10 +1358,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmtInit->execute(['site_lang', $initLang]);
         $stmtInit->execute(['site_name', defined('SITE_NAME') ? SITE_NAME : 'GrindSite']);
         $stmtInit->execute(['db_version', $dbVersion]);
-
-        if ($licenseKey) {
-          $stmtInit->execute(['license_key', $licenseKey]);
-        }
         grinds_logout();
         redirect('admin/login.php');
         break;

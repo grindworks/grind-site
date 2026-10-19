@@ -1,4 +1,4 @@
-# GrindSite AI Rules
+# GrindSite Core AI Rules
 
 > Shared rules for every Grind product: [`../AGENTS.md`](../AGENTS.md). This file adds GrindSite Core rules and wins where the two differ.
 

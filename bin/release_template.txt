@@ -1,8 +1,8 @@
 Release title
-v1.8.0 - Offline-Ready Libraries & Security Hardening
+v1.8.0 - Free to Use, Offline-Ready
 
 Release notes
-This release bundles every library GrindSite needs, so a site can be installed and run on a network with no internet access. It also fixes several security and reliability issues found in an audit, adds third-party license notices, and stops shipping the Bootstrap theme.
+GrindSite is now **GrindSite Core**, and it is **free to use** on any number of websites, including public production servers. No license key is needed. This release also bundles every library GrindSite Core needs, so a site can be installed and run on a network with no internet access, fixes several security and reliability issues found in an audit, adds third-party license notices, and stops shipping the Bootstrap theme.
 
 > [!IMPORTANT]
 > **An update is performed by the version that is currently installed.** When you update to v1.8.0, your current version's updater is used, so the safer rollback described under "Updater" takes effect from your next update after this one.
@@ -19,18 +19,23 @@ This release bundles every library GrindSite needs, so a site can be installed a
 > - `theme/nexus-docs/layout.php`
 > - `theme/photographer/layout.php`
 
+### 🆓 Free to Use: GrindSite Core
+- **No license key needed:** The license check, the license key field in **Settings → General**, the "TRIAL" notice in the admin sidebar and footer, and the purchase link are removed. The admin panel no longer contacts the license server.
+- **One-click update for everyone:** The "Update" link in the admin footer and sidebar now opens **Settings → Update** on every site. Previously, sites without a license saw "Update (Manual)", which opened the GitHub releases page.
+- **New name:** The admin panel, installer and documentation now call the CMS **GrindSite Core**. The repository, the download file name (`grindsite-vX.Y.Z.zip`) and the update address do not change.
+- A license key you entered earlier stays in the database but is no longer used.
+
 ### 🔌 Offline / Intranet Use
 - **KaTeX and Prism.js are bundled:** Math blocks and code highlighting (all Prism languages) now work without internet access. Prism is updated from 1.29.0 to 1.30.0, which fixes a known vulnerability (CVE-2024-53382).
 - **Themes load the bundled Alpine.js first:** Previously, themes used the bundled copy only when "Disable External Assets (Local Fallback)" was checked. A CDN is now used only if the bundled file is missing.
 - **Static export includes bundled libraries:** Static export skipped every folder named `vendor`, so exported sites were missing `assets/js/vendor/` and `assets/css/vendor/`. They are now exported.
 - **CDN fallbacks are pinned:** When a bundled file is missing, the admin panel and themes load a fixed library version with Subresource Integrity, instead of "latest".
-- For a fully offline site, check **"Offline Mode (Local Fallback)"** in the installer, or **Settings → Theme → "Disable External Assets (Local Fallback)"**. QR Code, Map and Embed blocks, link cards, update checks and license verification still need the internet.
+- For a fully offline site, check **"Offline Mode (Local Fallback)"** in the installer, or **Settings → Theme → "Disable External Assets (Local Fallback)"**. QR Code, Map and Embed blocks, link cards and update checks still need the internet.
 
 ### 🔒 Security & Reliability
 - **Password-protected blocks fail closed:** If the server cannot encrypt the protected content (OpenSSL or AES-256-GCM unavailable), the content is now hidden instead of being shown unencrypted.
 - **SVG sanitizer:** Dangerous namespaced attributes such as `xlink:href="javascript:..."` are now removed, and `@import` inside `<style>` is blocked. SVG upload remains admin-only.
 - **Login page:** The "Back to site" link now rejects `redirect_to` values containing a backslash, like the post-login redirect already did.
-- **License check:** A failed license check is now cached for one hour, so the admin panel no longer retries (and waits up to 5 seconds) on every page. After you save the General settings, a failed result is cleared and the key is checked again on the next page load.
 - **Trusted proxy ranges:** Invalid prefix lengths (for example `/33`) are now rejected instead of causing errors.
 - **Email 2FA plugin:** One-time codes are compared in constant time.
 
@@ -44,17 +49,17 @@ This release bundles every library GrindSite needs, so a site can be installed a
 ### 📄 Licenses
 - **`THIRD_PARTY_LICENSES.txt`:** New file listing every bundled third-party component (Alpine.js, Chart.js, flatpickr, KaTeX, Prism, Heroicons, Tailwind CSS and others) with its full license text.
 - **Brand icons:** The social icons (X, Facebook, Instagram, LINE, Discord, TikTok, Pinterest, LinkedIn, GitHub, Threads, Twitch) now all come from Simple Icons (CC0), so their origin is documented. They keep the same names, so existing share buttons and themes keep working. The LINE icon is now single-color like the others.
-- **`LICENSE.txt`:** Added Section 8, "Third-Party Components": bundled open source components are licensed under their own licenses, and this Agreement does not restrict those rights. The updater never changes `LICENSE.txt`, so download `grindsite-v1.8.0.zip` to read the new version.
+- **`LICENSE.txt`:** Rewritten for free use. You may use GrindSite Core free of charge, for personal or commercial purposes, on any number of websites, and deliver websites built with it to clients. Redistributing the software itself is still not permitted. Added Section 8, "Third-Party Components": bundled open source components are licensed under their own licenses, and this Agreement does not restrict those rights. The updater never changes `LICENSE.txt`, so download `grindsite-v1.8.0.zip` to read the new version.
 
 ### 📖 Documentation
-- **README:** Updated the offline/intranet section, linked the third-party notices, and corrected the database file name (`data/grinds_*.db`).
+- **README:** Renamed to GrindSite Core, replaced the pricing section with the free license terms, updated the offline/intranet section, linked the third-party notices, and corrected the database file name (`data/grinds_*.db`).
 - **Settings → Theme:** The description of "Disable External Assets (Local Fallback)" now matches the new behavior (all languages).
 
 ---
 
 ## 🇯🇵 日本語 (Japanese)
 
-このリリースでは、GrindSite に必要なライブラリをすべて同梱し、インターネットに接続できないネットワークでもインストール・運用できるようにしました。あわせて、監査で見つかったセキュリティ・信頼性の問題の修正、第三者ライセンス表示の追加、Bootstrap テーマの同梱終了を行いました。
+GrindSite は **GrindSite Core** に名称を変更し、公開サーバーを含む任意の数のウェブサイトで**無料で利用できる**ようになりました。ライセンスキーは不要です。あわせて、GrindSite Core に必要なライブラリをすべて同梱し、インターネットに接続できないネットワークでもインストール・運用できるようにしました。監査で見つかったセキュリティ・信頼性の問題の修正、第三者ライセンス表示の追加、Bootstrap テーマの同梱終了も行いました。
 
 > [!IMPORTANT]
 > **更新処理は、現在インストールされているバージョンが行います。** v1.8.0 への更新には現在のバージョンの更新機能が使われるため、下記「更新機能」の安全なロールバックが有効になるのは、今回の次の更新からです。
@@ -71,18 +76,23 @@ This release bundles every library GrindSite needs, so a site can be installed a
 > - `theme/nexus-docs/layout.php`
 > - `theme/photographer/layout.php`
 
+### 🆓 無料化: GrindSite Core
+- **ライセンスキーが不要に:** ライセンスの確認、**「システム設定 → 一般設定」** のライセンスキー入力欄、管理画面のサイドバーとフッターの「TRIAL」表示、購入ページへのリンクを削除しました。管理画面がライセンスサーバーと通信することはなくなりました。
+- **すべてのサイトでワンクリック更新:** 管理画面のフッターとサイドバーの「Update」リンクは、すべてのサイトで **「システム設定 → アップデート」** を開くようになりました。これまでライセンス未登録のサイトでは「Update (Manual)」と表示され、GitHub のリリースページが開いていました。
+- **名称の変更:** 管理画面、インストーラ、ドキュメントでの名称を **GrindSite Core** に変更しました。リポジトリ、ダウンロードファイル名（`grindsite-vX.Y.Z.zip`）、更新の取得先は変わりません。
+- 以前に入力したライセンスキーはデータベースに残りますが、使用されません。
+
 ### 🔌 オフライン・イントラネットでの利用
 - **KaTeX と Prism.js を同梱:** 数式ブロックとコードハイライト（Prism の全言語）が、インターネット接続なしで動作するようになりました。Prism は 1.29.0 から 1.30.0 に更新し、既知の脆弱性（CVE-2024-53382）を解消しました。
 - **テーマは同梱の Alpine.js を優先:** これまでテーマは「外部アセットを無効化（ローカルフォールバック）」がオンのときだけ同梱版を使っていました。今後は同梱ファイルが無い場合にのみ CDN を使います。
 - **静的書き出しに同梱ライブラリを含める:** 静的書き出しが `vendor` という名前のフォルダをすべて除外していたため、書き出したサイトに `assets/js/vendor/` と `assets/css/vendor/` が含まれていませんでした。今後は書き出されます。
 - **CDN フォールバックのバージョン固定:** 同梱ファイルが無い場合、管理画面とテーマは「最新版」ではなく、バージョンを固定し SRI（サブリソース完全性）を付けたライブラリを読み込みます。
-- 完全にオフラインで運用する場合は、インストール時に **「オフラインモード（ローカル優先）」** をチェックするか、**「システム設定 → テーマ → 外部アセットを無効化（ローカルフォールバック）」** を有効にしてください。QRコード・地図・埋め込みブロック、リンクカード、更新の確認、ライセンス認証はインターネット接続が必要です。
+- 完全にオフラインで運用する場合は、インストール時に **「オフラインモード（ローカル優先）」** をチェックするか、**「システム設定 → テーマ → 外部アセットを無効化（ローカルフォールバック）」** を有効にしてください。QRコード・地図・埋め込みブロック、リンクカード、更新の確認はインターネット接続が必要です。
 
 ### 🔒 セキュリティ・信頼性
 - **パスワード保護ブロックを fail-closed に:** サーバーが保護対象の内容を暗号化できない場合（OpenSSL または AES-256-GCM が使えない場合）、暗号化せずに表示するのではなく、表示しないようにしました。
 - **SVG サニタイザ:** `xlink:href="javascript:..."` などの名前空間付きの危険な属性を除去し、`<style>` 内の `@import` をブロックするようにしました。SVG のアップロードは引き続き管理者のみです。
 - **ログイン画面:** 「サイトに戻る」リンクで、バックスラッシュを含む `redirect_to` を拒否するようにしました（ログイン後のリダイレクトと同じ検査）。
-- **ライセンス確認:** 確認に失敗した結果を1時間キャッシュするようにしました。管理画面を開くたびに再試行して最大5秒待たされることがなくなります。一般設定を保存すると失敗した結果が消去され、次にページを開いたときに再確認します。
 - **信頼するプロキシの範囲指定:** `/33` などの不正なプレフィックス長を、エラーにならずに拒否するようにしました。
 - **メール 2FA プラグイン:** ワンタイムコードを定数時間で比較するようにしました。
 
@@ -96,8 +106,8 @@ This release bundles every library GrindSite needs, so a site can be installed a
 ### 📄 ライセンス
 - **`THIRD_PARTY_LICENSES.txt`:** 同梱している第三者コンポーネント（Alpine.js、Chart.js、flatpickr、KaTeX、Prism、Heroicons、Tailwind CSS など）の一覧と、各ライセンスの全文を収録したファイルを追加しました。
 - **ブランドアイコン:** SNS アイコン（X、Facebook、Instagram、LINE、Discord、TikTok、Pinterest、LinkedIn、GitHub、Threads、Twitch）をすべて Simple Icons（CC0）のデータに統一し、出典を明確にしました。アイコン名は変わらないため、既存の共有ボタンやテーマはそのまま動作します。LINE アイコンは他と同じ単色になりました。
-- **`LICENSE.txt`:** 第8条「第三者コンポーネント」を追加しました。同梱のオープンソースコンポーネントにはそれぞれのライセンスが適用され、本契約はその権利を制限しません。更新機能は `LICENSE.txt` を変更しないため、新しい内容は `grindsite-v1.8.0.zip` をダウンロードしてご確認ください。
+- **`LICENSE.txt`:** 無料で利用できる内容に改訂しました。個人・商用を問わず任意の数のウェブサイトで無料で利用でき、構築したウェブサイトを顧客に納品することもできます。ソフトウェア自体の再配布は引き続きできません。第8条「第三者コンポーネント」を追加しました。同梱のオープンソースコンポーネントにはそれぞれのライセンスが適用され、本契約はその権利を制限しません。更新機能は `LICENSE.txt` を変更しないため、新しい内容は `grindsite-v1.8.0.zip` をダウンロードしてご確認ください。
 
 ### 📖 ドキュメント
-- **README:** オフライン・イントラネットの節を更新し、第三者ライセンス表示へのリンクを追加し、データベースのファイル名（`data/grinds_*.db`）を訂正しました。
+- **README:** 名称を GrindSite Core に変更し、料金の節を無料の利用条件に置き換え、オフライン・イントラネットの節を更新し、第三者ライセンス表示へのリンクを追加し、データベースのファイル名（`data/grinds_*.db`）を訂正しました。
 - **システム設定 → テーマ:** 「外部アセットを無効化（ローカルフォールバック）」の説明文を新しい動作に合わせました（全言語）。

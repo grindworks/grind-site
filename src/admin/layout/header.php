@@ -25,7 +25,6 @@ global $pdo;
 clearstatcache(true, ROOT_PATH . '/install.php');
 $installer_exists = file_exists(ROOT_PATH . '/install.php');
 $sysStatus = get_system_status();
-$licStatus = get_license_status();
 
 // Check for updates
 $hasUpdate = false;

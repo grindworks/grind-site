@@ -1,4 +1,4 @@
-GrindSite Software License Agreement (EULA)
+GrindSite Core Software License Agreement (EULA)
 
 Copyright (c) 2026 Koji Udagawa (Grind Works Inc.). All rights reserved.
 
@@ -7,48 +7,41 @@ Copyright (c) 2026 Koji Udagawa (Grind Works Inc.). All rights reserved.
 -------------------------------------------------------------------------
 
 This End User License Agreement ("Agreement") is a legal agreement between you ("User")
-and Grind Works Inc. ("Licensor") governing the use of GrindSite ("Software").
+and Grind Works Inc. ("Licensor") governing the use of GrindSite Core ("Software").
 
 By downloading, installing, or using the Software, you agree to be bound by the terms
 of this Agreement.
 
 1. GRANT OF LICENSE
-(1) You may use the Software free of charge for development and testing purposes
-    in a local environment (e.g., localhost) or a private, non-public staging environment.
+(1) You may use the Software free of charge, for personal or commercial purposes,
+    on any number of websites, including publicly accessible production servers.
+    No license key or purchase is required.
 
-(2) Use of the Software on a publicly accessible production server requires the
-    purchase of a valid Commercial License (License Key) through the Licensor’s
-    official website or authorized distribution platforms (e.g., Polar.sh).
+(2) You may build a website with the Software and deliver it to a client,
+    including the Software installed on that website. The client's use of the
+    Software is governed by this Agreement.
 
-(3) One license is required for each unique site (e.g., one license per Top-Level
-    Domain or Subdomain), unless you hold a specific License tier (e.g., Agency)
-    that explicitly permits use on unlimited domains.
+(3) This Agreement applies to the version of the Software it accompanies. The
+    Licensor may release future versions under different terms.
 
 
 2. RESTRICTIONS
 You may NOT:
-(1) Operate the Software on a public server without a valid license key purchased
-    from an authorized source.
-
-(2) Redistribute, sell, sublicense, lease, or transfer the Software standalone,
+(1) Redistribute, sell, sublicense, lease, or transfer the Software standalone,
     in whole or in part, whether modified or unmodified, to any third party.
-    (Note: You MAY build and deliver a website for a client, provided a valid
-    license is acquired for that specific site or covered by an Agency license).
+    (Delivering a website as permitted in Section 1(2) is not a standalone
+    redistribution.)
 
-(3) Modify the Software to disable, remove, or conceal any copyright notices or
-    the License Verification Mechanism (including warning messages).
+(2) Modify the Software to disable, remove, or conceal any copyright notices.
 
-(4) Reverse engineer, decompile, or disassemble the Software.
-
-(5) Use the Software for the purpose of developing or selling a competing CMS product.
+(3) Use the Software for the purpose of developing or selling a competing CMS product.
 
 
 3. MODIFICATION AND OWNERSHIP
-You may modify the Software solely for use on websites permitted by your License.
-Licensor retains all intellectual property rights in the Software, including any
-modified versions. Distribution of modified versions of the Software is strictly
-prohibited. Any modification intended to circumvent license verification is a
-breach of this Agreement.
+You may modify the Software for use on your websites and on websites you deliver
+as permitted in Section 1(2). Licensor retains all intellectual property rights in
+the Software, including any modified versions. Distribution of modified versions of
+the Software, other than as part of such a website, is prohibited.
 
 
 4. DISCLAIMER
@@ -62,8 +55,7 @@ OR MODIFICATIONS UNLESS OTHERWISE AGREED IN A SEPARATE SERVICE CONTRACT.
 
 
 5. SUPPORT SERVICES
-The Software is provided "AS IS", and no technical support is provided for any license type
-(Free, Early Bird, Pro, or Agency).
+The Software is provided "AS IS", and no technical support is provided.
 Users may report reproducible bugs via the official GitHub repository, but individual
 replies or fixes are not guaranteed.
 
@@ -95,52 +87,44 @@ for those components. This Agreement continues to apply to the rest of the Softw
 【日本語】 ソフトウェア使用許諾契約書 (EULA)
 -------------------------------------------------------------------------
 
-本契約は、本ソフトウェア（GrindSite）を利用する個人または法人（以下「ユーザー」）と、
+本契約は、本ソフトウェア（GrindSite Core）を利用する個人または法人（以下「ユーザー」）と、
 Grind Works Inc.（以下「権利者」）との間で締結される法的な契約です。
 
 本ソフトウェアをダウンロード、インストール、または使用した時点で、ユーザーは
 本契約のすべての条項に同意したものとみなされます。
 
 1. ライセンスの許諾
-(1) ユーザーは、ローカル環境（localhost等）または非公開のテスト環境においては、
-    開発・テスト目的で本ソフトウェアを無償で使用することができます。
+(1) ユーザーは、個人・商用を問わず、インターネット上で公開される本番環境を含む
+    任意の数のウェブサイトで、本ソフトウェアを無償で使用することができます。
+    ライセンスキーの取得や購入は必要ありません。
 
-(2) インターネット上で公開される本番環境（公開サーバー）で使用する場合、
-    権利者の公式サイト、または正規販売代理店（Polar.sh等）から発行された
-    有効な「商用ライセンス（ライセンスキー）」を購入する必要があります。
+(2) ユーザーは、本ソフトウェアを使ってウェブサイトを構築し、本ソフトウェアを
+    インストールした状態で顧客に納品することができます。顧客による本ソフトウェアの
+    使用には、本契約が適用されます。
 
-(3) ライセンスは原則として、1ドメイン（サブドメインを含む独立したサイト単位）につき
-    1つ必要です（「無制限ドメイン」が許可されているエージェンシー版などの
-    特定ライセンスを除きます）。
+(3) 本契約は、本契約が同梱されている本ソフトウェアのバージョンに適用されます。
+    権利者は、将来のバージョンを異なる条件で提供することがあります。
 
 
 2. 禁止事項
 ユーザーは、以下の行為を行うことはできません。
-(1) 正規の販売経路からライセンスキーを購入せずに、本ソフトウェアを公開サーバー上で
-    運用すること。
+(1) 本ソフトウェアの全部または一部（改変されたものを含む）をソフトウェア単体として、
+    有償・無償を問わず第三者に再配布、販売、再許諾、貸与、または譲渡すること。
+    （第1条(2)に基づくウェブサイトの納品は、単体での再配布には当たりません）
 
-(2) 本ソフトウェアの全部または一部（改変されたものを含む）をソフトウェア単体として、
-    有償・無償を問わず第三者に再配布、販売、貸与、または譲渡すること。
-    （※ただし、対象サイトに対して有効なライセンス（Pro版等）を取得した上で、
-    あるいは無制限のエージェンシー版を利用して、制作会社・フリーランスが顧客へ
-    ウェブサイトとして構築・納品する行為は許可されます）。
+(2) 本ソフトウェアに含まれる著作権表示を、改変により無効化・削除・隠蔽すること。
 
-(3) 本ソフトウェアに含まれる著作権表示、または「ライセンス認証機能（警告表示を
-    含む）」を、改変により無効化・削除・隠蔽すること。
-
-(4) 本ソフトウェアに対するリバースエンジニアリング、逆コンパイル、または
-    逆アセンブル。
-
-(5) 本ソフトウェアを競合するCMS製品の開発・販売のために利用すること。
+(3) 本ソフトウェアを競合するCMS製品の開発・販売のために利用すること。
 
 
 3. 改変および著作権
-ユーザーは、取得したライセンスが規定する範囲内のウェブサイトで使用する目的に限り、
-本ソフトウェアのソースコードを自由に改変（カスタマイズ）することができます。
+ユーザーは、自身のウェブサイト、および第1条(2)に基づいて納品するウェブサイトで
+使用する目的に限り、本ソフトウェアのソースコードを自由に改変（カスタマイズ）する
+ことができます。
 
 ただし、改変後も本ソフトウェアに関する知的財産権（著作権を含む）は権利者に帰属します。
-また、ライセンス認証の回避を目的とした改変は固く禁じます。改変されたソフトウェアを
-第三者に配布することはできません。
+改変されたソフトウェアを、そのようなウェブサイトの一部として以外の形で第三者に
+配布することはできません。
 
 
 4. 免責事項
@@ -154,8 +138,7 @@ Grind Works Inc.（以下「権利者」）との間で締結される法的な�
 
 
 5. サポートサービスについて
-本ソフトウェアは「現状有姿」で提供され、いかなるライセンス（無料版、アーリーバード版、
-Pro版、エージェンシー版を含む）においても技術サポートは提供されません。
+本ソフトウェアは「現状有姿」で提供され、技術サポートは提供されません。
 公式リポジトリにて再現可能なバグ報告を行うことは可能ですが、個別のご返信や
 修正対応はお約束いたしかねます。
 

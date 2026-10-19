@@ -50,7 +50,7 @@ function Grinds_GetSampleData(string $lang = 'en'): array
                 'hero_image' => '',
                 'hero_settings' => [
                     'title' => $isJa ? 'ビジネスを加速させる次世代CMS' : 'Accelerate Your Business',
-                    'subtext' => $isJa ? "GrindSiteは、直感的な操作と高いパフォーマンスを兼ね備えた、\nモダンなウェブサイト構築プラットフォームです。" : "GrindSite is a modern website building platform\ncombining intuitive operation with high performance.",
+                    'subtext' => $isJa ? "GrindSite Coreは、直感的な操作と高いパフォーマンスを兼ね備えた、\nモダンなウェブサイト構築プラットフォームです。" : "GrindSite Core is a modern website building platform\ncombining intuitive operation with high performance.",
                     'layout' => 'standard',
                     'buttons' => [
                         ['text' => $isJa ? '無料で始める' : 'Get Started Free', 'url' => '/#', 'style' => 'primary'],
@@ -92,8 +92,8 @@ function Grinds_GetSampleData(string $lang = 'en'): array
                         ['type' => 'section', 'data' => [
                             'bgColor' => 'blue',
                             'text' => $isJa
-                                ? "<div class='text-center'><b>準備はいいですか？</b><br>今すぐGrindSiteで新しいウェブサイト体験を始めましょう。</div>"
-                                : "<div class='text-center'><b>Ready to start?</b><br>Start your new website experience with GrindSite today.</div>"
+                                ? "<div class='text-center'><b>準備はいいですか？</b><br>今すぐGrindSite Coreで新しいウェブサイト体験を始めましょう。</div>"
+                                : "<div class='text-center'><b>Ready to start?</b><br>Start your new website experience with GrindSite Core today.</div>"
                         ]],
                         ['type' => 'button', 'data' => ['text' => $isJa ? '今すぐダウンロード' : 'Download Now', 'url' => '/#', 'color' => 'primary']]
                     ]
@@ -115,7 +115,7 @@ function Grinds_GetSampleData(string $lang = 'en'): array
                         ['type' => 'timeline', 'data' => [
                             'items' => [
                                 ['date' => '2023', 'title' => $isJa ? '設立' : 'Founded', 'content' => $isJa ? '東京にて株式会社設立' : 'Established in Tokyo.'],
-                                ['date' => '2024', 'title' => $isJa ? 'グローバル展開' : 'Global Launch', 'content' => $isJa ? 'GrindSite バージョン1.0を全世界同時リリース' : 'Released GrindSite v1.0 worldwide.'],
+                                ['date' => '2024', 'title' => $isJa ? 'グローバル展開' : 'Global Launch', 'content' => $isJa ? 'GrindSite Core バージョン1.0を全世界同時リリース' : 'Released GrindSite Core v1.0 worldwide.'],
                                 ['date' => '2025', 'title' => $isJa ? '拡大期' : 'Expansion', 'content' => $isJa ? '導入企業数が1,000社を突破' : 'Surpassed 1,000 corporate users.']
                             ]
                         ]],
@@ -195,19 +195,19 @@ function Grinds_GetSampleData(string $lang = 'en'): array
         'posts' => [
             // Define welcome post
             [
-                'title' => $isJa ? 'GrindSiteへようこそ！' : 'Welcome to GrindSite!',
+                'title' => $isJa ? 'GrindSite Coreへようこそ！' : 'Welcome to GrindSite Core!',
                 'slug'  => 'welcome',
                 'cat_slug' => 'news',
                 'tags' => ['featured', 'update'],
-                'description' => $isJa ? 'GrindSiteのインストールありがとうございます。最初のステップをご案内します。' : 'Thank you for installing GrindSite. Here are the first steps.',
+                'description' => $isJa ? 'GrindSite Coreのインストールありがとうございます。最初のステップをご案内します。' : 'Thank you for installing GrindSite Core. Here are the first steps.',
                 'hero_image' => '',
                 'show_toc' => 0,
                 'content' => [
                     'blocks' => [
-                        ['type' => 'image', 'data' => ['url' => $dummyImg, 'caption' => $isJa ? 'GrindSite 管理画面' : 'GrindSite Admin Panel']],
+                        ['type' => 'image', 'data' => ['url' => $dummyImg, 'caption' => $isJa ? 'GrindSite Core 管理画面' : 'GrindSite Core Admin Panel']],
                         ['type' => 'paragraph', 'data' => ['text' => $isJa
-                            ? 'GrindSiteをインストールしていただきありがとうございます。このシステムは、あなたのコンテンツ発信を強力にサポートします。<br><br>データベース設定不要で、サーバーに置くだけで動作する手軽さと、本格的なCMS機能を両立しました。'
-                            : 'Thank you for installing GrindSite. This system powerfully supports your content creation.<br><br>It combines the ease of a flat-file system with full-fledged CMS features.']],
+                            ? 'GrindSite Coreをインストールしていただきありがとうございます。このシステムは、あなたのコンテンツ発信を強力にサポートします。<br><br>データベース設定不要で、サーバーに置くだけで動作する手軽さと、本格的なCMS機能を両立しました。'
+                            : 'Thank you for installing GrindSite Core. This system powerfully supports your content creation.<br><br>It combines the ease of a flat-file system with full-fledged CMS features.']],
                         ['type' => 'header', 'data' => ['text' => $isJa ? '次のステップ' : 'Next Steps', 'level' => 'h3']],
                         ['type' => 'list', 'data' => ['style' => 'unordered', 'items' => [
                             $isJa ? '管理画面の「設定」からサイト情報を編集' : 'Edit site info from Settings',
@@ -273,7 +273,7 @@ function Grinds_GetSampleData(string $lang = 'en'): array
                 'tags' => ['tutorial'],
                 'content' => [
                     'blocks' => [
-                        ['type' => 'paragraph', 'data' => ['text' => $isJa ? 'この記事は、GrindSiteで使用できる様々なブロックの表示サンプルです。' : 'This post demonstrates various blocks available in GrindSite.']],
+                        ['type' => 'paragraph', 'data' => ['text' => $isJa ? 'この記事は、GrindSite Coreで使用できる様々なブロックの表示サンプルです。' : 'This post demonstrates various blocks available in GrindSite Core.']],
 
                         ['type' => 'header', 'data' => ['text' => $isJa ? '見出し (Headings)' : 'Headings', 'level' => 'h2']],
                         ['type' => 'paragraph', 'data' => ['text' => $isJa ? 'H2からH6までの見出しを設定できます。SEO構造化に役立ちます。' : 'You can set headings from H2 to H6. Useful for SEO structure.']],
@@ -282,7 +282,7 @@ function Grinds_GetSampleData(string $lang = 'en'): array
                         ['type' => 'image', 'data' => ['url' => $dummyImg, 'caption' => $isJa ? '全幅画像サポート' : 'Full width image support']],
 
                         ['type' => 'header', 'data' => ['text' => $isJa ? 'コードと引用' : 'Code & Quotes', 'level' => 'h2']],
-                        ['type' => 'code', 'data' => ['language' => 'javascript', 'code' => "function hello() {\n  console.log('Hello GrindSite!');\n}"]],
+                        ['type' => 'code', 'data' => ['language' => 'javascript', 'code' => "function hello() {\n  console.log('Hello GrindSite Core!');\n}"]],
                         ['type' => 'quote', 'data' => ['text' => 'Stay hungry, stay foolish.', 'cite' => 'Steve Jobs']],
 
                         ['type' => 'header', 'data' => ['text' => $isJa ? 'インタラクティブ要素' : 'Interactive Elements', 'level' => 'h2']],
@@ -322,8 +322,8 @@ function Grinds_GetSampleData(string $lang = 'en'): array
                         ['type' => 'callout', 'data' => [
                             'style' => 'info',
                             'text' => $isJa
-                                ? '<b>プロ向けの機能:</b> GrindSiteは、PHPファイルひとつでブロックのHTML構造を完全に制御できます。Tailwind以外のフレームワーク（Bootstrapなど）を使用する場合に特に便利です。'
-                                : '<b>Pro Feature:</b> GrindSite allows full control over block HTML structure via simple PHP files. Especially useful when using frameworks other than Tailwind (e.g., Bootstrap).'
+                                ? '<b>プロ向けの機能:</b> GrindSite Coreは、PHPファイルひとつでブロックのHTML構造を完全に制御できます。Tailwind以外のフレームワーク（Bootstrapなど）を使用する場合に特に便利です。'
+                                : '<b>Pro Feature:</b> GrindSite Core allows full control over block HTML structure via simple PHP files. Especially useful when using frameworks other than Tailwind (e.g., Bootstrap).'
                         ]],
                         ['type' => 'header', 'data' => ['text' => $isJa ? '仕組み' : 'How it works', 'level' => 'h2']],
                         ['type' => 'paragraph', 'data' => ['text' => $isJa
@@ -360,8 +360,8 @@ function Grinds_GetSampleData(string $lang = 'en'): array
                 'content' => [
                     'blocks' => [
                         ['type' => 'paragraph', 'data' => ['text' => $isJa
-                            ? 'GrindSiteは軽量なフックシステムを備えており、プラグインで機能を拡張できます。この記事では、簡単なプラグインの作り方を解説します。'
-                            : 'GrindSite features a lightweight hook system that allows you to extend functionality via plugins. This article explains how to create a simple plugin.']],
+                            ? 'GrindSite Coreは軽量なフックシステムを備えており、プラグインで機能を拡張できます。この記事では、簡単なプラグインの作り方を解説します。'
+                            : 'GrindSite Core features a lightweight hook system that allows you to extend functionality via plugins. This article explains how to create a simple plugin.']],
 
                         ['type' => 'header', 'data' => ['text' => $isJa ? 'プラグインの配置' : 'Plugin Placement', 'level' => 'h2']],
                         ['type' => 'paragraph', 'data' => ['text' => $isJa
@@ -497,8 +497,8 @@ function Grinds_GetSampleData(string $lang = 'en'): array
             [
                 'type' => 'profile',
                 'title' => $isJa ? '運営者' : 'Author',
-                'content' => $isJa ? 'GrindSite開発チームです。シンプルで強力なツールを提供します。' : 'We are the GrindSite team. Providing simple and powerful tools.',
-                'settings' => json_encode(['name' => 'GrindSite', 'image' => '']),
+                'content' => $isJa ? 'GrindSite Core開発チームです。シンプルで強力なツールを提供します。' : 'We are the GrindSite Core team. Providing simple and powerful tools.',
+                'settings' => json_encode(['name' => 'GrindSite Core', 'image' => '']),
                 'sort_order' => 1
             ],
             // Define search
@@ -545,7 +545,7 @@ function Grinds_GetSampleData(string $lang = 'en'): array
 /**
  * Install sample data.
  */
-function Grinds_InstallSampleData(PDO $pdo, string $lang = 'en', string $siteName = 'GrindSite'): void
+function Grinds_InstallSampleData(PDO $pdo, string $lang = 'en', string $siteName = 'GrindSite Core'): void
 {
     $data = Grinds_GetSampleData($lang);
     $now = date('Y-m-d H:i:s');
@@ -752,8 +752,8 @@ function Grinds_GetKitchenSinkData(string $lang = 'en'): array
         // Define text and headings
         ['type' => 'header', 'data' => ['text' => $isJa ? '全ブロック表示テスト (Kitchen Sink)' : 'All Blocks Demo (Kitchen Sink)', 'level' => 'h2']],
         ['type' => 'paragraph', 'data' => ['text' => $isJa
-            ? 'これはGrindSiteで利用可能なすべてのブロックを表示するテスト記事です。<br>テーマのCSSスタイリングや動作確認にご利用ください。<br><b>太字</b>、<i>斜体</i>、<s>打ち消し</s>、<a href="/#">リンク</a>の表示確認。'
-            : 'This is a test post displaying all blocks available in GrindSite.<br>Use this to check theme CSS styling and block behavior.<br>Check <b>Bold</b>, <i>Italic</i>, <s>Strike</s>, and <a href="/#">Link</a> styles.']],
+            ? 'これはGrindSite Coreで利用可能なすべてのブロックを表示するテスト記事です。<br>テーマのCSSスタイリングや動作確認にご利用ください。<br><b>太字</b>、<i>斜体</i>、<s>打ち消し</s>、<a href="/#">リンク</a>の表示確認。'
+            : 'This is a test post displaying all blocks available in GrindSite Core.<br>Use this to check theme CSS styling and block behavior.<br>Check <b>Bold</b>, <i>Italic</i>, <s>Strike</s>, and <a href="/#">Link</a> styles.']],
 
         ['type' => 'divider', 'data' => []],
 

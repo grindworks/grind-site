@@ -5,7 +5,7 @@
  */
 // Define CMS metadata
 if (!defined('CMS_NAME'))
-    define('CMS_NAME', 'GrindSite');
+    define('CMS_NAME', 'GrindSite Core');
 if (!defined('SITE_NAME')) {
     define('SITE_NAME', CMS_NAME);
 }

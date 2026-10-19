@@ -108,13 +108,8 @@ return [
     'close_menu' => 'メニューを閉じる',
     'system' => 'システム',
     'administrator' => '管理者',
-    'license' => 'ライセンス',
     'pro' => 'PRO',
-    'trial' => 'TRIAL',
     'unregistered' => 'FREE',
-    'license_pro_message' => 'ご支援ありがとうございます！',
-    'license_trial_message' => 'ローカル開発モードです。',
-    'license_free_message' => '無料版を使用しています。',
     'get_pro_key' => 'Proキーを取得',
 
     // Define admin menu items.
@@ -959,20 +954,6 @@ return [
     'st_check_again' => '再チェック',
     'msg_update_success' => 'アップデートが完了しました！ v%s',
     'err_update_failed' => 'アップデートに失敗しました。ログを確認してください。',
-    'lic_title' => 'ライセンスキー',
-    'lic_status_active' => '有効 (Pro License)',
-    'lic_status_trial' => 'Trial Mode',
-    'lic_status_unregistered' => '未登録ライセンス',
-    'lic_ph' => 'GRIND-PRO-XXXX-XXXX',
-    'lic_warn_title' => 'ライセンスキーが設定されていません',
-    'lic_warn_desc' => '公開サーバーでの利用にはライセンスの購入が必要です。<br>購入後に発行されたキーをここに入力してください。',
-    'lic_buy_link' => 'ライセンスを購入する &rarr;',
-    'lic_success_msg' => '正規ライセンスをご利用いただきありがとうございます。',
-    'lic_edit_key' => 'ライセンスキーを変更する',
-    'lic_collapse' => '閉じる',
-    'lic_trial_label' => 'TRIAL MODE',
-    'lic_trial_msg' => 'このサイトはTrial Modeで稼働しています。',
-    'lic_register_btn' => 'ライセンスを登録',
 
     // Define frontend strings.
     'theme_search_results' => '検索結果: "%s"',
@@ -1011,7 +992,7 @@ return [
 
     // Define setup strings.
     'setup_complete_title' => 'セットアップ完了',
-    'setup_complete_msg' => '設定が完了しました。<br>GrindSiteへようこそ。',
+    'setup_complete_msg' => '設定が完了しました。<br>GrindSite Coreへようこそ。',
     'setup_complete_btn' => 'ダッシュボードを開始',
     'contact_err_req' => '不正なリクエストです。',
     'contact_spam' => '送信を受け付けました。(スパム検出)',
@@ -1256,7 +1237,7 @@ return [
     'btn_relogin' => '再ログイン',
 
     // SSG README
-    'ssg_readme_title' => 'GrindSite - 静的サイト書き出し',
+    'ssg_readme_title' => 'GrindSite Core - 静的サイト書き出し',
     'html_absolute_path_warn' => '※ 手動でリンクを書く場合、ルート相対パス（/aboutなど）はサブディレクトリ環境でリンク切れの原因になります。サイト内のページへのリンクには、可能な限り「内部リンク」ブロックを使用してください。',
     'js_warn_absolute_path' => '警告: HTMLブロック内にリンクが見つかりました。手動で記述されたパスは、サーバー移転やサブディレクトリ運用時に正しく機能しない可能性があります。「内部リンク」ブロックの利用を強く推奨します。',
     'confirm_continue' => '続行しますか？',
@@ -1688,7 +1669,7 @@ return [
     'msg_revision_loaded' => 'リビジョンを読み込みました。「更新」をクリックして保存してください。',
     'err_load_revision' => 'リビジョンの読み込みに失敗しました。',
     'btn_export_markdown' => 'Markdownで書き出す',
-    'st_markdown_export_desc' => '※他システム（Hugo, Astro等）へのデータ移行用です。このファイルを使ってGrindSiteにデータを復元することはできません。',
+    'st_markdown_export_desc' => '※他システム（Hugo, Astro等）へのデータ移行用です。このファイルを使ってGrindSite Coreにデータを復元することはできません。',
     'Custom Fields' => 'カスタムフィールド',
     'msg_duplicated_count' => '%d 件複製しました。',
     'There is already an active transaction' => 'すでにアクティブなトランザクションが存在します。',

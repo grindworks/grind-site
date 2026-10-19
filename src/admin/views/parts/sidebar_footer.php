@@ -2,9 +2,8 @@
 
 /**
  * sidebar_footer.php
- * Renders the sidebar footer with license and user info.
+ * Renders the sidebar footer with system status and user info.
  *
- * @var string $licStatus
  * @var array $sysStatus
  * @var array $currentUser
  * @var string $statusDot
@@ -29,35 +28,6 @@ if (!isset($statusDot) && isset($sysStatus)) {
 ?>
 
 <?php if (current_user_can('manage_settings')): ?>
-    <?php if (!in_array($licStatus, ['pro', 'agency'])):
-        $licenseWidgetClass = 'bg-theme-info/10 border-theme-info/30 hover:bg-theme-info/20';
-    ?>
-        <a href="settings.php?tab=general"
-            class="block p-3 rounded-theme border transition-colors group relative overflow-hidden <?= $licenseWidgetClass ?>">
-            <div class="flex justify-between items-center mb-1">
-                <span class="opacity-70 font-bold text-[10px] tracking-widest">
-                    <?= _t('license') ?>
-                </span>
-                <span class="flex items-center gap-1 font-bold text-theme-info text-xs"><svg class="w-3 h-3" fill="none"
-                        stroke="currentColor" viewBox="0 0 24 24">
-                        <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-key"></use>
-                    </svg>
-                    <?= _t('trial') ?>
-                </span>
-            </div>
-            <div class="opacity-80 text-[10px] leading-tight">
-                <span class="text-theme-info">
-                    <?php if ($licStatus === 'trial'): ?>
-                        <?= _t('license_trial_message') ?>
-                    <?php else: ?>
-                        <?= _t('license_free_message') ?>
-                    <?php endif; ?>
-                </span>
-            </div>
-        </a>
-    <?php
-    endif; ?>
-
     <a href="settings.php?tab=system"
         class="group block relative bg-theme-bg/20 hover:bg-theme-bg/40 p-3 border <?= $border_class ?> hover:border-theme-primary/50 rounded-theme overflow-hidden transition-colors">
         <div class="flex justify-between items-center mb-1">
@@ -76,28 +46,12 @@ if (!isset($statusDot) && isset($sysStatus)) {
             <span class="max-w-[180px] font-bold text-xs truncate <?= $text_class ?>">
                 <?= h($sysStatus['msg']) ?>
             </span>
-            <?php if (in_array($licStatus, ['pro', 'agency'])): ?>
-                <span class="flex items-center gap-1.5 <?= $text_class ?>">
-                    <span
-                        class="inline-flex items-center py-0.5 px-1 bg-theme-success/20 text-theme-success text-[9px] font-bold rounded-theme tracking-wide">PRO</span>
-                    <span class="font-mono text-[10px] whitespace-nowrap">v<?= h(CMS_VERSION) ?></span>
-                </span>
-                <?php if (!empty($hasUpdate)): ?>
-                    <a href="settings.php?tab=update" class="ml-auto text-theme-primary font-bold text-[10px] hover:underline animate-pulse" title="<?= h(_t('st_update_available')) ?>">
-                        Update
-                    </a>
-                <?php endif; ?>
-            <?php
-            else: ?>
-                <span class="opacity-60 font-mono text-[10px] whitespace-nowrap <?= $text_class ?>">v<?= h(CMS_VERSION) ?>
-                </span>
-                <?php if (!empty($hasUpdate)): ?>
-                    <a href="https://github.com/grindworks/grind-site/releases" target="_blank" class="ml-auto text-theme-warning font-bold text-[10px] hover:underline" title="Manual Update Required">
-                        Update (Manual)
-                    </a>
-                <?php endif; ?>
-            <?php
-            endif; ?>
+            <span class="opacity-60 font-mono text-[10px] whitespace-nowrap <?= $text_class ?>">v<?= h(CMS_VERSION) ?></span>
+            <?php if (!empty($hasUpdate)): ?>
+                <a href="settings.php?tab=update" class="ml-auto text-theme-primary font-bold text-[10px] hover:underline animate-pulse" title="<?= h(_t('st_update_available')) ?>">
+                    Update
+                </a>
+            <?php endif; ?>
         </div>
     </a>
 <?php endif; ?>

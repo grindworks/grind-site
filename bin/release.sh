@@ -97,7 +97,7 @@ if command -v composer >/dev/null; then
 else
   echo "⚠️  composer not found: composer.lock content-hash was not updated."
 fi
-sed -i '' 's/# GrindSite v.*/# GrindSite v'"$RAW_VERSION"'/' README.md
+sed -i '' 's/^# GrindSite Core v.*/# GrindSite Core v'"$RAW_VERSION"'/' README.md
 sed -i '' 's/version-[0-9\.]*-blue\.svg/version-'"$RAW_VERSION"'-blue.svg/' README.md
 
 echo "📦 Committing changes..."

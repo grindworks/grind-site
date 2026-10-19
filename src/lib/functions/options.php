@@ -191,7 +191,7 @@ if (!function_exists('grinds_get_default_settings')) {
         }
 
         $isJa = ($lang === 'ja');
-        $cmsName = defined('CMS_NAME') ? CMS_NAME : 'GrindSite';
+        $cmsName = defined('CMS_NAME') ? CMS_NAME : 'GrindSite Core';
 
         // Load share buttons default
         $defaultShareButtons = function_exists('get_default_share_buttons') ? get_default_share_buttons() : [];
@@ -221,7 +221,6 @@ if (!function_exists('grinds_get_default_settings')) {
             'site_favicon' => '',
             'site_noindex' => '0',
             'site_block_ai' => '0',
-            'license_key' => '',
 
             // Display
             'posts_per_page' => '10',

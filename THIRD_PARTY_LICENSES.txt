@@ -1,14 +1,14 @@
-GrindSite - Third-Party Software Notices
-=========================================
+GrindSite Core - Third-Party Software Notices
+===============================================
 
-GrindSite includes the third-party components listed below. Each component is
+GrindSite Core includes the third-party components listed below. Each component is
 licensed under its own license, reproduced in full in this file. These licenses
-apply only to the listed components; the rest of GrindSite is licensed under
+apply only to the listed components; the rest of GrindSite Core is licensed under
 LICENSE.txt.
 
-GrindSite には、以下の第三者コンポーネントが含まれています。各コンポーネントには
+GrindSite Core には、以下の第三者コンポーネントが含まれています。各コンポーネントには
 それぞれのライセンスが適用され、その全文を本ファイルに収録しています。これらの
-ライセンスは記載のコンポーネントにのみ適用され、GrindSite のその他の部分には
+ライセンスは記載のコンポーネントにのみ適用され、GrindSite Core のその他の部分には
 LICENSE.txt が適用されます。
 
 Brand logos in assets/img/sprite.svg are trademarks of their respective owners.

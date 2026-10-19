@@ -433,52 +433,19 @@ $statusLabel = strtoupper($sysStatus['status']);
                 <?= $statusLabel ?>
               </span>
             </a>
-            <?php if (!in_array($licStatus, ['pro', 'agency'])): ?>
-              <span class="opacity-30">|</span>
-              <a href="settings.php?tab=general" class="flex items-center gap-2 hover:text-theme-text transition-colors"
-                title="<?= h(_t('license')) ?>">
-                <span class="relative flex w-2 h-2"><span
-                    class="inline-flex relative bg-theme-info rounded-full w-2 h-2"></span></span>
-                <span class="font-bold text-theme-info tracking-wide">
-                  <?= _t('trial') ?>
-                </span>
-              </a>
-            <?php
-            endif; ?>
             <span class="opacity-30">|</span>
-            <?php if (in_array($licStatus, ['pro', 'agency'])): ?>
-              <span class="flex items-center gap-1.5 opacity-70">GrindSite
-                <span
-                  class="inline-flex items-center px-1 py-px bg-theme-success/20 text-theme-success text-[9px] font-bold rounded-theme tracking-wide">PRO</span>
-                <span class="font-mono text-[10px] whitespace-nowrap">v<?= h(CMS_VERSION) ?></span>
-              </span>
-              <?php if (!empty($hasUpdate)): ?>
-                <a href="settings.php?tab=update"
-                  class="flex items-center gap-1 ml-3 text-theme-primary font-bold text-xs hover:underline animate-pulse"
-                  title="<?= h(_t('st_update_available')) ?>">
-                  <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-arrow-path"></use>
-                  </svg>
-                  Update
-                </a>
-              <?php
-              endif; ?>
-            <?php
-            else: ?>
-              <span class="flex items-center gap-1 opacity-70">GrindSite
-                <span class="font-mono text-[10px] whitespace-nowrap">v<?= h(CMS_VERSION) ?></span>
-              </span>
-              <?php if (!empty($hasUpdate)): ?>
-                <a href="https://github.com/grindworks/grind-site/releases" target="_blank"
-                  class="flex items-center gap-1 ml-3 text-theme-warning font-bold text-xs hover:underline"
-                  title="Manual Update Required">
-                  <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-arrow-top-right-on-square"></use>
-                  </svg>
-                  Update (Manual)
-                </a>
-              <?php
-              endif; ?>
+            <span class="flex items-center gap-1 opacity-70"><?= h(CMS_NAME) ?>
+              <span class="font-mono text-[10px] whitespace-nowrap">v<?= h(CMS_VERSION) ?></span>
+            </span>
+            <?php if (!empty($hasUpdate)): ?>
+              <a href="settings.php?tab=update"
+                class="flex items-center gap-1 ml-3 text-theme-primary font-bold text-xs hover:underline animate-pulse"
+                title="<?= h(_t('st_update_available')) ?>">
+                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-arrow-path"></use>
+                </svg>
+                Update
+              </a>
             <?php
             endif; ?>
           <?php endif; ?>

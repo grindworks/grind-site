@@ -8,7 +8,7 @@ declare(strict_types=1);
 
 if (version_compare(PHP_VERSION, '8.3.0', '<')) {
   http_response_code(500);
-  die('GrindSite requires PHP 8.3 or higher. Your current PHP version is: ' . PHP_VERSION);
+  die('GrindSite Core requires PHP 8.3 or higher. Your current PHP version is: ' . PHP_VERSION);
 }
 
 if (file_exists(__DIR__ . '/config.php')) {
@@ -19,7 +19,7 @@ if (file_exists(__DIR__ . '/config.php')) {
 
   $lang = (isset($_GET['lang']) && in_array($_GET['lang'], ['en', 'ja'])) ? $_GET['lang'] : ((isset($_SERVER['HTTP_ACCEPT_LANGUAGE']) && str_contains($_SERVER['HTTP_ACCEPT_LANGUAGE'], 'ja')) ? 'ja' : 'en');
 
-  $cmsName = defined('CMS_NAME') ? CMS_NAME : 'GrindSite';
+  $cmsName = defined('CMS_NAME') ? CMS_NAME : 'GrindSite Core';
 
   $txt = [
     'en' => [
@@ -129,7 +129,7 @@ if (file_exists(__DIR__ . '/config.php')) {
 }
 
 $defaults = [
-  'name' => 'GrindSite',
+  'name' => 'GrindSite Core',
   'quote' => 'Grind Your Site to Perfection.',
   'sub' => 'Less system, more soul. Built in your palms.',
 ];

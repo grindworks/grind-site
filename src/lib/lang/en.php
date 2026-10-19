@@ -108,13 +108,8 @@ return [
     'close_menu' => 'Close menu',
     'system' => 'SYSTEM',
     'administrator' => 'Administrator',
-    'license' => 'LICENSE',
     'pro' => 'PRO',
-    'trial' => 'TRIAL',
     'unregistered' => 'FREE',
-    'license_pro_message' => 'Thank you for your support!',
-    'license_trial_message' => 'Local development mode.',
-    'license_free_message' => 'You are using the free version.',
     'get_pro_key' => 'Get Pro Key',
 
     // Define admin menu items.
@@ -959,20 +954,6 @@ return [
     'st_check_again' => 'Check Again',
     'msg_update_success' => 'Update completed! v%s',
     'err_update_failed' => 'Update failed. Check logs.',
-    'lic_title' => 'License Key',
-    'lic_status_active' => 'Active (Pro License)',
-    'lic_status_trial' => 'Trial Mode',
-    'lic_status_unregistered' => 'Unregistered License',
-    'lic_ph' => 'GRIND-PRO-XXXX-XXXX',
-    'lic_warn_title' => 'License key is not set.',
-    'lic_warn_desc' => 'A valid license key is required for public server use.<br>Please enter the key issued after purchase.',
-    'lic_buy_link' => 'Purchase License &rarr;',
-    'lic_success_msg' => 'Thank you for using the official license.',
-    'lic_edit_key' => 'Change License Key',
-    'lic_collapse' => 'Close',
-    'lic_trial_label' => 'TRIAL MODE',
-    'lic_trial_msg' => 'This site is running in Trial Mode.',
-    'lic_register_btn' => 'Register License',
 
     // Define frontend strings.
     'theme_search_results' => 'Search Results: "%s"',
@@ -1011,7 +992,7 @@ return [
 
     // Define setup strings.
     'setup_complete_title' => 'Setup Complete',
-    'setup_complete_msg' => 'Configuration finished.<br>Welcome to GrindSite.',
+    'setup_complete_msg' => 'Configuration finished.<br>Welcome to GrindSite Core.',
     'setup_complete_btn' => 'Start Dashboard',
     'contact_err_req' => 'Invalid Request.',
     'contact_spam' => 'Inquiry accepted. (Spam detected)',
@@ -1256,7 +1237,7 @@ return [
     'btn_relogin' => 'Log In Again',
 
     // SSG README
-    'ssg_readme_title' => 'GrindSite - Static Site Export',
+    'ssg_readme_title' => 'GrindSite Core - Static Site Export',
     'html_absolute_path_warn' => 'Note: Root-relative paths (e.g. /about) may break in subdirectory installations. Please use the "Internal Link" block for internal pages whenever possible.',
     'js_warn_absolute_path' => 'Warning: Links detected in HTML block. Manually written paths may break during migration or subdirectory usage. We strongly recommend using the "Internal Link" block.',
     'confirm_continue' => 'Continue?',
@@ -1301,7 +1282,7 @@ return [
     // Static Export
     'ssg_title' => 'Static Site Export',
     'ssg_building' => 'Building:',
-    'ssg_desc' => 'Convert your GrindSite site into portable HTML files.',
+    'ssg_desc' => 'Convert your GrindSite Core site into portable HTML files.',
     'ssg_intro' => 'This tool scans your entire website and exports it as a completely independent set of static files (HTML, CSS, JS, Images) that do not rely on PHP or a database. The generated site poses minimal security risks and can be deployed on static hosting services like GitHub Pages or Netlify.',
     'ssg_benefit_1' => 'Runs without PHP/Database',
     'ssg_benefit_2' => 'Ultra-fast & Secure',
@@ -1688,7 +1669,7 @@ return [
     'msg_revision_loaded' => 'Revision loaded. Click Update to save.',
     'err_load_revision' => 'Failed to load revision.',
     'btn_export_markdown' => 'Export as Markdown',
-    'st_markdown_export_desc' => '* For migrating to other CMS (Hugo, Astro, etc.). Cannot be used to restore data to GrindSite.',
+    'st_markdown_export_desc' => '* For migrating to other CMS (Hugo, Astro, etc.). Cannot be used to restore data to GrindSite Core.',
     'Custom Fields' => 'Custom Fields',
     'msg_duplicated_count' => '%d items duplicated.',
     'There is already an active transaction' => 'There is already an active transaction.',

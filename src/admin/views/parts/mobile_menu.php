@@ -47,7 +47,6 @@ if (!defined('GRINDS_APP')) exit;
     <?php
     $logout_btn_class = 'flex items-center gap-1.5 bg-theme-danger/10 hover:bg-theme-danger px-4 py-2.5 rounded-theme font-bold text-theme-danger hover:text-white text-xs transition-colors';
     $logout_with_text = true;
-    $licStatus = $licStatus ?? (function_exists('get_license_status') ? get_license_status() : 'unregistered');
     require __DIR__ . '/sidebar_footer.php';
     ?>
 </div>

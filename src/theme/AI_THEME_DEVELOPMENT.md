@@ -1,6 +1,6 @@
 # 🤖 AI-Driven Theme Development Guide
 
-**For GrindSite**
+**For GrindSite Core**
 
 [**English**](#english) | [**日本語 (Japanese)**](#japanese)
 
@@ -10,16 +10,16 @@
 
 ## 🇺🇸 English
 
-GrindSite is incredibly AI-friendly because its frontend relies solely on pure PHP arrays and Tailwind CSS. You do not need to learn complex loop functions or directory hierarchies like WordPress.
+GrindSite Core is incredibly AI-friendly because its frontend relies solely on pure PHP arrays and Tailwind CSS. You do not need to learn complex loop functions or directory hierarchies like WordPress.
 Tools like **Cursor, Claude Code, GitHub Copilot, and ChatGPT** can generate a complete, working theme in one shot.
 
 ### 📋 1. System Prompt for AI (Copy & Paste)
 
-Before asking the AI to create a theme, paste the following prompt to teach it the GrindSite rules.
+Before asking the AI to create a theme, paste the following prompt to teach it the GrindSite Core rules.
 _(This is a base template. Feel free to customize or add more specific rules for your project.)_
 
 > **[COPY BELOW]**
-> I want to create a new frontend theme for a custom CMS called "GrindSite".
+> I want to create a new frontend theme for a custom CMS called "GrindSite Core".
 > Please generate the required PHP files by strictly following these specifications and rules:
 >
 > **[Theme Structure]**
@@ -88,7 +88,7 @@ You can completely override how the block editor outputs HTML (e.g., headings, q
 
 ### 🎨 4. Workflow: From Canva/Figma to Theme
 
-You can generate a GrindSite theme directly from your design mockups.
+You can generate a GrindSite Core theme directly from your design mockups.
 
 **STEP 1: Export Design as Images**
 Export your designs (Home, Article page, etc.) from Canva or Figma as **PNG or JPG images**.
@@ -103,17 +103,17 @@ Upload the exported images to an AI tool that supports image analysis (e.g., Cla
 >
 > **[Instruction]**
 > The attached images are the design for a new website created in Figma.
-> Please generate the GrindSite theme files (`layout.php`, `home.php`, `single.php`, `parts/header.php`, `parts/footer.php`) to perfectly reproduce this design.
+> Please generate the GrindSite Core theme files (`layout.php`, `home.php`, `single.php`, `parts/header.php`, `parts/footer.php`) to perfectly reproduce this design.
 > Use Tailwind CSS utility classes for all styling.
 
 **STEP 3: Save Generated Files**
-The AI will analyze the colors, layout, and spacing from the image, code it in Tailwind CSS, and embed GrindSite variables (like `<?= h($pageData['post']['title']) ?>`) in the appropriate places.
+The AI will analyze the colors, layout, and spacing from the image, code it in Tailwind CSS, and embed GrindSite Core variables (like `<?= h($pageData['post']['title']) ?>`) in the appropriate places.
 Save the output code to `src/theme/my-custom-theme/` to complete the theme skeleton.
 
-**💡 Why this works so well with GrindSite**
+**💡 Why this works so well with GrindSite Core**
 
 1. **Tailwind CSS**: AI is much better at generating "HTML with Tailwind classes" from images than writing raw CSS files.
-2. **Pure PHP Structure**: Unlike WordPress, GrindSite doesn't require complex loop functions. Simple `foreach` loops in HTML allow the AI to convert the design to a CMS theme without breaking the structure.
+2. **Pure PHP Structure**: Unlike WordPress, GrindSite Core doesn't require complex loop functions. Simple `foreach` loops in HTML allow the AI to convert the design to a CMS theme without breaking the structure.
 
 **⚠️ Limitations**
 
@@ -134,7 +134,7 @@ If you want the theme to display a specific static page (like `home-demo`) on th
 
 ## 🇯🇵 日本語 (Japanese)
 
-GrindSiteは「ピュアなPHP配列」と「Tailwind CSS」のみで構成されているため、WordPressのような独自の関数や複雑な階層構造を覚える必要がありません。
+GrindSite Coreは「ピュアなPHP配列」と「Tailwind CSS」のみで構成されているため、WordPressのような独自の関数や複雑な階層構造を覚える必要がありません。
 そのため、**Cursor, Claude Code, GitHub Copilot, ChatGPT などの AI を使って、一気に新しいテーマを作り上げること**に非常に適しています。
 
 ### 📋 1. AIへ渡すシステムプロンプト（コピペ用）
@@ -143,7 +143,7 @@ GrindSiteは「ピュアなPHP配列」と「Tailwind CSS」のみで構成さ�
 _（これは基本テンプレートです。プロジェクトの要件に合わせて、自由に追加・調整してください。）_
 
 > **[ここから下をコピーしてAIに送信してください]**
-> これから「GrindSite」という独自のCMS用の新しいフロントエンドテーマを作成します。
+> これから「GrindSite Core」という独自のCMS用の新しいフロントエンドテーマを作成します。
 > 以下の仕様とルールを厳守して、必要なPHPファイルを生成してください。
 >
 > 【テーマの基本構造】
@@ -204,7 +204,7 @@ _ヒント: これはあくまで一例です。あなたの感性で自由に�
 
 ### 🎨 3. ブロック出力の完全オーバーライド（プロ向け機能）
 
-GrindSite のエディタで作成した「見出し」や「引用」「ボタン」などのHTML出力は、テーマ側で**完全に上書き**することができます。AIにこのカスタマイズを行わせることで、記事の中身まで完璧にデザインされたテーマが完成します。
+GrindSite Core のエディタで作成した「見出し」や「引用」「ボタン」などのHTML出力は、テーマ側で**完全に上書き**することができます。AIにこのカスタマイズを行わせることで、記事の中身まで完璧にデザインされたテーマが完成します。
 
 **AIへの指示例:**
 
@@ -212,14 +212,14 @@ GrindSite のエディタで作成した「見出し」や「引用」「ボタ�
 
 ### 🎨 4. Canva / Figma からテーマを作る最強ワークフロー
 
-デザインツールで作ったカンプから、直接 GrindSite のテーマを生成する手順です。
+デザインツールで作ったカンプから、直接 GrindSite Core のテーマを生成する手順です。
 
 **STEP 1: デザインを画像として書き出す**
 CanvaやFigmaで作成したデザイン（トップページ、記事ページなど）を、それぞれ **PNG または JPG画像** としてエクスポート（ダウンロード）します。
 _※PDFやFigmaのURLを渡すより、1枚の長い画像としてAIに読み込ませる方が精度が高くなります。_
 
 **STEP 2: AI に画像を投げて指示を出す**
-Claude のWeb版や、Cursor（Composer機能）などの画像読み込みができるAIに、**「エクスポートした画像」と「先ほどのGrindSiteのシステムプロンプト」**をセットで投げます。
+Claude のWeb版や、Cursor（Composer機能）などの画像読み込みができるAIに、**「エクスポートした画像」と「先ほどのGrindSite Coreのシステムプロンプト」**をセットで投げます。
 
 **実際にAIに入力するプロンプトの例:**
 
@@ -227,17 +227,17 @@ Claude のWeb版や、Cursor（Composer機能）などの画像読み込みが�
 >
 > **【今回の指示】**
 > 添付した画像は、Figmaで作った新しいWebサイトのデザインです。
-> このデザインを完全に再現する形で、GrindSite用のテーマファイル（layout.php, home.php, single.php, parts/header.php, parts/footer.php）を一気に生成してください。
+> このデザインを完全に再現する形で、GrindSite Core用のテーマファイル（layout.php, home.php, single.php, parts/header.php, parts/footer.php）を一気に生成してください。
 > CSSはすべて Tailwind CSS のユーティリティクラスで表現してください。
 
 **STEP 3: 生成されたファイルを保存して完了**
-AIが画像の色合い、レイアウト、余白を解析し、Tailwind CSSでコーディングしつつ、`<?= h($pageData['post']['title']) ?>` のようなGrindSiteの変数を適切な場所に埋め込んでくれます。
+AIが画像の色合い、レイアウト、余白を解析し、Tailwind CSSでコーディングしつつ、`<?= h($pageData['post']['title']) ?>` のようなGrindSite Coreの変数を適切な場所に埋め込んでくれます。
 出力されたコードを `src/theme/my-custom-theme/` などに保存すれば、デザインのテーマ化がほぼ完了します。
 
-**💡 この手法が上手くいく理由（GrindSiteの優位性）**
+**💡 この手法が上手くいく理由（GrindSite Coreの優位性）**
 
 1. **Tailwind CSS の採用**: AIは「画像からCSSファイルを作る」よりも「画像からTailwindのクラス付きHTMLを作る」方が圧倒的に得意で、精度が高いです。
-2. **ピュアなHTMLに近い構造**: GrindSiteのテーマは、WordPressのような複雑なループ関数が不要です。HTMLに `foreach` を少し書くだけなので、AIがHTML構造を崩さずにCMS化できます。
+2. **ピュアなHTMLに近い構造**: GrindSite Coreのテーマは、WordPressのような複雑なループ関数が不要です。HTMLに `foreach` を少し書くだけなので、AIがHTML構造を崩さずにCMS化できます。
 
 **⚠️ 注意点（AIにお任せする場合の限界）**
 

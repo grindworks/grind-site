@@ -360,118 +360,24 @@ if (!function_exists('grinds_send_noindex_headers')) {
 
 /**
  * Get license status.
+ * GrindSite Core is free to use and no longer verifies license keys.
+ * Kept so that custom plugins and themes calling it keep working.
  */
 if (!function_exists('get_license_status')) {
     function get_license_status(): string
     {
-        $key = get_option('license_key', '');
-
-        if (empty($key)) {
-            return is_local_environment() ? 'trial' : 'unregistered';
-        }
-
-        // Check cache
-        $cache = get_license_check_cache();
-        $hasValidCache = !empty($cache) &&
-            isset($cache['key'], $cache['status'], $cache['expires']) &&
-            $cache['key'] === $key;
-
-        if (
-            $hasValidCache &&
-            $cache['expires'] > time()
-        ) {
-            return $cache['status'];
-        }
-
-        // Verify via Polar.sh API
-        $orgId = '25291602-668f-4ed5-84e8-d966a5932049';
-        $newStatus = 'unregistered';
-        $apiSuccess = false;
-
-        if (empty($orgId) || $orgId === 'YOUR_POLAR_ORG_ID' || !function_exists('curl_init')) {
-            return $hasValidCache ? $cache['status'] : 'unregistered';
-        }
-
-        $ch = curl_init('https://api.polar.sh/v1/customer-portal/license-keys/validate');
-        $payload = json_encode(['key' => $key, 'organization_id' => $orgId]);
-
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json', 'Accept: application/json']);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 5);
-
-        $response = curl_exec($ch);
-        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        $curlError = curl_errno($ch);
-        curl_close($ch);
-
-        // Log API communication errors
-        if ($httpCode !== 200 || $curlError !== 0) {
-            error_log("Polar API Error - HTTP: {$httpCode}, cURL Error: {$curlError}, Response: {$response}");
-        }
-
-        if ($curlError === 0 && $httpCode === 200 && $response) {
-            $apiSuccess = true;
-            $data = json_decode($response, true);
-            if (is_array($data) && (
-                (isset($data['status']) && in_array($data['status'], ['granted', 'active', 'validated'])) ||
-                (isset($data['id']) && !isset($data['status']))
-            )) {
-                // Determine status by key prefix
-                if (str_starts_with($key, 'GRIND-AGENCY')) {
-                    $newStatus = 'agency';
-                } else {
-                    $newStatus = 'pro';
-                }
-            }
-        }
-
-        // Update cache
-        $cacheData = [
-            'key' => $key,
-            'status' => $newStatus,
-            'expires' => time() + (7 * 86400)
-        ];
-
-        if ($apiSuccess) {
-            update_option('license_check_cache', json_encode($cacheData, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_INVALID_UTF8_IGNORE));
-            return $newStatus;
-        } else {
-            if ($hasValidCache && in_array($cache['status'], ['pro', 'agency'])) {
-                $cache['expires'] = time() + (30 * 86400);
-                update_option('license_check_cache', json_encode($cache, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_INVALID_UTF8_IGNORE));
-                return $cache['status'];
-            }
-
-            // Cache the failure briefly so every admin page load does not retry and wait for the timeout
-            $cacheData['expires'] = time() + 3600;
-            update_option('license_check_cache', json_encode($cacheData, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_INVALID_UTF8_IGNORE));
-        }
-
-        return 'unregistered';
-    }
-}
-
-if (!function_exists('get_license_check_cache')) {
-    function get_license_check_cache(): array
-    {
-        $cacheRaw = get_option('license_check_cache', '[]');
-        if (empty($cacheRaw)) {
-            return [];
-        }
-        $cache = json_decode($cacheRaw, true);
-        return is_array($cache) ? $cache : [];
+        return 'free';
     }
 }
 
 /**
  * Check license validity.
+ * Every site is licensed under the free EULA. Kept for compatibility.
  */
 if (!function_exists('is_licensed')) {
     function is_licensed(): bool
     {
-        return in_array(get_license_status(), ['pro', 'agency'], true);
+        return true;
     }
 }
 

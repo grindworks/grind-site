@@ -108,13 +108,8 @@ return [
     'close_menu' => 'Fermer le menu',
     'system' => 'SYSTÈME',
     'administrator' => 'Administrateur',
-    'license' => 'LICENCE',
     'pro' => 'PRO',
-    'trial' => 'TRIAL',
     'unregistered' => 'FREE',
-    'license_pro_message' => 'Merci pour votre soutien !',
-    'license_trial_message' => 'Mode développement local.',
-    'license_free_message' => 'Vous utilisez la version gratuite.',
     'get_pro_key' => 'Obtenir la clé Pro',
 
     // Define admin menu items.
@@ -959,20 +954,6 @@ return [
     'st_check_again' => 'Vérifier à nouveau',
     'msg_update_success' => 'Mise à jour terminée ! v%s',
     'err_update_failed' => 'La mise à jour a échoué. Vérifiez les journaux.',
-    'lic_title' => 'Clé de licence',
-    'lic_status_active' => 'Actif (Licence Pro)',
-    'lic_status_trial' => 'Trial Mode',
-    'lic_status_unregistered' => 'Licence non enregistrée',
-    'lic_ph' => 'GRIND-PRO-XXXX-XXXX',
-    'lic_warn_title' => 'La clé de licence n\'est pas définie.',
-    'lic_warn_desc' => 'Une clé de licence valide est requise pour une utilisation sur un serveur public.<br>Veuillez entrer la clé délivrée après l\'achat.',
-    'lic_buy_link' => 'Acheter une Licence &rarr;',
-    'lic_success_msg' => 'Merci d\'utiliser la licence officielle.',
-    'lic_edit_key' => 'Changer la clé de licence',
-    'lic_collapse' => 'Fermer',
-    'lic_trial_label' => 'TRIAL MODE',
-    'lic_trial_msg' => 'Ce site fonctionne en Trial Mode.',
-    'lic_register_btn' => 'Enregistrer la licence',
 
     // Define frontend strings.
     'theme_search_results' => 'Résultats de recherche : "%s"',
@@ -1011,7 +992,7 @@ return [
 
     // Define setup strings.
     'setup_complete_title' => 'Configuration terminée',
-    'setup_complete_msg' => 'La configuration est terminée.<br>Bienvenue sur GrindSite.',
+    'setup_complete_msg' => 'La configuration est terminée.<br>Bienvenue sur GrindSite Core.',
     'setup_complete_btn' => 'Démarrer le tableau de bord',
     'contact_err_req' => 'Requête invalide.',
     'contact_spam' => 'Demande acceptée. (Spam détecté)',
@@ -1256,7 +1237,7 @@ return [
     'btn_relogin' => 'Se reconnecter',
 
     // SSG README
-    'ssg_readme_title' => 'GrindSite - Exportation de Site Statique',
+    'ssg_readme_title' => 'GrindSite Core - Exportation de Site Statique',
     'html_absolute_path_warn' => 'Remarque : Les chemins relatifs à la racine (ex: /about) peuvent se briser lors d\'une installation dans un sous-répertoire. Veuillez utiliser le bloc "Lien Interne" pour les pages internes dans la mesure du possible.',
     'js_warn_absolute_path' => 'Avertissement : Liens détectés dans le bloc HTML. Les chemins écrits manuellement peuvent se briser lors d\'une migration ou d\'une utilisation dans un sous-répertoire. Nous recommandons fortement d\'utiliser le bloc "Lien Interne".',
     'confirm_continue' => 'Continuer ?',
@@ -1301,7 +1282,7 @@ return [
     // Static Export
     'ssg_title' => 'Exportation de Site Statique',
     'ssg_building' => 'Génération :',
-    'ssg_desc' => 'Convertissez votre site GrindSite en fichiers HTML portables.',
+    'ssg_desc' => 'Convertissez votre site GrindSite Core en fichiers HTML portables.',
     'ssg_intro' => 'Cet outil scanne l\'intégralité de votre site web et l\'exporte sous forme d\'un ensemble de fichiers statiques totalement indépendants (HTML, CSS, JS, Images) qui ne dépendent pas de PHP ou d\'une base de données. Le site généré présente des risques de sécurité minimaux et peut être déployé sur des services d\'hébergement statique comme GitHub Pages ou Netlify.',
     'ssg_benefit_1' => 'Fonctionne sans PHP/Base de données',
     'ssg_benefit_2' => 'Ultra-rapide & Sécurisé',
@@ -1688,7 +1669,7 @@ return [
     'msg_revision_loaded' => 'Révision chargée. Cliquez sur Mettre à jour pour enregistrer.',
     'err_load_revision' => 'Échec du chargement de la révision.',
     'btn_export_markdown' => 'Exporter en Markdown',
-    'st_markdown_export_desc' => '* Pour migrer vers un autre CMS (Hugo, Astro, etc.). Ne peut pas être utilisé pour restaurer des données dans GrindSite.',
+    'st_markdown_export_desc' => '* Pour migrer vers un autre CMS (Hugo, Astro, etc.). Ne peut pas être utilisé pour restaurer des données dans GrindSite Core.',
     'Custom Fields' => 'Champs Personnalisés',
     'msg_duplicated_count' => '%d éléments dupliqués.',
     'There is already an active transaction' => 'Une transaction active existe déjà.',

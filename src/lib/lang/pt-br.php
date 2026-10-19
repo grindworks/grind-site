@@ -108,13 +108,8 @@ return [
     'close_menu' => 'Fechar menu',
     'system' => 'SISTEMA',
     'administrator' => 'Administrador',
-    'license' => 'LICENÇA',
     'pro' => 'PRO',
-    'trial' => 'TRIAL',
     'unregistered' => 'FREE',
-    'license_pro_message' => 'Obrigado pelo seu apoio!',
-    'license_trial_message' => 'Modo de desenvolvimento local.',
-    'license_free_message' => 'Você está usando a versão gratuita.',
     'get_pro_key' => 'Obter Chave Pro',
 
     // Define admin menu items.
@@ -959,20 +954,6 @@ return [
     'st_check_again' => 'Verificar Novamente',
     'msg_update_success' => 'Atualização concluída! v%s',
     'err_update_failed' => 'A atualização falhou. Verifique os logs.',
-    'lic_title' => 'Chave de Licença',
-    'lic_status_active' => 'Ativo (Licença Pro)',
-    'lic_status_trial' => 'Trial Mode',
-    'lic_status_unregistered' => 'Licença não registrada',
-    'lic_ph' => 'GRIND-PRO-XXXX-XXXX',
-    'lic_warn_title' => 'A chave de licença não está definida.',
-    'lic_warn_desc' => 'Uma chave de licença válida é necessária para uso em servidor público.<br>Insira a chave emitida após a compra.',
-    'lic_buy_link' => 'Comprar Licença &rarr;',
-    'lic_success_msg' => 'Obrigado por usar a licença oficial.',
-    'lic_edit_key' => 'Alterar Chave de Licença',
-    'lic_collapse' => 'Fechar',
-    'lic_trial_label' => 'TRIAL MODE',
-    'lic_trial_msg' => 'Este site está sendo executado no Trial Mode.',
-    'lic_register_btn' => 'Registrar Licença',
 
     // Define frontend strings.
     'theme_search_results' => 'Resultados da Pesquisa: "%s"',
@@ -1011,7 +992,7 @@ return [
 
     // Define setup strings.
     'setup_complete_title' => 'Configuração Concluída',
-    'setup_complete_msg' => 'A configuração terminou.<br>Bem-vindo ao GrindSite.',
+    'setup_complete_msg' => 'A configuração terminou.<br>Bem-vindo ao GrindSite Core.',
     'setup_complete_btn' => 'Iniciar o Painel',
     'contact_err_req' => 'Solicitação Inválida.',
     'contact_spam' => 'Consulta aceita. (Spam detectado)',
@@ -1256,7 +1237,7 @@ return [
     'btn_relogin' => 'Fazer Login Novamente',
 
     // SSG README
-    'ssg_readme_title' => 'GrindSite - Exportação de Site Estático',
+    'ssg_readme_title' => 'GrindSite Core - Exportação de Site Estático',
     'html_absolute_path_warn' => 'Nota: Caminhos relativos à raiz (ex. /about) podem quebrar em instalações de subdiretório. Por favor, use o bloco "Link Interno" para páginas internas sempre que possível.',
     'js_warn_absolute_path' => 'Aviso: Links detectados no bloco HTML. Caminhos escritos manualmente podem quebrar durante a migração ou o uso de subdiretórios. Recomendamos fortemente o uso do bloco "Link Interno".',
     'confirm_continue' => 'Continuar?',
@@ -1301,7 +1282,7 @@ return [
     // Static Export
     'ssg_title' => 'Exportação de Site Estático',
     'ssg_building' => 'Construindo:',
-    'ssg_desc' => 'Converta seu site GrindSite em arquivos HTML portáteis.',
+    'ssg_desc' => 'Converta seu site GrindSite Core em arquivos HTML portáteis.',
     'ssg_intro' => 'Esta ferramenta escaneia todo o seu site e o exporta como um conjunto completamente independente de arquivos estáticos (HTML, CSS, JS, Imagens) que não dependem do PHP ou de um banco de dados. O site gerado apresenta riscos mínimos de segurança e pode ser implantado em serviços de hospedagem estática, como GitHub Pages ou Netlify.',
     'ssg_benefit_1' => 'Funciona sem PHP/Banco de Dados',
     'ssg_benefit_2' => 'Ultrarrápido & Seguro',
@@ -1688,7 +1669,7 @@ return [
     'msg_revision_loaded' => 'Revisão carregada. Clique em Atualizar para salvar.',
     'err_load_revision' => 'Falha ao carregar a revisão.',
     'btn_export_markdown' => 'Exportar como Markdown',
-    'st_markdown_export_desc' => '* Para migrar para outro CMS (Hugo, Astro, etc.). Não pode ser usado para restaurar dados no GrindSite.',
+    'st_markdown_export_desc' => '* Para migrar para outro CMS (Hugo, Astro, etc.). Não pode ser usado para restaurar dados no GrindSite Core.',
     'Custom Fields' => 'Campos Personalizados',
     'msg_duplicated_count' => '%d itens duplicados.',
     'There is already an active transaction' => 'Já existe uma transação ativa.',

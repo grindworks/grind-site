@@ -4,12 +4,12 @@
 
 > [!WARNING]
 > **DO NOT EDIT DEFAULT THEMES DIRECTLY**
-> Bundled themes (e.g., `default`, `corporate`) are overwritten when you update GrindSite, and your edits to their files are overwritten too.
-> To create a custom theme, **duplicate** the folder (e.g., copy `corporate` to `my-corporate`) and edit the copy. Folders that are not bundled with GrindSite are never touched by updates.
+> Bundled themes (e.g., `default`, `corporate`) are overwritten when you update GrindSite Core, and your edits to their files are overwritten too.
+> To create a custom theme, **duplicate** the folder (e.g., copy `corporate` to `my-corporate`) and edit the copy. Folders that are not bundled with GrindSite Core are never touched by updates.
 
 #### When you duplicate a theme that has `functions.php`
 
-Some bundled themes (`classic`, `corporate`, `marketing`, `neo-minimalist`, `photographer`) customize block output with a function named after the theme folder, such as `corporate_render_block()`. GrindSite calls `<folder name>_render_block()` with hyphens in the folder name replaced by underscores.
+Some bundled themes (`classic`, `corporate`, `marketing`, `neo-minimalist`, `photographer`) customize block output with a function named after the theme folder, such as `corporate_render_block()`. GrindSite Core calls `<folder name>_render_block()` with hyphens in the folder name replaced by underscores.
 
 After copying `corporate` to `my-corporate`, rename the function in the copied `functions.php` in both places:
 
@@ -18,7 +18,7 @@ if (!function_exists('my_corporate_render_block')) {
   function my_corporate_render_block(array $block, callable $pathFixer)
 ```
 
-If you skip this step, the copy still works, but blocks are rendered with the standard GrindSite markup instead of the theme's own markup.
+If you skip this step, the copy still works, but blocks are rendered with the standard GrindSite Core markup instead of the theme's own markup.
 
 The copy does not receive future fixes to the original theme, including security fixes. Check the release notes and apply relevant changes to your copy yourself.
 
