@@ -40,7 +40,7 @@ GrindSite is now **GrindSite Core**, and it is **free to use** on any number of 
 - **Email 2FA plugin:** One-time codes are compared in constant time.
 
 ### 🛠️ Admin Panel
-- **No more false "unsaved changes" warnings:** Settings and other admin forms asked "You have unsaved changes. Discard them and switch tabs?" even when nothing had been changed — for example, after the browser autofilled saved login details or after a color picker was opened. A form now counts as changed only when a value actually differs from what was loaded, and changing a value back clears the warning.
+- **No more false "unsaved changes" warnings:** Settings and other admin forms asked "You have unsaved changes. Discard them and switch tabs?" even when nothing had been changed — for example, after the browser or a password manager autofilled the saved admin login into the Profile tab, or after a color picker was opened. A form now counts as changed only when a value actually differs from what was loaded, and changing a value back clears the warning. Username, email and password fields count only after you type, paste or drop into them.
 - **No login autofill into SMTP settings:** Browsers no longer offer your saved admin login for the SMTP username field.
 
 ### ⬆️ Updater (applies to updates performed by v1.8.0 or later)
@@ -101,7 +101,7 @@ GrindSite は **GrindSite Core** に名称を変更し、公開サーバーを�
 - **メール 2FA プラグイン:** ワンタイムコードを定数時間で比較するようにしました。
 
 ### 🛠️ 管理画面
-- **「保存されていない変更」の誤った警告を解消:** システム設定などのフォームで、何も変更していないのに「保存されていない変更があります。破棄してタブを切り替えますか？」と表示されることがありました（ブラウザが保存済みのログイン情報を自動入力したときや、カラーピッカーを開いたときなど）。今後は、読み込み時から値が実際に変わった場合にのみ変更ありと判断し、値を元に戻すと警告も消えます。
+- **「保存されていない変更」の誤った警告を解消:** システム設定などのフォームで、何も変更していないのに「保存されていない変更があります。破棄してタブを切り替えますか？」と表示されることがありました（ブラウザやパスワード管理ツールが、保存済みの管理者ログインをプロフィールタブに自動入力したときや、カラーピッカーを開いたときなど）。今後は、読み込み時から値が実際に変わった場合にのみ変更ありと判断し、値を元に戻すと警告も消えます。ユーザー名・メール・パスワードの欄は、キーボード入力・貼り付け・ドロップで実際に入力した場合にのみ変更として扱います。
 - **SMTP 設定にログイン情報が自動入力されないように:** ブラウザが SMTP ユーザー名の欄に、保存済みの管理者ログインを候補として出さないようにしました。
 
 ### ⬆️ 更新機能（v1.8.0 以降が行う更新に適用）
