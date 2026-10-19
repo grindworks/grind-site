@@ -1,53 +1,67 @@
 Release title
-v1.7.2 - Security & Plugin Enhancements
+v1.7.3 - Security Fixes
 
 Release notes
-This patch release focuses on hardening security features, strengthening plugin capabilities, and improving admin panel usability.
+This patch release fixes several security issues found in an internal audit. Updating is strongly recommended for all sites, especially those with Editor accounts.
 
-### 🛡️ Security & Plugin Hardening
-- **Admin IP Restriction:** Enhanced IP filtering and whitelist management for restricted access control.
-- **Basic Authentication:** Improved credential handling and session validation mechanisms.
-- **2FA (Mail OTP):** Strengthened email-based two-factor authentication workflows.
-- **Session Security:** Stricter session isolation and validation protocols to prevent session hijacking.
-- **Rate Limiting:** Enhanced rate limiting logic for API and form submission protection.
-- **Audit Logging:** Improved logging accuracy and security event tracking.
+### 🛡️ Security Fixes
+- **Block Output (XSS):** Fixed cases where Editor accounts could inject scripts through Callout, Countdown, Button, Card, Download, Audio, PDF, Testimonial and Internal Link blocks. Affected the core renderer and the Bootstrap, Classic, Corporate, Marketing and Photographer themes.
+- **Uploads:** `.xml` files can no longer be uploaded. New installs now send `nosniff` and a script-blocking Content-Security-Policy for SVG/XML/HTML files in `assets/uploads/`.
+- **Role Changes:** Demoting or deleting a user now takes effect immediately on their active sessions.
+- **2FA & Strict Session Plugins:** Fixed a load-order bug that let both plugins silently fail open. They now work as described.
+- **Feed Caches:** Sitemap, RSS and llms.txt caches are now separated per host, so a forged Host header can no longer poison them.
+- **Session Cleanup:** Expired session files are now cleaned up during normal site traffic, not only when an admin opens the dashboard.
+- **Updater:** Updates now abort unless the official package checksum is present and matches.
 
-### ✨ Admin Panel UX Improvements
-- **Layout Refinements:** Optimized header, sidebar, and footer layouts for better navigation.
-- **Editor Enhancements:** Improved block editor functionality and data handling.
-- **Settings Panels:** Enhanced UI for backup, mail, profile, and security settings.
-- **List Actions:** Improved bulk operations and action handling in admin lists.
-- **CSS/JS Optimization:** Refined admin stylesheet and JavaScript event handling.
+### 🔧 Bug Fixes
+- **Public API:** `api/posts.php` no longer returns an error on every request. Out-of-range pages return the last page instead of redirecting to HTML.
+- **Public API:** `api/settings.php` now returns the site description.
+- **Countdown Block:** Finish messages are displayed as plain text consistently across all themes, and the default message is translated in the Marketing and Photographer themes.
 
-### 🔧 Core Improvements
-- **Export & Preview:** Enhanced Markdown export and HTML preview functionality.
-- **Update Process:** Improved release update mechanisms and version checking.
-- **LLM Integration:** Optimized LLMS utility functions.
-- **Utility Functions:** Enhanced security and theme utility functions.
+### ⚠️ Action for Existing Sites (Apache)
+The uploads protection above is written only on new installs. To apply it to an existing site, add the following to the top of `assets/uploads/.htaccess`:
+
+```
+<IfModule mod_headers.c>
+    Header always set X-Content-Type-Options "nosniff"
+    <FilesMatch "\.(?i:svg|xml|htm|html)$">
+        Header set Content-Security-Policy "script-src 'none'"
+    </FilesMatch>
+</IfModule>
+```
+
+For nginx, add `xml` to the uploads CSP rule as shown in the README.
 
 ---
 
 ## 🇯🇵 日本語 (Japanese)
 
-このパッチリリースは、セキュリティ機能の強化、プラグイン機能の向上、管理画面の操作性改善に焦点を当てています。
+このパッチリリースは、内部監査で見つかった複数のセキュリティ上の問題を修正します。すべてのサイト、特に編集者（Editor）アカウントを使っているサイトでの更新を強く推奨します。
 
-### 🛡️ セキュリティ & プラグイン強化
-- **Admin IP制限機能:** IPフィルタリングと許可リスト管理を強化し、より厳密なアクセス制御を実現。
-- **ベーシック認証:** 認証情報の取り扱いとセッション検証メカニズムを改善。
-- **2FA（メールOTP）:** メールベースの二要素認証ワークフローを強化。
-- **セッションセキュリティ:** セッション分離と検証プロトコルを厳格化し、セッション乗っ取りを防止。
-- **レート制限:** APIとフォーム送信に対するレート制限ロジックを強化。
-- **監査ログ:** ロギング精度とセキュリティイベント追跡機能を向上。
+### 🛡️ セキュリティ修正
+- **ブロック出力（XSS）:** 編集者アカウントが、コールアウト・カウントダウン・ボタン・カード・ダウンロード・音声・PDF・お客様の声・内部リンクの各ブロックからスクリプトを埋め込めた問題を修正。コアの描画処理と、Bootstrap・Classic・Corporate・Marketing・Photographer テーマが対象です。
+- **アップロード:** `.xml` ファイルをアップロードできないようにしました。新規インストールでは、`assets/uploads/` 内の SVG/XML/HTML に `nosniff` とスクリプトを禁止する CSP を付けます。
+- **権限変更:** ユーザーの降格や削除が、ログイン中のセッションにも即座に反映されるようになりました。
+- **2FA・厳格セッションプラグイン:** 読み込み順の不具合により、両プラグインが有効化しても機能していなかった問題を修正しました。
+- **フィードのキャッシュ:** サイトマップ・RSS・llms.txt のキャッシュをホストごとに分け、偽装した Host ヘッダで汚染できないようにしました。
+- **セッションの掃除:** 期限切れのセッションファイルを、管理画面を開いたときだけでなく通常のアクセスでも削除するようにしました。
+- **アップデート:** 公式パッケージのチェックサムが無い、または一致しない場合は更新を中止するようにしました。
 
-### ✨ 管理画面UX改善
-- **レイアウト最適化:** ヘッダー、サイドバー、フッターのレイアウトを最適化し、ナビゲーションを改善。
-- **エディタ機能強化:** ブロックエディタの機能とデータ処理を改善。
-- **設定パネル:** バックアップ、メール、プロフィール、セキュリティ設定UIを強化。
-- **リスト操作:** 管理画面リストの一括操作と操作ハンドリングを改善。
-- **CSS/JS最適化:** 管理画面スタイルシートとJavaScriptイベント処理を最適化。
+### 🔧 不具合修正
+- **公開API:** `api/posts.php` が常にエラーを返していた問題を修正。範囲外のページを指定した場合は、HTMLへリダイレクトせず最終ページを返します。
+- **公開API:** `api/settings.php` がサイトの説明文を返すようになりました。
+- **カウントダウンブロック:** 終了メッセージを全テーマで同じくテキストとして表示するよう統一し、Marketing・Photographer テーマで既定メッセージが翻訳されるようにしました。
 
-### 🔧 コア機能改善
-- **エクスポート＆プレビュー:** MarkdownエクスポートとHTMLプレビュー機能を強化。
-- **更新プロセス:** リリース更新メカニズムとバージョンチェック機能を改善。
-- **LLM連携:** LLMSユーティリティ関数を最適化。
-- **ユーティリティ関数:** セキュリティとテーマのユーティリティ関数を強化。
+### ⚠️ 既存サイトでの対応（Apache）
+上記のアップロード保護は新規インストール時にのみ書き込まれます。既存サイトに適用するには、`assets/uploads/.htaccess` の先頭に次を追記してください。
+
+```
+<IfModule mod_headers.c>
+    Header always set X-Content-Type-Options "nosniff"
+    <FilesMatch "\.(?i:svg|xml|htm|html)$">
+        Header set Content-Security-Policy "script-src 'none'"
+    </FilesMatch>
+</IfModule>
+```
+
+nginx の場合は、README のとおり uploads の CSP ルールに `xml` を追加してください。

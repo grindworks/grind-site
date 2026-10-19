@@ -49,7 +49,7 @@ if (!class_exists('SitemapGenerator')) {
       if (!is_dir($cacheDir)) {
         @mkdir($cacheDir, 0775, true);
       }
-      $this->cacheFile = $cacheDir . '/sitemap.xml';
+      $this->cacheFile = $cacheDir . '/sitemap_' . md5($this->baseUrl) . '.xml';
     }
 
     public function run(): void

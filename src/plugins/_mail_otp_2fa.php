@@ -60,7 +60,13 @@ add_action('grinds_init', function () {
     }
 
     $errorMsg = '';
-    $userEmail = App::user()['email'] ?? '';
+    $userEmail = '';
+    $pdo = App::db();
+    if ($pdo) {
+        $stmtEmail = $pdo->prepare("SELECT email FROM users WHERE id = ?");
+        $stmtEmail->execute([(int)($_SESSION['user_id'] ?? 0)]);
+        $userEmail = (string)($stmtEmail->fetchColumn() ?: '');
+    }
 
     // If the user has no email set, block them to ensure military-grade security.
     // ユーザーにメールアドレスが設定されていない場合、セキュリティ確保のためブロックして強制ログアウト

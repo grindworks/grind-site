@@ -14,6 +14,7 @@ if (!require_once __DIR__ . '/../lib/bootstrap_public.php') {
   http_response_code(404);
   exit;
 }
+require_once __DIR__ . '/../lib/paginator.php';
 
 // Set headers
 $allowed_origin = defined('API_ALLOWED_ORIGIN') ? constant('API_ALLOWED_ORIGIN') : '*';
@@ -62,6 +63,9 @@ try {
     'tag_slug' => $tag,
     'search' => $q
   ];
+
+  // Clamp page here: Paginator redirects out-of-range GET requests to an HTML page
+  $page = min($page, max(1, (int)ceil($repo->count($filters) / $limit)));
 
   $result = $repo->paginate($filters, $page, $limit);
   $posts = $result['posts'];
@@ -168,7 +172,7 @@ try {
     'data' => $slug ? ($result[0] ?? null) : $result,
     'meta' => $meta
   ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_INVALID_UTF8_IGNORE | JSON_PARTIAL_OUTPUT_ON_ERROR | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);
-} catch (Exception $e) {
+} catch (Throwable $e) {
   http_response_code(500);
   echo json_encode(['success' => false, 'error' => 'Server Error']);
 }

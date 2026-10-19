@@ -243,7 +243,7 @@ if (!function_exists('bootstrap_render_block')) {
         $text = h($data['text'] ?? 'Button');
         $rawUrl = $data['url'] ?? '';
         if (empty($rawUrl) || $rawUrl === '#') return '';
-        $url = resolve_url($rawUrl);
+        $url = h(resolve_url($rawUrl));
         $color = $data['color'] ?? 'primary';
         $target = !empty($data['external']) ? 'target="_blank" rel="noopener"' : '';
 
@@ -334,7 +334,7 @@ if (!function_exists('bootstrap_render_block')) {
         return $html;
 
       case 'card':
-        $url = resolve_url($data['url'] ?? '#');
+        $url = h(resolve_url($data['url'] ?? '#'));
         $title = h($data['title'] ?? '');
         $desc = h($data['description'] ?? '');
         $img = $data['image'] ?? '';
@@ -393,7 +393,7 @@ if (!function_exists('bootstrap_render_block')) {
         $title = h($data['title'] ?? theme_t('Download'));
         $rawUrl = $data['url'] ?? '';
         if (empty($rawUrl) || $rawUrl === '#') return '';
-        $url = resolve_url($rawUrl);
+        $url = h(resolve_url($rawUrl));
         $size = h($data['fileSize'] ?? '');
         $html = "<a href='{$url}' class='hover-bg-light mb-4 text-reset text-decoration-none card' download>";
         $html .= "<div class='d-flex align-items-center card-body'><div class='me-3 fs-2'>⬇️</div>";
@@ -470,7 +470,7 @@ if (!function_exists('bootstrap_render_block')) {
         return $html;
 
       case 'audio':
-        $url = resolve_url($data['url'] ?? '');
+        $url = h(resolve_url($data['url'] ?? ''));
         $title = h($data['title'] ?? '');
         if ($url) {
           $html = "<div class='bg-light my-4 card'><div class='card-body'>";
@@ -481,7 +481,7 @@ if (!function_exists('bootstrap_render_block')) {
         break;
 
       case 'pdf':
-        $url = resolve_url($data['url'] ?? '');
+        $url = h(resolve_url($data['url'] ?? ''));
         if ($url) {
           $html = "<div class='my-4 border rounded ratio ratio-16x9'><object data='{$url}' type='application/pdf'>";
           $html .= "<p class='p-3 text-center'>" . theme_t('msg_pdf_error') . " <a href='{$url}' aria-label='" . theme_t('download_pdf_aria') . "'>" . theme_t('btn_download') . "</a></p></object></div>";
@@ -499,7 +499,7 @@ if (!function_exists('bootstrap_render_block')) {
         return $html;
 
       case 'internal_card':
-        $id = $data['id'] ?? '';
+        $id = (int)($data['id'] ?? 0);
         if ($id) {
           $html = "<div class='my-4 text-center alert alert-secondary'>";
           $html .= "Internal Link (ID: {$id}) - <a href='?p={$id}' class='alert-link'>View Post (ID: {$id})</a></div>";
@@ -566,13 +566,13 @@ if (!function_exists('bootstrap_render_block')) {
 
       case 'countdown':
         $deadline = $data['deadline'] ?? '';
-        $msg = $data['message'] ?? theme_t('Finished');
+        $msg = html_entity_decode((string)($data['message'] ?? theme_t('Finished')), ENT_QUOTES | ENT_HTML5, 'UTF-8');
         $uid = 'timer-' . uniqid();
         $jsDeadline = json_encode($deadline);
-        $jsMsg = json_encode($msg);
+        $jsMsg = json_encode($msg, JSON_HEX_TAG | JSON_HEX_AMP);
         $html = "<div id='{$uid}' class='bg-dark my-4 text-white text-center card'><div class='py-4 card-body'>";
         $html .= "<small class='text-white-50 text-uppercase'>" . theme_t('Time Remaining') . "</small><div class='mt-2 font-monospace display-4 fw-bold timer-display'>00:00:00:00</div></div></div>";
-        $html .= "<script>(function(){const end=new Date({$jsDeadline}).getTime();const el=document.querySelector('#{$uid} .timer-display');const timer=setInterval(()=>{const now=new Date().getTime();const dist=end-now;if(dist<0){clearInterval(timer);el.innerHTML={$jsMsg};return;}const d=Math.floor(dist/(1000*60*60*24));const h=Math.floor((dist%(1000*60*60*24))/(1000*60));const m=Math.floor((dist%(1000*60*60))/(1000*60));const s=Math.floor((dist%(1000*60))/1000);el.innerText=d+'d '+h.toString().padStart(2,'0')+'h '+m.toString().padStart(2,'0')+'m '+s.toString().padStart(2,'0')+'s';},1000);})();</script>";
+        $html .= "<script>(function(){const end=new Date({$jsDeadline}).getTime();const el=document.querySelector('#{$uid} .timer-display');const timer=setInterval(()=>{const now=new Date().getTime();const dist=end-now;if(dist<0){clearInterval(timer);el.textContent={$jsMsg};return;}const d=Math.floor(dist/(1000*60*60*24));const h=Math.floor((dist%(1000*60*60*24))/(1000*60));const m=Math.floor((dist%(1000*60*60))/(1000*60));const s=Math.floor((dist%(1000*60))/1000);el.innerText=d+'d '+h.toString().padStart(2,'0')+'h '+m.toString().padStart(2,'0')+'m '+s.toString().padStart(2,'0')+'s';},1000);})();</script>";
         return $html;
 
       case 'qrcode':

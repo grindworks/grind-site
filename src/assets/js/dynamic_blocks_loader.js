@@ -62,7 +62,7 @@ window.grindsInitDynamicBlocks = function (rootNode, config) {
       var dist = end - now;
       if (dist < 0 || isNaN(dist)) {
         clearInterval(timer);
-        display.innerHTML = msg;
+        display.textContent = msg;
         return;
       }
       var d = Math.floor(dist / (1000 * 60 * 60 * 24));

@@ -1208,10 +1208,12 @@ if (!function_exists('grinds_clear_specific_cache')) {
             }
         }
 
-        grinds_force_unlink($cacheDir . 'rss.xml');
-        grinds_force_unlink($cacheDir . 'sitemap.xml');
-        grinds_force_unlink($cacheDir . 'llms.txt');
-        grinds_force_unlink($cacheDir . 'llms-full.txt');
+        $feedPatterns = ['rss.xml', 'rss_*.xml', 'sitemap.xml', 'sitemap_*.xml', 'llms.txt', 'llms_*.txt', 'llms-full.txt', 'llms-full_*.txt'];
+        foreach ($feedPatterns as $pattern) {
+            foreach (glob($cacheDir . $pattern) ?: [] as $file) {
+                grinds_force_unlink($file);
+            }
+        }
     }
 }
 

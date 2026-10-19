@@ -418,6 +418,12 @@ class Installer
 
     if (empty($uploadsContent)) {
       $uploadsContent = "# GrindSite - Uploads Security\n" .
+        "<IfModule mod_headers.c>\n" .
+        "    Header always set X-Content-Type-Options \"nosniff\"\n" .
+        "    <FilesMatch \"\.(?i:svg|xml|htm|html)$\">\n" .
+        "        Header set Content-Security-Policy \"script-src 'none'\"\n" .
+        "    </FilesMatch>\n" .
+        "</IfModule>\n" .
         "<FilesMatch \"\.(?i:php|phtml|pl|py|jsp|asp|htm|html|shtml|sh|cgi)$\">\n" .
         "    <IfModule mod_authz_core.c>\n" .
         "        Require all denied\n" .

@@ -30,6 +30,9 @@ if (function_exists('_safe_session_start')) {
 define('GRINDS_ENABLE_MIGRATIONS', true);
 require_once $rootDir . '/lib/db.php';
 
+// Load auth before plugins: security plugins call grinds_logout() on grinds_init
+require_once $rootDir . '/lib/auth.php';
+
 // Load user plugins AFTER session and DB are ready
 require_once $rootDir . '/lib/functions/plugins.php';
 

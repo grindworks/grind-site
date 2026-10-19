@@ -39,7 +39,7 @@ try {
     // Fetch global settings using the core get_option function
     $data = [
         'site_name' => function_exists('get_option') ? get_option('site_name', 'GrindSite') : 'GrindSite',
-        'site_desc' => function_exists('get_option') ? get_option('site_desc', '') : '',
+        'site_desc' => function_exists('get_option') ? get_option('site_description', '') : '',
         'site_lang' => function_exists('get_option') ? get_option('site_lang', 'en') : 'en',
         // Add any other necessary options here (e.g., logo URL, SNS links)
     ];

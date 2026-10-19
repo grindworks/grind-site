@@ -307,7 +307,7 @@ server {
     location ~ (?:^|/)assets/uploads/.*\.php$ {
         deny all; return 404;
     }
-    location ~ (?:^|/)assets/uploads/.*\.(svg|html)$ {
+    location ~ (?:^|/)assets/uploads/.*\.(svg|html|xml)$ {
         add_header Content-Security-Policy "script-src 'none'";
     }
 
@@ -637,7 +637,7 @@ server {
     location ~ (?:^|/)assets/uploads/.*\.php$ {
         deny all; return 404;
     }
-    location ~ (?:^|/)assets/uploads/.*\.(svg|html)$ {
+    location ~ (?:^|/)assets/uploads/.*\.(svg|html|xml)$ {
         add_header Content-Security-Policy "script-src 'none'";
     }
 

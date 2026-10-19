@@ -107,7 +107,10 @@ try {
             if (empty($officialUrl) || $url !== $officialUrl) {
                 throw new Exception("Security Error: Invalid or untrusted download URL. Update aborted.");
             }
-            if (!empty($officialHash) && $expectedHash !== $officialHash) {
+            if (!is_string($officialHash) || !preg_match('/^[a-f0-9]{64}$/i', $officialHash)) {
+                throw new Exception("Security Error: Update information has no valid checksum. Update aborted.");
+            }
+            if (!hash_equals(strtolower($officialHash), strtolower((string)$expectedHash))) {
                 throw new Exception("Security Error: Hash mismatch detected before download. Update aborted.");
             }
             // ↑ ここまで
@@ -117,12 +120,10 @@ try {
             $success = $updater->downloadDirect($url, $zipFilePath);
             if (!$success) throw new Exception("Failed to download update package.");
 
-            if ($expectedHash) {
-                $actualHash = hash_file('sha256', $zipFilePath);
-                if (!hash_equals($expectedHash, $actualHash)) {
-                    @unlink($zipFilePath);
-                    throw new Exception("Security Error: Update package hash mismatch.");
-                }
+            $actualHash = hash_file('sha256', $zipFilePath);
+            if ($actualHash === false || !hash_equals(strtolower($officialHash), $actualHash)) {
+                @unlink($zipFilePath);
+                throw new Exception("Security Error: Update package hash mismatch.");
             }
             json_response(['success' => true]);
             break;

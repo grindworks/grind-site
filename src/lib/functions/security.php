@@ -163,8 +163,9 @@ if (!function_exists('_safe_session_start')) {
                 $gc_lifetime = (int)$val;
         }
         ini_set('session.gc_maxlifetime', $gc_lifetime);
-        ini_set('session.gc_probability', 0);
-        ini_set('session.gc_divisor', 100);
+        // Keep native GC on: anonymous visits create session files even when no admin opens the dashboard
+        ini_set('session.gc_probability', 1);
+        ini_set('session.gc_divisor', 1000);
 
         $is_https = function_exists('is_ssl') ? is_ssl() : false;
 

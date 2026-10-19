@@ -59,7 +59,7 @@ if (!class_exists('RssGenerator')) {
       if (!is_dir($cacheDir)) {
         @mkdir($cacheDir, 0775, true);
       }
-      $this->cacheFile = $cacheDir . '/rss.xml';
+      $this->cacheFile = $cacheDir . '/rss_' . md5($this->baseUrl) . '.xml';
     }
 
     public function run(): void

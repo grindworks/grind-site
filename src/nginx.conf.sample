@@ -87,7 +87,7 @@ server {
     location ~* (?:^|/)assets/uploads/.*\.(php[0-9]?|phtml|phar|pl|py|jsp|asp|htm|html|shtml|sh|cgi|exe|bat|cmd|vbs)$ {
         deny all; return 404;
     }
-    location ~ (?:^|/)assets/uploads/.*\.(svg|html)$ {
+    location ~ (?:^|/)assets/uploads/.*\.(svg|html|xml)$ {
         add_header Content-Security-Policy "script-src 'none'";
     }
 

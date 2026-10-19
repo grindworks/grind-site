@@ -38,12 +38,10 @@ class FileManager
         'application/vnd.ms-powerpoint' => ['ppt'],
         'application/vnd.openxmlformats-officedocument.presentationml.presentation' => ['pptx'],
 
-        'text/plain' => ['txt', 'csv', 'md', 'log', 'json', 'xml'],
+        'text/plain' => ['txt', 'csv', 'md', 'log', 'json'],
         'text/csv' => ['csv'],
         'text/markdown' => ['md'],
         'application/json' => ['json'],
-        'application/xml' => ['xml'],
-        'text/xml' => ['xml'],
 
         'application/zip' => ['zip'],
         'application/x-zip-compressed' => ['zip'],

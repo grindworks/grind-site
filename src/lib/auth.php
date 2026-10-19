@@ -57,6 +57,20 @@ function require_login()
         redirect_to_login();
     }
 
+    // Reload role and permissions so demotions and deletions apply to live sessions
+    $pdo = App::db();
+    if ($pdo) {
+        $stmt = $pdo->prepare("SELECT role, permissions FROM users WHERE id = ?");
+        $stmt->execute([(int)($_SESSION['user_id'] ?? 0)]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        if (!$row) {
+            grinds_logout();
+            redirect_to_login();
+        }
+        $_SESSION['user_role'] = $row['role'] ?? 'editor';
+        $_SESSION['user_permissions'] = $row['permissions'] ?? null;
+    }
+
     $db_timeout = (int)get_option('session_timeout', 1800);
     $timeout_duration = ($db_timeout > 0) ? $db_timeout : 1800;
 

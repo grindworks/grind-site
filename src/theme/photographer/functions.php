@@ -106,7 +106,7 @@ if (!function_exists('photographer_render_block')) {
         return "<p class='mb-8 text-gray-600 leading-loose font-light'>{$text}</p>";
 
       case 'image':
-        $url = resolve_url($data['url'] ?? '');
+        $url = h(resolve_url($data['url'] ?? ''));
         if (!$url) return '';
         $caption = h($data['caption'] ?? '');
         $html = "<figure class='my-12'>";
@@ -134,7 +134,7 @@ if (!function_exists('photographer_render_block')) {
         $text = h($data['text'] ?? 'Button');
         $rawUrl = $data['url'] ?? '';
         if (empty($rawUrl) || $rawUrl === '#') return '';
-        $url = resolve_url($rawUrl);
+        $url = h(resolve_url($rawUrl));
         return "<div class='my-12 text-center'><a href='{$url}' class='inline-block border border-gray-900 px-8 py-3 text-gray-900 hover:bg-gray-900 hover:text-white text-xs uppercase tracking-widest transition-colors duration-300'>{$text}</a></div>";
 
       case 'html':
@@ -165,7 +165,7 @@ if (!function_exists('photographer_render_block')) {
         return "<div class='border-l-2 border-black my-12 pl-6 py-2'>{$text}</div>";
 
       case 'card':
-        $url = resolve_url($data['url'] ?? '#');
+        $url = h(resolve_url($data['url'] ?? '#'));
         $title = h($data['title'] ?? '');
         $desc = h($data['description'] ?? '');
         $img = $data['image'] ?? '';
@@ -264,17 +264,17 @@ if (!function_exists('photographer_render_block')) {
         $title = h($data['title'] ?? 'Download');
         $rawUrl = $data['url'] ?? '';
         if (empty($rawUrl) || $rawUrl === '#') return '';
-        $url = resolve_url($rawUrl);
+        $url = h(resolve_url($rawUrl));
         $spriteUrl = resolve_url('assets/img/sprite.svg');
         return "<a href='{$url}' class='flex items-center justify-between border border-gray-200 p-4 my-12 hover:bg-gray-50 transition no-underline' download><span class='font-bold text-sm'>{$title}</span><svg class='w-5 h-5 text-gray-800' fill='none' stroke='currentColor' viewBox='0 0 24 24'><use href='{$spriteUrl}#outline-arrow-down'></use></svg></a>";
 
       case 'audio':
-        $url = resolve_url($data['url'] ?? '');
+        $url = h(resolve_url($data['url'] ?? ''));
         if (!$url) return '';
         return "<div class='my-12'><audio controls src='" . h($url) . "' class='w-full'></audio></div>";
 
       case 'pdf':
-        $url = resolve_url($data['url'] ?? '');
+        $url = h(resolve_url($data['url'] ?? ''));
         if (!$url) return '';
         return "<div class='my-12 border border-gray-200'><object data='" . h($url) . "' type='application/pdf' width='100%' height='500'><p class='p-4 text-center'>" . theme_t('Unable to display PDF.') . " <a href='" . h($url) . "' class='underline' aria-label='" . theme_t('download_pdf_aria') . "'>" . theme_t('Download') . "</a></p></object></div>";
 
@@ -285,7 +285,7 @@ if (!function_exists('photographer_render_block')) {
         return "<form action='{$action}' method='get' class='my-12 flex border-b border-black'><input type='text' name='q' placeholder='{$ph}' value='{$q}' class='flex-1 py-2 outline-none bg-transparent font-serif'><button class='text-xs uppercase tracking-widest'>" . theme_t('Search') . "</button></form>";
 
       case 'internal_card':
-        $id = $data['id'] ?? '';
+        $id = (int)($data['id'] ?? 0);
         if ($id) return "<div class='my-12 p-6 border border-gray-200 text-center'><span class='block text-xs uppercase tracking-widest text-gray-400 mb-2'>" . theme_t('Internal Link') . "</span><a href='?p={$id}' class='font-serif text-xl italic hover:underline'>" . sprintf(theme_t('View Post (ID: %s)'), $id) . "</a></div>";
         return '';
 
@@ -328,12 +328,12 @@ if (!function_exists('photographer_render_block')) {
 
       case 'countdown':
         $deadline = $data['deadline'] ?? '';
-        $msg = $data['message'] ?? 'Finished';
+        $msg = html_entity_decode((string)($data['message'] ?? theme_t('Finished')), ENT_QUOTES | ENT_HTML5, 'UTF-8');
         $uid = 'timer-' . uniqid();
         $jsDeadline = json_encode($deadline);
-        $jsMsg = json_encode($msg);
+        $jsMsg = json_encode($msg, JSON_HEX_TAG | JSON_HEX_AMP);
         $html = "<div id='{$uid}' class='my-12 p-8 border border-black text-center'><div class='text-xs uppercase tracking-widest mb-2'>" . theme_t('Time Remaining') . "</div><div class='font-serif text-4xl timer-display'>00:00:00:00</div></div>";
-        $html .= "<script>(function(){const end=new Date({$jsDeadline}).getTime();const el=document.querySelector('#{$uid} .timer-display');const timer=setInterval(()=>{const now=new Date().getTime();const dist=end-now;if(dist<0){clearInterval(timer);el.innerHTML={$jsMsg};return;}const d=Math.floor(dist/(1000*60*60*24));const h=Math.floor((dist%(1000*60*60*24))/(1000*60));const m=Math.floor((dist%(1000*60*60))/(1000*60));const s=Math.floor((dist%(1000*60))/1000);el.innerText=d+'d '+h.toString().padStart(2,'0')+'h '+m.toString().padStart(2,'0')+'m '+s.toString().padStart(2,'0')+'s';},1000);})();</script>";
+        $html .= "<script>(function(){const end=new Date({$jsDeadline}).getTime();const el=document.querySelector('#{$uid} .timer-display');const timer=setInterval(()=>{const now=new Date().getTime();const dist=end-now;if(dist<0){clearInterval(timer);el.textContent={$jsMsg};return;}const d=Math.floor(dist/(1000*60*60*24));const h=Math.floor((dist%(1000*60*60*24))/(1000*60));const m=Math.floor((dist%(1000*60*60))/(1000*60));const s=Math.floor((dist%(1000*60))/1000);el.innerText=d+'d '+h.toString().padStart(2,'0')+'h '+m.toString().padStart(2,'0')+'m '+s.toString().padStart(2,'0')+'s';},1000);})();</script>";
         return $html;
 
       case 'qrcode':

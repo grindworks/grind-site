@@ -1181,8 +1181,8 @@ HTML;
             case 'callout':
                 $text = nl2br($pathFixer($data['text'] ?? ''));
                 if ($text === '') return '';
-                $style = $data['style'] ?? 'info';
-                $styleClass = "is-style-" . $style;
+                $style = (string)($data['style'] ?? 'info');
+                $styleClass = "is-style-" . preg_replace('/[^a-zA-Z0-9_-]/', '', $style);
                 $boxClass = "p-5 rounded-r-theme border-l-4 my-8 shadow-theme flex items-start gap-3";
                 $icon = '';
                 if ($style === 'info') {

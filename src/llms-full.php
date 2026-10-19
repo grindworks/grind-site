@@ -56,7 +56,7 @@ if (!class_exists('LlmsFullGenerator')) {
             if (!is_dir($cacheDir)) {
                 @mkdir($cacheDir, 0775, true);
             }
-            $this->cacheFile = $cacheDir . '/llms-full.txt';
+            $this->cacheFile = $cacheDir . '/llms-full_' . md5($this->baseUrl) . '.txt';
         }
 
         public function run(): void

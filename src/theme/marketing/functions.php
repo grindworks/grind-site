@@ -76,7 +76,7 @@ if (!function_exists('marketing_render_block')) {
         $text = h($data['text'] ?? 'Click Here');
         $rawUrl = $data['url'] ?? '';
         if (empty($rawUrl) || $rawUrl === '#') return '';
-        $url = resolve_url($rawUrl);
+        $url = h(resolve_url($rawUrl));
         $color = $data['color'] ?? 'primary';
         $target = !empty($data['external']) ? "target='_blank' rel='noopener'" : "";
 
@@ -159,7 +159,7 @@ if (!function_exists('marketing_render_block')) {
         $role = h($data['role'] ?? '');
         $comment = nl2br($pathFixer($data['comment'] ?? ''));
         if ($comment === '') return '';
-        $img = resolve_url($data['image'] ?? '');
+        $img = h(resolve_url($data['image'] ?? ''));
 
         $html = "<div class='{$commonClass} my-12 bg-white p-8 rounded-2xl shadow-lg border border-slate-100 relative'>";
         $html .= "<svg class='top-6 left-6 absolute w-8 h-8 text-brand-100' fill='currentColor' viewBox='0 0 24 24'><path d='M7.17 6C5.42 6 4 7.79 4 10c0 2.21 1.42 4 3.17 4 .2 0 .39-.02.58-.06L6.5 18h3l1.5-4.5c.67-2 .17-7.5-3.83-7.5zm9 0C14.42 6 13 7.79 13 10c0 2.21 1.42 4 3.17 4 .2 0 .39-.02.58-.06L15.5 18h3l1.5-4.5c.67-2 .17-7.5-3.83-7.5z'/></svg>";
@@ -272,7 +272,7 @@ if (!function_exists('marketing_render_block')) {
         return $html;
 
       case 'card':
-        $url = resolve_url($data['url'] ?? '#');
+        $url = h(resolve_url($data['url'] ?? '#'));
         $title = h($data['title'] ?? '');
         $desc = h($data['description'] ?? '');
         $img = $data['image'] ?? '';
@@ -352,7 +352,7 @@ if (!function_exists('marketing_render_block')) {
         return "<div class='mk-block-html my-12'>{$code}</div>";
 
       case 'audio':
-        $url = resolve_url($data['url'] ?? '');
+        $url = h(resolve_url($data['url'] ?? ''));
         $title = h($data['title'] ?? '');
         if (!$url) return '';
         $html = "<div class='bg-slate-100 my-8 p-4 rounded-xl'>";
@@ -361,12 +361,12 @@ if (!function_exists('marketing_render_block')) {
         return $html;
 
       case 'pdf':
-        $url = resolve_url($data['url'] ?? '');
+        $url = h(resolve_url($data['url'] ?? ''));
         if (!$url) return '';
         return "<div class='bg-slate-100 my-10 border border-slate-200 rounded-xl h-[500px] overflow-hidden'><object data='" . h($url) . "' type='application/pdf' width='100%' height='100%'><p class='p-4 text-center'>" . theme_t('unable_pdf') . " <a href='" . h($url) . "' class='text-brand-600 underline'>" . theme_t('download') . "</a></p></object></div>";
 
       case 'internal_card':
-        $id = $data['id'] ?? '';
+        $id = (int)($data['id'] ?? 0);
         if ($id) return "<div class='bg-slate-50 my-8 p-4 border border-slate-200 rounded-xl text-slate-500 text-sm text-center'>" . sprintf(theme_t('internal_link_id'), $id) . " - <a href='?p={$id}' class='text-brand-600 underline'>" . theme_t('view_post') . "</a></div>";
         return '';
 
@@ -396,12 +396,12 @@ if (!function_exists('marketing_render_block')) {
 
       case 'countdown':
         $deadline = $data['deadline'] ?? '';
-        $msg = $data['message'] ?? 'Finished';
+        $msg = html_entity_decode((string)($data['message'] ?? theme_t('Finished')), ENT_QUOTES | ENT_HTML5, 'UTF-8');
         $uid = 'timer-' . uniqid();
         $jsDeadline = json_encode($deadline);
-        $jsMsg = json_encode($msg);
+        $jsMsg = json_encode($msg, JSON_HEX_TAG | JSON_HEX_AMP);
         $html = "<div id='{$uid}' class='bg-slate-900 shadow-xl my-10 p-8 rounded-2xl text-white text-center'><div class='opacity-70 mb-2 font-bold text-xs uppercase tracking-widest'>" . theme_t('time_remaining') . "</div><div class='font-mono font-black text-4xl md:text-6xl tracking-widest timer-display'>00:00:00:00</div></div>";
-        $html .= "<script>(function(){const end=new Date({$jsDeadline}).getTime();const el=document.querySelector('#{$uid} .timer-display');const timer=setInterval(()=>{const now=new Date().getTime();const dist=end-now;if(dist<0){clearInterval(timer);el.innerHTML={$jsMsg};return;}const d=Math.floor(dist/(1000*60*60*24));const h=Math.floor((dist%(1000*60*60*24))/(1000*60));const m=Math.floor((dist%(1000*60*60))/(1000*60));const s=Math.floor((dist%(1000*60))/1000);el.innerText=d+'d '+h.toString().padStart(2,'0')+'h '+m.toString().padStart(2,'0')+'m '+s.toString().padStart(2,'0')+'s';},1000);})();</script>";
+        $html .= "<script>(function(){const end=new Date({$jsDeadline}).getTime();const el=document.querySelector('#{$uid} .timer-display');const timer=setInterval(()=>{const now=new Date().getTime();const dist=end-now;if(dist<0){clearInterval(timer);el.textContent={$jsMsg};return;}const d=Math.floor(dist/(1000*60*60*24));const h=Math.floor((dist%(1000*60*60*24))/(1000*60));const m=Math.floor((dist%(1000*60*60))/(1000*60));const s=Math.floor((dist%(1000*60))/1000);el.innerText=d+'d '+h.toString().padStart(2,'0')+'h '+m.toString().padStart(2,'0')+'m '+s.toString().padStart(2,'0')+'s';},1000);})();</script>";
         return $html;
 
       case 'qrcode':
@@ -429,7 +429,7 @@ if (!function_exists('marketing_render_block')) {
         $title = h($data['title'] ?? 'Download');
         $rawUrl = $data['url'] ?? '';
         if (empty($rawUrl) || $rawUrl === '#') return '';
-        $url = resolve_url($rawUrl);
+        $url = h(resolve_url($rawUrl));
         $size = h($data['fileSize'] ?? '');
         return "<a href='{$url}' class='group flex items-center bg-white hover:bg-slate-50 shadow-md hover:shadow-lg my-12 p-6 border border-slate-200 rounded-xl transition-all no-underline' download><div class='bg-brand-100 mr-6 p-4 rounded-full text-brand-600 group-hover:scale-110 transition-transform'><svg class='w-8 h-8' fill='none' stroke='currentColor' viewBox='0 0 24 24'><path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4'/></svg></div><div><div class='font-bold text-slate-900 text-lg'>{$title}</div><div class='text-slate-500 text-sm'>{$size}</div></div></a>";
 
@@ -461,7 +461,7 @@ if (!function_exists('marketing_render_block')) {
         return "<p class='mb-6 text-slate-600 leading-relaxed'>{$text}</p>";
 
       case 'image':
-        $url = resolve_url($data['url'] ?? '');
+        $url = h(resolve_url($data['url'] ?? ''));
         if (!$url) return '';
         $caption = h($data['caption'] ?? '');
         $html = "<figure class='my-10'>";

@@ -173,7 +173,7 @@ if (!function_exists('classic_render_block')) {
                 $rawUrl = $data['url'] ?? '';
                 if (empty($rawUrl) || $rawUrl === '#')
                     return '';
-                $url = resolve_url($rawUrl);
+                $url = h(resolve_url($rawUrl));
                 $target = !empty($data['external']) ? 'target="_blank" rel="noopener"' : '';
                 return "<div class='{$commonClass}'><a href='" . h($url) . "' {$target} class='btn'>{$text}</a></div>";
 
@@ -225,7 +225,7 @@ if (!function_exists('classic_render_block')) {
                 return $html;
 
             case 'card':
-                $url = resolve_url($data['url'] ?? '#');
+                $url = h(resolve_url($data['url'] ?? '#'));
                 $title = h($data['title'] ?? '');
                 $desc = h($data['description'] ?? '');
                 $img = $data['image'] ?? '';
@@ -290,7 +290,7 @@ if (!function_exists('classic_render_block')) {
                 $rawUrl = $data['url'] ?? '';
                 if (empty($rawUrl) || $rawUrl === '#')
                     return '';
-                $url = resolve_url($rawUrl);
+                $url = h(resolve_url($rawUrl));
                 return "<div class='{$commonClass}'><a href='" . h($url) . "' download>⬇️ {$title}</a></div>";
 
             case 'timeline':
@@ -334,13 +334,13 @@ if (!function_exists('classic_render_block')) {
                 return "<div class='{$commonClass}'><blockquote>{$comment}</blockquote><cite>{$name}</cite></div>";
 
             case 'audio':
-                $url = resolve_url($data['url'] ?? '');
+                $url = h(resolve_url($data['url'] ?? ''));
                 if (!$url)
                     return '';
                 return "<div class='{$commonClass}'><audio controls src='" . h($url) . "'></audio></div>";
 
             case 'pdf':
-                $url = resolve_url($data['url'] ?? '');
+                $url = h(resolve_url($data['url'] ?? ''));
                 if (!$url)
                     return '';
                 return "<div class='{$commonClass}'><a href='" . h($url) . "' aria-label='" . h(theme_t('Download PDF')) . "'>" . theme_t('Download PDF') . "</a></div>";
@@ -350,7 +350,7 @@ if (!function_exists('classic_render_block')) {
                 return "<div class='{$commonClass}'><form action='" . h(resolve_url('/')) . "' method='get' class='grinds-search-form'><input type='text' name='q' placeholder='" . h(theme_t('Search...')) . "' value='{$q}'><button type='submit' aria-label='" . h(theme_t('Search')) . "'><svg width='16' height='16' fill='currentColor' viewBox='0 0 16 16'><path d='M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z'/></svg></button></form></div>";
 
             case 'internal_card':
-                $id = $data['id'] ?? '';
+                $id = (int)($data['id'] ?? 0);
                 if ($id)
                     return "<div class='{$commonClass}'><a href='?p={$id}'>View Post (ID: {$id})</a></div>";
                 return '';
@@ -432,12 +432,12 @@ if (!function_exists('classic_render_block')) {
 
             case 'countdown':
                 $deadline = $data['deadline'] ?? '';
-                $msg = $data['message'] ?? theme_t('Finished');
+                $msg = html_entity_decode((string)($data['message'] ?? theme_t('Finished')), ENT_QUOTES | ENT_HTML5, 'UTF-8');
                 $uid = 'timer-' . uniqid();
                 $jsDeadline = json_encode($deadline);
-                $jsMsg = json_encode($msg);
+                $jsMsg = json_encode($msg, JSON_HEX_TAG | JSON_HEX_AMP);
                 $html = "<div id='{$uid}' class='{$commonClass}'><div class='label'>" . theme_t('Time Remaining') . "</div><div class='timer-display'>00:00:00:00</div></div>";
-                $html .= "<script>(function () { const end = new Date({$jsDeadline}).getTime(); const el = document.querySelector('#{$uid} .timer-display'); const timer = setInterval(() => { const now = new Date().getTime(); const dist = end - now; if (dist < 0) { clearInterval(timer); el.innerHTML = {$jsMsg}; return; } const d = Math.floor(dist / (1000 * 60 * 60 * 24)); const h = Math.floor((dist % (1000 * 60 * 60 * 24)) / (1000 * 60)); const m = Math.floor((dist % (1000 * 60 * 60)) / (1000 * 60)); const s = Math.floor((dist % (1000 * 60)) / 1000); el.innerText = d + 'd ' + h.toString().padStart(2, '0') + 'h ' + m.toString().padStart(2, '0') + 'm ' + s.toString().padStart(2, '0') + 's'; }, 1000); })();</script>";
+                $html .= "<script>(function () { const end = new Date({$jsDeadline}).getTime(); const el = document.querySelector('#{$uid} .timer-display'); const timer = setInterval(() => { const now = new Date().getTime(); const dist = end - now; if (dist < 0) { clearInterval(timer); el.textContent = {$jsMsg}; return; } const d = Math.floor(dist / (1000 * 60 * 60 * 24)); const h = Math.floor((dist % (1000 * 60 * 60 * 24)) / (1000 * 60)); const m = Math.floor((dist % (1000 * 60 * 60)) / (1000 * 60)); const s = Math.floor((dist % (1000 * 60)) / 1000); el.innerText = d + 'd ' + h.toString().padStart(2, '0') + 'h ' + m.toString().padStart(2, '0') + 'm ' + s.toString().padStart(2, '0') + 's'; }, 1000); })();</script>";
                 return $html;
 
             case 'qrcode':
