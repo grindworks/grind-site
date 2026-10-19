@@ -371,7 +371,7 @@ The structure of the GitHub repository is as follows. Please upload **only the c
 
 ```text
 grind-site/
-├── bin/               # CLI tools (grind.php)
+├── bin/               # CLI tool (grind.php) and release script (release.sh)
 ├── src/               # [IMPORTANT] Upload ONLY this folder's contents to your server
 │   ├── admin/         # Admin panel
 │   ├── api/           # REST API endpoints
@@ -732,7 +732,7 @@ GitHub リポジトリの構成は以下のようになっています。サー�
 
 ```text
 grind-site/
-├── bin/               # CLIツール (grind.php)
+├── bin/               # CLIツール (grind.php) とリリース用スクリプト (release.sh)
 ├── src/               # 【重要】この中身をサーバーにアップロードします
 │   ├── admin/         # 管理画面
 │   ├── api/           # REST API エンドポイント

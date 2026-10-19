@@ -14,6 +14,7 @@ src/config.php
 # 🏗️ Build, Cache & Logs
 /dist/
 /build/
+/grindsite-v*.zip
 *.log
 npm-debug.log*
 .php-cs-fixer.cache
