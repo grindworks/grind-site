@@ -1,67 +1,73 @@
 Release title
-v1.7.3 - Security Fixes
+v1.7.4 - Safer Theme Updates
 
 Release notes
-This patch release fixes several security issues found in an internal audit. Updating is strongly recommended for all sites, especially those with Editor accounts.
+This release makes one-click updates deliver fixes to bundled themes and skins by default, while keeping a copy of every theme or skin file the update changes.
 
-### 🛡️ Security Fixes
-- **Block Output (XSS):** Fixed cases where Editor accounts could inject scripts through Callout, Countdown, Button, Card, Download, Audio, PDF, Testimonial and Internal Link blocks. Affected the core renderer and the Bootstrap, Classic, Corporate, Marketing and Photographer themes.
-- **Uploads:** `.xml` files can no longer be uploaded. New installs now send `nosniff` and a script-blocking Content-Security-Policy for SVG/XML/HTML files in `assets/uploads/`.
-- **Role Changes:** Demoting or deleting a user now takes effect immediately on their active sessions.
-- **2FA & Strict Session Plugins:** Fixed a load-order bug that let both plugins silently fail open. They now work as described.
-- **Feed Caches:** Sitemap, RSS and llms.txt caches are now separated per host, so a forged Host header can no longer poison them.
-- **Session Cleanup:** Expired session files are now cleaned up during normal site traffic, not only when an admin opens the dashboard.
-- **Updater:** Updates now abort unless the official package checksum is present and matches.
+> [!IMPORTANT]
+> **The new update behavior starts with your next update after this one.**
+>
+> An update is performed by the version that is currently installed. So when you update **from v1.7.3 or earlier to v1.7.4**, the old update screen and behavior are used:
+> - The option is labeled **"Do not update/add themes and skins"** and is **checked** by default. While it is checked, nothing under `theme/` or `admin/skins/` is updated.
+> - If you uncheck it, all bundled themes and skins are overwritten (including changes you made to their files), bundled themes and skins you deleted are restored, and **no copies are saved**.
+>
+> **If you updated to v1.7.3 with the option checked**, the v1.7.3 security fixes for the Bootstrap, Classic, Corporate, Marketing and Photographer themes are not yet on your site. Do one of the following:
+> - Uncheck the option when you update to v1.7.4. If you edited a bundled theme, copy that theme folder to a safe place first.
+> - Or keep the option checked, and after the update replace these files on your server with the same files from `grindsite-v1.7.4.zip`. If you edited any of them, re-apply your changes. If you deleted one of these themes, skip its file.
+>   - `theme/bootstrap/functions.php`
+>   - `theme/classic/functions.php`
+>   - `theme/corporate/functions.php`
+>   - `theme/marketing/functions.php`
+>   - `theme/photographer/functions.php`
+>   - `theme/neo-minimalist/functions.php` (not a security fix; see Themes below)
 
-### 🔧 Bug Fixes
-- **Public API:** `api/posts.php` no longer returns an error on every request. Out-of-range pages return the last page instead of redirecting to HTML.
-- **Public API:** `api/settings.php` now returns the site description.
-- **Countdown Block:** Finish messages are displayed as plain text consistently across all themes, and the default message is translated in the Marketing and Photographer themes.
+### ⬆️ Updater (applies to updates performed by v1.7.4 or later)
+- **Themes and skins are updated by default:** The option is renamed **"Do not update themes and skins"** and is now **unchecked** by default.
+  - **Unchecked:** Bundled themes and skins that exist on your site are updated, including their security fixes. Bundled themes and skins that are not on your site (for example, ones you deleted) are not added. Before a theme or skin file is overwritten, its previous version is saved to `data/theme_backups/<date_time>/`, and the update screen shows where. The five most recent folders are kept.
+  - **Checked:** Themes and skins are not changed, so their security fixes are not applied.
+  - Themes and skins that are not bundled with GrindSite are never changed by an update.
+- **Clearer error message:** When an update failed but the automatic rollback succeeded, the updater wrongly reported that the rollback had also failed. It now reports the rollback correctly.
 
-### ⚠️ Action for Existing Sites (Apache)
-The uploads protection above is written only on new installs. To apply it to an existing site, add the following to the top of `assets/uploads/.htaccess`:
+### 🎨 Themes
+- **Neo-Minimalist:** The theme's own design for YouTube, Canva and Figma embeds is now used. GrindSite previously could not find block render functions for theme folders whose names contain hyphens. Other embeds are displayed as before.
 
-```
-<IfModule mod_headers.c>
-    Header always set X-Content-Type-Options "nosniff"
-    <FilesMatch "\.(?i:svg|xml|htm|html)$">
-        Header set Content-Security-Policy "script-src 'none'"
-    </FilesMatch>
-</IfModule>
-```
-
-For nginx, add `xml` to the uploads CSP rule as shown in the README.
+### 📖 Documentation
+- **README:** Added an "Updating" section that explains what each update method changes.
+- **Theme guide (`theme/README.md`):** Explains how to duplicate a bundled theme safely, including renaming its `_render_block()` function.
 
 ---
 
 ## 🇯🇵 日本語 (Japanese)
 
-このパッチリリースは、内部監査で見つかった複数のセキュリティ上の問題を修正します。すべてのサイト、特に編集者（Editor）アカウントを使っているサイトでの更新を強く推奨します。
+このリリースでは、ワンクリック更新で同梱テーマとスキンの修正が標準で適用されるようにしました。あわせて、更新で変更されるテーマ・スキンのファイルは、更新前の内容をすべて保存するようにしました。
 
-### 🛡️ セキュリティ修正
-- **ブロック出力（XSS）:** 編集者アカウントが、コールアウト・カウントダウン・ボタン・カード・ダウンロード・音声・PDF・お客様の声・内部リンクの各ブロックからスクリプトを埋め込めた問題を修正。コアの描画処理と、Bootstrap・Classic・Corporate・Marketing・Photographer テーマが対象です。
-- **アップロード:** `.xml` ファイルをアップロードできないようにしました。新規インストールでは、`assets/uploads/` 内の SVG/XML/HTML に `nosniff` とスクリプトを禁止する CSP を付けます。
-- **権限変更:** ユーザーの降格や削除が、ログイン中のセッションにも即座に反映されるようになりました。
-- **2FA・厳格セッションプラグイン:** 読み込み順の不具合により、両プラグインが有効化しても機能していなかった問題を修正しました。
-- **フィードのキャッシュ:** サイトマップ・RSS・llms.txt のキャッシュをホストごとに分け、偽装した Host ヘッダで汚染できないようにしました。
-- **セッションの掃除:** 期限切れのセッションファイルを、管理画面を開いたときだけでなく通常のアクセスでも削除するようにしました。
-- **アップデート:** 公式パッケージのチェックサムが無い、または一致しない場合は更新を中止するようにしました。
+> [!IMPORTANT]
+> **新しい更新の動作が有効になるのは、今回の次の更新からです。**
+>
+> 更新処理は、現在インストールされているバージョンが行います。そのため、**v1.7.3 以前から v1.7.4 に更新する場合**は、従来の更新画面と動作になります。
+> - オプション名は **「テーマとスキンを更新・追加しない」** で、初期状態で**チェックが入っています**。チェックが入ったままだと、`theme/` と `admin/skins/` 以下は更新されません。
+> - チェックを外すと、同梱テーマとスキンはすべて上書きされ（それらのファイルに加えた独自の変更も上書きされます）、削除した同梱テーマやスキンが復活し、更新前のファイルは**保存されません**。
+>
+> **チェックが入ったまま v1.7.3 に更新した場合**、Bootstrap・Classic・Corporate・Marketing・Photographer テーマに対する v1.7.3 のセキュリティ修正は、まだサイトに適用されていません。次のどちらかを行ってください。
+> - v1.7.4 に更新するときにチェックを外す。同梱テーマを独自に変更している場合は、事前にそのテーマのフォルダを別の場所にコピーしておいてください。
+> - または、チェックを入れたまま更新し、更新後にサーバー上の次のファイルを `grindsite-v1.7.4.zip` 内の同じファイルで置き換える。独自に変更していたファイルは、変更を反映し直してください。削除済みのテーマは対応不要です。
+>   - `theme/bootstrap/functions.php`
+>   - `theme/classic/functions.php`
+>   - `theme/corporate/functions.php`
+>   - `theme/marketing/functions.php`
+>   - `theme/photographer/functions.php`
+>   - `theme/neo-minimalist/functions.php`（セキュリティ修正ではありません。下記「テーマ」を参照）
 
-### 🔧 不具合修正
-- **公開API:** `api/posts.php` が常にエラーを返していた問題を修正。範囲外のページを指定した場合は、HTMLへリダイレクトせず最終ページを返します。
-- **公開API:** `api/settings.php` がサイトの説明文を返すようになりました。
-- **カウントダウンブロック:** 終了メッセージを全テーマで同じくテキストとして表示するよう統一し、Marketing・Photographer テーマで既定メッセージが翻訳されるようにしました。
+### ⬆️ 更新機能（v1.7.4 以降が行う更新に適用）
+- **テーマとスキンを標準で更新:** オプション名を **「テーマとスキンを更新しない」** に変更し、初期状態を**チェックなし**にしました。
+  - **チェックなし:** サイトにある同梱テーマとスキンを、セキュリティ修正を含めて更新します。サイトに無い同梱テーマとスキン（削除したものなど）は追加しません。テーマ・スキンのファイルを上書きする前に、更新前の内容を `data/theme_backups/<日付_時刻>/` に保存し、保存先を更新画面に表示します。保存するのは直近5回分です。
+  - **チェックあり:** テーマとスキンを変更しません。そのため、それらのセキュリティ修正は適用されません。
+  - GrindSite に同梱されていないテーマやスキンは、アップデートで変更されることはありません。
+- **エラー表示の修正:** 更新に失敗して自動ロールバックには成功した場合に、「ロールバックにも失敗した」と誤って表示されていた問題を修正しました。
 
-### ⚠️ 既存サイトでの対応（Apache）
-上記のアップロード保護は新規インストール時にのみ書き込まれます。既存サイトに適用するには、`assets/uploads/.htaccess` の先頭に次を追記してください。
+### 🎨 テーマ
+- **Neo-Minimalist:** YouTube・Canva・Figma の埋め込みで、テーマ独自のデザインが使われるようになりました。フォルダ名にハイフンを含むテーマでは、ブロック描画用の関数が見つからない不具合がありました。その他の埋め込みの表示は従来どおりです。
 
-```
-<IfModule mod_headers.c>
-    Header always set X-Content-Type-Options "nosniff"
-    <FilesMatch "\.(?i:svg|xml|htm|html)$">
-        Header set Content-Security-Policy "script-src 'none'"
-    </FilesMatch>
-</IfModule>
-```
-
-nginx の場合は、README のとおり uploads の CSP ルールに `xml` を追加してください。
+### 📖 ドキュメント
+- **README:** 更新方法ごとに何が変更されるかを説明する「アップデート」の節を追加しました。
+- **テーマガイド（`theme/README_ja.md`）:** 同梱テーマを安全に複製する方法（`_render_block()` 関数名の変更を含む）を追記しました。

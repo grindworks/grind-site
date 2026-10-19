@@ -214,6 +214,75 @@ class GrindsUpdater
   }
 
   /**
+   * List bundled themes and skins that are absent from the site, as exclude paths.
+   * A site that removed a bundled theme or skin keeps it removed.
+   */
+  public function getMissingBundledAssets(string $sourceDir, string $targetDir): array
+  {
+    $missing = [];
+    foreach (['theme', 'admin/skins'] as $base) {
+      $srcBase = $sourceDir . '/' . $base;
+      if (!is_dir($srcBase) || !is_dir($targetDir . '/' . $base)) continue;
+      foreach (new DirectoryIterator($srcBase) as $entry) {
+        if ($entry->isDot()) continue;
+        $relPath = $base . '/' . $entry->getFilename();
+        if (!file_exists($targetDir . '/' . $relPath)) {
+          $missing[] = $relPath;
+        }
+      }
+    }
+    return $missing;
+  }
+
+  /**
+   * Copy theme and skin files that the update will change into $preserveDir.
+   * The rollback backup is deleted after a successful update, so this copy is what lets users recover their edits.
+   *
+   * @return int Number of files preserved.
+   */
+  public function preserveChangedThemeFiles(string $sourceDir, string $targetDir, string $preserveDir, array $exclude): int
+  {
+    $iterator = $this->getFilteredIterator($sourceDir, $exclude);
+    $sourceLen = strlen(str_replace('\\', '/', realpath($sourceDir) ?: $sourceDir));
+    $count = 0;
+
+    foreach ($iterator as $item) {
+      if ($item->isDir()) continue;
+      $itemPath = str_replace('\\', '/', $item->getPathname());
+      $relPath = ltrim(substr($itemPath, $sourceLen), '/');
+      if (!str_starts_with($relPath, 'theme/') && !str_starts_with($relPath, 'admin/skins/')) continue;
+
+      $currentTarget = $targetDir . '/' . $relPath;
+      if (!is_file($currentTarget)) continue;
+      if (hash_file('sha256', $currentTarget) === hash_file('sha256', $item->getPathname())) continue;
+
+      $dest = $preserveDir . '/' . $relPath;
+      if (!is_dir(dirname($dest))) @mkdir(dirname($dest), 0775, true);
+      if (!@copy($currentTarget, $dest)) {
+        throw new Exception("Failed to preserve: " . $relPath);
+      }
+      $count++;
+    }
+    return $count;
+  }
+
+  /**
+   * Keep only the newest $keep subdirectories of $baseDir.
+   */
+  public function rotateDirs(string $baseDir, int $keep): void
+  {
+    if (!is_dir($baseDir)) return;
+    $dirs = [];
+    foreach (new DirectoryIterator($baseDir) as $entry) {
+      if ($entry->isDir() && !$entry->isDot()) $dirs[] = $entry->getPathname();
+    }
+    sort($dirs);
+    foreach (array_slice($dirs, 0, max(0, count($dirs) - $keep)) as $old) {
+      $this->cleanupDir($old);
+    }
+  }
+
+  /**
    * Apply the new files safely.
    */
   public function applyUpdate(string $sourceDir, string $targetDir, array $exclude): void

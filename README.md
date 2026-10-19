@@ -119,6 +119,40 @@ GrindSite is designed for easy synchronization.
 2.  **Deploy:** Upload the modified files and `data/data.db` to your production server via FTP.
 3.  **Update:** Download the latest version from GitHub and overwrite the core files manually, or use the "One-Click Update" feature from the admin panel.
 
+### ⬆️ Updating
+
+Before any update, create a database backup in **Settings → Backup**.
+
+#### One-click update (Settings → Update)
+
+The updater overwrites GrindSite's files with the new version. It never changes `config.php`, `data/` (your database and backups), `assets/uploads/` or `.htaccess` files.
+
+The option **"Do not update themes and skins"** works as follows (v1.7.4 and later):
+
+| Option | Bundled themes and skins on your site | Bundled themes and skins not on your site |
+| :--- | :--- | :--- |
+| **Unchecked** (default, recommended) | Updated, including their security fixes. Before a file is overwritten, its previous version is saved to `data/theme_backups/<date_time>/`. The five most recent folders are kept. | Not added |
+| **Checked** | Not changed. Security fixes for themes and skins are **not** applied. | Not added |
+
+Themes and skins that are not bundled with GrindSite (for example, a theme you created) are never changed by an update.
+
+> [!IMPORTANT]
+> The update is performed by the version that is **currently installed**. When you update **from v1.7.3 or earlier**, that version's behavior applies:
+> - The option is labeled "Do not update/add themes and skins" and is **checked** by default. While checked, themes and skins are not updated.
+> - If you uncheck it, all bundled themes and skins are overwritten, deleted ones are restored, and **no copies are saved** to `data/theme_backups/`. Copy any bundled theme you edited before updating.
+>
+> The behavior in the table above applies once your site runs v1.7.4 or later.
+
+#### Manual update
+
+Upload the contents of the release zip over your installation, except `install.php`. The zip does not contain `config.php` or `data/`, so those stay as they are.
+
+A manual update overwrites all bundled themes and skins and does not save copies, so copy any bundled theme you edited first.
+
+#### Customizing themes
+
+Do not edit bundled themes directly. Duplicate the theme folder under a new name and edit the copy; see [`src/theme/README.md`](src/theme/README.md).
+
 ### 🔌 Completely Offline / Intranet Usage
 
 For strict privacy compliance (GDPR) or closed intranet environments, GrindSite is designed to be fully functional offline.
@@ -455,6 +489,40 @@ _本プロジェクトは個人開発者によって維持されています。�
 1.  **ローカルで開発:** MAMP や XAMPP などのローカル環境で記事作成やデザイン調整を行います。
 2.  **アップロード:** 変更したファイルと `data/data.db` を FTP で本番サーバーへ上書きします。
 3.  **アップデート:** 最新版の zip をダウンロードし手動でファイルを上書きするか、管理画面から「ワンクリック更新」を使用することでアップデート可能です。
+
+### ⬆️ アップデート
+
+アップデートの前に、**システム設定 → バックアップ** でデータベースのバックアップを作成してください。
+
+#### ワンクリック更新（システム設定 → アップデート）
+
+更新処理は、GrindSite のファイルを新しいバージョンで上書きします。`config.php`、`data/`（データベースとバックアップ）、`assets/uploads/`、`.htaccess` ファイルは変更しません。
+
+**「テーマとスキンを更新しない」** の動作は次のとおりです（v1.7.4 以降）。
+
+| オプション | サイトにある同梱テーマ・スキン | サイトに無い同梱テーマ・スキン |
+| :--- | :--- | :--- |
+| **チェックなし**（初期状態・推奨） | セキュリティ修正を含めて更新します。上書きする前に、更新前のファイルを `data/theme_backups/<日付_時刻>/` に保存します。保存するのは直近5回分です。 | 追加しません |
+| **チェックあり** | 変更しません。テーマとスキンのセキュリティ修正は**適用されません**。 | 追加しません |
+
+GrindSite に同梱されていないテーマやスキン（ご自身で作成したテーマなど）は、アップデートで変更されることはありません。
+
+> [!IMPORTANT]
+> 更新処理は、**現在インストールされているバージョン**が行います。**v1.7.3 以前から**更新する場合は、そのバージョンの動作になります。
+> - オプション名は「テーマとスキンを更新・追加しない」で、初期状態で**チェックが入っています**。チェックが入ったままだと、テーマとスキンは更新されません。
+> - チェックを外すと、同梱テーマとスキンはすべて上書きされ、削除したものも復活します。`data/theme_backups/` への**保存も行われません**。同梱テーマを独自に変更している場合は、更新前にコピーしておいてください。
+>
+> 上の表の動作になるのは、サイトが v1.7.4 以降になってからの更新です。
+
+#### 手動での更新
+
+リリースの zip の中身を、`install.php` を除いてサーバーに上書きアップロードします。zip には `config.php` と `data/` は含まれていないため、これらはそのまま残ります。
+
+手動での更新では、同梱テーマとスキンはすべて上書きされ、更新前のファイルは保存されません。同梱テーマを独自に変更している場合は、事前にコピーしておいてください。
+
+#### テーマのカスタマイズ
+
+同梱テーマは直接編集せず、テーマのフォルダを別の名前で複製してから、複製したほうを編集してください。詳しくは [`src/theme/README_ja.md`](src/theme/README_ja.md) を参照してください。
 
 ### 🔌 完全なオフライン（イントラネット）環境での利用
 

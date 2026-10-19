@@ -185,6 +185,7 @@ if (($init_tab ?? '') === 'update') {
             </div>
 
             <div x-show="errorMessage" class="mt-4 p-3 bg-theme-danger/10 border border-theme-danger/30 text-theme-danger text-xs rounded-theme" x-text="errorMessage" style="display:none;" x-cloak></div>
+            <div x-show="preservedNotice" class="mt-4 p-3 bg-theme-warning/10 border border-theme-warning/30 text-theme-text text-xs leading-relaxed rounded-theme break-all" x-text="preservedNotice" style="display:none;" x-cloak></div>
           </div>
         </div>
 
@@ -219,7 +220,8 @@ if (($init_tab ?? '') === 'update') {
       <script>
         document.addEventListener('alpine:init', () => {
           Alpine.data('updateController', () => ({
-            skipThemeSkin: true,
+            skipThemeSkin: false,
+            preservedNotice: '',
             isProcessing: false,
             isComplete: false,
             hasError: false,
@@ -310,10 +312,16 @@ if (($init_tab ?? '') === 'update') {
 
                 // 5. Backup current core
                 this.setStepStatus('backup', 'active');
-                await this.callApi('backup', {
+                const backupRes = await this.callApi('backup', {
                   source_dir: this.sourceDir,
                   skip_theme_skin: this.skipThemeSkin ? 1 : 0
                 });
+                const preserved = backupRes.preserved || {};
+                if (preserved.count > 0) {
+                  this.preservedNotice = <?= json_encode(_t('st_update_theme_preserved'), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>
+                    .replace('%1$d', preserved.count)
+                    .replace('%2$s', preserved.path);
+                }
                 this.setStepStatus('backup', 'done');
 
                 // 6. Apply update
@@ -333,11 +341,13 @@ if (($init_tab ?? '') === 'update') {
                 this.isComplete = true;
                 this.isProcessing = false;
 
-                // Reload after success
-                setTimeout(() => {
-                  window.onbeforeunload = null;
-                  window.location.href = 'settings.php?tab=update';
-                }, 2000);
+                // Reload after success, unless the user must read where edited theme files were saved
+                window.onbeforeunload = null;
+                if (!this.preservedNotice) {
+                  setTimeout(() => {
+                    window.location.href = 'settings.php?tab=update';
+                  }, 2000);
+                }
 
               } catch (e) {
                 this.isProcessing = false;

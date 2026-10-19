@@ -65,10 +65,16 @@ $exclude = [
     '.php-cs-fixer.cache'
 ];
 
-if (!empty($inputData['skip_theme_skin'])) {
+$skipThemeSkin = !empty($inputData['skip_theme_skin']);
+if ($skipThemeSkin) {
     $exclude[] = 'theme';
     $exclude[] = 'admin/skins';
 }
+
+// Update bundled themes and skins the site still has, without restoring removed ones
+$withMissingAssets = function (array $exclude, string $sourceDir) use ($updater, $skipThemeSkin): array {
+    return $skipThemeSkin ? $exclude : array_merge($exclude, $updater->getMissingBundledAssets($sourceDir, ROOT_PATH));
+};
 
 try {
     switch ($step) {
@@ -147,7 +153,7 @@ try {
             }
             $sourceDir = rtrim(ROOT_PATH, '/') . '/' . ltrim($relSource, '/');
             if (!is_dir($sourceDir)) throw new Exception("Extracted source directory not found.");
-            $updater->dryRun($sourceDir, ROOT_PATH, $exclude);
+            $updater->dryRun($sourceDir, ROOT_PATH, $withMissingAssets($exclude, $sourceDir));
             json_response(['success' => true]);
             break;
 
@@ -159,8 +165,24 @@ try {
             }
             $sourceDir = rtrim(ROOT_PATH, '/') . '/' . ltrim($relSource, '/');
             if (!is_dir($sourceDir)) throw new Exception("Extracted source directory not found.");
-            $updater->backupCoreFiles($sourceDir, ROOT_PATH, $backupDir, $exclude);
-            json_response(['success' => true]);
+            $stepExclude = $withMissingAssets($exclude, $sourceDir);
+            $updater->backupCoreFiles($sourceDir, ROOT_PATH, $backupDir, $stepExclude);
+
+            $preserved = ['count' => 0, 'path' => ''];
+            if (!$skipThemeSkin) {
+                $preserveBase = ROOT_PATH . '/data/theme_backups';
+                if (!grinds_secure_dir($preserveBase)) {
+                    throw new Exception("Failed to create data/theme_backups.");
+                }
+                $preserveName = date('Y-m-d_His');
+                $preserveDir = $preserveBase . '/' . $preserveName;
+                $preserved['count'] = $updater->preserveChangedThemeFiles($sourceDir, ROOT_PATH, $preserveDir, $stepExclude);
+                if ($preserved['count'] > 0) {
+                    $preserved['path'] = 'data/theme_backups/' . $preserveName;
+                    $updater->rotateDirs($preserveBase, 5);
+                }
+            }
+            json_response(['success' => true, 'preserved' => $preserved]);
             break;
 
         case 'apply':
@@ -173,15 +195,15 @@ try {
             if (!is_dir($sourceDir)) throw new Exception("Extracted source directory not found.");
 
             try {
-                $updater->applyUpdate($sourceDir, ROOT_PATH, $exclude);
+                $updater->applyUpdate($sourceDir, ROOT_PATH, $withMissingAssets($exclude, $sourceDir));
             } catch (Exception $e) {
                 // ATOMIC ROLLBACK ON FAILURE
                 try {
                     $updater->rollback($backupDir, ROOT_PATH);
-                    throw new Exception("Update failed: " . $e->getMessage() . " (System successfully rolled back to previous state)");
                 } catch (Exception $rollbackEx) {
                     throw new Exception("CRITICAL ERROR: Update failed and rollback failed! " . $e->getMessage() . " | Rollback Error: " . $rollbackEx->getMessage());
                 }
+                throw new Exception("Update failed: " . $e->getMessage() . " (System successfully rolled back to previous state)");
             }
             json_response(['success' => true]);
             break;

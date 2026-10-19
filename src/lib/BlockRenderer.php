@@ -272,7 +272,8 @@ HTML;
 
         global $activeTheme;
         $currentTheme = $activeTheme ?? 'default';
-        $themeRenderer = $currentTheme . '_render_block';
+        // Hyphens are not valid in PHP function names: theme "neo-minimalist" defines neo_minimalist_render_block()
+        $themeRenderer = str_replace('-', '_', $currentTheme) . '_render_block';
 
         $pathFixer = function ($text) {
             return $this->sanitizeText($text);

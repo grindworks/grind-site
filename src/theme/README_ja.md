@@ -3,9 +3,24 @@
 ## 1. 基本ルール
 
 > [!WARNING]
-> **デフォルトテーマを直接編集しないでください**
-> 同梱されているテーマ（`default` や `bootstrap` など）は、CMS のアップデート時に上書きされる可能性があります。
-> カスタマイズする場合は、必ずフォルダを**複製**（例: `default` をコピーして `my-theme` にリネーム）してから編集してください。
+> **同梱テーマを直接編集しないでください**
+> 同梱されているテーマ（`default` や `bootstrap` など）は、GrindSite のアップデート時に上書きされ、それらのファイルに加えた変更も上書きされます。
+> カスタマイズする場合は、必ずフォルダを**複製**（例: `corporate` をコピーして `my-corporate` にリネーム）してから編集してください。GrindSite に同梱されていないフォルダは、アップデートで変更されることはありません。
+
+#### `functions.php` を持つテーマを複製する場合
+
+一部の同梱テーマ（`bootstrap`、`classic`、`corporate`、`marketing`、`neo-minimalist`、`photographer`）は、テーマのフォルダ名を付けた関数（例: `corporate_render_block()`）でブロックの出力をカスタマイズしています。GrindSite は「フォルダ名 + `_render_block()`」という名前の関数を呼び出します。フォルダ名のハイフン（`-`）は、関数名ではアンダースコア（`_`）に置き換えます。
+
+`corporate` を `my-corporate` にコピーした場合は、コピーした `functions.php` 内の関数名を、次の2か所とも書き換えてください。
+
+```php
+if (!function_exists('my_corporate_render_block')) {
+  function my_corporate_render_block(array $block, callable $pathFixer)
+```
+
+書き換えなくてもテーマは動作しますが、ブロックはテーマ独自のデザインではなく、GrindSite 標準のデザインで表示されます。
+
+複製したテーマには、元のテーマに対する今後の修正（セキュリティ修正を含む）は反映されません。リリースノートを確認し、必要な変更はご自身で反映してください。
 
 ### CSS ファイル
 

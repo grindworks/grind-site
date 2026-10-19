@@ -103,7 +103,8 @@ if (!function_exists('neo_minimalist_render_block')) {
       } elseif (preg_match('/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/i', $url, $matches)) {
         return "<div class='my-12 aspect-video w-full bg-black border-2 border-slate-900 shadow-sharp overflow-hidden'><iframe src='https://www.youtube-nocookie.com/embed/{$matches[1]}' class='w-full h-full' frameborder='0' allowfullscreen></iframe></div>";
       }
-      return "<div class='my-12 text-center'><a href='{$url}' target='_blank' class='font-bold text-slate-900 underline hover:text-brand-600'>{$url}</a></div>";
+      // Let the core renderer handle other providers (e.g. Instagram, X)
+      return null;
     }
     return null;
   }
