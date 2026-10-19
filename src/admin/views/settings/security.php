@@ -104,7 +104,7 @@ if (!defined('GRINDS_APP')) exit; ?>
   <form onsubmit="return false;" class="gap-4 grid grid-cols-1 md:grid-cols-2">
     <div class="block">
       <label for="htpasswd_user" class="block mb-2 font-bold text-theme-text text-sm"><?= _t('username') ?></label>
-      <input type="text" id="htpasswd_user" x-model="user" class="form-control" autocomplete="username">
+      <input type="text" id="htpasswd_user" x-model="user" class="form-control" autocomplete="off">
     </div>
     <div class="block">
       <label for="htpasswd_pass" class="block mb-2 font-bold text-theme-text text-sm"><?= _t('password') ?></label>

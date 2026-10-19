@@ -24,6 +24,14 @@ if (!is_array($shareButtons) || empty($shareButtons)) {
     }
   }
 }
+
+// Match the lowercase value that <input type="color"> reports, so opening a picker does not change the saved JSON
+foreach ($shareButtons as &$shareButton) {
+  if (isset($shareButton['color']) && is_string($shareButton['color'])) {
+    $shareButton['color'] = strtolower($shareButton['color']);
+  }
+}
+unset($shareButton);
 ?>
 
 <div class="space-y-6 bg-theme-surface shadow-theme p-4 sm:p-6 border border-theme-border rounded-theme"
