@@ -734,5 +734,5 @@ Developed by **Koji Udagawa (GRIND WORKS, Y.K.)**
 
 ### Contact & Links
 - **GitHub:** [@grindworks](https://github.com/grindworks)
-- **Official Website:** [grindsite.com](https://grindsite.com/)
+- **Official Website:** [grindsite.com/core](https://grindsite.com/core/)
 - **Email:** contact@grindsite.com (For commercial inquiries, partnerships, and security reports)
