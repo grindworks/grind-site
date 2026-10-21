@@ -1,4 +1,4 @@
-# GrindSite Core v1.7.4
+# GrindSite Core v1.8.0
 
 ![GrindSite Core](./grind-site.jpg)
 
@@ -10,7 +10,7 @@
 [![PHP Version](https://img.shields.io/badge/php-8.3%2B-blue.svg)](https://www.php.net/)
 [![Database](https://img.shields.io/badge/database-SQLite_3-blue.svg)](#-key-features)
 [![License](https://img.shields.io/badge/license-Free_(EULA)-green.svg)](#-license--support-policy)
-[![Version](https://img.shields.io/badge/version-1.7.4-blue.svg)](https://github.com/grindworks/grind-site/releases)
+[![Version](https://img.shields.io/badge/version-1.8.0-blue.svg)](https://github.com/grindworks/grind-site/releases)
 
 ---
 

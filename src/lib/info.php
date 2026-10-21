@@ -10,7 +10,7 @@ if (!defined('SITE_NAME')) {
     define('SITE_NAME', CMS_NAME);
 }
 if (!defined('CMS_VERSION'))
-    define('CMS_VERSION', '1.7.4');
+    define('CMS_VERSION', '1.8.0');
 
 // Define limits
 if (!defined('MAX_PREVIEW_SIZE'))
