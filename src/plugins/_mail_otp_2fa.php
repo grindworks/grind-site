@@ -3,7 +3,7 @@
 /**
  * Plugin Name: Email OTP 2FA
  *
- * Author: Grind Works Inc.
+ * Author: GRIND WORKS, Y.K.
  * Version: 1.0.0
  *
  * [English]
