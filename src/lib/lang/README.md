@@ -1,6 +1,6 @@
 # 🌍 How to add a new language
 
-GrindSite officially supports English (`en.php`) and Japanese (`ja.php`).
+GrindSite Core officially supports English (`en.php`) and Japanese (`ja.php`).
 However, you can easily create and add your own language file using AI tools (ChatGPT, Claude, Gemini, etc.).
 
 ## Steps
@@ -30,7 +30,7 @@ Rules:
 
 # 🌍 新しい言語の追加方法
 
-現在、GrindSiteは英語と日本語を公式にサポートしていますが、AIツールを活用することで、ユーザー自身で簡単にお好きな言語を追加できます。
+現在、GrindSite Core は英語と日本語を公式にサポートしていますが、AIツールを活用することで、ユーザー自身で簡単にお好きな言語を追加できます。
 
 ## 追加手順
 

@@ -7,12 +7,8 @@
 
 **✨ [Admin Skins Preview / 管理画面スキンプレビュー](https://grindworks.github.io/grind-site/)**
 
-<!-- TODO: Replace this URL with actual GIF of Smart Paste in action -->
-
-![Smart Paste Demo](https://grindsite.com/img/smart-paste-demo.gif)
-
 [![PHP Version](https://img.shields.io/badge/php-8.3%2B-blue.svg)](https://www.php.net/)
-[![Database](https://img.shields.io/badge/database-SQLite_3-blue.svg)](#-creator-focused-experience)
+[![Database](https://img.shields.io/badge/database-SQLite_3-blue.svg)](#-key-features)
 [![License](https://img.shields.io/badge/license-Free_(EULA)-green.svg)](#-license--support-policy)
 [![Version](https://img.shields.io/badge/version-1.7.4-blue.svg)](https://github.com/grindworks/grind-site/releases)
 
@@ -150,7 +146,7 @@ GrindSite Core can be installed and run on a closed network with no internet acc
 
 For a fully offline site, also check **"Offline Mode (Local Fallback)"** in the installer, or **Settings → Theme → "Disable External Assets (Local Fallback)"** later. This stops themes from loading Google Fonts and from falling back to a CDN. Some themes then show their maintenance page with simplified styling.
 
-These features still need the internet: QR Code, Map and Embed blocks, link cards, the avatar in the nexus-profile theme, update checks and license verification. Password-protected blocks need HTTPS (or `localhost`), because browsers only allow the Web Crypto API there.
+These features still need the internet: QR Code, Map and Embed blocks, link cards, the avatar in the nexus-profile theme and update checks. Password-protected blocks need HTTPS (or `localhost`), because browsers only allow the Web Crypto API there.
 
 ### 🚚 Server Migration & Directory Move
 
@@ -508,7 +504,7 @@ GrindSite Core は、インターネットに接続できない閉じたネッ�
 
 完全にオフラインで運用する場合は、インストール時に **「オフラインモード（ローカル優先）」** をチェックするか、後から **「システム設定 → テーマ → 外部アセットを無効化（ローカルフォールバック）」** を有効にしてください。テーマが Google Fonts を読み込んだり、CDN にフォールバックしたりしなくなります。一部のテーマのメンテナンス画面は簡易的な表示になります。
 
-次の機能はインターネット接続が必要です: QRコード・地図・埋め込みブロック、リンクカード、nexus-profile テーマのアバター、更新の確認、ライセンス認証。パスワード保護ブロックは HTTPS（または `localhost`）が必要です。ブラウザが Web Crypto API をその環境でしか許可しないためです。
+次の機能はインターネット接続が必要です: QRコード・地図・埋め込みブロック、リンクカード、nexus-profile テーマのアバター、更新の確認。パスワード保護ブロックは HTTPS（または `localhost`）が必要です。ブラウザが Web Crypto API をその環境でしか許可しないためです。
 
 ### 🚚 サーバー移転・ディレクトリ移動時の手順
 
