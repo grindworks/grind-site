@@ -1,13 +1,13 @@
 GrindSite Core Software License Agreement (EULA)
 
-Copyright (c) 2026 Koji Udagawa (Grind Works Inc.). All rights reserved.
+Copyright (c) 2026 Koji Udagawa (GRIND WORKS, Y.K.). All rights reserved.
 
 -------------------------------------------------------------------------
 [English] End User License Agreement (EULA)
 -------------------------------------------------------------------------
 
 This End User License Agreement ("Agreement") is a legal agreement between you ("User")
-and Grind Works Inc. ("Licensor") governing the use of GrindSite Core ("Software").
+and GRIND WORKS, Y.K. ("Licensor") governing the use of GrindSite Core ("Software").
 
 By downloading, installing, or using the Software, you agree to be bound by the terms
 of this Agreement.
@@ -88,7 +88,7 @@ for those components. This Agreement continues to apply to the rest of the Softw
 -------------------------------------------------------------------------
 
 本契約は、本ソフトウェア（GrindSite Core）を利用する個人または法人（以下「ユーザー」）と、
-Grind Works Inc.（以下「権利者」）との間で締結される法的な契約です。
+有限会社Grind Works（以下「権利者」）との間で締結される法的な契約です。
 
 本ソフトウェアをダウンロード、インストール、または使用した時点で、ユーザーは
 本契約のすべての条項に同意したものとみなされます。

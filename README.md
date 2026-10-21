@@ -734,7 +734,7 @@ grind-site/
 
 ## © Copyright
 
-Developed by **Koji Udagawa (Grind Works Inc.)**
+Developed by **Koji Udagawa (GRIND WORKS, Y.K.)**
 
 ### Contact & Links
 - **GitHub:** [@grindworks](https://github.com/grindworks)
