@@ -13,8 +13,8 @@ if (!current_user_can('manage_media')) {
   json_response(['success' => false, 'error' => 'Forbidden'], 403);
 }
 
-$action = $_GET['action'] ?? '';
-$id = $_GET['id'] ?? 0;
+$action = is_scalar($_GET['action'] ?? null) ? (string)$_GET['action'] : '';
+$id = is_scalar($_GET['id'] ?? null) ? (int)$_GET['id'] : 0;
 $tags = [];
 
 try {

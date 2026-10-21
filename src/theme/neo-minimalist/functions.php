@@ -41,8 +41,8 @@ if (!function_exists('neo_minimalist_get_highlighted_excerpt')) {
   {
     $text = (!empty($post['description'])) ? $post['description'] : get_excerpt($post['content'], 80);
 
-    if (isset($_GET['q']) && $_GET['q'] !== '') {
-      $keywords = preg_split('/[\s　]+/u', trim($_GET['q']), -1, PREG_SPLIT_NO_EMPTY);
+    if (isset($_GET['q']) && is_scalar($_GET['q']) && $_GET['q'] !== '') {
+      $keywords = preg_split('/[\s　]+/u', trim((string)$_GET['q']), -1, PREG_SPLIT_NO_EMPTY);
 
       if (!empty($keywords)) {
         $plain = grinds_extract_text_from_content($post['content']);

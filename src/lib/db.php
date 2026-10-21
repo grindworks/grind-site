@@ -320,8 +320,20 @@ function grinds_db_migrate($pdo)
 
   // Pre-check FTS5 support OUTSIDE the transaction to prevent older SQLite versions (e.g. 3.7.x)
   // from aborting the entire transaction when the fts5 module test throws an exception.
-  if (function_exists('grinds_is_fts5_enabled')) {
-    grinds_is_fts5_enabled();
+  if (function_exists('grinds_is_fts5_enabled') && !grinds_is_fts5_enabled()) {
+    // A database created where FTS5 exists keeps triggers that write to posts_fts.
+    // Without FTS5 those triggers make every post INSERT/UPDATE/DELETE fail, so drop them.
+    // Search falls back to LIKE (see grinds_prepare_search_query()).
+    try {
+      $hasFtsTriggers = $pdo->query("SELECT count(*) FROM sqlite_master WHERE type = 'trigger' AND name IN ('posts_ai', 'posts_ad', 'posts_au')")->fetchColumn();
+      if ($hasFtsTriggers) {
+        $pdo->exec("DROP TRIGGER IF EXISTS posts_ai");
+        $pdo->exec("DROP TRIGGER IF EXISTS posts_ad");
+        $pdo->exec("DROP TRIGGER IF EXISTS posts_au");
+      }
+    } catch (Exception $e) {
+      // Leave the triggers if they cannot be inspected
+    }
   }
 
   // Check schema mismatches

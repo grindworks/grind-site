@@ -35,7 +35,7 @@ global $post;
                     if (function_exists('classic_get_highlighted_excerpt')) {
                         echo classic_get_highlighted_excerpt($post, 120);
                     } else {
-                        echo (!empty($post['description'])) ? h($post['description']) : get_excerpt($post['content'], 120);
+                        echo (!empty($post['description'])) ? h($post['description']) : h(get_excerpt($post['content'], 120));
                     }
                     ?>
                 </div>
@@ -50,7 +50,7 @@ global $post;
         <p><?= theme_t('Sorry, but nothing matched your search terms. Please try again with some different keywords.') ?></p>
         <form action="<?= h(resolve_url('/')) ?>" method="get" class="grinds-search-form">
             <input type="text" name="q" placeholder="<?= h(theme_t('Search...')) ?>" value="<?= h($_GET['q'] ?? '') ?>">
-            <button type="submit" aria-label="<?= theme_t('Search') ?>"><svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+            <button type="submit" aria-label="<?= h(theme_t('Search')) ?>"><svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
                     <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z" />
                 </svg></button>
         </form>

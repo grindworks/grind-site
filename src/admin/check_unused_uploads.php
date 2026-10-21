@@ -153,7 +153,12 @@ if (isset($params['action'])) {
         $fullPath = ROOT_PATH . '/' . ltrim($relPath, '/');
         $realUploadsDir = rtrim($uploadsDir, '/\\') . DIRECTORY_SEPARATOR;
         $rp = realpath($fullPath);
-        if ($rp && file_exists($fullPath) && stripos($rp, $realUploadsDir) === 0) {
+        // Never move protection files (.htaccess), hidden files, folders or the trash itself
+        $relInUploads = $rp ? str_replace('\\', '/', substr($rp, strlen($realUploadsDir))) : '';
+        $isProtected = $relInUploads === ''
+          || str_starts_with(basename($relInUploads), '.')
+          || preg_match('#^(_trash|_preview)(/|$)#', $relInUploads);
+        if ($rp && is_file($rp) && !$isProtected && stripos($rp, $realUploadsDir) === 0) {
           $flatName = str_replace(['/', '\\'], '_', str_replace('assets/uploads/', '', $relPath));
           $trashPath = $trashDir . '/' . $flatName;
 

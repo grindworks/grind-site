@@ -198,6 +198,12 @@ class Routing
                 return '{{CMS_URL}}' . substr($processedData, strlen($baseUrl));
             }
 
+            // A value containing whitespace is text, not a root-relative URL
+            // (e.g. "/usr/local/bin/php -v" or "/etc/hosts maps names")
+            if (preg_match('/\s/u', $processedData)) {
+                return $processedData;
+            }
+
             $parsed = parse_url($baseUrl);
             $basePath = isset($parsed['path']) ? rtrim($parsed['path'], '/') : '';
 
@@ -214,7 +220,12 @@ class Routing
             return $processedData;
         }
         if (is_array($data)) {
+            // Keep the source text of code and math blocks exactly as written
+            $isSourceBlock = isset($data['type'], $data['data']) && in_array($data['type'], ['code', 'math'], true);
             foreach ($data as $key => $value) {
+                if ($isSourceBlock && $key === 'data') {
+                    continue;
+                }
                 $data[$key] = self::recursiveUrlConvert($value, $baseUrl, $depth + 1);
             }
         }

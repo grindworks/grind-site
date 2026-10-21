@@ -29,6 +29,13 @@ try {
   // Release session lock
   session_write_close();
 
+  // Remove preview images older than one hour: they live in a public folder and are never used again
+  foreach (glob(ROOT_PATH . '/assets/uploads/_preview/preview_*') ?: [] as $oldPreview) {
+    if (is_file($oldPreview) && filemtime($oldPreview) < time() - 3600) {
+      @unlink($oldPreview);
+    }
+  }
+
   // Handle temporary uploads
   $previewFiles = [];
   foreach (['thumbnail', 'hero_image', 'hero_image_mobile'] as $key) {

@@ -1097,13 +1097,14 @@ HTML;
                     $embedHtml = "<div class='relative w-full aspect-video rounded-theme overflow-hidden shadow-theme bg-black {$alignClass} max-w-[800px] w-full'>
                       <iframe src='https://www.youtube-nocookie.com/embed/{$vid}?enablejsapi=1' title='YouTube Video Player' class='absolute inset-0 w-full h-full' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen loading='lazy'></iframe>
                   </div>";
-                } elseif (preg_match('/(twitter\.com|x\.com)\/[a-zA-Z0-9_]+\/status\/([0-9]+)/', $rawUrl)) {
-                    $safeTwitterUrl = h(str_replace('x.com', 'twitter.com', $rawUrl));
+                } elseif (preg_match('#^https?://(?:www\.|mobile\.)?(?:twitter|x)\.com/[a-zA-Z0-9_]+/status/[0-9]+#i', $rawUrl)) {
+                    // Match the host exactly and rewrite only the host (fedex.com must not become fedetwitter.com)
+                    $safeTwitterUrl = h(preg_replace('#^(https?://)(?:www\.|mobile\.)?x\.com/#i', '$1twitter.com/', $rawUrl));
                     $embedHtml = "<div class='twitter-embed {$alignClass} max-w-[550px] w-full'>
                     <blockquote class='twitter-tweet'><a href='{$safeTwitterUrl}'></a></blockquote>
                     <script async src='https://platform.twitter.com/widgets.js' charset='utf-8'></script>
                  </div>";
-                } elseif (preg_match('/instagram\.com\/p\/([a-zA-Z0-9_-]+)/', $rawUrl)) {
+                } elseif (preg_match('#^https?://(?:www\.)?instagram\.com/p/[a-zA-Z0-9_-]+#i', $rawUrl)) {
                     $safeInstaUrl = h($rawUrl);
                     $embedHtml = "<div class='instagram-embed {$alignClass} max-w-[540px] w-full'>
                       <blockquote class='instagram-media' data-instgrm-permalink='{$safeInstaUrl}' data-instgrm-version='14'></blockquote>

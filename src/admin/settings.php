@@ -572,6 +572,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $pdo->beginTransaction();
         try {
           $oldTheme = get_option('site_theme');
+          if (isset($_POST['admin_layout']) && !in_array($_POST['admin_layout'], array_keys($available_layouts), true)) {
+            $_POST['admin_layout'] = 'sidebar';
+          }
           grinds_save_settings_from_post(['site_theme', 'admin_layout', 'admin_skin'], ['disable_external_assets']);
 
           if ($oldTheme !== get_option('site_theme')) {
@@ -756,6 +759,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           $avatar = Routing::getString($_POST, 'current_avatar');
 
           $adminLayout = Routing::getString($_POST, 'admin_layout');
+          // Accept only the offered layouts: other files in admin/layout/ (header, loader...) would break the admin panel
+          if (!in_array($adminLayout, array_merge(['system'], array_keys($available_layouts)), true)) {
+            $adminLayout = 'system';
+          }
           $adminSkin = Routing::getString($_POST, 'admin_skin');
 
           if (empty($currentPass))

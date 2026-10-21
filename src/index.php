@@ -353,7 +353,8 @@ class FrontController
       && !$isContactPage
       && !str_starts_with($logicalPath, '/admin/')
       && $logicalPath !== '/admin'
-      && !isset($_GET['q']);
+      && !isset($_GET['q'])
+      && (!function_exists('grinds_is_primary_base_url') || grinds_is_primary_base_url());
   }
 
   private function validateCacheAgainstSchedule(int $cacheMtime): bool

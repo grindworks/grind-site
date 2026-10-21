@@ -30,13 +30,15 @@ add_action('grinds_init', function () {
     ];
 
     $requestPath = parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH) ?? '';
+    $scriptName = str_replace('\\', '/', (string)($_SERVER['SCRIPT_NAME'] ?? ''));
     $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
 
     $ruleType = null;
 
-    // Determine if it's an API access
-    // APIへのアクセスか判定
-    if (str_contains($requestPath, '/api/')) {
+    // Determine if it's a public API access (api/*.php). The admin panel's own AJAX
+    // endpoints (admin/api/) are excluded so bulk actions are not blocked.
+    // 公開APIへのアクセスか判定（管理画面のAJAX: admin/api/ は対象外）
+    if (str_contains($scriptName, '/api/') && !str_contains($scriptName, '/admin/')) {
         $ruleType = 'api';
     }
     // Determine if it's a contact form submission (POST request containing 'contact')

@@ -55,9 +55,9 @@ if (!function_exists('classic_the_share_buttons')) {
 if (!function_exists('classic_get_highlighted_excerpt')) {
     function classic_get_highlighted_excerpt(array $post, int $length = 100)
     {
-        $excerpt = (!empty($post['description'])) ? h($post['description']) : get_excerpt($post['content'], $length);
-        if (isset($_GET['q']) && $_GET['q'] !== '') {
-            $q = trim($_GET['q']);
+        $excerpt = (!empty($post['description'])) ? h($post['description']) : h(get_excerpt($post['content'], $length));
+        if (isset($_GET['q']) && is_scalar($_GET['q']) && $_GET['q'] !== '') {
+            $q = trim((string)$_GET['q']);
             $plain = strip_tags($post['content']);
             $pos = mb_stripos($plain, $q, 0, 'UTF-8');
             if ($pos !== false) {

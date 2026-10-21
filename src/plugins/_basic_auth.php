@@ -34,22 +34,36 @@ add_action('grinds_init', function () {
     // 例: 特定のページにのみ適用する場合
     // $isTargetPage = str_contains($requestPath, '/secret-page/');
 
-    // By default, apply to the entire site (excluding the admin area)
-    // デフォルトでは、サイト全体（管理画面を除く）に適用します
-    $isTargetPage = !str_contains($requestPath, '/admin/');
+    // By default, apply to the entire site (excluding the admin area).
+    // The admin area is detected from the running script, so a public URL such as
+    // /category/admin/ is still protected.
+    // デフォルトでは、サイト全体（管理画面を除く）に適用します。
+    // 管理画面かどうかは実行中のスクリプトで判定するため、/category/admin/ のような公開URLも保護されます
+    $scriptName = str_replace('\\', '/', (string)($_SERVER['SCRIPT_NAME'] ?? ''));
+    $isTargetPage = !str_contains($scriptName, '/admin/');
 
     if ($isTargetPage) {
         $user = $_SERVER['PHP_AUTH_USER'] ?? '';
         $pass = $_SERVER['PHP_AUTH_PW'] ?? '';
 
-        // 3. Verify credentials
-        // 3. 認証情報の確認
-        if (empty($user) || empty($pass) || !isset($valid_users[$user]) || $valid_users[$user] !== $pass) {
+        // The sample passwords above are public, so they never grant access
+        // 上記のサンプルのパスワードは公開されているため、認証には使えません
+        $samplePasswords = ['password123', 'guest2024'];
+
+        // 3. Verify credentials (constant-time comparison)
+        // 3. 認証情報の確認（定数時間で比較）
+        $isValid = is_string($user) && is_string($pass) && $user !== '' && $pass !== ''
+            && isset($valid_users[$user]) && is_string($valid_users[$user])
+            && !in_array($valid_users[$user], $samplePasswords, true)
+            && hash_equals($valid_users[$user], $pass);
+
+        if (!$isValid) {
             // Send authentication headers and stop execution
             // 認証ヘッダーを送信して処理を停止
             header('WWW-Authenticate: Basic realm="Restricted Area"');
             header('HTTP/1.0 401 Unauthorized');
-            die('Unauthorized / 認証に失敗しました。正しいIDとパスワードを入力してください。');
+            die('Unauthorized / 認証に失敗しました。正しいIDとパスワードを入力してください。'
+                . ' (Site owner: set your own passwords in $valid_users in plugins/basic_auth.php / サイト管理者の方: plugins/basic_auth.php の $valid_users に独自のパスワードを設定してください)');
         }
     }
 });

@@ -112,7 +112,7 @@ if (!class_exists('LlmsFullGenerator')) {
         {
             $content = $this->generateAsString();
 
-            if (!$this->isSsgMode) {
+            if (!$this->isSsgMode && (!function_exists('grinds_is_primary_base_url') || grinds_is_primary_base_url())) {
                 $tempFile = @tempnam(dirname($this->cacheFile), 'tmp_llms_');
                 if ($tempFile !== false) {
                     file_put_contents($tempFile, $content);

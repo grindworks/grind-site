@@ -103,7 +103,7 @@ if (!class_exists('LlmsTxtGenerator')) {
         {
             $content = $this->generateAsString();
 
-            if (!$this->isSsgMode) {
+            if (!$this->isSsgMode && (!function_exists('grinds_is_primary_base_url') || grinds_is_primary_base_url())) {
                 $tempFile = @tempnam(dirname($this->cacheFile), 'tmp_llms_short_');
                 if ($tempFile !== false) {
                     file_put_contents($tempFile, $content);

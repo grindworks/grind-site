@@ -42,7 +42,7 @@ if (isset($pageType) && $pageType === 'search') {
                     if (function_exists('classic_get_highlighted_excerpt')) {
                         echo classic_get_highlighted_excerpt($post, 100);
                     } else {
-                        echo (!empty($post['description'])) ? h($post['description']) : get_excerpt($post['content']);
+                        echo (!empty($post['description'])) ? h($post['description']) : h(get_excerpt($post['content']));
                     }
                     ?>
                 </div>

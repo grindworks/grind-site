@@ -1291,7 +1291,10 @@ function grinds_prepare_search_query(PDO $pdo, string|array $query): array
     if ($useFts === null) {
         $useFts = false;
         try {
-            if ($pdo->query("SELECT count(*) FROM sqlite_master WHERE type='table' AND name='posts_fts'")->fetchColumn()) {
+            // The table can exist without the FTS5 module when the database was moved from another server
+            $ftsAvailable = !function_exists('grinds_is_fts5_enabled') || grinds_is_fts5_enabled();
+            // Use the index only while its sync triggers exist; otherwise it may be stale
+            if ($ftsAvailable && (int)$pdo->query("SELECT count(*) FROM sqlite_master WHERE (type = 'table' AND name = 'posts_fts') OR (type = 'trigger' AND name IN ('posts_ai', 'posts_ad', 'posts_au'))")->fetchColumn() === 4) {
                 $useFts = true;
             }
         } catch (Exception $e) {

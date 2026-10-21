@@ -97,7 +97,7 @@ $isSearch = (isset($pageType) && $pageType === 'search');
             </h2>
 
             <p class="flex-grow mb-4 text-gray-700 text-sm line-clamp-3 leading-relaxed">
-              <?= (!empty($post['description'])) ? h($post['description']) : get_excerpt($post['content'], 80) ?>
+              <?= (!empty($post['description'])) ? h($post['description']) : h(get_excerpt($post['content'], 80)) ?>
             </p>
 
             <div class="mt-auto pt-4 border-gray-100 border-t">

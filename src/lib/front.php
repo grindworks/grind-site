@@ -164,7 +164,7 @@ function resolve_front_request(string $request_url)
                 if (!empty($post['description'])) {
                     $result['desc'] = $post['description'];
                 } else {
-                    $result['desc'] = get_excerpt($post['content'], 120);
+                    $result['desc'] = get_excerpt($resolvedContent, 120);
                 }
 
                 if (!$isPublished && $isAdmin) $result['is_preview'] = true;
@@ -554,7 +554,9 @@ function grinds_render_page($requestUrl, $options = [])
             case 'single':
                 $filesToTry = [];
                 if (isset($pageData['post']['slug']) && preg_match('/^[a-zA-Z0-9_-]+$/', $pageData['post']['slug'])) {
-                    if (!in_array($pageData['post']['slug'], ['functions', 'layout', '404', 'index'])) {
+                    // Theme files that render other page types must not be selected by a post slug
+                    $systemTemplates = ['functions', 'layout', '404', 'index', 'home', 'single', 'page', 'archive', 'category', 'tag', 'search', 'maintenance'];
+                    if (!in_array(strtolower($pageData['post']['slug']), $systemTemplates, true)) {
                         $filesToTry[] = $pageData['post']['slug'] . '.php';
                     }
                 }

@@ -81,7 +81,15 @@ class SimpleMailer
             ]
         ]);
 
-        $socket = @stream_socket_client("tcp://{$this->host}:{$this->port}", $errno, $errstr, 5, STREAM_CLIENT_CONNECT, $context);
+        // "ssl" is implicit TLS (usually port 465): encrypt from the first byte.
+        // "tls" connects in plain text and upgrades with STARTTLS below.
+        $scheme = 'tcp';
+        if ($this->encryption === 'ssl') {
+            $scheme = 'ssl';
+            stream_context_set_option($context, 'ssl', 'crypto_method', STREAM_CRYPTO_METHOD_TLSv1_2_CLIENT | STREAM_CRYPTO_METHOD_TLSv1_3_CLIENT);
+        }
+
+        $socket = @stream_socket_client("{$scheme}://{$this->host}:{$this->port}", $errno, $errstr, 5, STREAM_CLIENT_CONNECT, $context);
 
         if (!$socket) throw new Exception("Connection failed: $errstr ($errno)");
         stream_set_timeout($socket, 5);

@@ -62,7 +62,7 @@ endif; ?>
           class="font-heading font-extrabold cursor-pointer text-slate-900 mb-4 text-xl outline-none tracking-tight">
           <?= h($pageData['post']['toc_title'] ?: theme_t('Contents'))?>
         </summary>
-        <nav role="navigation" aria-label="<?= theme_t('Contents')?>">
+        <nav role="navigation" aria-label="<?= h(theme_t('Contents')) ?>">
           <ul class="space-y-3 list-none m-0 p-0 border-t-2 border-slate-900 pt-4">
             <?php foreach ($headers as $h): ?>
             <?php

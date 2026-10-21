@@ -132,8 +132,8 @@ if (empty($menus)) {
   <div x-show="searchOpen" x-transition.opacity class="top-full left-0 z-40 absolute bg-white shadow-lg p-4 border-slate-200 border-b w-full" style="display: none;" @click.outside="searchOpen = false">
     <div class="mx-auto max-w-3xl container">
       <form action="<?= h(resolve_url('/')) ?>" method="get" class="relative">
-        <input x-ref="searchInput" type="text" name="q" class="bg-slate-50 py-3 pr-4 pl-12 border border-slate-200 focus:border-sky-500 rounded-full focus:outline-none focus:ring-1 focus:ring-sky-500 w-full transition-all" placeholder="<?= theme_t('search_placeholder') ?>">
-        <button type="submit" class="top-1/2 left-4 absolute text-slate-400 hover:text-sky-600 transition-colors -translate-y-1/2" aria-label="<?= theme_t('search') ?>">
+        <input x-ref="searchInput" type="text" name="q" class="bg-slate-50 py-3 pr-4 pl-12 border border-slate-200 focus:border-sky-500 rounded-full focus:outline-none focus:ring-1 focus:ring-sky-500 w-full transition-all" placeholder="<?= h(theme_t('search_placeholder')) ?>">
+        <button type="submit" class="top-1/2 left-4 absolute text-slate-400 hover:text-sky-600 transition-colors -translate-y-1/2" aria-label="<?= h(theme_t('search')) ?>">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
           </svg>

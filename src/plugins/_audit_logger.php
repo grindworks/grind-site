@@ -114,9 +114,7 @@ add_action('grinds_post_login', function ($userId) {
 // 8. Log on manual logout.
 // 8. ログアウト時のログ
 add_action('grinds_init', function () {
-    $requestPath = parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH) ?? '';
-    $scriptName = $_SERVER['SCRIPT_NAME'] ?? '';
-    if ((str_contains($requestPath, 'logout.php') || str_contains($scriptName, 'logout.php')) && $_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (grinds_is_admin_logout_request() && $_SERVER['REQUEST_METHOD'] === 'POST') {
         grinds_audit_log('USER_LOGOUT', "User logged out manually");
     }
 });

@@ -136,7 +136,7 @@ if (!class_exists('RssGenerator')) {
       $this->sendHeaders();
       echo $content;
 
-      if (!$this->isSsgMode && $content !== '' && is_writable(dirname($this->cacheFile))) {
+      if (!$this->isSsgMode && $content !== '' && is_writable(dirname($this->cacheFile)) && (!function_exists('grinds_is_primary_base_url') || grinds_is_primary_base_url())) {
         $tempFile = tempnam(dirname($this->cacheFile), 'rss_');
         if ($tempFile) {
           if (file_put_contents($tempFile, $content) !== false) {

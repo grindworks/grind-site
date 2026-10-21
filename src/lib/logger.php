@@ -71,6 +71,9 @@ final class GrindsLogger
         // Security: Mask potentially sensitive session/cookie data in error messages
         $message = preg_replace('/(PHPSESSID|grinds_[a-zA-Z0-9_]+)=[^;\s]+/', '$1=***MASKED***', $message);
 
+        // Keep each entry on one line so values such as a submitted user name cannot forge log entries
+        $message = str_replace(["\r\n", "\r", "\n"], '\n', $message);
+
         // Check rotation
         if (file_exists(self::$logFile) && filesize(self::$logFile) > self::MAX_LOG_SIZE) {
             self::rotateLogs();

@@ -31,7 +31,8 @@ try {
   $html = grinds_fetch_url($url, $options);
 
 
-  if ($html === false) {
+  // An empty body would make DOMDocument::loadHTML() throw a ValueError, which catch (Exception) misses
+  if ($html === false || $html === '') {
     throw new Exception("Failed to fetch URL (Security restriction, connection error, or file too large).");
   }
 

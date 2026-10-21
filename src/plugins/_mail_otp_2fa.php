@@ -27,7 +27,7 @@ add_action('grinds_init', function () {
 
     // Allow logout to prevent users from getting stuck.
     // ユーザーがスタックするのを防ぐため、ログアウトは許可します
-    if (str_contains($requestPath, 'logout.php') || str_contains($scriptName, 'logout.php')) return;
+    if (grinds_is_admin_logout_request()) return;
 
     // Check if the user has passed the primary login.
     // ユーザーがプライマリログイン（ID/パスワード）を通過しているか確認

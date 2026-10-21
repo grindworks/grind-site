@@ -18,8 +18,9 @@ $isSearch = (isset($pageType) && $pageType === 'search');
       $bgStyle = '';
 
       $hConf = json_decode($pageData['post']['hero_settings'] ?? '{}', true);
-      $heroTitle = $hConf['title'] ?? theme_t('hero_title', 'Next Generation<br><span class="text-blue-400">Corporate Solution</span>');
-      $heroDesc = $hConf['subtext'] ?? theme_t('hero_desc', 'Empowering your business with reliable technology and proven track record.');
+      // Escape values entered in the editor; the theme's default title contains trusted markup
+      $heroTitle = isset($hConf['title']) ? h($hConf['title']) : theme_t('hero_title', 'Next Generation<br><span class="text-blue-400">Corporate Solution</span>');
+      $heroDesc = isset($hConf['subtext']) ? nl2br(h($hConf['subtext'])) : nl2br(theme_t('hero_desc', 'Empowering your business with reliable technology and proven track record.'));
 
       // Set hero image.
       if (!empty($pageData['post']['hero_image'])) {
@@ -43,7 +44,7 @@ $isSearch = (isset($pageType) && $pageType === 'search');
             <?= $heroTitle ?>
           </h2>
           <p class="mb-10 max-w-2xl text-slate-300 text-lg leading-relaxed">
-            <?= nl2br($heroDesc) ?>
+            <?= $heroDesc ?>
           </p>
           <div class="flex flex-wrap gap-4">
             <?php if (!empty($hConf['buttons'])): ?>
@@ -141,7 +142,7 @@ $isSearch = (isset($pageType) && $pageType === 'search');
           <?= $isSearch ? theme_t('search_results') : theme_t('latest_news') ?>
         </h2>
         <?php if (!$isSearch): ?>
-          <a href="<?= h(resolve_url('category/news')) ?>" class="flex items-center gap-1 bg-white hover:opacity-80 shadow-sm hover:shadow px-4 py-2 border border-slate-200 rounded-full font-bold text-corp-accent text-sm transition-colors" aria-label="<?= theme_t('view_all_news_aria') ?>">
+          <a href="<?= h(resolve_url('category/news')) ?>" class="flex items-center gap-1 bg-white hover:opacity-80 shadow-sm hover:shadow px-4 py-2 border border-slate-200 rounded-full font-bold text-corp-accent text-sm transition-colors" aria-label="<?= h(theme_t('view_all_news_aria')) ?>">
             <?= theme_t('view_all') ?> <span aria-hidden="true">&rarr;</span>
           </a>
         <?php endif; ?>

@@ -35,7 +35,7 @@ add_action('grinds_init', function () {
 
     // Skip during logout process
     // ログアウト処理中はスキップ
-    if (str_contains($requestPath, 'logout.php') || str_contains($scriptName, 'logout.php')) return;
+    if (grinds_is_admin_logout_request()) return;
 
     // Check only if already logged in
     // ログイン済みの場合のみチェック
@@ -65,19 +65,25 @@ add_action('grinds_init', function () {
 
         // --- B: Concurrent Login Prevention (Eliminate simultaneous logins) ---
         // --- B: Concurrent Login Prevention (同時ログインの排除) ---
+        // Compare a per-login token kept in the session, not the session ID:
+        // the core changes the session ID every 15 minutes.
+        // セッションIDではなく、ログインごとのトークンで比較します（セッションIDは15分ごとに変わるため）
         $pdo = App::db();
         if ($pdo) {
-            $sessionId = session_id();
+            if (empty($_SESSION['grinds_strict_token'])) {
+                $_SESSION['grinds_strict_token'] = bin2hex(random_bytes(16));
+            }
+            $sessionToken = $_SESSION['grinds_strict_token'];
             $sessionKey = 'active_session_user_' . $userId;
             $stmt = $pdo->prepare("SELECT value FROM settings WHERE key = ?");
             $stmt->execute([$sessionKey]);
             $recordedSession = $stmt->fetchColumn();
 
-            if (!$recordedSession) {
-                // 初回ログイン時
+            if (!$recordedSession || !str_starts_with((string)$recordedSession, 'token:')) {
+                // 初回ログイン時、または旧形式（セッションID）の記録
                 $pdo->prepare("INSERT OR REPLACE INTO settings (key, value, autoload) VALUES (?, ?, 0)")
-                    ->execute([$sessionKey, $sessionId]);
-            } elseif ($recordedSession !== $sessionId) {
+                    ->execute([$sessionKey, 'token:' . $sessionToken]);
+            } elseif (!hash_equals((string)$recordedSession, 'token:' . $sessionToken)) {
                 // 別のセッションIDが記録されている場合（別の端末でログインされた）
                 if (class_exists('GrindsLogger')) {
                     GrindsLogger::log("Security Alert: Concurrent login detected. Terminating older session for User ID: {$userId}", 'WARNING');
@@ -89,13 +95,14 @@ add_action('grinds_init', function () {
     }
 });
 
-// 2. Record new session ID upon successful login
-// 2. ログイン成功時に新しいセッションIDを記録する
+// 2. Record a new login token upon successful login
+// 2. ログイン成功時に新しいトークンを記録する
 add_action('grinds_post_login', function ($userId) {
+    $_SESSION['grinds_strict_token'] = bin2hex(random_bytes(16));
     $pdo = App::db();
     if ($pdo) {
         $sessionKey = 'active_session_user_' . $userId;
         $pdo->prepare("INSERT OR REPLACE INTO settings (key, value, autoload) VALUES (?, ?, 0)")
-            ->execute([$sessionKey, session_id()]);
+            ->execute([$sessionKey, 'token:' . $_SESSION['grinds_strict_token']]);
     }
 });

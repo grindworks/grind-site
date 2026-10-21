@@ -51,6 +51,7 @@ require_once __DIR__ . '/i18n.php';
 require_once __DIR__ . '/functions/hooks.php';
 
 require_once __DIR__ . '/functions/security.php';
+grinds_normalize_query_params();
 require_once __DIR__ . '/functions/options.php';
 require_once __DIR__ . '/functions/template.php';
 require_once __DIR__ . '/functions/system.php';

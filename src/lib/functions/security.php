@@ -188,16 +188,27 @@ if (!function_exists('_safe_session_start')) {
 
         session_start();
 
+        // Reject a session ID that was replaced more than the grace period ago.
+        // A stolen cookie for the old ID stops working once the grace period ends.
+        if (isset($_SESSION['grinds_obsolete_at']) && time() > (int)$_SESSION['grinds_obsolete_at']) {
+            $_SESSION = [];
+            session_regenerate_id(true);
+        }
+
         // Periodic session ID regeneration to prevent hijacking
         // Regenerate ID every 15 minutes (900 seconds)
         if (!isset($_SESSION['last_regeneration'])) {
             $_SESSION['last_regeneration'] = time();
-        } elseif (time() - $_SESSION['last_regeneration'] > 900) {
+        } elseif (time() - $_SESSION['last_regeneration'] > 900 && !isset($_SESSION['grinds_obsolete_at'])) {
             // Skip regeneration on AJAX requests to prevent race conditions (concurrent requests failing)
             $is_ajax = function_exists('is_ajax_request') && is_ajax_request();
 
             if (!$is_ajax) {
+                // Keep the old session for 60 seconds so concurrent requests that still
+                // send the old ID do not lose the login, then let it expire.
+                $_SESSION['grinds_obsolete_at'] = time() + 60;
                 session_regenerate_id(false);
+                unset($_SESSION['grinds_obsolete_at']);
                 $_SESSION['last_regeneration'] = time();
             }
         }
@@ -498,5 +509,25 @@ if (!function_exists('grinds_sanitize_post_content_array')) {
             unset($block); // Free the reference to prevent accidental modification in subsequent loops
         }
         return $json;
+    }
+}
+
+/**
+ * Drop array values from query parameters that are always single values.
+ * A request such as ?q[]=x or ?id[]=1 otherwise reaches code that expects a string
+ * and ends in a TypeError (HTTP 500) and a CRITICAL log entry on every request.
+ */
+if (!function_exists('grinds_normalize_query_params')) {
+    function grinds_normalize_query_params(): void
+    {
+        $scalarKeys = ['q', 'page', 'sort', 'order', 'preview', 'url', 'tab', 'id', 'slug', 'category', 'tag', 'type', 'limit', 'status', 'lang', 'action', 'filter', 'view'];
+        foreach ($scalarKeys as $key) {
+            if (isset($_GET[$key]) && !is_scalar($_GET[$key])) {
+                unset($_GET[$key]);
+                if (isset($_REQUEST[$key]) && !is_scalar($_REQUEST[$key])) {
+                    unset($_REQUEST[$key]);
+                }
+            }
+        }
     }
 }

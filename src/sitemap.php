@@ -137,7 +137,7 @@ if (!class_exists('SitemapGenerator')) {
     {
       $content = $this->generateAsString();
 
-      if (!$this->isSsgMode) {
+      if (!$this->isSsgMode && (!function_exists('grinds_is_primary_base_url') || grinds_is_primary_base_url())) {
         $dir = dirname($this->cacheFile);
         $tempFile = tempnam($dir, 'sitemap_');
         if ($tempFile !== false) {

@@ -452,7 +452,7 @@ function _theme_generate_json_ld(string $siteName, string $pageType, string $pag
 
         $articleIdx = -1;
         if ($pageType === 'single') {
-            $plainTextContent = trim(preg_replace('/\s+/u', ' ', grinds_extract_text_from_content($rawContent)));
+            $plainTextContent = trim(preg_replace('/\s+/u', ' ', grinds_extract_text_from_content(grinds_url_to_view((string)$rawContent))));
 
             $lang = strtolower(grinds_get_current_language());
             $isNonSpacedLang = in_array(substr($lang, 0, 2), ['ja', 'zh', 'ko', 'th', 'vi']);
@@ -706,7 +706,7 @@ function _theme_generate_canonical_url(string $pageType, array $pageData, string
             }
             break;
         case 'search':
-            $q = isset($_GET['q']) ? $_GET['q'] : '';
+            $q = isset($_GET['q']) && is_scalar($_GET['q']) ? (string)$_GET['q'] : '';
             $urlPath = '/search?q=' . rawurlencode($q);
             break;
     }

@@ -530,85 +530,53 @@ if (!function_exists('get_client_ip')) {
     {
         $ip = $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1';
 
-        $trust = is_proxy_trusted();
-
-        if ($trust) {
-            $trustedIps = [];
-            if (defined('TRUSTED_PROXY_IPS') && TRUSTED_PROXY_IPS !== '') {
-                $trustedIps = is_array(TRUSTED_PROXY_IPS)
-                    ? TRUSTED_PROXY_IPS
-                    : explode(',', (string)TRUSTED_PROXY_IPS);
-                $trustedIps = array_filter(array_map('trim', $trustedIps));
-            }
-
-            if (!empty($trustedIps)) {
-                $isTrusted = false;
-                foreach ($trustedIps as $range) {
-                    if (grinds_ip_in_range($ip, trim($range))) {
-                        $isTrusted = true;
-                        break;
-                    }
-                }
-                if (!$isTrusted) {
-                    $trust = false;
-                }
-            }
+        if (!is_proxy_trusted()) {
+            return $ip;
         }
 
-        if ($trust) {
-            // [FIXED] Merged CF-Connecting-IP and True-Client-IP into the validation loop
-            // to prevent IP spoofing bypasses when trusting proxies.
-            $headers = [
-                'HTTP_CF_CONNECTING_IP',
-                'HTTP_TRUE_CLIENT_IP',
-                'HTTP_CLIENT_IP',
-                'HTTP_X_FORWARDED_FOR',
-                'HTTP_X_FORWARDED',
-                'HTTP_X_CLUSTER_CLIENT_IP',
-                'HTTP_FORWARDED_FOR',
-                'HTTP_FORWARDED'
-            ];
+        $trustedIps = [];
+        if (defined('TRUSTED_PROXY_IPS') && TRUSTED_PROXY_IPS !== '') {
+            $trustedIps = is_array(TRUSTED_PROXY_IPS)
+                ? TRUSTED_PROXY_IPS
+                : explode(',', (string)TRUSTED_PROXY_IPS);
+            $trustedIps = array_values(array_filter(array_map('trim', $trustedIps)));
+        }
 
-            foreach ($headers as $key) {
-                if (array_key_exists($key, $_SERVER) === true) {
-                    $ips = array_map('trim', explode(',', $_SERVER[$key]));
-
-                    // For X-Forwarded-For, the client IP is typically the first one,
-                    // but we reverse it to process from the proxy nearest to the server backwards
-                    $ips = array_reverse($ips);
-
-                    $last_valid_ip = null;
-
-                    foreach ($ips as $possible_ip) {
-                        if (filter_var($possible_ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) !== false) {
-
-                            $last_valid_ip = $possible_ip;
-
-                            // If explicit proxy IPs are defined, verify the possible IP
-                            // isn't just another trusted node in the chain
-                            if (!empty($trustedIps)) {
-                                $isProxyTrusted = false;
-                                foreach ($trustedIps as $range) {
-                                    if (grinds_ip_in_range($possible_ip, trim($range))) {
-                                        $isProxyTrusted = true;
-                                        break;
-                                    }
-                                }
-                                if ($isProxyTrusted) {
-                                    continue;
-                                }
-                                return $possible_ip;
-                            } else {
-                                // Trust all proxies, continue to find the leftmost valid IP
-                                continue;
-                            }
-                        }
-                    }
-
-                    if ($last_valid_ip !== null) {
-                        return $last_valid_ip;
-                    }
+        $isTrustedProxy = function (string $candidate) use ($trustedIps): bool {
+            foreach ($trustedIps as $range) {
+                if (grinds_ip_in_range($candidate, $range)) {
+                    return true;
                 }
+            }
+            return false;
+        };
+
+        // Read forwarding headers only when the connection comes from a trusted proxy
+        if (!empty($trustedIps) && !$isTrustedProxy($ip)) {
+            return $ip;
+        }
+
+        // Use X-Forwarded-For only. Headers such as Client-IP, CF-Connecting-IP and
+        // True-Client-IP are passed through unchanged by proxies that do not set them,
+        // so a client could forge them. Cloudflare and other CDNs also append to X-Forwarded-For.
+        $forwarded = $_SERVER['HTTP_X_FORWARDED_FOR'] ?? '';
+        if (!is_string($forwarded) || $forwarded === '') {
+            return $ip;
+        }
+
+        // Walk from the nearest hop backwards: entries on the left are supplied by the client
+        $hops = array_reverse(array_map('trim', explode(',', $forwarded)));
+        foreach ($hops as $hop) {
+            if (filter_var($hop, FILTER_VALIDATE_IP) === false) {
+                // Stop at a malformed entry rather than trusting anything to its left
+                break;
+            }
+            if (empty($trustedIps)) {
+                // Without a trusted list, only the hop added by the nearest proxy is reliable
+                return $hop;
+            }
+            if (!$isTrustedProxy($hop)) {
+                return $hop;
             }
         }
 
@@ -1636,6 +1604,20 @@ if (!function_exists('is_ajax_request')) {
 }
 
 /**
+ * Check if the running script is admin/logout.php.
+ * Uses SCRIPT_NAME only: the request path can carry "logout.php" as PATH_INFO
+ * (e.g. /admin/index.php/logout.php) while another script runs.
+ * @return bool
+ */
+if (!function_exists('grinds_is_admin_logout_request')) {
+    function grinds_is_admin_logout_request(): bool
+    {
+        $scriptPath = isset($_SERVER['SCRIPT_NAME']) ? str_replace('\\', '/', (string)$_SERVER['SCRIPT_NAME']) : '';
+        return basename($scriptPath) === 'logout.php' && basename(dirname($scriptPath)) === 'admin';
+    }
+}
+
+/**
  * Delete records in bulk
  *
  * @param PDO $pdo
@@ -2349,7 +2331,9 @@ if (!function_exists('grinds_download_file')) {
             $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
             curl_close($ch);
 
-            if ($error && $error !== CURLE_ABORTED_BY_CALLBACK) {
+            // Any error fails the download, including the size limit (CURLE_ABORTED_BY_CALLBACK):
+            // a truncated file must not be reported as downloaded
+            if ($error) {
                 break;
             }
 

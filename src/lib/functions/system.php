@@ -63,8 +63,12 @@ function init_system(): void
                 date_default_timezone_set($db_tz);
             }
 
-            // Detect migration
-            if ($isAdminRequest) {
+            // Detect migration. Only a logged-in user who can manage settings records the
+            // site address: any visitor could otherwise send a forged Host header to the
+            // login page, change system_base_url (used as BASE_URL by the CLI) and flush caches.
+            $canRecordBaseUrl = !empty($_SESSION['admin_logged_in'])
+                && function_exists('current_user_can') && current_user_can('manage_settings');
+            if ($isAdminRequest && $canRecordBaseUrl) {
                 $storedUrl = get_option('system_base_url', false);
 
                 $shouldMigrate = false;
@@ -355,6 +359,39 @@ if (!function_exists('grinds_send_noindex_headers')) {
         if (!headers_sent()) {
             header('X-Robots-Tag: noindex, nofollow, noarchive, nosnippet');
         }
+    }
+}
+
+/**
+ * Check whether the request uses the site's own address.
+ * BASE_URL comes from the Host header, so any host name pointed at the server reaches
+ * the site. Caches are written only for the address last used in the admin panel,
+ * so arbitrary Host headers cannot fill the disk with cache files.
+ */
+if (!function_exists('grinds_is_primary_base_url')) {
+    function grinds_is_primary_base_url(): bool
+    {
+        if (!defined('BASE_URL') || !function_exists('get_option')) {
+            return true;
+        }
+        $stored = get_option('system_base_url', '');
+        if (!is_string($stored) || $stored === '') {
+            return true;
+        }
+
+        // Compare host, port and path; http and https serve the same site
+        $normalize = function (string $url): string {
+            $parts = parse_url($url);
+            if (!is_array($parts)) {
+                return '';
+            }
+            $host = strtolower($parts['host'] ?? '');
+            $port = isset($parts['port']) ? ':' . $parts['port'] : '';
+            $path = rtrim($parts['path'] ?? '', '/');
+            return $host . $port . $path;
+        };
+
+        return $normalize($stored) === $normalize(BASE_URL);
     }
 }
 

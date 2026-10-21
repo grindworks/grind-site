@@ -17,7 +17,7 @@ $headers = get_post_toc($contentData);
         <summary class="font-bold cursor-pointer text-gray-800 mb-3 text-lg outline-none">
             <?= h($pageData['post']['toc_title'] ?: theme_t('Contents')) ?>
         </summary>
-        <nav role="navigation" aria-label="<?= theme_t('Contents') ?>">
+        <nav role="navigation" aria-label="<?= h(theme_t('Contents')) ?>">
             <ul class="space-y-2 list-none m-0 p-0">
                 <?php foreach ($headers as $h): ?>
                     <?php
