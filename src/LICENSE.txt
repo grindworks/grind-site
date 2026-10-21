@@ -48,7 +48,11 @@ the Software, other than as part of such a website, is prohibited.
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED.
 THE LICENSOR SHALL NOT BE LIABLE FOR ANY DAMAGES ARISING FROM THE USE OR INABILITY
 TO USE THE SOFTWARE, INCLUDING BUT NOT LIMITED TO LOST PROFITS, BUSINESS INTERRUPTION,
-OR LOSS OF DATA.
+OR LOSS OF DATA, EXCEPT WHERE CAUSED BY THE LICENSOR'S WILLFUL MISCONDUCT OR GROSS
+NEGLIGENCE. WHERE SUCH EXCLUSION IS NOT PERMITTED BY APPLICABLE LAW, INCLUDING THE
+CONSUMER CONTRACT ACT OF JAPAN, THE LICENSOR'S LIABILITY FOR ITS ORDINARY NEGLIGENCE
+SHALL BE LIMITED TO DIRECT AND ORDINARY DAMAGES ACTUALLY INCURRED BY THE USER, NOT
+EXCEEDING JPY 10,000 IN TOTAL.
 
 THE LICENSOR HAS NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS,
 OR MODIFICATIONS UNLESS OTHERWISE AGREED IN A SEPARATE SERVICE CONTRACT.
@@ -132,9 +136,14 @@ for those components. This Agreement continues to apply to the rest of the Softw
 問わず、本ソフトウェアに瑕疵がないことや特定の目的に適合することを含め、一切の
 保証を行いません。
 
-本ソフトウェアの使用または使用不能から生じるいかなる損害（逸失利益、事業の中断、
-データの喪失など）についても、権利者は一切の責任を負いません。また、別途保守契約等
-の合意がない限り、権利者はアップデートや技術サポートを提供する義務を負いません。
+本ソフトウェアの使用または使用不能から生じた損害（逸失利益、事業の中断、データの
+喪失などを含みます）について、権利者は、権利者の故意または重大な過失による場合を
+除き、一切の責任を負いません。ただし、消費者契約法その他の法令により前段の免責が
+認められない場合、権利者の責任は、権利者の軽過失によりユーザーに直接かつ現実に
+生じた通常の損害に限られ、その総額は1万円を上限とします。
+
+また、別途保守契約等の合意がない限り、権利者はアップデートや技術サポートを提供する
+義務を負いません。
 
 
 5. サポートサービスについて
