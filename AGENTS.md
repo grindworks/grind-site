@@ -1,6 +1,6 @@
-# GrindSite Core AI Rules
+# GrindSite Core AI Rules (CMS, folder `grind-site`)
 
-> Shared rules for every Grind product: [`../AGENTS.md`](../AGENTS.md). This file adds GrindSite Core rules and wins where the two differ.
+> Shared rules: [`../AGENTS.md`](../AGENTS.md). Product type: CMS, a PHP web app on the user's own server. It is not a Mac app and not local-first, so only shared §1 and §6 apply (and §4 in spirit). The "Offline is peace", Mac-only, Keychain and no-Tailwind / no-Alpine.js rules do not apply here: it has logins, update checks and online features. This file adds GrindSite Core rules and wins where the two differ. Not to be confused with `../grind-site-app` (the GrindSite Mac app): the two are separate products.
 
 ## 1. Environment & Architecture
 
