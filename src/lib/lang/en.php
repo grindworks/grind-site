@@ -935,6 +935,8 @@ return [
     'st_current_ver' => 'Current Version',
     'st_latest_ver' => 'Latest Version',
     'st_up_to_date' => 'System is up to date',
+    'st_update_check_failed' => 'Could not check for updates',
+    'st_update_check_failed_desc' => 'The update information on GitHub could not be reached. Check the server\'s internet connection and try again. Sites on networks without internet access cannot check for updates; update them manually.',
     'st_update_available' => 'New version available',
     'st_release_date' => 'Release Date',
     'st_update_backup_msg' => 'Please create a database backup before updating.',
@@ -1785,6 +1787,8 @@ return [
     'plugins_guide_desc' => 'To add a new plugin, simply upload a PHP file to the <code>src/plugins/</code> directory on your server. For documentation on available hooks and filters, please refer to the <code>README.txt</code> file located in the same directory. Note: Editing plugin code directly from this panel is not supported for security reasons.',
     'plugins_quarantined_title' => 'Plugin Auto-Quarantined',
     'plugins_quarantined_desc' => 'A fatal error occurred in the following plugin. It has been automatically disabled to protect your site. Please fix the code and re-enable it.',
+    'plugins_bundled_update_title' => 'A newer bundled version is available',
+    'plugins_bundled_update_desc' => 'This update includes a newer version of this plugin as %2$s. Your %1$s has been edited, so it was not replaced. Compare the two files, copy your settings into %2$s, delete %1$s (for example by FTP), then enable the new version here.',
     'plugin_error_label' => 'Last Error Message:',
     'msg_plugin_quarantined_toast' => 'Plugin disabled due to an error. Please check the cause.',
 ];

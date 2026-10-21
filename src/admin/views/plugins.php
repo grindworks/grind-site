@@ -112,6 +112,18 @@ if (!defined('GRINDS_APP')) exit; ?>
                                 endif;
                                 ?>
 
+                                <?php if (!empty($plugin['bundled_update'])): ?>
+                                    <div class="mt-3 p-3 bg-theme-warning/5 border border-theme-warning/30 rounded-theme text-theme-warning text-xs max-w-lg">
+                                        <p class="font-bold flex items-center gap-1.5 mb-1">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-exclamation-triangle"></use>
+                                            </svg>
+                                            <?= _t('plugins_bundled_update_title') ?>
+                                        </p>
+                                        <p class="opacity-80 leading-relaxed"><?= h(sprintf(_t('plugins_bundled_update_desc'), $plugin['file'], '_' . $plugin['file'])) ?></p>
+                                    </div>
+                                <?php endif; ?>
+
                                 <div class="md:hidden mt-2 text-xs text-theme-text/80 leading-relaxed">
                                     <?= nl2br(h($plugin['description'])) ?>
                                 </div>

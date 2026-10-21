@@ -935,6 +935,8 @@ return [
     'st_current_ver' => 'Aktuelle Version',
     'st_latest_ver' => 'Neueste Version',
     'st_up_to_date' => 'System ist auf dem neuesten Stand',
+    'st_update_check_failed' => 'Updates konnten nicht geprüft werden',
+    'st_update_check_failed_desc' => 'Die Update-Informationen auf GitHub waren nicht erreichbar. Prüfen Sie die Internetverbindung des Servers und versuchen Sie es erneut. Websites in Netzwerken ohne Internetzugang können nicht nach Updates suchen; aktualisieren Sie diese manuell.',
     'st_update_available' => 'Neue Version verfügbar',
     'st_release_date' => 'Veröffentlichungsdatum',
     'st_update_backup_msg' => 'Bitte erstellen Sie vor dem Update ein Datenbank-Backup.',
@@ -1785,6 +1787,8 @@ return [
     'plugins_guide_desc' => 'Um ein neues Plugin hinzuzufügen, laden Sie einfach eine PHP-Datei in das Verzeichnis <code>src/plugins/</code> auf Ihrem Server hoch. Für die Dokumentation der verfügbaren Hooks und Filter lesen Sie bitte die Datei <code>README.txt</code> im selben Verzeichnis. Hinweis: Die direkte Bearbeitung des Plugin-Codes über dieses Panel wird aus Sicherheitsgründen nicht unterstützt.',
     'plugins_quarantined_title' => 'Plugin automatisch isoliert',
     'plugins_quarantined_desc' => 'Dieses Plugin wurde aufgrund eines schwerwiegenden Fehlers automatisch deaktiviert, um die Website zu schützen. Bitte beheben Sie den Code, bevor Sie es wieder aktivieren.',
+    'plugins_bundled_update_title' => 'Eine neuere mitgelieferte Version ist verfügbar',
+    'plugins_bundled_update_desc' => 'Dieses Update enthält eine neuere Version dieses Plugins als %2$s. Ihre Datei %1$s wurde bearbeitet und daher nicht ersetzt. Vergleichen Sie beide Dateien, übertragen Sie Ihre Einstellungen in %2$s, löschen Sie %1$s (zum Beispiel per FTP) und aktivieren Sie dann hier die neue Version.',
     'plugin_error_label' => 'Letzter Fehler:',
     'msg_plugin_quarantined_toast' => 'Plugin wegen eines Fehlers deaktiviert. Bitte überprüfen Sie die Ursache.',
 ];

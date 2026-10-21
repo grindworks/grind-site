@@ -89,6 +89,9 @@ if (!function_exists('grinds_get_plugins')) {
                 }
             }
 
+            // Enabled bundled plugins that were edited and so kept their old code
+            $editedBundled = function_exists('grinds_sync_bundled_plugins') ? grinds_sync_bundled_plugins($pluginDir) : [];
+
             $files = glob($pluginDir . '/*.php');
             if (is_array($files)) {
                 foreach ($files as $file) {
@@ -112,7 +115,8 @@ if (!function_exists('grinds_get_plugins')) {
                         'name' => $data['Name'],
                         'description' => $data['Description'],
                         'version' => $data['Version'],
-                        'author' => $data['Author']
+                        'author' => $data['Author'],
+                        'bundled_update' => $isActive && in_array($filename, $editedBundled, true)
                     ];
                 }
             }
@@ -128,9 +132,98 @@ if (!function_exists('grinds_get_plugins')) {
     }
 }
 
+/**
+ * Bring enabled bundled plugins up to date.
+ *
+ * Enabling a plugin renames _foo.php to foo.php, but updates only write _foo.php,
+ * so an enabled plugin never received fixes and the new _foo.php blocked toggling.
+ * Once per version, replace foo.php with the bundled _foo.php when foo.php is an
+ * unmodified earlier release (its hash is in lib/bundled_plugin_hashes.php), and
+ * remove the duplicate _foo.php. Edited copies are left alone and listed so the
+ * Plugins page can tell the user.
+ *
+ * @return string[] Enabled plugin files that were edited and therefore not replaced
+ */
+if (!function_exists('grinds_sync_bundled_plugins')) {
+    function grinds_sync_bundled_plugins(string $pluginDir): array
+    {
+        $markerFile = ROOT_PATH . '/data/plugin_sync.json';
+        $version = defined('CMS_VERSION') ? CMS_VERSION : '';
+
+        $marker = is_file($markerFile) ? json_decode((string)@file_get_contents($markerFile), true) : null;
+        if (is_array($marker) && ($marker['version'] ?? '') === $version && is_array($marker['edited'] ?? null)) {
+            return $marker['edited'];
+        }
+
+        $hashFile = ROOT_PATH . '/lib/bundled_plugin_hashes.php';
+        $known = is_file($hashFile) ? require $hashFile : [];
+        if (!is_array($known)) {
+            $known = [];
+        }
+
+        $edited = [];
+        foreach ($known as $name => $releasedHashes) {
+            if (!is_string($name) || !preg_match('/^[a-z0-9_]+\.php$/', $name) || !is_array($releasedHashes)) {
+                continue;
+            }
+            $enabledFile = $pluginDir . '/' . $name;
+            $bundledFile = $pluginDir . '/_' . $name;
+            if (!is_file($enabledFile) || !is_file($bundledFile)) {
+                continue;
+            }
+
+            $enabledHash = hash_file('sha256', $enabledFile);
+            $bundledHash = hash_file('sha256', $bundledFile);
+            if ($enabledHash === false || $bundledHash === false) {
+                continue;
+            }
+
+            if ($enabledHash === $bundledHash) {
+                // Already current: drop the duplicate so the plugin can be toggled again
+                @unlink($bundledFile);
+                continue;
+            }
+
+            if (!in_array($enabledHash, $releasedHashes, true)) {
+                $edited[] = $name;
+                continue;
+            }
+
+            // Replace atomically so a concurrent request never includes a partial file
+            $tempFile = $enabledFile . '.' . bin2hex(random_bytes(4)) . '.tmp';
+            if (@copy($bundledFile, $tempFile) && @rename($tempFile, $enabledFile)) {
+                @unlink($bundledFile);
+                if (function_exists('opcache_invalidate')) {
+                    @opcache_invalidate($enabledFile, true);
+                }
+                if (class_exists('GrindsLogger')) {
+                    GrindsLogger::log("Updated enabled plugin {$name} to the bundled version.", 'INFO');
+                }
+            } else {
+                @unlink($tempFile);
+            }
+        }
+
+        $dataDir = ROOT_PATH . '/data';
+        if (is_dir($dataDir) && is_writable($dataDir)) {
+            @file_put_contents($markerFile, json_encode(['version' => $version, 'edited' => $edited]), LOCK_EX);
+        }
+
+        return $edited;
+    }
+}
+
 (function () {
     $pluginDir = ROOT_PATH . '/plugins';
     $currentPlugin = null;
+
+    if (is_dir($pluginDir) && function_exists('grinds_sync_bundled_plugins')) {
+        try {
+            grinds_sync_bundled_plugins($pluginDir);
+        } catch (\Throwable $e) {
+            // Never block plugin loading
+        }
+    }
 
     // Helper closure to handle plugin quarantine (DRY)
     $quarantinePlugin = function ($pluginFile, $errorMsg, $errorLine) use ($pluginDir) {

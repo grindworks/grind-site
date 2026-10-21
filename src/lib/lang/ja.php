@@ -935,6 +935,8 @@ return [
     'st_current_ver' => '現在のバージョン',
     'st_latest_ver' => '最新バージョン',
     'st_up_to_date' => 'システムは最新です',
+    'st_update_check_failed' => '更新を確認できませんでした',
+    'st_update_check_failed_desc' => 'GitHub の更新情報に接続できませんでした。サーバーのインターネット接続を確認して、もう一度お試しください。インターネットに接続できないネットワークのサイトでは更新を確認できないため、手動で更新してください。',
     'st_update_available' => '新しいバージョンが利用可能です',
     'st_release_date' => 'リリース日',
     'st_update_backup_msg' => 'アップデート前に必ずデータベースのバックアップを作成してください。',
@@ -1785,6 +1787,8 @@ return [
     'plugins_guide_desc' => '新しいプラグインを追加するには、サーバーの <code>src/plugins/</code> ディレクトリにPHPファイルをアップロードしてください。開発方法や利用可能なフックについては、同ディレクトリ内にある <code>README.txt</code> を参照してください。※セキュリティのため、管理画面からコードを直接編集する機能はありません。',
     'plugins_quarantined_title' => 'プラグインを自動隔離しました',
     'plugins_quarantined_desc' => '以下のプラグインで致命的なエラーが発生したため、サイトを保護するために自動的に無効化されました。コードを修正してから再度有効化してください。',
+    'plugins_bundled_update_title' => '同梱の新しいバージョンがあります',
+    'plugins_bundled_update_desc' => '今回の更新で、このプラグインの新しいバージョンが %2$s として追加されました。%1$s は編集されているため、置き換えていません。2つのファイルを比べて設定を %2$s に移し、%1$s を（FTP などで）削除してから、ここで新しいバージョンを有効にしてください。',
     'plugin_error_label' => '最後のエラー内容:',
     'msg_plugin_quarantined_toast' => 'エラーのためプラグインを無効化しました。原因を確認してください。',
 ];

@@ -935,6 +935,8 @@ return [
     'st_current_ver' => 'Versão Atual',
     'st_latest_ver' => 'Última Versão',
     'st_up_to_date' => 'O sistema está atualizado',
+    'st_update_check_failed' => 'Não foi possível verificar atualizações',
+    'st_update_check_failed_desc' => 'Não foi possível acessar as informações de atualização no GitHub. Verifique a conexão com a Internet do servidor e tente novamente. Sites em redes sem acesso à Internet não podem verificar atualizações; atualize-os manualmente.',
     'st_update_available' => 'Nova versão disponível',
     'st_release_date' => 'Data de Lançamento',
     'st_update_backup_msg' => 'Por favor, crie um backup do banco de dados antes de atualizar.',
@@ -1785,6 +1787,8 @@ return [
     'plugins_guide_desc' => 'Para adicionar um novo plugin, basta fazer o upload de um arquivo PHP para o diretório <code>src/plugins/</code> do seu servidor. Para documentação sobre hooks e filtros disponíveis, consulte o arquivo <code>README.txt</code> localizado no mesmo diretório. Nota: A edição do código do plugin diretamente deste painel não é suportada por motivos de segurança.',
     'plugins_quarantined_title' => 'Plugin isolado automaticamente',
     'plugins_quarantined_desc' => 'Ocorreu um erro fatal no seguinte plugin. Ele foi desativado automaticamente para proteger seu site. Corrija o código e ative-o novamente.',
+    'plugins_bundled_update_title' => 'Há uma versão incluída mais recente',
+    'plugins_bundled_update_desc' => 'Esta atualização inclui uma versão mais recente deste plugin como %2$s. Seu arquivo %1$s foi editado e, por isso, não foi substituído. Compare os dois arquivos, copie suas configurações para %2$s, exclua %1$s (por exemplo, via FTP) e depois ative aqui a nova versão.',
     'plugin_error_label' => 'Última mensagem de erro:',
     'msg_plugin_quarantined_toast' => 'Plugin desativado devido a um erro. Verifique a causa.',
 ];

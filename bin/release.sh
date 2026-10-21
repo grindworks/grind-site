@@ -99,6 +99,8 @@ else
 fi
 sed -i '' 's/^# GrindSite Core v.*/# GrindSite Core v'"$RAW_VERSION"'/' README.md
 sed -i '' 's/version-[0-9\.]*-blue\.svg/version-'"$RAW_VERSION"'-blue.svg/' README.md
+# Record the hash of every released version of each bundled plugin (used to update enabled plugins)
+php bin/update_plugin_hashes.php >/dev/null || fail "Could not update src/lib/bundled_plugin_hashes.php."
 
 echo "📦 Committing changes..."
 git add -A

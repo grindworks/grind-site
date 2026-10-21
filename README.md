@@ -126,6 +126,10 @@ Themes and skins that are not bundled with GrindSite Core (for example, a theme 
 >
 > The behavior in the table above applies once your site runs v1.7.4 or later.
 
+#### Bundled plugins
+
+Enabling a bundled plugin renames `plugins/_name.php` to `plugins/name.php`, and an update adds the new version as `_name.php` again. From v1.8.1, GrindSite Core then replaces your enabled `name.php` with the new version and removes the duplicate `_name.php`, but only if you have not edited `name.php`. If you edited it (for example to set allowed IPs or passwords), it is left unchanged and the **Plugins** page shows a notice: copy your settings into `_name.php`, delete `name.php`, then enable the new version.
+
 #### Manual update
 
 Upload the contents of the release zip over your installation, except `install.php`. The zip does not contain `config.php` or `data/`, so those stay as they are.
@@ -483,6 +487,10 @@ GrindSite Core に同梱されていないテーマやスキン（ご自身で�
 > - チェックを外すと、同梱テーマとスキンはすべて上書きされ、削除したものも復活します。`data/theme_backups/` への**保存も行われません**。同梱テーマを独自に変更している場合は、更新前にコピーしておいてください。
 >
 > 上の表の動作になるのは、サイトが v1.7.4 以降になってからの更新です。
+
+#### 同梱プラグイン
+
+同梱プラグインを有効にすると `plugins/_name.php` が `plugins/name.php` に名前が変わり、アップデートでは新しいバージョンが再び `_name.php` として追加されます。v1.8.1 以降、GrindSite Core は、有効化済みの `name.php` を編集していない場合に限り、それを新しいバージョンで置き換え、重複した `_name.php` を削除します。`name.php` を編集している場合（許可するIPやパスワードの設定など）は変更せず、**プラグイン** 画面にお知らせを表示します。設定を `_name.php` に移し、`name.php` を削除してから、新しいバージョンを有効にしてください。
 
 #### 手動での更新
 

@@ -935,6 +935,8 @@ return [
     'st_current_ver' => 'Version actuelle',
     'st_latest_ver' => 'Dernière version',
     'st_up_to_date' => 'Le système est à jour',
+    'st_update_check_failed' => 'Impossible de vérifier les mises à jour',
+    'st_update_check_failed_desc' => 'Les informations de mise à jour sur GitHub sont inaccessibles. Vérifiez la connexion Internet du serveur et réessayez. Les sites sur un réseau sans accès à Internet ne peuvent pas vérifier les mises à jour ; mettez-les à jour manuellement.',
     'st_update_available' => 'Nouvelle version disponible',
     'st_release_date' => 'Date de sortie',
     'st_update_backup_msg' => 'Veuillez créer une sauvegarde de la base de données avant la mise à jour.',
@@ -1785,6 +1787,8 @@ return [
     'plugins_guide_desc' => 'Pour ajouter un nouveau plugin, téléversez simplement un fichier PHP dans le répertoire <code>src/plugins/</code> de votre serveur. Pour la documentation sur les hooks et filtres disponibles, veuillez vous référer au fichier <code>README.txt</code> situé dans le même répertoire. Remarque : l\'édition directe du code du plugin depuis ce panneau n\'est pas prise en charge pour des raisons de sécurité.',
     'plugins_quarantined_title' => 'Plugin mis en quarantaine automatiquement',
     'plugins_quarantined_desc' => 'Une erreur fatale s\'est produite dans le plugin suivant. Il a été automatiquement désactivé pour protéger votre site. Veuillez corriger le code et le réactiver.',
+    'plugins_bundled_update_title' => 'Une version plus récente est fournie',
+    'plugins_bundled_update_desc' => 'Cette mise à jour fournit une version plus récente de ce plugin sous le nom %2$s. Votre fichier %1$s a été modifié et n\'a donc pas été remplacé. Comparez les deux fichiers, reportez vos réglages dans %2$s, supprimez %1$s (par exemple par FTP), puis activez ici la nouvelle version.',
     'plugin_error_label' => 'Dernier message d\'erreur :',
     'msg_plugin_quarantined_toast' => 'Plugin désactivé suite à une erreur. Veuillez vérifier la cause.',
 ];
