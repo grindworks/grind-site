@@ -41,12 +41,15 @@ class GrindsUpdater
       'user_agent' => 'GrindsCMS/' . $currentVersion
     ]);
 
-    if ($json === false) {
+    // Report a failed check so the UI does not claim the site is up to date
+    if ($json === false || $json === '') {
+      $result['error'] = true;
       return $result;
     }
 
     $remoteInfo = json_decode($json, true);
-    if (!$remoteInfo) {
+    if (!is_array($remoteInfo) || !isset($remoteInfo['version'])) {
+      $result['error'] = true;
       return $result;
     }
 

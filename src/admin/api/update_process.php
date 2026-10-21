@@ -148,7 +148,7 @@ try {
         case 'dry_run':
             // Check write permissions of all target paths before making any changes
             $relSource = $inputData['source_dir'] ?? '';
-            if (empty($relSource) || strpos($relSource, '..') !== false) {
+            if (empty($relSource) || strpos($relSource, '..') !== false || !str_starts_with(ltrim((string)$relSource, '/'), 'data/tmp/update_extract')) {
                 throw new Exception("Invalid or missing source directory.");
             }
             $sourceDir = rtrim(ROOT_PATH, '/') . '/' . ltrim($relSource, '/');
@@ -160,7 +160,7 @@ try {
         case 'backup':
             // Backup existing files to allow atomic rollback
             $relSource = $inputData['source_dir'] ?? '';
-            if (empty($relSource) || strpos($relSource, '..') !== false) {
+            if (empty($relSource) || strpos($relSource, '..') !== false || !str_starts_with(ltrim((string)$relSource, '/'), 'data/tmp/update_extract')) {
                 throw new Exception("Invalid or missing source directory.");
             }
             $sourceDir = rtrim(ROOT_PATH, '/') . '/' . ltrim($relSource, '/');
@@ -188,7 +188,7 @@ try {
         case 'apply':
             // Apply update (Overwrite files)
             $relSource = $inputData['source_dir'] ?? '';
-            if (empty($relSource) || strpos($relSource, '..') !== false) {
+            if (empty($relSource) || strpos($relSource, '..') !== false || !str_starts_with(ltrim((string)$relSource, '/'), 'data/tmp/update_extract')) {
                 throw new Exception("Invalid or missing source directory.");
             }
             $sourceDir = rtrim(ROOT_PATH, '/') . '/' . ltrim($relSource, '/');

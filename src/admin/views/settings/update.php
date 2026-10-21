@@ -410,13 +410,19 @@ if (($init_tab ?? '') === 'update') {
     else: ?>
       <div x-data="{ isChecking: false }">
         <div x-show="!isChecking" class="flex flex-col justify-center items-center py-16 px-4 bg-theme-bg/30 border border-theme-border rounded-theme text-center">
-          <div class="flex justify-center items-center w-16 h-16 mb-4 rounded-full bg-theme-success/10 text-theme-success">
+          <?php $checkFailed = !empty($status['error']); ?>
+          <div class="flex justify-center items-center w-16 h-16 mb-4 rounded-full <?= $checkFailed ? 'bg-theme-warning/10 text-theme-warning' : 'bg-theme-success/10 text-theme-success' ?>">
             <svg class="w-8 h-8" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-              <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#outline-check-circle"></use>
+              <use href="<?= grinds_asset_url('assets/img/sprite.svg') ?>#<?= $checkFailed ? 'outline-exclamation-triangle' : 'outline-check-circle' ?>"></use>
             </svg>
           </div>
 
-          <h3 class="mb-3 font-bold text-theme-success text-xl"><?= _t('st_up_to_date') ?></h3>
+          <?php if ($checkFailed): ?>
+            <h3 class="mb-3 font-bold text-theme-warning text-xl"><?= _t('st_update_check_failed') ?></h3>
+            <p class="max-w-md mb-2 opacity-70 text-theme-text text-sm leading-relaxed"><?= _t('st_update_check_failed_desc') ?></p>
+          <?php else: ?>
+            <h3 class="mb-3 font-bold text-theme-success text-xl"><?= _t('st_up_to_date') ?></h3>
+          <?php endif; ?>
 
           <div class="flex items-center gap-2 mt-2 px-4 py-2 bg-theme-surface border border-theme-border rounded-full shadow-sm text-sm">
             <span class="opacity-60 text-theme-text font-bold"><?= _t('st_current_ver') ?></span>
