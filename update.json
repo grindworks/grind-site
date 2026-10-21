@@ -1,7 +1,7 @@
 {
-  "version": "1.8.0",
+  "version": "1.8.1",
   "release_date": "2026-10-22",
-  "message": "Free to Use, Offline-Ready",
-  "download_url": "https://github.com/grindworks/grind-site/releases/download/v1.8.0/grindsite-v1.8.0.zip",
-  "sha256": "3e39d8bdf3193672de6242258863d9c64892290a540d737e60b8c334ac0d4150"
+  "message": "Security Fixes",
+  "download_url": "https://github.com/grindworks/grind-site/releases/download/v1.8.1/grindsite-v1.8.1.zip",
+  "sha256": "25fa024c9b2b62991ee97f8a3f6a9826e843e3fc643ae913e5556296c7f5b3b4"
 }
