@@ -1,123 +1,85 @@
 Release title
-v1.8.0 - Free to Use, Offline-Ready
+v1.8.1 - Security Fixes
 
 Release notes
-GrindSite is now **GrindSite Core**, and it is **free to use** on any number of websites, including public production servers. No license key is needed. This release also bundles every library GrindSite Core needs, so a site can be installed and run on a network with no internet access, fixes several security and reliability issues found in an audit, adds third-party license notices, and stops shipping the Bootstrap theme.
+This release fixes security issues found in an audit of v1.8.0, including a way to skip email two-factor authentication, a cross-site scripting issue in the Corporate theme, and client IP spoofing behind a proxy. We recommend updating all sites.
 
 > [!IMPORTANT]
-> **An update is performed by the version that is currently installed.** When you update to v1.8.0, your current version's updater is used, so the safer rollback described under "Updater" takes effect from your next update after this one.
+> **An update is performed by the version that is currently installed.** The changes listed under "Updater" take effect from your next update after this one.
+>
+> **Enabled bundled plugins are now updated.** Previously, an update never changed a bundled plugin you had enabled (for example `plugins/mail_otp_2fa.php`), so it did not receive fixes. After updating to v1.8.1, GrindSite Core replaces each enabled bundled plugin with the new version on the next page load, if you have not edited it. If you edited it (for example to set allowed IPs or passwords), it is not changed and the **Plugins** page shows "A newer bundled version is available" with instructions.
 >
 > **Theme files are updated only when themes are allowed to update:**
-> - **From v1.7.4:** Leave **"Do not update themes and skins"** unchecked (the default). Theme files that change are saved to `data/theme_backups/<date_time>/` first.
+> - **From v1.7.4 or later:** Leave **"Do not update themes and skins"** unchecked (the default). Theme files that change are saved to `data/theme_backups/<date_time>/` first.
 > - **From v1.7.3 or earlier:** The option is labeled **"Do not update/add themes and skins"** and is **checked** by default. While it is checked, the theme changes below are not applied. If you uncheck it, all bundled themes and skins are overwritten without saving copies, and deleted ones are restored, so copy any bundled theme you edited first.
 >
-> If you keep themes from updating, you can apply the theme changes manually by replacing these files with the ones in `grindsite-v1.8.0.zip` (skip any theme you deleted, and re-apply your own edits). They load the bundled Alpine.js first, use the GrindSite Core name, and replace the marketing theme's "Free Trial" sample text; none of them is a security fix:
-> - `theme/default/`: `layout.php`, `contact.php`, `maintenance.php`, `parts/header.php`, `theme.json`
-> - `theme/corporate/`: `layout.php`, `contact.php`, `maintenance.php`
-> - `theme/marketing/`: `layout.php`, `contact.php`, `maintenance.php`, `lang/en.php`, `lang/ja.php`
-> - `theme/neo-minimalist/`: `layout.php`, `contact.php`, `maintenance.php`, `parts/header.php`
-> - `theme/photographer/`: `layout.php`, `contact.php`, `maintenance.php`
-> - `theme/nexus-docs/layout.php`
-> - `theme/classic/maintenance.php`
+> If you keep themes from updating, replace these files with the ones in `grindsite-v1.8.1.zip` (skip any theme you deleted, and re-apply your own edits):
+> - **Security fix:** `theme/corporate/home.php`, `theme/corporate/archive.php`, `theme/classic/functions.php`, `theme/classic/home.php`, `theme/classic/search.php`
+> - Other changes: `theme/corporate/parts/header.php`, `theme/classic/404.php`, `theme/default/parts/toc.php`, `theme/marketing/functions.php`, `theme/neo-minimalist/functions.php`, `theme/neo-minimalist/page.php`, `theme/neo-minimalist/single.php`
 
-### 🆓 Free to Use: GrindSite Core
-- **No license key needed:** The license check, the license key field in **Settings → General**, the "TRIAL" notice in the admin sidebar and footer, and the purchase link are removed. The admin panel no longer contacts the license server.
-- **One-click update for everyone:** The "Update" link in the admin footer and sidebar now opens **Settings → Update** on every site. Previously, sites without a license saw "Update (Manual)", which opened the GitHub releases page.
-- **New name:** The admin panel, installer, error and diagnostic pages, RSS feeds, `llms.txt`, the CLI, the rescue tools and the documentation now call the CMS **GrindSite Core**. The repository, the download file name (`grindsite-vX.Y.Z.zip`) and the update address do not change.
-- A license key you entered earlier stays in the database but is no longer used.
+### 🔒 Security
+- **Email two-factor authentication could be skipped:** With the Mail OTP (2FA) plugin enabled, a user who knew only the password could open the admin panel by adding `/logout.php` to a URL (for example `/admin/index.php/logout.php`). The Strict Session and Audit Logger plugins had the same check. They now recognize only the real `admin/logout.php`.
+- **Corporate theme:** The hero title and text of a post were shown without escaping, so a user who can edit posts could run script in the browser of an administrator who views the page. They are now escaped. A post whose slug is the name of a theme template (`home`, `single`, `page`, `archive`, `category`, `tag`, `search`, `maintenance`) no longer selects that template.
+- **Client IP behind a proxy:** With **Settings → System → "Trust Proxy Headers"** enabled, a client could set headers such as `Client-IP` or `CF-Connecting-IP` to change the IP address used by login lockout, the admin IP restriction and the rate limiter. GrindSite Core now reads only `X-Forwarded-For`, from the nearest proxy backwards, skipping the addresses in **"Trusted Proxy IPs"**. If you use Cloudflare or another CDN, enter its IP ranges there.
+- **Session IDs:** When the session ID changes (every 15 minutes), the old ID now stops working after 60 seconds, so a stolen cookie cannot be used for the rest of the session.
+- **Forged Host header:** Opening the admin login page with a forged `Host` header no longer changes the stored site address (used by the CLI) or clears the page cache; only a logged-in user who can manage settings records it. Page, sitemap, RSS and `llms.txt` caches are written only for the site's own address, so requests for other host names cannot fill the disk.
+- **SMTP "SSL" was not encrypted:** With **Settings → Mail → Encryption: SSL**, the connection was made without encryption. It now uses implicit TLS, as on port 465. If mail stops working after the update, choose **TLS** for port 587 or **SSL** for port 465.
+- **Basic Auth sample plugin:** The sample passwords (`password123`, `guest2024`) are no longer accepted, passwords are compared in constant time, and public URLs that contain `/admin/` (such as `/category/admin/`) are now protected. If you enabled this plugin without setting your own passwords, visitors will be asked for credentials you must now set in `plugins/basic_auth.php`.
+- **Other hardening:** Post excerpts in the Classic and Corporate themes and translated attribute text in several themes are escaped. X (Twitter) and Instagram embeds match the exact host name. The unused-files cleaner can no longer move `.htaccess` or the trash folder. Admin layout values are validated, so an invalid value cannot break the admin panel. Line breaks in log messages can no longer forge log entries.
 
-### 🔌 Offline / Intranet Use
-- **KaTeX and Prism.js are bundled:** Math blocks and code highlighting (all Prism languages) now work without internet access. Prism is updated from 1.29.0 to 1.30.0, which fixes a known vulnerability (CVE-2024-53382).
-- **Themes load the bundled Alpine.js first:** Previously, themes used the bundled copy only when "Disable External Assets (Local Fallback)" was checked. A CDN is now used only if the bundled file is missing.
-- **Static export includes bundled libraries:** Static export skipped every folder named `vendor`, so exported sites were missing `assets/js/vendor/` and `assets/css/vendor/`. They are now exported.
-- **CDN fallbacks are pinned:** When a bundled file is missing, the admin panel and themes load a fixed library version with Subresource Integrity, instead of "latest".
-- For a fully offline site, check **"Offline Mode (Local Fallback)"** in the installer, or **Settings → Theme → "Disable External Assets (Local Fallback)"**. QR Code, Map and Embed blocks, link cards and update checks still need the internet.
+### 🛠️ Reliability
+- **Strict Session plugin:** It no longer logs users out about every 15 minutes with "Your account was accessed from another device".
+- **Code blocks:** Text that starts with `/` (for example `/usr/local/bin/php -v`) is no longer turned into a site URL when a post is saved. A code block saved before this release may still show your site address in front of such a path; open the post, correct the code and save it.
+- **Meta description:** A post without a description no longer shows `{{CMS_URL}}` in its meta description.
+- **Moving a database to a server without SQLite FTS5:** Saving posts no longer fails, and search falls back to simple matching.
+- **Search:** URLs such as `?q[]=x` no longer cause a server error.
+- **Rate Limiter plugin:** The API limit no longer applies to the admin panel, so bulk actions are not blocked.
+- **Preview images** older than one hour are removed from `assets/uploads/_preview/`.
+- **Link cards:** An empty response from the linked site shows an error message instead of a server error.
 
-### 🔒 Security & Reliability
-- **Password-protected blocks fail closed:** If the server cannot encrypt the protected content (OpenSSL or AES-256-GCM unavailable), the content is now hidden instead of being shown unencrypted.
-- **SVG sanitizer:** Dangerous namespaced attributes such as `xlink:href="javascript:..."` are now removed, and `@import` inside `<style>` is blocked. SVG upload remains admin-only.
-- **Login page:** The "Back to site" link now rejects `redirect_to` values containing a backslash, like the post-login redirect already did.
-- **Trusted proxy ranges:** Invalid prefix lengths (for example `/33`) are now rejected instead of causing errors.
-- **Email 2FA plugin:** One-time codes are compared in constant time.
-
-### 🛠️ Admin Panel
-- **No more false "unsaved changes" warnings:** Settings and other admin forms asked "You have unsaved changes. Discard them and switch tabs?" even when nothing had been changed — for example, after the browser or a password manager autofilled the saved admin login into the Profile tab, or after a color picker was opened. A form now counts as changed only when a value actually differs from what was loaded, and changing a value back clears the warning. Username, email and password fields count only after you type, paste or drop into them.
-- **No login autofill into SMTP settings:** Browsers no longer offer your saved admin login for the SMTP username field.
-
-### ⬆️ Updater (applies to updates performed by v1.8.0 or later)
-- **Honest rollback:** If an update fails, the rollback now checks every restored file and reports a failure instead of claiming success. Files that the failed update added are removed, so the site does not end up with a mix of old and new files.
-- **Backup failures stop the update:** If a file cannot be backed up, the update stops before anything is changed.
-
-### 🎨 Themes
-- **Bootstrap theme removed:** The Bootstrap theme is no longer bundled. Updates never delete files, so if your site has `theme/bootstrap/`, it stays and keeps working as before, but it will not receive fixes and still loads Bootstrap from a CDN. We recommend switching to another theme.
-
-### 📄 Licenses
-- **`THIRD_PARTY_LICENSES.txt`:** New file listing every bundled third-party component (Alpine.js, Chart.js, flatpickr, KaTeX, Prism, Heroicons, Tailwind CSS and others) with its full license text.
-- **Brand icons:** The social icons (X, Facebook, Instagram, LINE, Discord, TikTok, Pinterest, LinkedIn, GitHub, Threads, Twitch) now all come from Simple Icons (CC0), so their origin is documented. They keep the same names, so existing share buttons and themes keep working. The LINE icon is now single-color like the others.
-- **`LICENSE.txt`:** Rewritten for free use. You may use GrindSite Core free of charge, for personal or commercial purposes, on any number of websites, and deliver websites built with it to clients. Redistributing the software itself is still not permitted. Section 4 now excludes liability except for willful misconduct or gross negligence and, where the law does not permit that exclusion, limits liability for ordinary negligence to direct and ordinary damages of up to JPY 10,000. Added Section 8, "Third-Party Components": bundled open source components are licensed under their own licenses, and this Agreement does not restrict those rights. The updater never changes `LICENSE.txt`, so download `grindsite-v1.8.0.zip` to read the new version.
-
-### 📖 Documentation
-- **README:** Renamed to GrindSite Core, replaced the pricing section with the free license terms, updated the offline/intranet section, linked the third-party notices, and corrected the database file name (`data/grinds_*.db`).
-- **Settings → Theme:** The description of "Disable External Assets (Local Fallback)" now matches the new behavior (all languages).
+### ⬆️ Updater (applies to updates performed by v1.8.1 or later)
+- **Failed update checks:** If GitHub cannot be reached, **Settings → Update** shows "Could not check for updates" instead of claiming the site is up to date.
+- A download that exceeds the size limit is reported as failed instead of leaving a partial file.
 
 ---
 
 ## 🇯🇵 日本語 (Japanese)
 
-GrindSite は **GrindSite Core** に名称を変更し、公開サーバーを含む任意の数のウェブサイトで**無料で利用できる**ようになりました。ライセンスキーは不要です。あわせて、GrindSite Core に必要なライブラリをすべて同梱し、インターネットに接続できないネットワークでもインストール・運用できるようにしました。監査で見つかったセキュリティ・信頼性の問題の修正、第三者ライセンス表示の追加、Bootstrap テーマの同梱終了も行いました。
+v1.8.0 の監査で見つかったセキュリティ上の問題を修正しました。メールによる2要素認証を回避できる問題、Corporate テーマのクロスサイトスクリプティング、プロキシ配下でのクライアントIPのなりすましなどが含まれます。すべてのサイトで更新をおすすめします。
 
 > [!IMPORTANT]
-> **更新処理は、現在インストールされているバージョンが行います。** v1.8.0 への更新には現在のバージョンの更新機能が使われるため、下記「更新機能」の安全なロールバックが有効になるのは、今回の次の更新からです。
+> **更新処理は、現在インストールされているバージョンが行います。** 下記「更新機能」の変更が有効になるのは、今回の次の更新からです。
+>
+> **有効化した同梱プラグインも更新されるようになりました。** これまでは、有効にした同梱プラグイン（例: `plugins/mail_otp_2fa.php`）はアップデートで変更されず、修正が届きませんでした。v1.8.1 に更新すると、次にページを開いたときに、編集していない同梱プラグインは新しいバージョンに置き換わります。編集している場合（許可するIPやパスワードの設定など）は変更せず、**プラグイン** 画面に「同梱の新しいバージョンがあります」と手順を表示します。
 >
 > **テーマのファイルは、テーマの更新を許可している場合にのみ更新されます。**
-> - **v1.7.4 から:** **「テーマとスキンを更新しない」** をチェックなし（初期状態）のままにしてください。変更されるテーマのファイルは、事前に `data/theme_backups/<日付_時刻>/` に保存されます。
+> - **v1.7.4 以降から:** **「テーマとスキンを更新しない」** をチェックなし（初期状態）のままにしてください。変更されるテーマのファイルは、事前に `data/theme_backups/<日付_時刻>/` に保存されます。
 > - **v1.7.3 以前から:** オプション名は **「テーマとスキンを更新・追加しない」** で、初期状態で**チェックが入っています**。チェックが入ったままだと、下記のテーマの変更は適用されません。チェックを外すと、同梱テーマとスキンはすべて上書きされ（コピーは保存されません）、削除したものも復活します。同梱テーマを独自に変更している場合は、事前にコピーしておいてください。
 >
-> テーマを更新しない場合は、次のファイルを `grindsite-v1.8.0.zip` 内の同じファイルで置き換えると、テーマの変更を手動で適用できます（削除済みのテーマは対応不要です。独自の変更は反映し直してください）。同梱の Alpine.js を優先する変更、GrindSite Core への名称変更、marketing テーマのサンプル文言（「無料トライアル」）の変更で、いずれもセキュリティ修正ではありません。
-> - `theme/default/`: `layout.php`, `contact.php`, `maintenance.php`, `parts/header.php`, `theme.json`
-> - `theme/corporate/`: `layout.php`, `contact.php`, `maintenance.php`
-> - `theme/marketing/`: `layout.php`, `contact.php`, `maintenance.php`, `lang/en.php`, `lang/ja.php`
-> - `theme/neo-minimalist/`: `layout.php`, `contact.php`, `maintenance.php`, `parts/header.php`
-> - `theme/photographer/`: `layout.php`, `contact.php`, `maintenance.php`
-> - `theme/nexus-docs/layout.php`
-> - `theme/classic/maintenance.php`
+> テーマを更新しない場合は、次のファイルを `grindsite-v1.8.1.zip` 内の同じファイルで置き換えてください（削除済みのテーマは対応不要です。独自の変更は反映し直してください）。
+> - **セキュリティ修正:** `theme/corporate/home.php`、`theme/corporate/archive.php`、`theme/classic/functions.php`、`theme/classic/home.php`、`theme/classic/search.php`
+> - その他の変更: `theme/corporate/parts/header.php`、`theme/classic/404.php`、`theme/default/parts/toc.php`、`theme/marketing/functions.php`、`theme/neo-minimalist/functions.php`、`theme/neo-minimalist/page.php`、`theme/neo-minimalist/single.php`
 
-### 🆓 無料化: GrindSite Core
-- **ライセンスキーが不要に:** ライセンスの確認、**「システム設定 → 一般設定」** のライセンスキー入力欄、管理画面のサイドバーとフッターの「TRIAL」表示、購入ページへのリンクを削除しました。管理画面がライセンスサーバーと通信することはなくなりました。
-- **すべてのサイトでワンクリック更新:** 管理画面のフッターとサイドバーの「Update」リンクは、すべてのサイトで **「システム設定 → アップデート」** を開くようになりました。これまでライセンス未登録のサイトでは「Update (Manual)」と表示され、GitHub のリリースページが開いていました。
-- **名称の変更:** 管理画面、インストーラ、エラー・診断画面、RSS フィード、`llms.txt`、CLI、レスキューツール、ドキュメントでの名称を **GrindSite Core** に変更しました。リポジトリ、ダウンロードファイル名（`grindsite-vX.Y.Z.zip`）、更新の取得先は変わりません。
-- 以前に入力したライセンスキーはデータベースに残りますが、使用されません。
+### 🔒 セキュリティ
+- **メールによる2要素認証を回避できた問題:** Mail OTP (2FA) プラグインが有効な場合、パスワードだけを知っている人が、URL に `/logout.php` を付けるだけ（例: `/admin/index.php/logout.php`）で管理画面を開けました。Strict Session と Audit Logger のプラグインも同じ判定をしていました。今後は本来の `admin/logout.php` だけを判定します。
+- **Corporate テーマ:** 記事のヒーローのタイトルと本文をエスケープせずに表示していたため、記事を編集できるユーザーが、そのページを開いた管理者のブラウザでスクリプトを実行させることができました。エスケープするようにしました。また、テーマのテンプレート名と同じスラッグ（`home`、`single`、`page`、`archive`、`category`、`tag`、`search`、`maintenance`）の記事が、そのテンプレートで表示されることはなくなりました。
+- **プロキシ配下のクライアントIP:** **「システム設定 → システム → プロキシヘッダーを信頼する」** が有効な場合、`Client-IP` や `CF-Connecting-IP` などのヘッダーを付けることで、ログインのロックアウト、管理画面のIP制限、アクセス回数制限に使われるIPアドレスを変えられました。今後は `X-Forwarded-For` だけを、サーバーに近いプロキシから順に読み、**「信頼するプロキシIP」** のアドレスを飛ばして判定します。Cloudflare などの CDN をお使いの場合は、その IP アドレス帯を入力してください。
+- **セッションID:** セッションIDが変わったとき（15分ごと）、古いIDは60秒後に使えなくなるようにしました。盗まれた Cookie がセッションの間ずっと使える状態ではなくなりました。
+- **偽装された Host ヘッダー:** 偽装した `Host` ヘッダーで管理画面のログインページを開いても、保存されているサイトのアドレス（CLI が使用）が変わったり、ページキャッシュが削除されたりしなくなりました。記録するのは、ログイン中で設定を管理できるユーザーのアクセスだけです。ページ、サイトマップ、RSS、`llms.txt` のキャッシュはサイト本来のアドレスに対してのみ作成し、ほかのホスト名へのリクエストでディスクが埋まらないようにしました。
+- **SMTP の「SSL」が暗号化されていなかった問題:** **「システム設定 → メール設定 → 暗号化方式: SSL」** では、暗号化せずに接続していました。今後は 465 番ポートと同じ暗黙の TLS で接続します。更新後にメールが送れなくなった場合は、587 番ポートなら **TLS**、465 番ポートなら **SSL** を選んでください。
+- **Basic 認証のサンプルプラグイン:** サンプルのパスワード（`password123`、`guest2024`）では認証できなくなり、パスワードを定数時間で比較し、`/admin/` を含む公開URL（`/category/admin/` など）も保護するようにしました。独自のパスワードを設定せずにこのプラグインを有効にしていた場合、閲覧者は認証を求められるため、`plugins/basic_auth.php` でパスワードを設定してください。
+- **その他の強化:** Classic と Corporate テーマの記事の抜粋、いくつかのテーマの属性内の翻訳テキストをエスケープするようにしました。X（Twitter）と Instagram の埋め込みは、ホスト名が完全に一致する場合だけ扱います。未使用ファイルの整理で `.htaccess` やゴミ箱フォルダを移動できないようにしました。管理画面のレイアウトの値を検証し、不正な値で管理画面が表示できなくなることを防ぎました。ログのメッセージ中の改行で、ログを偽造できないようにしました。
 
-### 🔌 オフライン・イントラネットでの利用
-- **KaTeX と Prism.js を同梱:** 数式ブロックとコードハイライト（Prism の全言語）が、インターネット接続なしで動作するようになりました。Prism は 1.29.0 から 1.30.0 に更新し、既知の脆弱性（CVE-2024-53382）を解消しました。
-- **テーマは同梱の Alpine.js を優先:** これまでテーマは「外部アセットを無効化（ローカルフォールバック）」がオンのときだけ同梱版を使っていました。今後は同梱ファイルが無い場合にのみ CDN を使います。
-- **静的書き出しに同梱ライブラリを含める:** 静的書き出しが `vendor` という名前のフォルダをすべて除外していたため、書き出したサイトに `assets/js/vendor/` と `assets/css/vendor/` が含まれていませんでした。今後は書き出されます。
-- **CDN フォールバックのバージョン固定:** 同梱ファイルが無い場合、管理画面とテーマは「最新版」ではなく、バージョンを固定し SRI（サブリソース完全性）を付けたライブラリを読み込みます。
-- 完全にオフラインで運用する場合は、インストール時に **「オフラインモード（ローカル優先）」** をチェックするか、**「システム設定 → テーマ → 外部アセットを無効化（ローカルフォールバック）」** を有効にしてください。QRコード・地図・埋め込みブロック、リンクカード、更新の確認はインターネット接続が必要です。
+### 🛠️ 信頼性
+- **Strict Session プラグイン:** 約15分ごとに「別の端末からアクセスされました」とログアウトされることがなくなりました。
+- **コードブロック:** `/` で始まる文字列（例: `/usr/local/bin/php -v`）が、記事の保存時にサイトのURLに変換されなくなりました。このリリースより前に保存したコードブロックでは、そのようなパスの前にサイトのアドレスが表示されていることがあります。記事を開いてコードを直し、保存してください。
+- **メタディスクリプション:** 説明文のない記事のメタディスクリプションに `{{CMS_URL}}` が表示されなくなりました。
+- **SQLite の FTS5 が無いサーバーへのデータベースの移動:** 記事の保存が失敗しなくなり、検索は通常の一致検索で動作します。
+- **検索:** `?q[]=x` のような URL でサーバーエラーにならなくなりました。
+- **Rate Limiter プラグイン:** API の回数制限が管理画面に適用されなくなり、一括操作が止まらなくなりました。
+- **プレビュー画像:** `assets/uploads/_preview/` の1時間以上前のプレビュー画像を削除するようにしました。
+- **リンクカード:** リンク先から空の応答が返った場合に、サーバーエラーではなくエラーメッセージを表示するようにしました。
 
-### 🔒 セキュリティ・信頼性
-- **パスワード保護ブロックを fail-closed に:** サーバーが保護対象の内容を暗号化できない場合（OpenSSL または AES-256-GCM が使えない場合）、暗号化せずに表示するのではなく、表示しないようにしました。
-- **SVG サニタイザ:** `xlink:href="javascript:..."` などの名前空間付きの危険な属性を除去し、`<style>` 内の `@import` をブロックするようにしました。SVG のアップロードは引き続き管理者のみです。
-- **ログイン画面:** 「サイトに戻る」リンクで、バックスラッシュを含む `redirect_to` を拒否するようにしました（ログイン後のリダイレクトと同じ検査）。
-- **信頼するプロキシの範囲指定:** `/33` などの不正なプレフィックス長を、エラーにならずに拒否するようにしました。
-- **メール 2FA プラグイン:** ワンタイムコードを定数時間で比較するようにしました。
-
-### 🛠️ 管理画面
-- **「保存されていない変更」の誤った警告を解消:** システム設定などのフォームで、何も変更していないのに「保存されていない変更があります。破棄してタブを切り替えますか？」と表示されることがありました（ブラウザやパスワード管理ツールが、保存済みの管理者ログインをプロフィールタブに自動入力したときや、カラーピッカーを開いたときなど）。今後は、読み込み時から値が実際に変わった場合にのみ変更ありと判断し、値を元に戻すと警告も消えます。ユーザー名・メール・パスワードの欄は、キーボード入力・貼り付け・ドロップで実際に入力した場合にのみ変更として扱います。
-- **SMTP 設定にログイン情報が自動入力されないように:** ブラウザが SMTP ユーザー名の欄に、保存済みの管理者ログインを候補として出さないようにしました。
-
-### ⬆️ 更新機能（v1.8.0 以降が行う更新に適用）
-- **正確なロールバック:** 更新に失敗した場合、ロールバックで復元したファイルをすべて確認し、失敗があれば成功と表示せずに失敗として報告します。失敗した更新が追加したファイルは削除されるため、新旧のファイルが混在した状態になりません。
-- **バックアップの失敗で更新を中止:** ファイルをバックアップできない場合は、何も変更する前に更新を中止します。
-
-### 🎨 テーマ
-- **Bootstrap テーマの同梱を終了:** Bootstrap テーマは同梱されなくなりました。更新でファイルが削除されることはないため、サイトに `theme/bootstrap/` がある場合はそのまま残り、従来どおり動作します。ただし今後は修正が届かず、Bootstrap も引き続き CDN から読み込みます。別のテーマへの切り替えをおすすめします。
-
-### 📄 ライセンス
-- **`THIRD_PARTY_LICENSES.txt`:** 同梱している第三者コンポーネント（Alpine.js、Chart.js、flatpickr、KaTeX、Prism、Heroicons、Tailwind CSS など）の一覧と、各ライセンスの全文を収録したファイルを追加しました。
-- **ブランドアイコン:** SNS アイコン（X、Facebook、Instagram、LINE、Discord、TikTok、Pinterest、LinkedIn、GitHub、Threads、Twitch）をすべて Simple Icons（CC0）のデータに統一し、出典を明確にしました。アイコン名は変わらないため、既存の共有ボタンやテーマはそのまま動作します。LINE アイコンは他と同じ単色になりました。
-- **`LICENSE.txt`:** 無料で利用できる内容に改訂しました。個人・商用を問わず任意の数のウェブサイトで無料で利用でき、構築したウェブサイトを顧客に納品することもできます。ソフトウェア自体の再配布は引き続きできません。第4条の免責を、故意・重過失の場合を除いて責任を負わない内容とし、法令によりその免責が認められない場合は、軽過失による責任を直接かつ通常の損害に限り1万円を上限とするよう明確にしました。第8条「第三者コンポーネント」を追加しました。同梱のオープンソースコンポーネントにはそれぞれのライセンスが適用され、本契約はその権利を制限しません。更新機能は `LICENSE.txt` を変更しないため、新しい内容は `grindsite-v1.8.0.zip` をダウンロードしてご確認ください。
-
-### 📖 ドキュメント
-- **README:** 名称を GrindSite Core に変更し、料金の節を無料の利用条件に置き換え、オフライン・イントラネットの節を更新し、第三者ライセンス表示へのリンクを追加し、データベースのファイル名（`data/grinds_*.db`）を訂正しました。
-- **システム設定 → テーマ:** 「外部アセットを無効化（ローカルフォールバック）」の説明文を新しい動作に合わせました（全言語）。
+### ⬆️ 更新機能（v1.8.1 以降が行う更新に適用）
+- **更新の確認に失敗した場合:** GitHub に接続できない場合、**「システム設定 → アップデート」** で「最新です」ではなく「更新を確認できませんでした」と表示するようにしました。
+- サイズの上限を超えたダウンロードは、途中までのファイルを残さず、失敗として扱うようにしました。
